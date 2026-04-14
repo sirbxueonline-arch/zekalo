@@ -39,7 +39,7 @@ function JurnalDemo() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-56px)]">
+    <div className="flex min-h-[600px]">
       {/* Sidebar */}
       <div className="w-48 bg-gray-50 border-r border-gray-200 flex flex-col">
         <div className="px-4 py-4 border-b border-gray-200">
@@ -138,7 +138,7 @@ function DavamiyyatDemo() {
   const today = '14 Aprel 2026, Çərşənbə'
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)]">
+    <div className="flex flex-col min-h-[600px]">
       {/* Date header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4 flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -224,7 +224,7 @@ function ZekaDemo() {
   ]
 
   return (
-    <div className="flex h-[calc(100vh-56px)]">
+    <div className="flex min-h-[600px]">
       {/* Left sidebar */}
       <div className="w-56 bg-gray-50 border-r border-gray-200 flex flex-col">
         <div className="px-4 py-4 border-b border-gray-200">
@@ -317,7 +317,7 @@ function MesajlarDemo() {
   ]
 
   return (
-    <div className="flex h-[calc(100vh-56px)]">
+    <div className="flex min-h-[600px]">
       {/* Conversations */}
       <div className="w-72 border-r border-gray-200 flex flex-col bg-white">
         <div className="px-4 py-4 border-b border-gray-200">
@@ -396,7 +396,7 @@ function HesabatlarDemo() {
   ]
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] bg-gray-50">
+    <div className="flex flex-col min-h-[600px] bg-gray-50">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
           <h2 className="font-semibold text-gray-900">Hesabatlar</h2>
@@ -463,7 +463,7 @@ function IbDovletDemo() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] bg-gray-50 overflow-auto">
+    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
           <h2 className="font-semibold text-gray-900">IB & Dövlət Uyğunluğu</h2>
@@ -564,7 +564,7 @@ function MilliPanelDemo() {
   const vals =   [62, 65, 61, 68, 70, 74, 73, 78, 77, 82, 80, 87]
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] bg-gray-50 overflow-auto">
+    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
         <div>
           <p className="text-[10px] text-amber-600 uppercase tracking-wider font-semibold">Nazirlik İdarəetmə Paneli</p>
@@ -664,7 +664,7 @@ function MilliPanelDemo() {
 /* ─── Auto Reports Demo ─── */
 function AvtomatikHesabatlarDemo() {
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] bg-gray-50 overflow-auto">
+    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
         <h2 className="font-semibold text-gray-900">Avtomatik Hesabat Generatoru</h2>
         <p className="text-[11px] text-gray-400">PDF, Excel, E-Gov.az formatında bir kliklə ixrac</p>
@@ -775,7 +775,7 @@ function MelumatDemo() {
   ]
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] bg-gray-50 overflow-auto">
+    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
         <h2 className="font-semibold text-gray-900">Məlumat Suverenliyi Paneli</h2>
         <p className="text-[11px] text-gray-400">Azərbaycan qanunvericiliyinə tam uyğun infrastruktur</p>
@@ -874,7 +874,7 @@ function AnalItikaDemo() {
   ]
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] bg-gray-50 overflow-auto">
+    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
           <h2 className="font-semibold text-gray-900">Trend Analitikası</h2>
@@ -984,7 +984,7 @@ function BildirislerDemo() {
   const tabs = ['Hamısı', 'Kritik', 'Hesabat', 'Sistem']
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] bg-gray-50">
+    <div className="flex flex-col min-h-[600px] bg-gray-50">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
           <h2 className="font-semibold text-gray-900">Bildirişlər</h2>
@@ -1042,7 +1042,7 @@ function EgovDemo() {
   ]
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] bg-gray-50 overflow-auto">
+    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
           <h2 className="font-semibold text-gray-900">E-Gov İnteqrasiya Paneli</h2>
@@ -1137,10 +1137,10 @@ export default function Demo() {
   const DemoContent = demoComponents[id]
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans">
+    <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
       {/* Top bar */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-sm">
-        <div className="h-14 px-5 flex items-center justify-between max-w-screen-2xl mx-auto">
+        <div className="h-14 px-5 flex items-center justify-between max-w-5xl mx-auto">
           <Link
             to="/"
             className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors group"
@@ -1167,15 +1167,17 @@ export default function Demo() {
       </header>
 
       {/* Demo content */}
-      <main className="flex-1">
-        {DemoContent ? (
-          <DemoContent />
-        ) : (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400">
-            <p className="text-lg font-medium mb-2">Demo tapılmadı</p>
-            <Link to="/" className="text-sm text-purple hover:underline">Ana səhifəyə qayıt</Link>
-          </div>
-        )}
+      <main className="flex-1 py-6 px-4">
+        <div className="max-w-5xl mx-auto bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200">
+          {DemoContent ? (
+            <DemoContent />
+          ) : (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400">
+              <p className="text-lg font-medium mb-2">Demo tapılmadı</p>
+              <Link to="/" className="text-sm text-purple hover:underline">Ana səhifəyə qayıt</Link>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   )
