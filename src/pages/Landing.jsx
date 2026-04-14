@@ -170,7 +170,7 @@ export default function Landing() {
               <ChevronRight className="w-3 h-3 text-amber-400" />
             </div>
 
-            <h1 className="font-serif text-[clamp(2.8rem,8vw,7rem)] text-gray-900 tracking-tight leading-[0.95] mb-7 animate-fade-in-up animation-delay-200">
+            <h1 className="font-serif font-bold text-[clamp(2.4rem,7vw,6rem)] text-gray-900 tracking-tight leading-[1.05] mb-7 animate-fade-in-up animation-delay-200">
               Azərbaycanda<br />
               <span className="gradient-text">Rəqəmsal Məktəb</span>
             </h1>
