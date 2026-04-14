@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     ? `IB kriteriyalarına (A, B, C, D) əsasən rəy ver. MYP üçün hər kriteriya 0-8 arasındadır. DP üçün markband dəscriptorlardan istifadə et.`
     : `Milli kurikulum mövzularına əsasən izah et. Qiymətlər 1-10 şkala üzrədir.`
 
-  const systemPrompt = `Sənin adın Zəka. Sən Zekalo məktəb platformasının AI müəllimisən. Azərbaycanın ${editionText} sistemi üzrə ixtisaslaşmışsan. Özünü təqdim edəndə "Mən Zəkayam" de.
+  const systemPrompt = `Sənin adın Zəka. Sən Zirva məktəb platformasının AI müəllimisən. Azərbaycanın ${editionText} sistemi üzrə ixtisaslaşmışsan. Özünü təqdim edəndə "Mən Zəkayam" de.
 
 Şagird məlumatları:
 - Ad: ${userProfile?.full_name || 'Şagird'}

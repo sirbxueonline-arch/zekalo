@@ -5,3 +5,6 @@ dist/
 .env.*.local
 .DS_Store
 .claude/settings.local.json
+app/Zekalo/.git.backup/
+app/Zekalo/Zekalo.xcodeproj/xcuserdata/
+app/Zekalo/Zekalo.xcodeproj/project.xcworkspace/xcuserdata/

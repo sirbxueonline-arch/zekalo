@@ -64,7 +64,7 @@ const stats = [
 ]
 
 const testimonials = [
-  { name: 'Leyla Həsənova', role: 'IB koordinatoru, TISA', text: 'Zekalo IB qiymətləndirməni tamamilə dəyişdi. Artıq kriteriyaları ayrıca izləmirik.' },
+  { name: 'Leyla Həsənova', role: 'IB koordinatoru, TISA', text: 'Zirva IB qiymətləndirməni tamamilə dəyişdi. Artıq kriteriyaları ayrıca izləmirik.' },
   { name: 'Rəşad Quliyev', role: 'Müəllim, Məktəb №6', text: 'Davamiyyət bir toxunuşla. Valideynlər birbaşa xəbərdar olur. Çox vaxt qazanırıq.' },
   { name: 'Nərmin Əliyeva', role: 'Valideyn', text: 'Oğlumun qiymətlərini real vaxtda görürəm. Zəka AI ilə ev tapşırıqlarında da kömək alır.' },
 ]
@@ -93,8 +93,8 @@ export default function Landing() {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#08080F]/80 backdrop-blur-xl border-b border-white/5' : ''}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="font-serif text-2xl">
-            <span className="text-white">Zeka</span>
-            <span className="text-purple-mid">lo</span>
+            <span className="text-white">Zir</span>
+            <span className="text-purple-mid">va</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
@@ -463,7 +463,7 @@ export default function Landing() {
             <div className="text-center mb-16">
               <span className="inline-block text-xs tracking-widest text-purple-mid uppercase font-medium mb-3 glass rounded-full px-4 py-1">Haqqımızda</span>
               <h2 className="font-serif text-4xl md:text-6xl text-white tracking-tight mb-4">
-                Niyə Zekalo yaradıldı?
+                Niyə Zirva yaradıldı?
               </h2>
             </div>
           </RevealCard>
@@ -481,7 +481,7 @@ export default function Landing() {
                   davamiyyət əl ilə qeyd olunur, valideynlər övladlarının vəziyyətindən xəbərsiz qalır.
                 </p>
                 <p className="text-gray-400 leading-relaxed">
-                  Zekalonun qurucusu <strong className="text-white">Kaan Guluzada</strong> inanır ki,
+                  Zirvanın qurucusu <strong className="text-white">Kaan Guluzada</strong> inanır ki,
                   hər bir Azərbaycan şagirdi — istər IB məktəbində, istər dövlət məktəbində oxusun —
                   eyni səviyyəli texnologiyaya layiqdir. Bu bərabərsizlik aradan qaldırılmalıdır.
                 </p>
@@ -504,7 +504,7 @@ export default function Landing() {
                 </div>
                 <p className="text-gray-400 leading-relaxed mb-4">
                   Bu tarixi qərar Azərbaycanda süni intellektin inkişafı üçün yol xəritəsi müəyyən edir.
-                  Zekalo olaraq biz bu stratejiyanı təhsil sahəsində həyata keçirmək üçün hazırıq.
+                  Zirva olaraq biz bu strategiyanı təhsil sahəsində həyata keçirmək üçün hazırıq.
                 </p>
                 <p className="text-gray-400 leading-relaxed">
                   AI artıq Azərbaycanın gələcəyinin bir hissəsidir — və biz bu gələcəyi
@@ -521,7 +521,7 @@ export default function Landing() {
               <p className="font-serif text-xl md:text-2xl text-white leading-relaxed mb-8">
                 "Mən inanıram ki, texnologiya təhsildə bərabərlik yaradır. Bakının mərkəzindəki
                 beynəlxalq məktəbin imkanları ilə rayondakı dövlət məktəbinin imkanları arasında
-                uçurum olmamalıdır. Zekalo bu uçurumu bağlamaq üçün yaradılıb."
+                uçurum olmamalıdır. Zirva bu uçurumu bağlamaq üçün yaradılıb."
               </p>
               <div className="flex items-center justify-center gap-4">
                 <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple to-purple-mid flex items-center justify-center">
@@ -529,7 +529,7 @@ export default function Landing() {
                 </div>
                 <div className="text-left">
                   <p className="text-white font-medium">Kaan Guluzada</p>
-                  <p className="text-sm text-gray-500">Qurucusu, Zekalo</p>
+                  <p className="text-sm text-gray-500">Qurucusu, Zirva</p>
                 </div>
               </div>
             </div>
@@ -559,7 +559,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <SectionHeader
             badge="Fərqimiz"
-            title="Niyə Zekalo?"
+            title="Niyə Zirva?"
             desc=""
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -620,8 +620,8 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
             <div>
               <span className="font-serif text-2xl">
-                <span className="text-white">Zeka</span>
-                <span className="text-purple-mid">lo</span>
+                <span className="text-white">Zir</span>
+                <span className="text-purple-mid">va</span>
               </span>
               <p className="text-sm text-gray-500 mt-3 leading-relaxed">
                 Azərbaycanın məktəb idarəetmə platforması
@@ -652,7 +652,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-gray-600">&copy; {new Date().getFullYear()} Zekalo. Bütün hüquqlar qorunur.</p>
+            <p className="text-xs text-gray-600">&copy; {new Date().getFullYear()} Zirva. Bütün hüquqlar qorunur.</p>
             <div className="flex gap-6">
               <span className="text-xs text-gray-600 hover:text-gray-400 transition-colors cursor-pointer">Məxfilik siyasəti</span>
               <span className="text-xs text-gray-600 hover:text-gray-400 transition-colors cursor-pointer">İstifadə şərtləri</span>

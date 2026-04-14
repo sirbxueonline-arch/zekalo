@@ -414,7 +414,7 @@ export default function ReportCards() {
       doc.setFontSize(8)
       doc.setFont('helvetica', 'normal')
       doc.text(`Yaradılma tarixi: ${generatedDate}`, margin, footerY)
-      doc.text('Zekalo Məktəb İdarəetmə Sistemi', pageW - margin, footerY, { align: 'right' })
+      doc.text('Zirva Məktəb İdarəetmə Sistemi', pageW - margin, footerY, { align: 'right' })
 
       const safeName = (previewData.student?.full_name || 'sagird').replace(/\s+/g, '_')
       doc.save(`${safeName}_sehadetname.pdf`)
@@ -573,7 +573,7 @@ export default function ReportCards() {
                     day: '2-digit', month: 'long', year: 'numeric',
                   })}
                 </p>
-                <p className="text-xs text-gray-400">Zekalo Məktəb İdarəetmə Sistemi</p>
+                <p className="text-xs text-gray-400">Zirva Məktəb İdarəetmə Sistemi</p>
               </div>
             </div>
           </Card>

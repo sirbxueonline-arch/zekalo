@@ -52,7 +52,7 @@ export default function AppLayout() {
   const location = useLocation()
   const { t } = useAuth()
   const titleKey = pageTitleKeys[location.pathname]
-  const title = titleKey ? t(titleKey) : 'Zekalo'
+  const title = titleKey ? t(titleKey) : 'Zirva'
 
   return (
     <div className="min-h-screen flex">
