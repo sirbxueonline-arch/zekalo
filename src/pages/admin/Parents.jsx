@@ -174,13 +174,13 @@ export default function Parents() {
 
   // Bulk import — creates parent account only; student linking done via edit
   async function handleBulkImport(row) {
-    await createUser(row.email.trim(), row.password?.trim() || 'Zekalo2025!', row.full_name.trim())
+    await createUser(row.email.trim(), row.password?.trim() || 'Zirva2025!', row.full_name.trim())
   }
 
   const bulkColumns = [
     { key: 'full_name', label: 'Ad Soyad', required: true, placeholder: 'Rəşad Əliyev' },
     { key: 'email', label: 'E-poçt', required: true, type: 'email', placeholder: 'valideyn@example.com' },
-    { key: 'password', label: 'Şifrə', placeholder: 'Zekalo2025!' },
+    { key: 'password', label: 'Şifrə', placeholder: 'Zirva2025!' },
   ]
 
   const filtered = parents.filter(p =>

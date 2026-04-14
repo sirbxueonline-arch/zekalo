@@ -724,38 +724,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ───── STATS ───── */}
-      <section className="py-24 px-6 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <RevealCard delay={0}>
-            <p className="text-center text-[10px] text-gray-400 uppercase tracking-[0.2em] mb-14">Cari nəticələrimiz</p>
-          </RevealCard>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            {[
-              { value: '12',    suffix: '',    label: 'Pilot Məktəb',   trend: '+3 bu rübdə',    icon: Building2, ic: 'text-purple',    bg: 'bg-purple-light'  },
-              { value: '5247',  suffix: '+',   label: 'Aktiv Şagird',   trend: '+214 bu ay',     icon: GraduationCap, ic: 'text-teal',  bg: 'bg-teal-light'    },
-              { value: '52841', suffix: '',    label: 'S.İ. Sessiyası', trend: '+8k bu həftə',   icon: Sparkles,  ic: 'text-purple',    bg: 'bg-purple-light'  },
-              { value: '99',    suffix: '.9%', label: 'Uptime',         trend: 'Son 12 ay',      icon: Shield,    ic: 'text-amber-600', bg: 'bg-amber-50'      },
-            ].map((s, i) => {
-              const Icon = s.icon
-              return (
-                <RevealCard key={s.label} delay={i * 80}>
-                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center hover:-translate-y-1 transition-all duration-300">
-                    <div className={`w-11 h-11 rounded-xl ${s.bg} flex items-center justify-center mx-auto mb-4`}>
-                      <Icon className={`w-5 h-5 ${s.ic}`} />
-                    </div>
-                    <p className="font-serif text-4xl md:text-5xl text-gray-900 mb-1">
-                      <Counter end={s.value} suffix={s.suffix} />
-                    </p>
-                    <p className="text-sm text-gray-500 mb-3">{s.label}</p>
-                    <span className="text-[10px] text-teal bg-teal-light rounded-full px-2.5 py-1 font-medium">{s.trend}</span>
-                  </div>
-                </RevealCard>
-              )
-            })}
-          </div>
-        </div>
-      </section>
 
       {/* ───── IMPACT DATA ───── */}
       <section className="py-32 px-6 bg-gray-50 relative overflow-hidden">
@@ -1082,27 +1050,24 @@ export default function Landing() {
             <h2 className="font-serif text-5xl md:text-7xl text-gray-900 tracking-tight mb-6 leading-[1.02]">
               Birlikdə<br />quralım
             </h2>
-            <p className="text-lg text-gray-500 mb-3 max-w-xl mx-auto leading-relaxed">
-              Azərbaycanda rəqəmsal təhsilin gələcəyini birgə inşa etmək üçün
-              Zirva komandası ilə əlaqə saxlayın.
-            </p>
-            <p className="text-sm text-purple/60 mb-12 tracking-wide">
-              info@zekalo.az  ·  Bakı, Azərbaycan
+            <p className="text-lg text-gray-500 mb-12 max-w-2xl mx-auto leading-relaxed">
+              Texnologiya hazırdır. Komanda hazırdır. Çatışmayan tək şey — miqyasdır.
+              4,700+ dövlət məktəbini rəqəmsallaşdırmaq üçün Nazirlik tərəfdaşlığına dəvət edirik.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 to="/qeydiyyat"
                 className="group bg-gray-900 text-white rounded-full px-10 py-4 text-sm font-semibold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg shadow-gray-900/20"
               >
-                Platformu sına
+                Platformu sınayın
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <a
-                href="mailto:info@zekalo.az"
+              <button
+                onClick={() => scrollTo('ministry')}
                 className="bg-white border border-gray-200 text-gray-700 rounded-full px-10 py-4 text-sm font-medium hover:border-purple hover:text-purple transition-all shadow-sm"
               >
-                Yazın bizə
-              </a>
+                Nazirlik panelini görün
+              </button>
             </div>
           </RevealCard>
         </div>

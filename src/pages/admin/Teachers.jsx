@@ -174,13 +174,13 @@ export default function Teachers() {
 
   // Bulk import handler — called per-row by BulkAddModal
   async function handleBulkImport(row) {
-    await createUser(row.email.trim(), row.password?.trim() || 'Zekalo2025!', row.full_name.trim())
+    await createUser(row.email.trim(), row.password?.trim() || 'Zirva2025!', row.full_name.trim())
   }
 
   const bulkColumns = [
     { key: 'full_name', label: 'Ad Soyad', required: true, placeholder: 'Aysel Məmmədova' },
     { key: 'email', label: 'E-poçt', required: true, type: 'email', placeholder: 'muellim@mekteb.az' },
-    { key: 'password', label: 'Şifrə', placeholder: 'Zekalo2025!' },
+    { key: 'password', label: 'Şifrə', placeholder: 'Zirva2025!' },
   ]
 
   const filtered = teachers.filter(tc =>

@@ -185,7 +185,7 @@ export default function Students() {
 
   // Bulk import handler — called per-row by BulkAddModal
   async function handleBulkImport(row) {
-    const userId = await createUser(row.email.trim(), row.password?.trim() || 'Zekalo2025!', row.full_name.trim())
+    const userId = await createUser(row.email.trim(), row.password?.trim() || 'Zirva2025!', row.full_name.trim())
 
     const className = row.class_name?.trim()
     if (className) {
@@ -218,7 +218,7 @@ export default function Students() {
   const bulkColumns = [
     { key: 'full_name', label: 'Ad Soyad', required: true, placeholder: 'Əli Əliyev' },
     { key: 'email', label: 'E-poçt', required: true, type: 'email', placeholder: 'sehifad@mekteb.az' },
-    { key: 'password', label: 'Şifrə', placeholder: 'Zekalo2025!' },
+    { key: 'password', label: 'Şifrə', placeholder: 'Zirva2025!' },
     {
       key: 'class_name',
       label: 'Sinif',
