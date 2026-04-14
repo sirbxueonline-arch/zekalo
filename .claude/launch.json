@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Zekalo Dev Server",
+      "runtimeExecutable": "/Users/kaanguluzada/Desktop/zekalo/node_modules/.bin/vite",
+      "runtimeArgs": ["--port", "5173"],
+      "cwd": "/Users/kaanguluzada/Desktop/zekalo",
+      "port": 5173
+    }
+  ]
+}

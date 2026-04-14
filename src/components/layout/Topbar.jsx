@@ -1,0 +1,52 @@
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Bell, Menu } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
+import { supabase } from '../../lib/supabase'
+import Avatar from '../ui/Avatar'
+
+export default function Topbar({ title, onMenuClick }) {
+  const { profile } = useAuth()
+  const navigate = useNavigate()
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (!profile) return
+    supabase
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', profile.id)
+      .eq('read', false)
+      .then(({ count }) => setUnreadCount(count || 0))
+  }, [profile])
+
+  const notifPath = profile?.role === 'parent' ? '/valideyn/bildirisler'
+    : profile?.role === 'student' ? '/profil'
+    : profile?.role === 'teacher' ? '/muellim/profil'
+    : '/admin/dashboard'
+
+  return (
+    <header className="h-16 bg-white border-b border-border-soft flex items-center justify-between px-6">
+      <div className="flex items-center gap-4">
+        <button onClick={onMenuClick} className="lg:hidden text-gray-600 hover:text-gray-900">
+          <Menu className="w-6 h-6" />
+        </button>
+        <h1 className="font-serif text-2xl text-gray-900">{title}</h1>
+      </div>
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => navigate(notifPath)}
+          className="relative text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          <Bell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 bg-purple text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </button>
+        <Avatar name={profile?.full_name} color={profile?.avatar_color} size="sm" />
+      </div>
+    </header>
+  )
+}
