@@ -5,6 +5,7 @@ import AppLayout from './components/layout/AppLayout'
 
 // Landing page
 import Landing from './pages/Landing'
+import Demo from './pages/Demo'
 
 // Auth pages
 import Login from './pages/auth/Login'
@@ -205,6 +206,9 @@ export default function App() {
         {/* System routes */}
         <Route path="/texniki-xidmet" element={<Maintenance />} />
         <Route path="/500" element={<ServerError />} />
+
+        {/* Demo pages (public) */}
+        <Route path="/demo/:id" element={<Demo />} />
 
         {/* Landing page */}
         <Route path="/" element={<PublicOnlyRoute><Landing /></PublicOnlyRoute>} />

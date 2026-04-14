@@ -45,12 +45,12 @@ function Counter({ end, suffix = '', duration = 2000 }) {
 
 /* ─── data ─── */
 const features = [
-  { icon: BookOpen,      title: 'Qiymətləndirmə', desc: 'IB kriteriyaları (A–D) və milli 10 ballıq şkala. Real vaxt sinxronizasiya.',                color: 'purple' },
-  { icon: Calendar,      title: 'Davamiyyət',      desc: 'Bir toxunuşla qeyd. Valideynlər anında xəbərdar olur.',                                      color: 'teal'   },
-  { icon: Sparkles,      title: 'Zəka',             desc: 'Claude ilə işləyən şəxsi süni intellekt müəllimi. 3 dildə fərdi yanaşma.',                  color: 'purple' },
-  { icon: MessageSquare, title: 'Mesajlaşma',       desc: 'Müəllim-valideyn əlaqəsi real vaxtda. Elanlar və fərdi mesajlar.',                          color: 'teal'   },
-  { icon: FileText,      title: 'Hesabatlar',       desc: 'Nazirlik hesabatları, E-Gov.az inteqrasiyası, PDF ixracı.',                                   color: 'purple' },
-  { icon: Award,         title: 'IB & Dövlət',      desc: 'MYP, DP və dövlət kurikulumu bir platformada.',                                              color: 'teal'   },
+  { icon: BookOpen,      title: 'Qiymətləndirmə', desc: 'IB kriteriyaları (A–D) və milli 10 ballıq şkala. Real vaxt sinxronizasiya.',                color: 'purple', demo: '/demo/jurnal'      },
+  { icon: Calendar,      title: 'Davamiyyət',      desc: 'Bir toxunuşla qeyd. Valideynlər anında xəbərdar olur.',                                      color: 'teal',   demo: '/demo/davamiyyat'  },
+  { icon: Sparkles,      title: 'Zəka',             desc: 'Claude ilə işləyən şəxsi süni intellekt müəllimi. 3 dildə fərdi yanaşma.',                  color: 'purple', demo: '/demo/zeka'        },
+  { icon: MessageSquare, title: 'Mesajlaşma',       desc: 'Müəllim-valideyn əlaqəsi real vaxtda. Elanlar və fərdi mesajlar.',                          color: 'teal',   demo: '/demo/mesajlar'    },
+  { icon: FileText,      title: 'Hesabatlar',       desc: 'Nazirlik hesabatları, E-Gov.az inteqrasiyası, PDF ixracı.',                                   color: 'purple', demo: '/demo/hesabatlar'  },
+  { icon: Award,         title: 'IB & Dövlət',      desc: 'MYP, DP və dövlət kurikulumu bir platformada.',                                              color: 'teal',   demo: '/demo/ib-dovlet'   },
 ]
 
 const roles = [
@@ -74,12 +74,12 @@ const marqueeItems = [
 ]
 
 const ministryTools = [
-  { icon: BarChart3,  title: 'Milli İzləmə Paneli',     desc: 'Bütün bağlı məktəblərin real vaxt statistikası. Performans, davamiyyət, S.İ. istifadəsi — bir ekranda.'          },
-  { icon: FileText,   title: 'Avtomatik Hesabatlar',     desc: 'Bir kliklə tam uyğunluqlu hesabatlar. PDF, Excel, E-Gov.az formatında avtomatik ixrac.'                         },
-  { icon: Shield,     title: 'Məlumat Suverenliyi',      desc: 'Bütün təhsil məlumatları Azərbaycan serverlərində saxlanılır. Tam nəzarət dövlət əlindədir.'                     },
-  { icon: TrendingUp, title: 'Trend Analitikası',        desc: 'İllik, rüblük, aylıq müqayisələr. Ən yaxşı və ən zəif performanslı məktəblər — avtomatik aşkar.'               },
-  { icon: Bell,       title: 'Ani Bildirişlər',           desc: 'Kritik hadisələr baş verəndə nazirlik dərhal xəbərdar olur. Heç bir şey gizli qalmır.'                         },
-  { icon: Database,   title: 'E-Gov İnteqrasiyası',       desc: 'ASAN Xidmət və E-Gov.az ilə tam inteqrasiya. Mövcud dövlət infrastrukturu ilə işləyir.'                        },
+  { icon: BarChart3,  title: 'Milli İzləmə Paneli',     desc: 'Bütün bağlı məktəblərin real vaxt statistikası. Performans, davamiyyət, S.İ. istifadəsi — bir ekranda.',         demo: '/demo/milli-panel'           },
+  { icon: FileText,   title: 'Avtomatik Hesabatlar',     desc: 'Bir kliklə tam uyğunluqlu hesabatlar. PDF, Excel, E-Gov.az formatında avtomatik ixrac.',                        demo: '/demo/avtomatik-hesabatlar'  },
+  { icon: Shield,     title: 'Məlumat Suverenliyi',      desc: 'Bütün təhsil məlumatları Azərbaycan serverlərində saxlanılır. Tam nəzarət dövlət əlindədir.',                    demo: '/demo/melumat'               },
+  { icon: TrendingUp, title: 'Trend Analitikası',        desc: 'İllik, rüblük, aylıq müqayisələr. Ən yaxşı və ən zəif performanslı məktəblər — avtomatik aşkar.',              demo: '/demo/analitika'             },
+  { icon: Bell,       title: 'Ani Bildirişlər',           desc: 'Kritik hadisələr baş verəndə nazirlik dərhal xəbərdar olur. Heç bir şey gizli qalmır.',                        demo: '/demo/bildirisler'           },
+  { icon: Database,   title: 'E-Gov İnteqrasiyası',       desc: 'ASAN Xidmət və E-Gov.az ilə tam inteqrasiya. Mövcud dövlət infrastrukturu ilə işləyir.',                       demo: '/demo/egov'                  },
 ]
 
 export default function Landing() {
@@ -380,13 +380,14 @@ export default function Landing() {
               const Icon = f.icon
               return (
                 <RevealCard key={f.title} delay={i * 90}>
-                  <div className="bg-white rounded-2xl p-8 h-full hover:-translate-y-1 transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md hover:border-purple/30">
+                  <Link to={f.demo} className="block bg-white rounded-2xl p-8 h-full hover:-translate-y-1 transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md hover:border-purple/30 group">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${f.color === 'purple' ? 'bg-purple-light' : 'bg-teal-light'}`}>
                       <Icon className={`w-6 h-6 ${f.color === 'purple' ? 'text-purple' : 'text-teal'}`} />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">{f.title}</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
-                  </div>
+                    <p className="text-sm text-gray-500 leading-relaxed mb-4">{f.desc}</p>
+                    <p className="text-xs text-purple font-medium group-hover:underline">Demo →</p>
+                  </Link>
                 </RevealCard>
               )
             })}
@@ -419,13 +420,14 @@ export default function Landing() {
               const Icon = tool.icon
               return (
                 <RevealCard key={tool.title} delay={i * 100}>
-                  <div className="bg-white rounded-2xl p-7 h-full hover:-translate-y-1 transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 group">
+                  <Link to={tool.demo} className="block bg-white rounded-2xl p-7 h-full hover:-translate-y-1 transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 group">
                     <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-5 group-hover:bg-amber-100 transition-all">
                       <Icon className="w-6 h-6 text-amber-600" />
                     </div>
                     <h3 className="text-base font-semibold text-gray-900 mb-2">{tool.title}</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed">{tool.desc}</p>
-                  </div>
+                    <p className="text-sm text-gray-500 leading-relaxed mb-4">{tool.desc}</p>
+                    <p className="text-xs text-amber-600 font-medium group-hover:underline">Demo →</p>
+                  </Link>
                 </RevealCard>
               )
             })}
