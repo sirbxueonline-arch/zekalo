@@ -5,21 +5,21 @@ import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { Eye, EyeOff, Sparkles, BookOpen, Users, BarChart2 } from 'lucide-react'
 
-const features = [
-  { icon: BookOpen, text: 'Rəqəmsal jurnal və qiymətləndirmə' },
-  { icon: Users, text: 'Şagird, müəllim və valideyn panelləri' },
-  { icon: Sparkles, text: 'Zəka — süni intellekt müəllim köməkçisi' },
-  { icon: BarChart2, text: 'IB və dövlət məktəbləri üçün analitika' },
-]
-
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signIn, user, profile } = useAuth()
+  const { signIn, user, profile, t } = useAuth()
   const navigate = useNavigate()
+
+  const features = [
+    { icon: BookOpen, text: t('feat_digital_journal') },
+    { icon: Users,    text: t('feat_role_panels') },
+    { icon: Sparkles, text: t('feat_zeka_assistant') },
+    { icon: BarChart2,text: t('feat_school_analytics') },
+  ]
 
   useEffect(() => {
     if (user && profile) {
@@ -36,11 +36,11 @@ export default function Login() {
       await signIn(email, password)
     } catch (err) {
       if (err?.message?.includes('Invalid login')) {
-        setError('E-poçt və ya şifrə yanlışdır.')
+        setError(t('invalid_login'))
       } else if (err?.message?.includes('Email not confirmed')) {
-        setError('E-poçt hələ təsdiqlənməyib.')
+        setError(t('email_not_confirmed'))
       } else {
-        setError(err?.message || 'Xəta baş verdi. Yenidən cəhd edin.')
+        setError(err?.message || t('error'))
       }
       setLoading(false)
     }
@@ -55,16 +55,12 @@ export default function Login() {
           <span className="font-serif text-2xl text-white tracking-tight">Zirva</span>
         </div>
 
-        <div className="space-y-6">
-          <div>
-            <p className="text-xs font-medium tracking-widest text-purple-200 uppercase mb-3">Məktəb İdarəetmə Sistemi</p>
-            <h2 className="font-serif text-3xl xl:text-4xl text-white leading-tight">
-              Məktəbinizin idarəetməsini rəqəmsallaşdırın
-            </h2>
-          </div>
-          <p className="text-purple-200 text-sm leading-relaxed">
-            IB və dövlət məktəbləri üçün hazırlanmış, Azərbaycan dilinə tam uyğunlaşdırılmış platforma.
-          </p>
+        <div className="space-y-4">
+          <p className="text-xs font-medium tracking-widest text-purple-200 uppercase">{t('login_panel_title')}</p>
+          <h2 className="font-serif text-3xl xl:text-4xl text-white leading-tight">
+            {t('login_panel_headline')}
+          </h2>
+          <p className="text-purple-200 text-sm leading-relaxed">{t('login_panel_body')}</p>
         </div>
 
         <div className="space-y-4">
@@ -84,13 +80,13 @@ export default function Login() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2 justify-center mb-10">
-            <ZirvaIcon className="text-purple" />
+            <img src="/logo.png" alt="Zirva" width="28" height="28" className="object-contain" />
             <span className="font-serif text-2xl text-gray-900">Zirva</span>
           </div>
 
           <div className="mb-8">
-            <h1 className="font-serif text-3xl text-gray-900 mb-2">Xoş gəlmisiniz</h1>
-            <p className="text-sm text-gray-500">Hesabınıza daxil olun</p>
+            <h1 className="font-serif text-3xl text-gray-900 mb-2">{t('welcome')}</h1>
+            <p className="text-sm text-gray-500">{t('login_subtitle')}</p>
           </div>
 
           {error && (
@@ -101,7 +97,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="E-poçt"
+              label={t('email')}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -110,7 +106,7 @@ export default function Login() {
             />
             <div className="relative">
               <Input
-                label="Şifrə"
+                label={t('password')}
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -128,19 +124,19 @@ export default function Login() {
 
             <div className="flex justify-end">
               <Link to="/sifremi-unutdum" className="text-xs text-purple hover:text-purple-dark transition-colors">
-                Şifrəni unutmusunuz?
+                {t('forgot_password')}
               </Link>
             </div>
 
             <Button type="submit" loading={loading} className="w-full">
-              Daxil ol
+              {t('login')}
             </Button>
           </form>
 
           <p className="text-sm text-gray-500 text-center mt-6">
-            Hesabınız yoxdur?{' '}
+            {t('no_account')}{' '}
             <Link to="/qeydiyyat" className="text-purple hover:text-purple-dark font-medium transition-colors">
-              Qeydiyyat
+              {t('signup')}
             </Link>
           </p>
         </div>
@@ -149,11 +145,12 @@ export default function Login() {
   )
 }
 
-function ZirvaIcon({ className = '' }) {
+function ZirvaIcon() {
   return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M14 3L26 23H2L14 3Z" fill="white" fillOpacity="0.15" stroke="white" strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M14 3L20 15H8L14 3Z" fill="white" strokeWidth="0"/>
+      <path d="M14 3L20 15H8L14 3Z" fill="white"/>
     </svg>
   )
 }
+

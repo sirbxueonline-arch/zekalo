@@ -6,6 +6,7 @@ import AppLayout from './components/layout/AppLayout'
 // Landing page
 import Landing from './pages/Landing'
 import Demo from './pages/Demo'
+import InfoPage from './pages/InfoPage'
 
 // Auth pages
 import Login from './pages/auth/Login'
@@ -212,6 +213,28 @@ export default function App() {
 
         {/* Landing page */}
         <Route path="/" element={<PublicOnlyRoute><Landing /></PublicOnlyRoute>} />
+
+        {/* Info pages (footer links) */}
+        <Route path="/ib-diploma"          element={<InfoPage type="ib-diploma" />} />
+        <Route path="/ib-career"           element={<InfoPage type="ib-career" />} />
+        <Route path="/ib-myp"              element={<InfoPage type="ib-myp" />} />
+        <Route path="/ib-pyp"              element={<InfoPage type="ib-pyp" />} />
+        <Route path="/government-schools"  element={<InfoPage type="government-schools" />} />
+        <Route path="/mobile"              element={<InfoPage type="mobile" />} />
+        <Route path="/online-exams"        element={<InfoPage type="online-exams" />} />
+        <Route path="/ceo-letter"          element={<InfoPage type="ceo-letter" />} />
+        <Route path="/resources"           element={<InfoPage type="resources" />} />
+        <Route path="/events"              element={<InfoPage type="events" />} />
+        <Route path="/blog"                element={<InfoPage type="blog" />} />
+        <Route path="/product-portal"      element={<InfoPage type="product-portal" />} />
+        <Route path="/reviews"             element={<InfoPage type="reviews" />} />
+        <Route path="/faq"                 element={<InfoPage type="faq" />} />
+        <Route path="/premium-support"     element={<InfoPage type="premium-support" />} />
+        <Route path="/help"                element={<InfoPage type="support" />} />
+        <Route path="/about"               element={<InfoPage type="about" />} />
+        <Route path="/careers"             element={<InfoPage type="careers" />} />
+        <Route path="/partners"            element={<InfoPage type="partners" />} />
+        <Route path="/contact"             element={<InfoPage type="contact" />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

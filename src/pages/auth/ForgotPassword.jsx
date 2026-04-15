@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { useLang } from '../../contexts/LanguageContext'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { CheckCircle } from 'lucide-react'
 
 export default function ForgotPassword() {
+  const { t } = useLang()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -22,7 +24,7 @@ export default function ForgotPassword() {
       if (error) throw error
       setSent(true)
     } catch {
-      setError('Xəta baş verdi. Yenidən cəhd edin.')
+      setError(t('error'))
     } finally {
       setLoading(false)
     }
@@ -33,12 +35,12 @@ export default function ForgotPassword() {
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <div className="flex items-center gap-2 justify-center mb-6">
-            <ZirvaIconDark />
+            <img src="/logo.png" alt="Zirva" width="28" height="28" className="object-contain" />
             <span className="font-serif text-2xl text-gray-900">Zirva</span>
           </div>
-          <h1 className="font-serif text-3xl text-gray-900 mb-2">Şifrəni sıfırla</h1>
+          <h1 className="font-serif text-3xl text-gray-900 mb-2">{t('reset_password')}</h1>
           <p className="text-sm text-gray-500">
-            E-poçt ünvanınızı daxil edin — şifrə sıfırlama linki göndərəcəyik
+            {t('forgot_subtitle')}
           </p>
         </div>
 
@@ -49,13 +51,13 @@ export default function ForgotPassword() {
                 <CheckCircle className="w-7 h-7 text-teal" />
               </div>
               <div>
-                <p className="font-medium text-gray-900 mb-1">Link göndərildi</p>
+                <p className="font-medium text-gray-900 mb-1">{t('link_sent')}</p>
                 <p className="text-sm text-gray-500">
-                  <strong>{email}</strong> ünvanına şifrə sıfırlama linki göndərildi. E-poçt qutunuzu yoxlayın.
+                  <strong>{email}</strong> {t('link_sent_body')}
                 </p>
               </div>
               <Link to="/daxil-ol" className="inline-block text-sm text-purple hover:text-purple-dark font-medium transition-colors mt-2">
-                Daxil olmağa qayıt
+                {t('back_to_login')}
               </Link>
             </div>
           ) : (
@@ -67,7 +69,7 @@ export default function ForgotPassword() {
               )}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
-                  label="E-poçt"
+                  label={t('email')}
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
@@ -75,12 +77,12 @@ export default function ForgotPassword() {
                   required
                 />
                 <Button type="submit" loading={loading} className="w-full">
-                  Link göndər
+                  {t('send_link')}
                 </Button>
               </form>
               <p className="text-sm text-gray-500 text-center mt-6">
                 <Link to="/daxil-ol" className="text-purple hover:text-purple-dark font-medium">
-                  Geri qayıt
+                  {t('back_to_login')}
                 </Link>
               </p>
             </>
@@ -91,11 +93,3 @@ export default function ForgotPassword() {
   )
 }
 
-function ZirvaIconDark() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M14 3L26 23H2L14 3Z" fill="#534AB7" fillOpacity="0.15" stroke="#534AB7" strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M14 3L20 15H8L14 3Z" fill="#534AB7" strokeWidth="0"/>
-    </svg>
-  )
-}

@@ -117,7 +117,7 @@ export default function Sidebar({ open, onClose }) {
         {/* Logo */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
           <div className="flex items-center gap-2.5">
-            <ZirvaIconDark />
+            <img src="/logo.png" alt="Zirva" width="24" height="24" className="object-contain" />
             <span className="font-serif text-xl text-gray-900 tracking-tight">Zirva</span>
           </div>
           <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-gray-600 p-1">
@@ -173,11 +173,3 @@ export default function Sidebar({ open, onClose }) {
   )
 }
 
-function ZirvaIconDark() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M14 3L26 23H2L14 3Z" fill="#534AB7" fillOpacity="0.15" stroke="#534AB7" strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M14 3L20 15H8L14 3Z" fill="#534AB7" strokeWidth="0"/>
-    </svg>
-  )
-}

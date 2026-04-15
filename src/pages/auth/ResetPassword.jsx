@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { useLang } from '../../contexts/LanguageContext'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 
 export default function ResetPassword() {
+  const { t } = useLang()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
@@ -14,7 +16,7 @@ export default function ResetPassword() {
   async function handleSubmit(e) {
     e.preventDefault()
     if (password !== confirm) {
-      setError('Şifrələr uyğun gəlmir')
+      setError(t('passwords_dont_match'))
       return
     }
     setError('')
@@ -24,7 +26,7 @@ export default function ResetPassword() {
       if (error) throw error
       navigate('/daxil-ol')
     } catch {
-      setError('Xəta baş verdi. Yenidən cəhd edin.')
+      setError(t('error'))
     } finally {
       setLoading(false)
     }
@@ -35,11 +37,11 @@ export default function ResetPassword() {
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <div className="flex items-center gap-2 justify-center mb-6">
-            <ZirvaIconDark />
+            <img src="/logo.png" alt="Zirva" width="28" height="28" className="object-contain" />
             <span className="font-serif text-2xl text-gray-900">Zirva</span>
           </div>
-          <h1 className="font-serif text-3xl text-gray-900 mb-2">Yeni şifrə</h1>
-          <p className="text-sm text-gray-500">Hesabınız üçün yeni şifrə təyin edin</p>
+          <h1 className="font-serif text-3xl text-gray-900 mb-2">{t('new_password_set')}</h1>
+          <p className="text-sm text-gray-500">{t('new_password_subtitle')}</p>
         </div>
 
         <div className="bg-white border border-border-soft rounded-2xl p-8">
@@ -51,24 +53,24 @@ export default function ResetPassword() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Yeni şifrə"
+              label={t('new_password')}
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="Minimum 6 simvol"
+              placeholder={t('new_password_placeholder')}
               required
             />
             <Input
-              label="Şifrəni təsdiqləyin"
+              label={t('confirm_password')}
               type="password"
               value={confirm}
               onChange={e => setConfirm(e.target.value)}
-              placeholder="Şifrəni yenidən daxil edin"
-              error={confirm && password !== confirm ? 'Şifrələr uyğun gəlmir' : ''}
+              placeholder={t('confirm_password_placeholder')}
+              error={confirm && password !== confirm ? t('passwords_dont_match') : ''}
               required
             />
             <Button type="submit" loading={loading} className="w-full">
-              Şifrəni yenilə
+              {t('update_password_btn')}
             </Button>
           </form>
         </div>
@@ -77,11 +79,3 @@ export default function ResetPassword() {
   )
 }
 
-function ZirvaIconDark() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M14 3L26 23H2L14 3Z" fill="#534AB7" fillOpacity="0.15" stroke="#534AB7" strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M14 3L20 15H8L14 3Z" fill="#534AB7" strokeWidth="0"/>
-    </svg>
-  )
-}

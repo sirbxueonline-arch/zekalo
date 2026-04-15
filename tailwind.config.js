@@ -10,7 +10,7 @@ export default {
         'border-soft': '#e8e6f8',
       },
       fontFamily: {
-        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+        serif: ['"DM Serif Display"', 'Georgia', 'serif'],
         sans: ['Inter', 'sans-serif'],
       },
     },
