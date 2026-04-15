@@ -583,15 +583,17 @@ function Counter({ end, suffix = '', duration = 2000, locale = 'az-AZ' }) {
   return <span ref={ref}>{count.toLocaleString(locale)}{suffix}</span>
 }
 
-function LangToggle({ lang, setLang, compact = false }) {
+function LangToggle({ lang, setLang }) {
   const cls = (active) =>
-    `px-2.5 py-1 text-xs font-semibold rounded-full transition-colors ${
-      active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-900'
+    `px-3 py-1.5 text-xs font-bold rounded-full transition-all ${
+      active
+        ? 'bg-purple text-white shadow-sm shadow-purple/30'
+        : 'text-gray-600 hover:text-gray-900'
     }`
   return (
-    <div className={`inline-flex items-center gap-0.5 rounded-full border border-gray-200 bg-white p-0.5 ${compact ? '' : ''}`}>
-      <button onClick={() => setLang('az')} className={cls(lang === 'az')}>AZ</button>
-      <button onClick={() => setLang('en')} className={cls(lang === 'en')}>EN</button>
+    <div className="inline-flex items-center gap-0.5 rounded-full border border-gray-300 bg-gray-100 p-0.5">
+      <button onClick={() => setLang('az')} className={cls(lang === 'az')} aria-pressed={lang === 'az'}>AZ</button>
+      <button onClick={() => setLang('en')} className={cls(lang === 'en')} aria-pressed={lang === 'en'}>EN</button>
     </div>
   )
 }
