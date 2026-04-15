@@ -3,7 +3,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Sparkles, BookOpen, Users, BarChart2 } from 'lucide-react'
+
+const features = [
+  { icon: BookOpen, text: 'Rəqəmsal jurnal və qiymətləndirmə' },
+  { icon: Users, text: 'Şagird, müəllim və valideyn panelləri' },
+  { icon: Sparkles, text: 'Zəka — süni intellekt müəllim köməkçisi' },
+  { icon: BarChart2, text: 'IB və dövlət məktəbləri üçün analitika' },
+]
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -14,7 +21,6 @@ export default function Login() {
   const { signIn, user, profile } = useAuth()
   const navigate = useNavigate()
 
-  // When profile loads after login, redirect to dashboard
   useEffect(() => {
     if (user && profile) {
       const dashboards = { student: '/dashboard', teacher: '/muellim/dashboard', parent: '/valideyn/dashboard', admin: '/admin/dashboard' }
@@ -28,74 +34,110 @@ export default function Login() {
     setLoading(true)
     try {
       await signIn(email, password)
-      // onAuthStateChange will fetch profile, useEffect above will redirect
     } catch (err) {
-      console.error('Login error:', err?.message || err)
       if (err?.message?.includes('Invalid login')) {
         setError('E-poçt və ya şifrə yanlışdır.')
       } else if (err?.message?.includes('Email not confirmed')) {
-        setError('E-poçt təsdiqlənməyib. Supabase panelindən "Confirm email" söndürün.')
+        setError('E-poçt hələ təsdiqlənməyib.')
       } else {
-        setError('Xəta baş verdi: ' + (err?.message || 'Yenidən cəhd edin.'))
+        setError(err?.message || 'Xəta baş verdi. Yenidən cəhd edin.')
       }
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface px-4">
-      <div className="bg-white border border-border-soft rounded-xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="font-serif text-3xl mb-2">
-            <span className="text-gray-900">Zeka</span>
-            <span className="text-purple">lo</span>
-          </h1>
-          <p className="text-sm text-gray-500">Hesabınıza daxil olun</p>
+    <div className="min-h-screen flex">
+      {/* Left branding panel */}
+      <div className="hidden lg:flex lg:w-[440px] xl:w-[480px] bg-[#534AB7] flex-col justify-between p-12 shrink-0">
+        <div className="flex items-center gap-3">
+          <ZirvaIcon />
+          <span className="font-serif text-2xl text-white tracking-tight">Zirva</span>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md px-4 py-3 mb-6 text-sm text-red-700">
-            {error}
+        <div className="space-y-6">
+          <div>
+            <p className="text-xs font-medium tracking-widest text-purple-200 uppercase mb-3">Məktəb İdarəetmə Sistemi</p>
+            <h2 className="font-serif text-3xl xl:text-4xl text-white leading-tight">
+              Məktəbinizin idarəetməsini rəqəmsallaşdırın
+            </h2>
           </div>
-        )}
+          <p className="text-purple-200 text-sm leading-relaxed">
+            IB və dövlət məktəbləri üçün hazırlanmış, Azərbaycan dilinə tam uyğunlaşdırılmış platforma.
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="E-poçt"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="ad@mekteb.az"
-            required
-          />
-          <div className="relative">
+        <div className="space-y-4">
+          {features.map(({ icon: Icon, text }) => (
+            <div key={text} className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                <Icon className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-white/80 text-sm">{text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right form panel */}
+      <div className="flex-1 flex items-center justify-center bg-surface px-6 py-12">
+        <div className="w-full max-w-md">
+          {/* Mobile logo */}
+          <div className="lg:hidden flex items-center gap-2 justify-center mb-10">
+            <ZirvaIcon className="text-purple" />
+            <span className="font-serif text-2xl text-gray-900">Zirva</span>
+          </div>
+
+          <div className="mb-8">
+            <h1 className="font-serif text-3xl text-gray-900 mb-2">Xoş gəlmisiniz</h1>
+            <p className="text-sm text-gray-500">Hesabınıza daxil olun</p>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-6 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Şifrə"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              label="E-poçt"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ad@mekteb.az"
               required
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-[34px] text-gray-400 hover:text-gray-600"
-            >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
-          </div>
+            <div className="relative">
+              <Input
+                label="Şifrə"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[34px] text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
 
-          <Button type="submit" loading={loading} className="w-full">
-            Daxil ol
-          </Button>
-        </form>
+            <div className="flex justify-end">
+              <Link to="/sifremi-unutdum" className="text-xs text-purple hover:text-purple-dark transition-colors">
+                Şifrəni unutmusunuz?
+              </Link>
+            </div>
 
-        <div className="mt-6 text-center space-y-2">
-          <Link to="/sifremi-unutdum" className="text-sm text-purple hover:text-purple-dark transition-colors">
-            Şifrəni unutmusunuz?
-          </Link>
-          <p className="text-sm text-gray-500">
+            <Button type="submit" loading={loading} className="w-full">
+              Daxil ol
+            </Button>
+          </form>
+
+          <p className="text-sm text-gray-500 text-center mt-6">
             Hesabınız yoxdur?{' '}
             <Link to="/qeydiyyat" className="text-purple hover:text-purple-dark font-medium transition-colors">
               Qeydiyyat
@@ -104,5 +146,14 @@ export default function Login() {
         </div>
       </div>
     </div>
+  )
+}
+
+function ZirvaIcon({ className = '' }) {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <path d="M14 3L26 23H2L14 3Z" fill="white" fillOpacity="0.15" stroke="white" strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M14 3L20 15H8L14 3Z" fill="white" strokeWidth="0"/>
+    </svg>
   )
 }

@@ -154,16 +154,16 @@ export default function Dashboard() {
       <div>
         <p className="text-xs tracking-widest text-gray-400 uppercase mb-3">Sürətli keçidlər</p>
         <div className="flex flex-wrap gap-3">
-          <Button onClick={() => navigate('/admin/students')} variant="ghost">
+          <Button onClick={() => navigate('/admin/shagirdler')} variant="ghost">
             <span className="flex items-center gap-2"><UserPlus className="w-4 h-4" /> {t('add_student')}</span>
           </Button>
-          <Button onClick={() => navigate('/admin/teachers')} variant="ghost">
+          <Button onClick={() => navigate('/admin/muelimler')} variant="ghost">
             <span className="flex items-center gap-2"><BookOpen className="w-4 h-4" /> {t('add_teacher')}</span>
           </Button>
-          <Button onClick={() => navigate('/admin/reports')} variant="ghost">
+          <Button onClick={() => navigate('/admin/hesabatlar')} variant="ghost">
             <span className="flex items-center gap-2"><FileText className="w-4 h-4" /> {t('create_report')}</span>
           </Button>
-          <Button onClick={() => navigate('/admin/messages')} variant="ghost">
+          <Button onClick={() => navigate('/admin/mesajlar')} variant="ghost">
             <span className="flex items-center gap-2"><Bell className="w-4 h-4" /> {t('send_announcement')}</span>
           </Button>
         </div>

@@ -1,5 +1,5 @@
 -- ================================================================
--- ZEKALO — FULL DATABASE SETUP (Fresh)
+-- ZIRVA — FULL DATABASE SETUP (Fresh)
 -- Paste this entire file into Supabase SQL Editor and click Run
 -- ================================================================
 
@@ -28,7 +28,7 @@ CREATE TABLE profiles (
   id uuid PRIMARY KEY REFERENCES auth.users ON DELETE CASCADE,
   full_name text NOT NULL,
   email text NOT NULL,
-  role text NOT NULL CHECK (role IN ('student', 'teacher', 'parent', 'admin')),
+  role text NOT NULL CHECK (role IN ('student', 'teacher', 'parent', 'admin', 'super_admin')),
   school_id uuid REFERENCES schools ON DELETE SET NULL,
   edition text CHECK (edition IN ('ib', 'government')),
   language text DEFAULT 'az' CHECK (language IN ('az', 'en', 'ru')),

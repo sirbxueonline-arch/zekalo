@@ -31,37 +31,57 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface px-4">
-      <div className="bg-white border border-border-soft rounded-xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="font-serif text-3xl mb-2">
-            <span className="text-gray-900">Zeka</span>
-            <span className="text-purple">lo</span>
-          </h1>
-          <p className="text-sm text-gray-500">Yeni şifrə təyin edin</p>
+    <div className="min-h-screen flex items-center justify-center bg-surface px-6">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-10">
+          <div className="flex items-center gap-2 justify-center mb-6">
+            <ZirvaIconDark />
+            <span className="font-serif text-2xl text-gray-900">Zirva</span>
+          </div>
+          <h1 className="font-serif text-3xl text-gray-900 mb-2">Yeni şifrə</h1>
+          <p className="text-sm text-gray-500">Hesabınız üçün yeni şifrə təyin edin</p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md px-4 py-3 mb-6 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+        <div className="bg-white border border-border-soft rounded-2xl p-8">
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-6 text-sm text-red-700">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input label="Yeni şifrə" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-          <Input
-            label="Şifrəni təsdiqləyin"
-            type="password"
-            value={confirm}
-            onChange={e => setConfirm(e.target.value)}
-            error={confirm && password !== confirm ? 'Şifrələr uyğun gəlmir' : ''}
-            required
-          />
-          <Button type="submit" loading={loading} className="w-full">
-            Şifrəni yenilə
-          </Button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Yeni şifrə"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Minimum 6 simvol"
+              required
+            />
+            <Input
+              label="Şifrəni təsdiqləyin"
+              type="password"
+              value={confirm}
+              onChange={e => setConfirm(e.target.value)}
+              placeholder="Şifrəni yenidən daxil edin"
+              error={confirm && password !== confirm ? 'Şifrələr uyğun gəlmir' : ''}
+              required
+            />
+            <Button type="submit" loading={loading} className="w-full">
+              Şifrəni yenilə
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
+  )
+}
+
+function ZirvaIconDark() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 3L26 23H2L14 3Z" fill="#534AB7" fillOpacity="0.15" stroke="#534AB7" strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M14 3L20 15H8L14 3Z" fill="#534AB7" strokeWidth="0"/>
+    </svg>
   )
 }

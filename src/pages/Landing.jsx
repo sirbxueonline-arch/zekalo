@@ -211,7 +211,7 @@ export default function Landing() {
                   <div className="w-3 h-3 rounded-full bg-green-400/70" />
                 </div>
                 <div className="flex-1 bg-white rounded-full px-4 py-1.5 text-xs text-gray-400 text-center border border-gray-200">
-                  zekalo.az/nazirlik/panel
+                  zirva.az/nazirlik/panel
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
@@ -1117,7 +1117,7 @@ export default function Landing() {
             <div>
               <p className="text-[10px] tracking-widest text-gray-400 uppercase mb-4">Əlaqə</p>
               <ul className="space-y-2.5">
-                <li><a href="mailto:info@zekalo.az" className="text-sm text-gray-400 hover:text-gray-900 transition-colors">info@zekalo.az</a></li>
+                <li><a href="mailto:info@zirva.az" className="text-sm text-gray-400 hover:text-gray-900 transition-colors">info@zirva.az</a></li>
                 <li><span className="text-sm text-gray-400">Bakı, Azərbaycan</span></li>
               </ul>
             </div>

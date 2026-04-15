@@ -114,53 +114,65 @@ export default function Sidebar({ open, onClose }) {
         <div className="fixed inset-0 bg-black/30 z-40 lg:hidden" onClick={onClose} />
       )}
       <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-border-soft z-50 flex flex-col transition-transform duration-200 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center justify-between px-6 py-5 border-b border-border-soft">
-          <span className="font-serif text-2xl">
-            <span className="text-gray-900">Zeka</span>
-            <span className="text-purple">lo</span>
-          </span>
-          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-gray-600">
-            <X className="w-5 h-5" />
+        {/* Logo */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
+          <div className="flex items-center gap-2.5">
+            <ZirvaIconDark />
+            <span className="font-serif text-xl text-gray-900 tracking-tight">Zirva</span>
+          </div>
+          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-gray-600 p-1">
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                   isActive
                     ? 'bg-purple-light text-purple font-medium'
-                    : 'text-gray-600 hover:bg-surface'
+                    : 'text-gray-600 hover:bg-surface hover:text-gray-900'
                 }`
               }
             >
-              <item.icon className="w-5 h-5 shrink-0" />
+              <item.icon className="w-4 h-4 shrink-0" />
               {item.label}
             </NavLink>
           ))}
         </nav>
 
-        <div className="border-t border-border-soft px-4 py-4">
-          <div className="flex items-center gap-3 mb-3">
+        {/* User footer */}
+        <div className="border-t border-border-soft px-4 py-3">
+          <div className="flex items-center gap-3 mb-2.5">
             <Avatar name={profile?.full_name} color={profile?.avatar_color} size="sm" />
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{profile?.full_name}</p>
-              <p className="text-xs text-gray-400">{t(profile?.role)}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-gray-900 truncate leading-tight">{profile?.full_name}</p>
+              <p className="text-xs text-gray-400 capitalize">{t(profile?.role)}</p>
             </div>
           </div>
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2 text-sm text-gray-500 hover:text-red-600 transition-colors w-full px-1"
+            className="flex items-center gap-2 text-xs text-gray-400 hover:text-red-500 transition-colors w-full px-1 py-1"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-3.5 h-3.5" />
             {t('sign_out')}
           </button>
         </div>
       </aside>
     </>
+  )
+}
+
+function ZirvaIconDark() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 3L26 23H2L14 3Z" fill="#534AB7" fillOpacity="0.15" stroke="#534AB7" strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M14 3L20 15H8L14 3Z" fill="#534AB7" strokeWidth="0"/>
+    </svg>
   )
 }

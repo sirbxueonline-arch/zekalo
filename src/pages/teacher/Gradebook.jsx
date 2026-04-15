@@ -13,10 +13,10 @@ import { BookOpen, Plus, Download, Search } from 'lucide-react'
 
 const assessmentTypes = [
   { value: 'test', label: 'Test' },
-  { value: 'homework', label: 'Ev tapshirigi' },
-  { value: 'project', label: 'Layihe' },
-  { value: 'exam', label: 'Imtahan' },
-  { value: 'classwork', label: 'Sinif ishi' },
+  { value: 'homework', label: 'Ev tapşırığı' },
+  { value: 'project', label: 'Layihə' },
+  { value: 'exam', label: 'İmtahan' },
+  { value: 'classwork', label: 'Sinif işi' },
 ]
 
 export default function TeacherGradebook() {
@@ -332,13 +332,13 @@ export default function TeacherGradebook() {
       <Modal open={showModal} onClose={() => setShowModal(false)} title={t('new_assignment')}>
         <div className="space-y-4">
           <Input
-            label={t('assignments')}
+            label="Başlıq"
             value={newAssessment.title}
             onChange={e => setNewAssessment(p => ({ ...p, title: e.target.value }))}
-            placeholder={t('new_assignment')}
+            placeholder="Məs: Yarımillik test"
           />
           <Select
-            label={t('filter')}
+            label="Növ"
             value={newAssessment.type}
             onChange={e => setNewAssessment(p => ({ ...p, type: e.target.value }))}
           >
@@ -353,7 +353,7 @@ export default function TeacherGradebook() {
             onChange={e => setNewAssessment(p => ({ ...p, date: e.target.value }))}
           />
           <Input
-            label={t('score')}
+            label="Maksimum bal"
             type="number"
             value={newAssessment.max_score}
             onChange={e => setNewAssessment(p => ({ ...p, max_score: e.target.value }))}
