@@ -133,15 +133,20 @@ export default function Sidebar({ open, onClose }) {
               to={item.path}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                `relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 ${
                   isActive
-                    ? 'bg-purple-light text-purple font-medium'
+                    ? 'bg-purple-light text-purple font-semibold'
                     : 'text-gray-600 hover:bg-surface hover:text-gray-900'
                 }`
               }
             >
-              <item.icon className="w-4 h-4 shrink-0" />
-              {item.label}
+              {({ isActive }) => (
+                <>
+                  {isActive && <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-purple rounded-r" />}
+                  <item.icon className={`w-5 h-5 shrink-0 ${isActive ? '' : 'text-gray-400'}`} />
+                  <span className="truncate">{item.label}</span>
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
