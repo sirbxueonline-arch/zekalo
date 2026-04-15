@@ -4,24 +4,478 @@ import {
   MessageSquare, FileText, BookOpen, Calendar, Sparkles,
   TrendingUp, Globe, Database, ChevronRight
 } from 'lucide-react'
+import { useLang } from '../contexts/LanguageContext'
 
-const demoMeta = {
-  jurnal:               { title: 'Qiymətləndirmə Jurnalı', subtitle: 'Gradebook' },
-  davamiyyat:           { title: 'Davamiyyət Reyestri',     subtitle: 'Attendance' },
-  zeka:                 { title: 'Zəka — AI Müəllim',       subtitle: 'AI Tutor' },
-  mesajlar:             { title: 'Mesajlaşma',               subtitle: 'Messaging' },
-  hesabatlar:           { title: 'Hesabatlar',               subtitle: 'Reports' },
-  'ib-dovlet':          { title: 'IB & Dövlət',              subtitle: 'IB & State' },
-  'milli-panel':        { title: 'Milli İzləmə Paneli',      subtitle: 'National Panel' },
-  'avtomatik-hesabatlar': { title: 'Avtomatik Hesabatlar',   subtitle: 'Auto Reports' },
-  melumat:              { title: 'Məlumat Suverenliyi',      subtitle: 'Data Sovereignty' },
-  analitika:            { title: 'Trend Analitikası',        subtitle: 'Analytics' },
-  bildirisler:          { title: 'Ani Bildirişlər',          subtitle: 'Notifications' },
-  egov:                 { title: 'E-Gov İnteqrasiyası',      subtitle: 'E-Gov Integration' },
+/* ─── translations ─── */
+const D = {
+  az: {
+    demo: 'Demo',
+    signup: 'Qeydiyyat',
+    back_home: 'Ana səhifəyə qayıt',
+    not_found: 'Demo tapılmadı',
+
+    meta: {
+      jurnal:                 { title: 'Qiymətləndirmə Jurnalı', subtitle: 'Gradebook' },
+      davamiyyat:             { title: 'Davamiyyət Reyestri',     subtitle: 'Attendance' },
+      zeka:                   { title: 'Zəka — AI Müəllim',       subtitle: 'AI Tutor' },
+      mesajlar:               { title: 'Mesajlaşma',               subtitle: 'Messaging' },
+      hesabatlar:             { title: 'Hesabatlar',               subtitle: 'Reports' },
+      'ib-dovlet':            { title: 'IB & Dövlət',              subtitle: 'IB & State' },
+      'milli-panel':          { title: 'Milli İzləmə Paneli',      subtitle: 'National Panel' },
+      'avtomatik-hesabatlar': { title: 'Avtomatik Hesabatlar',     subtitle: 'Auto Reports' },
+      melumat:                { title: 'Məlumat Suverenliyi',      subtitle: 'Data Sovereignty' },
+      analitika:              { title: 'Trend Analitikası',        subtitle: 'Analytics' },
+      bildirisler:            { title: 'Ani Bildirişlər',          subtitle: 'Notifications' },
+      egov:                   { title: 'E-Gov İnteqrasiyası',      subtitle: 'E-Gov Integration' },
+    },
+
+    // Common
+    classes: 'Siniflər', class_suffix: 'Sinifi',
+    subject_math: 'Riyaziyyat', subject_eng: 'İngilis dili', subject_bio: 'Biologiya',
+    subject_hist: 'Tarix', subject_phys: 'Fizika', subject_chem: 'Kimya',
+    student: 'Şagird', average: 'Orta', save: 'Saxla',
+    state_1_10: 'Dövlət (1–10)', sync_ok: 'Sinxronizasiya edildi',
+
+    // Gradebook
+    j_header: '9A Sinifi — Riyaziyyat Jurnalı',
+    j_term: '2024–2025 · II Rüb',
+
+    // Attendance
+    att_date_label: 'Tarix',
+    att_today: '14 Aprel 2026, Çərşənbə',
+    att_class: 'Sinif',
+    att_class_val: '9A — 30 şagird',
+    att_sms: '2 valideyn SMS ilə xəbərdar edildi',
+    att_came: 'Gəldi', att_missed: 'Gəlmədi', att_absent: 'Yoxdur',
+    att_came_n: '{n} gəldi', att_missed_n: '{n} gəlmədi',
+
+    // Zeka
+    z_pick_subject: 'Fənn seçin',
+    z_recent: 'Son sessiyalar',
+    z_rec_1: 'Kvadrat tənliklər', z_rec_2: 'İntegral — giriş',
+    z_rec_3: 'Loqarifm funksiyası', z_rec_4: 'Triqonometriya',
+    z_powered: 'Claude ilə gücləndirilmiş',
+    z_online: 'Onlayn · Riyaziyyat sessiyası',
+    z_q1: 'Kvadrat tənliyi nə vaxt istifadə edirik?',
+    z_a1_p1: 'Kvadrat tənlik — ax² + bx + c = 0 formasında yazılan tənlikdir.',
+    z_a1_p2: 'Real həyatda istifadə nümunələri:',
+    z_a1_l1: 'Fizikada mərmi hərəkəti hesablanması',
+    z_a1_l2: 'Mühəndislikdə sahə hesablamaları',
+    z_a1_l3: 'Maliyyədə gəlir-xərc modelləri',
+    z_q2: 'Məsələ verə bilərsən?',
+    z_a2_p1: 'Əlbəttə! Budur bir praktik məsələ:',
+    z_a2_problem: 'x² − 5x + 6 = 0 tənliyini həll edin.',
+    z_a2_hint: 'İpucu: a=1, b=−5, c=6. Diskriminantı tapıb kökləri hesablayın.',
+    z_placeholder: 'Sual yazın...',
+
+    // Messaging
+    search: 'Axtar...',
+    m_teacher: 'Müəllim Əliyev',
+    m_parent: 'Valideyn Həsənova',
+    m_class_announce: 'Sinif Elanı',
+    m_admin: 'Admin',
+    m_prev_1: 'İmtahan nəticəsi barədə...',
+    m_prev_2: 'Övladımın davamiyyəti...',
+    m_prev_3: '📢 Riyaziyyat imtahanı...',
+    m_prev_4: 'Hesabat hazırlamaq üçün...',
+    m_time_y: 'Dün',
+    m_you: 'Siz',
+    m_msg_1: 'Salam! Növbəti həftə riyaziyyat imtahanı keçiriləcək. Şagirdlər hazırlaşsın.',
+    m_msg_2: 'Salam, müəllim. Hansı mövzular daxil olacaq?',
+    m_msg_3: 'Kvadrat tənliklər, loqarifmlər və triqonometriya. Material paylaşacağam.',
+    m_msg_4: 'Çox sağ olun! Zəka ilə hazırlaşacağam.',
+    m_msg_5: 'Əla! İmtahan saat 10:00-da başlayır. Uğurlar 👍',
+    m_online: 'Onlayn',
+    m_input: 'Mesaj yazın...',
+
+    // Reports
+    r_title: 'Hesabatlar',
+    r_year: '2024–2025 tədris ili',
+    r_new: '+ Yeni hesabat yarat',
+    r_1: 'Q1 2025 Rüblük Hesabat',
+    r_2: 'Yanvar Davamiyyət',
+    r_3: 'IB Audit 2025',
+    r_4: 'Milli Kurikulum Uyğunluğu',
+    r_5: 'Fevral Davamiyyət',
+    r_6: 'Şagird İnkişaf Hesabatı',
+    r_ready: 'Hazır',
+    r_egov: 'E-Gov ✓',
+    r_preparing: 'Hazırlanır...',
+    r_done: 'Tamamlandı',
+    r_draft: 'Qaralama',
+
+    // IB & State
+    ib_title: 'IB & Dövlət Uyğunluğu',
+    ib_sub: 'MYP Kriteriyaları ↔ Milli 10 ballıq şkala — Avtomatik çevrilmə',
+    ib_confirmed: 'IB uyğunluğu təsdiqləndi',
+    ib_formula: 'Avtomatik çevrilmə düsturu',
+    ib_myp: 'IB MYP',
+    ib_max: 'Maks: 32',
+    ib_state_scale: 'Dövlət şkalası',
+    ib_curr: 'Milli kurikulum',
+    ib_example: 'Nümunə:',
+    ib_ex1: 'IB cəmi 24/32 = Dövlət',
+    ib_ex2: 'IB cəmi 29/32 = Dövlət',
+    ib_total: 'IB Cəm',
+    ib_state: 'Dövlət',
+
+    // National panel
+    np_label: 'Nazirlik İdarəetmə Paneli',
+    np_country: 'Azərbaycan Respublikası Təhsil Nazirliyi',
+    np_live: 'Canlı · Son yenilənmə: 09:42',
+    np_k_schools: 'Məktəb', np_k_students: 'Şagird',
+    np_k_ai: 'S.İ. Sessiya', np_k_avg: 'Orta Qiymət',
+    np_t1: '+3 bu rübdə', np_t2: '+214 bu ay',
+    np_t3: '+1.2k bu həftə', np_t4: '↑ 0.4 artış',
+    np_monthly: 'Aylıq Performans Meyli',
+    np_events: 'Son Hadisələr',
+    np_e1: 'Məktəb №47 aylıq hesabat göndərdi',
+    np_e2: 'Yeni məktəb qoşuldu: №89',
+    np_e3: 'E-Gov ixracı avtomatik tamamlandı',
+    np_e4: 'TISA davamiyyət hesabatı alındı',
+    np_e5: 'Sistem yedəkləməsi tamamlandı',
+    np_yesterday: 'Dün',
+    np_ranking: 'Məktəb Reytinqi',
+    np_q_year: 'Bu rübdə · 2025',
+
+    // Auto Reports
+    ar_title: 'Avtomatik Hesabat Generatoru',
+    ar_sub: 'PDF, Excel, E-Gov.az formatında bir kliklə ixrac',
+    ar_params: 'Hesabat parametrləri',
+    ar_type: 'Hesabat növü',
+    ar_type_1: 'Rüblük Akademik Hesabat',
+    ar_type_2: 'Davamiyyət Hesabatı',
+    ar_type_3: 'IB MYP Audit',
+    ar_type_4: 'Nazirlik İcmalı',
+    ar_range: 'Tarix aralığı',
+    ar_range_1: 'Q1 2025 (Yan – Mar)',
+    ar_range_2: 'Q2 2025 (Apr – İyn)',
+    ar_range_3: '2024–2025 Tədris İli',
+    ar_range_4: 'Yanvar 2025',
+    ar_school: 'Məktəb',
+    ar_all_schools: 'Bütün məktəblər',
+    ar_auto: 'Avtomatik göndər',
+    ar_auto_sub: 'Hər ayın 1-i — Nazirlik e-poçtu',
+    ar_preview: 'Önizləmə',
+    ar_q1: 'Q1 2025',
+    ar_rep_title: 'Q1 2025 Rüblük Akademik Hesabat',
+    ar_rep_period: 'Bütün məktəblər · 01 Yanvar – 31 Mart 2025',
+    ar_row1: 'Ümumi Məktəb', ar_row2: 'Aktiv Şagird',
+    ar_row3: 'Orta Qiymət',  ar_row4: 'Davamiyyət',
+    ar_row5: 'S.İ. Sessiyaları',
+    ar_footer: 'Zirva MIS · zirva.az · Gizli sənəd',
+
+    // Data Sovereignty
+    ds_title: 'Məlumat Suverenliyi Paneli',
+    ds_sub: 'Azərbaycan qanunvericiliyinə tam uyğun infrastruktur',
+    ds_c1: 'Server Yeri', ds_c1_v: 'Bakı, AZ 🇦🇿',
+    ds_c2: 'Şifrələmə',   ds_c2_v: 'AES-256',
+    ds_c3: 'Dövlət Nəzarəti', ds_c3_v: 'Tam Nəzarət',
+    ds_c4: 'GDPR Uyğunluğu', ds_c4_v: 'Sertifikatlaşdırılmış',
+    ds_active: 'Aktiv',
+    ds_certs: 'Sertifikatlar & Uyğunluq',
+    ds_b1: 'Azərbaycan "Elektron İmza" Qanunu',
+    ds_b2: 'ISO 27001 Məlumat Təhlükəsizliyi',
+    ds_b3: 'GDPR Uyğunluğu',
+    ds_b4: 'Dövlət Şifrələmə Standartı',
+    ds_b5: 'AES-256 Şifrələmə',
+    ds_log: 'Giriş Jurnalı',
+    ds_last_5: 'Son 5 hadisə',
+    ds_u1: 'Nazirlik Portalı',    ds_a1: 'Q1 hesabatı oxundu',
+    ds_u2: 'E-Gov.az Sistemi',     ds_a2: 'Davamiyyət ixrac edildi',
+    ds_u3: 'Audit Xidməti',        ds_a3: 'IB audit sənədi oxundu',
+    ds_u4: 'ASAN Xidmət Gateway',  ds_a4: 'Şagird kimlik doğrulama',
+    ds_u5: 'Sistem Yedəkləməsi',   ds_a5: 'Avtomatik yedəkləmə',
+    ds_today: 'Bugün', ds_yday: 'Dünən',
+    ds_allowed: 'İcazəli', ds_system: 'Sistem',
+
+    // Analytics
+    an_title: 'Trend Analitikası',
+    an_sub: '2024–2025 tədris ili · Milli izləmə',
+    an_m_avg: 'Orta qiymət', an_m_att: 'Davamiyyət', an_m_ai: 'S.İ. İstifadəsi',
+    an_line: 'Orta Qiymət Meyli — 12 aylıq',
+    an_yoy: '↑ 18.8% illik artım',
+    an_cmp: 'Məktəb Müqayisəsi',
+    an_tb: 'Ən Yaxşı & Ən Zəif',
+    an_top: 'Top 3', an_att: 'Diqqət',
+
+    // Notifications
+    bn_title: 'Bildirişlər',
+    bn_unread: '2 oxunmamış bildiriş',
+    bn_mark_all: 'Hamısını oxunmuş say',
+    bn_tab1: 'Hamısı', bn_tab2: 'Kritik', bn_tab3: 'Hesabat', bn_tab4: 'Sistem',
+    bn_n1: 'Məktəb №47 aylıq hesabat göndərdi',
+    bn_n2: 'Məktəb №6 davamiyyət faizi aşağı düşdü (88%)',
+    bn_n3: 'E-Gov.az ixracı avtomatik tamamlandı',
+    bn_n4: 'Yeni məktəb qoşuldu: Məktəb №89',
+    bn_n5: 'TISA Q1 hesabatı hazırlandı — PDF hazırdır',
+    bn_n6: 'Sistem yedəkləməsi uğurla tamamlandı',
+    bn_n7: 'Məktəb №132 IB audit sənədini təqdim etmədi',
+    bn_t_report: 'hesabat', bn_t_critical: 'kritik', bn_t_system: 'sistem',
+    bn_time_2d: '2 gün',
+
+    // E-Gov
+    eg_title: 'E-Gov İnteqrasiya Paneli',
+    eg_sub: 'ASAN Xidmət, E-Gov.az, Dövlət Reyestri ilə tam inteqrasiya',
+    eg_push: 'E-Gov-a Göndər',
+    eg_s1: 'ASAN Xidmət', eg_s2: 'E-Gov.az',
+    eg_s3: 'Dövlət Reyestri', eg_s4: 'MİM',
+    eg_connected: 'Bağlı',
+    eg_sync_1: '09:42 · Bugün', eg_sync_2: '09:30 · Bugün',
+    eg_sync_3: '08:00 · Bugün', eg_sync_4: 'Dünən, 23:00',
+    eg_export: 'Məlumat İxracı',
+    eg_auto: 'Avtomatik: hər gün 08:00',
+    eg_att: 'Davamiyyət', eg_grades: 'Qiymətlər', eg_reports: 'Hesabatlar',
+    eg_att_c: '5,247 qeyd', eg_grades_c: '31,482 qeyd', eg_reports_c: '47 sənəd',
+    eg_log: 'Son İxrac Jurnalı',
+    eg_l1: 'Davamiyyət İxracı', eg_l2: 'Hesabat Paketi Q1',
+    eg_l3: 'Şagird Siyahısı', eg_l4: 'IB Audit Sənədləri',
+    eg_d1: 'E-Gov.az', eg_d2: 'Nazirlik Portalı',
+    eg_d3: 'Dövlət Reyestri', eg_d4: 'ASAN Xidmət',
+    eg_st_ok: 'Uğurlu', eg_st_wait: 'Gözlənir',
+    eg_yday: 'Dünən',
+
+    // Month names
+    mon: ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'İyn', 'İyl', 'Avq', 'Snt', 'Okt', 'Noy', 'Dek'],
+
+    // IB criteria
+    ib_crit_a: 'A — Bilik və anlama',
+    ib_crit_b: 'B — Araşdırma',
+    ib_crit_c: 'C — Ünsiyyət',
+    ib_crit_d: 'D — Düşünmə bacarığı',
+  },
+
+  en: {
+    demo: 'Demo',
+    signup: 'Sign up',
+    back_home: 'Back to home',
+    not_found: 'Demo not found',
+
+    meta: {
+      jurnal:                 { title: 'Grading Ledger',          subtitle: 'Gradebook' },
+      davamiyyat:             { title: 'Attendance Register',     subtitle: 'Attendance' },
+      zeka:                   { title: 'Zeka — AI Tutor',         subtitle: 'AI Tutor' },
+      mesajlar:               { title: 'Messaging',               subtitle: 'Messaging' },
+      hesabatlar:             { title: 'Reports',                 subtitle: 'Reports' },
+      'ib-dovlet':            { title: 'IB & State',              subtitle: 'IB & State' },
+      'milli-panel':          { title: 'National Monitoring',     subtitle: 'National Panel' },
+      'avtomatik-hesabatlar': { title: 'Automated Reports',       subtitle: 'Auto Reports' },
+      melumat:                { title: 'Data Sovereignty',        subtitle: 'Data Sovereignty' },
+      analitika:              { title: 'Trend Analytics',         subtitle: 'Analytics' },
+      bildirisler:            { title: 'Instant Alerts',          subtitle: 'Notifications' },
+      egov:                   { title: 'E-Gov Integration',       subtitle: 'E-Gov Integration' },
+    },
+
+    classes: 'Classes', class_suffix: 'Class',
+    subject_math: 'Mathematics', subject_eng: 'English', subject_bio: 'Biology',
+    subject_hist: 'History', subject_phys: 'Physics', subject_chem: 'Chemistry',
+    student: 'Student', average: 'Avg', save: 'Save',
+    state_1_10: 'State (1–10)', sync_ok: 'Synced',
+
+    j_header: 'Grade 9A — Mathematics Ledger',
+    j_term: '2024–2025 · Q2',
+
+    att_date_label: 'Date',
+    att_today: 'Wednesday, 14 April 2026',
+    att_class: 'Class',
+    att_class_val: '9A — 30 students',
+    att_sms: '2 parents notified by SMS',
+    att_came: 'Present', att_missed: 'Absent', att_absent: 'Missing',
+    att_came_n: '{n} present', att_missed_n: '{n} absent',
+
+    z_pick_subject: 'Pick a subject',
+    z_recent: 'Recent sessions',
+    z_rec_1: 'Quadratic equations', z_rec_2: 'Integrals — intro',
+    z_rec_3: 'Logarithms', z_rec_4: 'Trigonometry',
+    z_powered: 'Powered by Claude',
+    z_online: 'Online · Mathematics session',
+    z_q1: 'When do we use quadratic equations?',
+    z_a1_p1: 'A quadratic equation has the form ax² + bx + c = 0.',
+    z_a1_p2: 'Real-world uses:',
+    z_a1_l1: 'Projectile motion in physics',
+    z_a1_l2: 'Area calculations in engineering',
+    z_a1_l3: 'Income–cost models in finance',
+    z_q2: 'Can you give me a problem?',
+    z_a2_p1: 'Of course! Here is a practical problem:',
+    z_a2_problem: 'Solve x² − 5x + 6 = 0.',
+    z_a2_hint: 'Hint: a=1, b=−5, c=6. Find the discriminant, then the roots.',
+    z_placeholder: 'Type a question...',
+
+    search: 'Search...',
+    m_teacher: 'Teacher Aliyev',
+    m_parent: 'Parent Hasanova',
+    m_class_announce: 'Class Announcement',
+    m_admin: 'Admin',
+    m_prev_1: 'About the exam result...',
+    m_prev_2: 'My child\'s attendance...',
+    m_prev_3: '📢 Math exam...',
+    m_prev_4: 'For preparing the report...',
+    m_time_y: 'Yday',
+    m_you: 'You',
+    m_msg_1: 'Hello! There will be a math exam next week. Students should prepare.',
+    m_msg_2: 'Hello, teacher. Which topics will be included?',
+    m_msg_3: 'Quadratic equations, logarithms and trigonometry. I\'ll share the material.',
+    m_msg_4: 'Thank you! I\'ll prepare with Zeka.',
+    m_msg_5: 'Great! The exam starts at 10:00. Good luck 👍',
+    m_online: 'Online',
+    m_input: 'Type a message...',
+
+    r_title: 'Reports',
+    r_year: '2024–2025 academic year',
+    r_new: '+ Create new report',
+    r_1: 'Q1 2025 Quarterly Report',
+    r_2: 'January Attendance',
+    r_3: 'IB Audit 2025',
+    r_4: 'National Curriculum Compliance',
+    r_5: 'February Attendance',
+    r_6: 'Student Progress Report',
+    r_ready: 'Ready',
+    r_egov: 'E-Gov ✓',
+    r_preparing: 'Preparing...',
+    r_done: 'Done',
+    r_draft: 'Draft',
+
+    ib_title: 'IB & State Compliance',
+    ib_sub: 'MYP criteria ↔ National 10-point scale — Automatic conversion',
+    ib_confirmed: 'IB compliance confirmed',
+    ib_formula: 'Automatic conversion formula',
+    ib_myp: 'IB MYP',
+    ib_max: 'Max: 32',
+    ib_state_scale: 'State scale',
+    ib_curr: 'National curriculum',
+    ib_example: 'Example:',
+    ib_ex1: 'IB total 24/32 = State',
+    ib_ex2: 'IB total 29/32 = State',
+    ib_total: 'IB Total',
+    ib_state: 'State',
+
+    np_label: 'Ministry Management Panel',
+    np_country: 'Ministry of Education of the Republic of Azerbaijan',
+    np_live: 'Live · Last update: 09:42',
+    np_k_schools: 'Schools', np_k_students: 'Students',
+    np_k_ai: 'AI Sessions', np_k_avg: 'Average Grade',
+    np_t1: '+3 this quarter', np_t2: '+214 this month',
+    np_t3: '+1.2k this week', np_t4: '↑ 0.4 increase',
+    np_monthly: 'Monthly Performance Trend',
+    np_events: 'Recent Events',
+    np_e1: 'School №47 submitted its monthly report',
+    np_e2: 'A new school joined: №89',
+    np_e3: 'E-Gov export completed automatically',
+    np_e4: 'TISA attendance report received',
+    np_e5: 'System backup completed',
+    np_yesterday: 'Yday',
+    np_ranking: 'School Ranking',
+    np_q_year: 'This quarter · 2025',
+
+    ar_title: 'Automated Report Generator',
+    ar_sub: 'One-click export to PDF, Excel and E-Gov.az formats',
+    ar_params: 'Report parameters',
+    ar_type: 'Report type',
+    ar_type_1: 'Quarterly Academic Report',
+    ar_type_2: 'Attendance Report',
+    ar_type_3: 'IB MYP Audit',
+    ar_type_4: 'Ministry Overview',
+    ar_range: 'Date range',
+    ar_range_1: 'Q1 2025 (Jan – Mar)',
+    ar_range_2: 'Q2 2025 (Apr – Jun)',
+    ar_range_3: '2024–2025 Academic Year',
+    ar_range_4: 'January 2025',
+    ar_school: 'School',
+    ar_all_schools: 'All schools',
+    ar_auto: 'Send automatically',
+    ar_auto_sub: 'On the 1st of every month — Ministry email',
+    ar_preview: 'Preview',
+    ar_q1: 'Q1 2025',
+    ar_rep_title: 'Q1 2025 Quarterly Academic Report',
+    ar_rep_period: 'All schools · 01 January – 31 March 2025',
+    ar_row1: 'Total Schools', ar_row2: 'Active Students',
+    ar_row3: 'Average Grade', ar_row4: 'Attendance',
+    ar_row5: 'AI Sessions',
+    ar_footer: 'Zirva MIS · zirva.az · Confidential document',
+
+    ds_title: 'Data Sovereignty Panel',
+    ds_sub: 'Infrastructure fully compliant with Azerbaijani law',
+    ds_c1: 'Server Location', ds_c1_v: 'Baku, AZ 🇦🇿',
+    ds_c2: 'Encryption',       ds_c2_v: 'AES-256',
+    ds_c3: 'State Control',    ds_c3_v: 'Full Control',
+    ds_c4: 'GDPR Compliance',  ds_c4_v: 'Certified',
+    ds_active: 'Active',
+    ds_certs: 'Certifications & Compliance',
+    ds_b1: 'Azerbaijani "Electronic Signature" Law',
+    ds_b2: 'ISO 27001 Information Security',
+    ds_b3: 'GDPR Compliance',
+    ds_b4: 'State Encryption Standard',
+    ds_b5: 'AES-256 Encryption',
+    ds_log: 'Access Log',
+    ds_last_5: 'Last 5 events',
+    ds_u1: 'Ministry Portal',       ds_a1: 'Read Q1 report',
+    ds_u2: 'E-Gov.az System',       ds_a2: 'Exported attendance',
+    ds_u3: 'Audit Service',          ds_a3: 'Read IB audit document',
+    ds_u4: 'ASAN Service Gateway',   ds_a4: 'Student identity check',
+    ds_u5: 'System Backup',           ds_a5: 'Automatic backup',
+    ds_today: 'Today', ds_yday: 'Yesterday',
+    ds_allowed: 'Allowed', ds_system: 'System',
+
+    an_title: 'Trend Analytics',
+    an_sub: '2024–2025 academic year · National monitoring',
+    an_m_avg: 'Avg grade', an_m_att: 'Attendance', an_m_ai: 'AI Usage',
+    an_line: 'Average Grade Trend — 12 months',
+    an_yoy: '↑ 18.8% year-over-year',
+    an_cmp: 'School Comparison',
+    an_tb: 'Top & Bottom',
+    an_top: 'Top 3', an_att: 'Attention',
+
+    bn_title: 'Notifications',
+    bn_unread: '2 unread notifications',
+    bn_mark_all: 'Mark all as read',
+    bn_tab1: 'All', bn_tab2: 'Critical', bn_tab3: 'Report', bn_tab4: 'System',
+    bn_n1: 'School №47 submitted its monthly report',
+    bn_n2: 'School №6 attendance dropped (88%)',
+    bn_n3: 'E-Gov.az export completed automatically',
+    bn_n4: 'A new school joined: School №89',
+    bn_n5: 'TISA Q1 report generated — PDF ready',
+    bn_n6: 'System backup completed successfully',
+    bn_n7: 'School №132 did not submit the IB audit document',
+    bn_t_report: 'report', bn_t_critical: 'critical', bn_t_system: 'system',
+    bn_time_2d: '2 days',
+
+    eg_title: 'E-Gov Integration Panel',
+    eg_sub: 'Full integration with ASAN, E-Gov.az and the State Register',
+    eg_push: 'Send to E-Gov',
+    eg_s1: 'ASAN Service', eg_s2: 'E-Gov.az',
+    eg_s3: 'State Register', eg_s4: 'MEI',
+    eg_connected: 'Connected',
+    eg_sync_1: '09:42 · Today', eg_sync_2: '09:30 · Today',
+    eg_sync_3: '08:00 · Today', eg_sync_4: 'Yesterday, 23:00',
+    eg_export: 'Data Export',
+    eg_auto: 'Auto: every day at 08:00',
+    eg_att: 'Attendance', eg_grades: 'Grades', eg_reports: 'Reports',
+    eg_att_c: '5,247 records', eg_grades_c: '31,482 records', eg_reports_c: '47 documents',
+    eg_log: 'Recent Export Log',
+    eg_l1: 'Attendance Export', eg_l2: 'Q1 Report Bundle',
+    eg_l3: 'Student List', eg_l4: 'IB Audit Documents',
+    eg_d1: 'E-Gov.az', eg_d2: 'Ministry Portal',
+    eg_d3: 'State Register', eg_d4: 'ASAN Service',
+    eg_st_ok: 'Successful', eg_st_wait: 'Pending',
+    eg_yday: 'Yesterday',
+
+    mon: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+
+    ib_crit_a: 'A — Knowledge & Understanding',
+    ib_crit_b: 'B — Investigating',
+    ib_crit_c: 'C — Communicating',
+    ib_crit_d: 'D — Thinking skills',
+  },
+}
+
+function useD() {
+  const { lang } = useLang()
+  return D[lang] || D.az
 }
 
 /* ─── Gradebook Demo ─── */
 function JurnalDemo() {
+  const d = useD()
   const students = [
     { name: 'Əli Həsənov',      grades: [8, 7, 9, 8, 7], avg: 7.8 },
     { name: 'Leyla Məmmədova',  grades: [9, 9, 8, 9, 10], avg: 9.0 },
@@ -30,7 +484,7 @@ function JurnalDemo() {
     { name: 'Rauf Quliyev',     grades: [7, 6, 7, 8, 7], avg: 7.0 },
     { name: 'Sevinc Hüseynova', grades: [8, 8, 9, 7, 8], avg: 8.0 },
   ]
-  const subjects = ['Riyaziyyat', 'İngilis dili', 'Biologiya', 'Tarix', 'Fizika']
+  const subjects = [d.subject_math, d.subject_eng, d.subject_bio, d.subject_hist, d.subject_phys]
 
   function gradeColor(g) {
     if (g >= 9) return 'bg-teal-light text-teal font-semibold'
@@ -40,55 +494,51 @@ function JurnalDemo() {
 
   return (
     <div className="flex min-h-[600px]">
-      {/* Sidebar */}
       <div className="w-48 bg-gray-50 border-r border-gray-200 flex flex-col">
         <div className="px-4 py-4 border-b border-gray-200">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-2">Siniflər</p>
+          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-2">{d.classes}</p>
         </div>
         {['9A', '9B', '10A', '10B', '11A'].map((cls, i) => (
           <button
             key={cls}
             className={`w-full text-left px-4 py-3 text-sm border-b border-gray-100 transition-colors ${i === 0 ? 'bg-purple-light text-purple font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}
           >
-            {cls} Sinifi
+            {cls} {d.class_suffix}
           </button>
         ))}
       </div>
 
-      {/* Main */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Sub-header */}
         <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
           <div>
-            <h2 className="font-semibold text-gray-900 text-sm">9A Sinifi — Riyaziyyat Jurnalı</h2>
-            <p className="text-[11px] text-gray-400">2024–2025 · II Rüb</p>
+            <h2 className="font-semibold text-gray-900 text-sm">{d.j_header}</h2>
+            <p className="text-[11px] text-gray-400">{d.j_term}</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex gap-1">
               {['KR.A', 'KR.B', 'KR.C', 'KR.D'].map((k, i) => (
                 <button key={k} className={`px-3 py-1 text-[11px] rounded-full border ${i === 0 ? 'bg-purple text-white border-purple' : 'border-gray-200 text-gray-500 hover:border-purple hover:text-purple'}`}>{k}</button>
               ))}
-              <button className="px-3 py-1 text-[11px] rounded-full border border-teal/30 text-teal bg-teal-light ml-1">Dövlət (1–10)</button>
+              <button className="px-3 py-1 text-[11px] rounded-full border border-teal/30 text-teal bg-teal-light ml-1">{d.state_1_10}</button>
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-teal bg-teal-light rounded-full px-3 py-1">
               <Check className="w-3 h-3" />
-              Sinxronizasiya edildi
+              {d.sync_ok}
             </div>
-            <button className="bg-purple text-white text-xs px-4 py-1.5 rounded-full hover:bg-purple/90 transition-colors">Saxla</button>
+            <button className="bg-purple text-white text-xs px-4 py-1.5 rounded-full hover:bg-purple/90 transition-colors">{d.save}</button>
           </div>
         </div>
 
-        {/* Table */}
         <div className="flex-1 overflow-auto p-6">
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium w-48">Şagird</th>
+                  <th className="text-left px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium w-48">{d.student}</th>
                   {subjects.map(s => (
                     <th key={s} className="px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium text-center">{s}</th>
                   ))}
-                  <th className="px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium text-center">Orta</th>
+                  <th className="px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium text-center">{d.average}</th>
                 </tr>
               </thead>
               <tbody>
@@ -123,6 +573,7 @@ function JurnalDemo() {
 
 /* ─── Attendance Demo ─── */
 function DavamiyyatDemo() {
+  const d = useD()
   const students = [
     { name: 'Əli Həsənov',      initials: 'ƏH', present: true,  time: '08:05' },
     { name: 'Leyla Məmmədova',  initials: 'LM', present: true,  time: '08:02' },
@@ -135,29 +586,26 @@ function DavamiyyatDemo() {
     { name: 'Orxan Nəsirov',    initials: 'ON', present: true,  time: '08:00' },
     { name: 'Nərmin Əsgərova',  initials: 'NƏ', present: true,  time: '08:07' },
   ]
-  const today = '14 Aprel 2026, Çərşənbə'
 
   return (
     <div className="flex flex-col min-h-[600px]">
-      {/* Date header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="bg-purple-light rounded-xl px-4 py-2 border border-purple/20">
-            <p className="text-[10px] text-purple uppercase tracking-wider font-medium">Tarix</p>
-            <p className="text-sm font-semibold text-gray-900">{today}</p>
+            <p className="text-[10px] text-purple uppercase tracking-wider font-medium">{d.att_date_label}</p>
+            <p className="text-sm font-semibold text-gray-900">{d.att_today}</p>
           </div>
           <div className="bg-teal-light rounded-xl px-4 py-2 border border-teal/20">
-            <p className="text-[10px] text-teal uppercase tracking-wider font-medium">Sinif</p>
-            <p className="text-sm font-semibold text-gray-900">9A — 30 şagird</p>
+            <p className="text-[10px] text-teal uppercase tracking-wider font-medium">{d.att_class}</p>
+            <p className="text-sm font-semibold text-gray-900">{d.att_class_val}</p>
           </div>
         </div>
         <div className="ml-auto flex items-center gap-2 text-[11px] text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-3 py-1.5">
           <Bell className="w-3 h-3" />
-          2 valideyn SMS ilə xəbərdar edildi
+          {d.att_sms}
         </div>
       </div>
 
-      {/* Student list */}
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-2xl mx-auto space-y-2">
           {students.map((st) => (
@@ -167,10 +615,10 @@ function DavamiyyatDemo() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">{st.name}</p>
-                <p className="text-[11px] text-gray-400">{st.present ? `Gəldi · ${st.time}` : 'Gəlmədi'}</p>
+                <p className="text-[11px] text-gray-400">{st.present ? `${d.att_came} · ${st.time}` : d.att_missed}</p>
               </div>
               <div className={`flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full ${st.present ? 'bg-teal-light text-teal' : 'bg-red-50 text-red-400'}`}>
-                {st.present ? <><Check className="w-3 h-3" /> Gəldi</> : <><span className="text-base leading-none">✕</span> Yoxdur</>}
+                {st.present ? <><Check className="w-3 h-3" /> {d.att_came}</> : <><span className="text-base leading-none">✕</span> {d.att_absent}</>}
               </div>
               <p className="text-sm font-mono text-gray-400 w-12 text-right">{st.time}</p>
             </div>
@@ -178,20 +626,19 @@ function DavamiyyatDemo() {
         </div>
       </div>
 
-      {/* Bottom bar */}
       <div className="bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-4 text-sm">
           <span className="flex items-center gap-1.5 text-teal font-medium">
             <span className="w-2.5 h-2.5 rounded-full bg-teal" />
-            28 gəldi
+            {d.att_came_n.replace('{n}', '28')}
           </span>
           <span className="text-gray-300">·</span>
           <span className="flex items-center gap-1.5 text-red-400 font-medium">
             <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
-            2 gəlmədi
+            {d.att_missed_n.replace('{n}', '2')}
           </span>
         </div>
-        <button className="bg-purple text-white text-sm px-6 py-2 rounded-full hover:bg-purple/90 transition-colors font-medium">Saxla</button>
+        <button className="bg-purple text-white text-sm px-6 py-2 rounded-full hover:bg-purple/90 transition-colors font-medium">{d.save}</button>
       </div>
     </div>
   )
@@ -199,46 +646,44 @@ function DavamiyyatDemo() {
 
 /* ─── AI Tutor Demo ─── */
 function ZekaDemo() {
+  const d = useD()
   const messages = [
-    { role: 'student', text: 'Kvadrat tənliyi nə vaxt istifadə edirik?' },
+    { role: 'student', text: d.z_q1 },
     {
       role: 'ai',
-      text: null,
       blocks: [
-        { type: 'p', content: 'Kvadrat tənlik — ax² + bx + c = 0 formasında yazılan tənlikdir.' },
-        { type: 'p', content: 'Real həyatda istifadə nümunələri:' },
-        { type: 'list', items: ['Fizikada mərmi hərəkəti hesablanması', 'Mühəndislikdə sahə hesablamaları', 'Maliyyədə gəlir-xərc modelləri'] },
+        { type: 'p', content: d.z_a1_p1 },
+        { type: 'p', content: d.z_a1_p2 },
+        { type: 'list', items: [d.z_a1_l1, d.z_a1_l2, d.z_a1_l3] },
         { type: 'formula', content: 'x = (−b ± √(b²−4ac)) / 2a' },
       ]
     },
-    { role: 'student', text: 'Məsələ verə bilərsən?' },
+    { role: 'student', text: d.z_q2 },
     {
       role: 'ai',
-      text: null,
       blocks: [
-        { type: 'p', content: 'Əlbəttə! Budur bir praktik məsələ:' },
-        { type: 'problem', content: 'x² − 5x + 6 = 0 tənliyini həll edin.' },
-        { type: 'p', content: 'İpucu: a=1, b=−5, c=6. Diskriminantı tapıb kökləri hesablayın.' },
+        { type: 'p', content: d.z_a2_p1 },
+        { type: 'problem', content: d.z_a2_problem },
+        { type: 'p', content: d.z_a2_hint },
       ]
     },
   ]
 
   return (
     <div className="flex min-h-[600px]">
-      {/* Left sidebar */}
       <div className="w-56 bg-gray-50 border-r border-gray-200 flex flex-col">
         <div className="px-4 py-4 border-b border-gray-200">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-3">Fənn seçin</p>
+          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-3">{d.z_pick_subject}</p>
           <div className="space-y-1">
-            {['Riyaziyyat', 'Biologiya', 'İngilis dili', 'Tarix', 'Kimya'].map((s, i) => (
+            {[d.subject_math, d.subject_bio, d.subject_eng, d.subject_hist, d.subject_chem].map((s, i) => (
               <button key={s} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${i === 0 ? 'bg-purple text-white' : 'text-gray-600 hover:bg-gray-100'}`}>{s}</button>
             ))}
           </div>
         </div>
         <div className="px-4 py-4 flex-1 overflow-auto">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-3">Son sessiyalar</p>
+          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-3">{d.z_recent}</p>
           <div className="space-y-2">
-            {['Kvadrat tənliklər', 'İntegral — giriş', 'Loqarifm funksiyası', 'Triqonometriya'].map((s, i) => (
+            {[d.z_rec_1, d.z_rec_2, d.z_rec_3, d.z_rec_4].map((s, i) => (
               <button key={s} className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors ${i === 0 ? 'bg-purple-light text-purple border border-purple/20' : 'text-gray-500 hover:bg-gray-100'}`}>{s}</button>
             ))}
           </div>
@@ -246,12 +691,11 @@ function ZekaDemo() {
         <div className="px-4 py-3 border-t border-gray-200">
           <div className="flex items-center gap-1.5 text-[10px] text-purple bg-purple-light rounded-full px-3 py-1.5 border border-purple/20 justify-center">
             <Sparkles className="w-3 h-3" />
-            Claude ilə gücləndirilmiş
+            {d.z_powered}
           </div>
         </div>
       </div>
 
-      {/* Chat area */}
       <div className="flex-1 flex flex-col overflow-hidden bg-white">
         <div className="border-b border-gray-100 px-6 py-3 flex items-center gap-3 bg-white flex-shrink-0">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple to-purple/60 flex items-center justify-center">
@@ -259,7 +703,7 @@ function ZekaDemo() {
           </div>
           <div>
             <p className="text-sm font-semibold text-gray-900">Zəka</p>
-            <p className="text-[11px] text-teal">Onlayn · Riyaziyyat sessiyası</p>
+            <p className="text-[11px] text-teal">{d.z_online}</p>
           </div>
         </div>
 
@@ -288,7 +732,7 @@ function ZekaDemo() {
 
         <div className="border-t border-gray-100 p-4 bg-white flex-shrink-0">
           <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-            <input className="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400" placeholder="Sual yazın..." defaultValue="" readOnly />
+            <input className="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400" placeholder={d.z_placeholder} defaultValue="" readOnly />
             <button className="w-8 h-8 rounded-lg bg-purple flex items-center justify-center hover:bg-purple/90 transition-colors flex-shrink-0">
               <Send className="w-4 h-4 text-white" />
             </button>
@@ -301,29 +745,29 @@ function ZekaDemo() {
 
 /* ─── Messaging Demo ─── */
 function MesajlarDemo() {
+  const d = useD()
   const conversations = [
-    { name: 'Müəllim Əliyev',    preview: 'İmtahan nəticəsi barədə...', time: '09:15', unread: 2, active: true  },
-    { name: 'Valideyn Həsənova', preview: 'Övladımın davamiyyəti...',   time: '08:47', unread: 0, active: false },
-    { name: 'Sinif Elanı',       preview: '📢 Riyaziyyat imtahanı...',   time: '08:20', unread: 1, active: false },
-    { name: 'Admin',             preview: 'Hesabat hazırlamaq üçün...', time: 'Dün',   unread: 0, active: false },
+    { name: d.m_teacher,       preview: d.m_prev_1, time: '09:15',   unread: 2, active: true  },
+    { name: d.m_parent,        preview: d.m_prev_2, time: '08:47',   unread: 0, active: false },
+    { name: d.m_class_announce, preview: d.m_prev_3, time: '08:20',   unread: 1, active: false },
+    { name: d.m_admin,          preview: d.m_prev_4, time: d.m_time_y, unread: 0, active: false },
   ]
 
   const chatMessages = [
-    { from: 'Müəllim Əliyev', text: 'Salam! Növbəti həftə riyaziyyat imtahanı keçiriləcək. Şagirdlər hazırlaşsın.', time: '08:30', mine: false },
-    { from: 'Siz',            text: 'Salam, müəllim. Hansı mövzular daxil olacaq?', time: '08:32', mine: true },
-    { from: 'Müəllim Əliyev', text: 'Kvadrat tənliklər, loqarifmlər və triqonometriya. Material paylaşacağam.', time: '08:35', mine: false },
-    { from: 'Siz',            text: 'Çox sağ olun! Zəka ilə hazırlaşacağam.', time: '08:40', mine: true },
-    { from: 'Müəllim Əliyev', text: 'Əla! İmtahan saat 10:00-da başlayır. Uğurlar 👍', time: '09:15', mine: false },
+    { from: d.m_teacher, text: d.m_msg_1, time: '08:30', mine: false },
+    { from: d.m_you,     text: d.m_msg_2, time: '08:32', mine: true },
+    { from: d.m_teacher, text: d.m_msg_3, time: '08:35', mine: false },
+    { from: d.m_you,     text: d.m_msg_4, time: '08:40', mine: true },
+    { from: d.m_teacher, text: d.m_msg_5, time: '09:15', mine: false },
   ]
 
   return (
     <div className="flex min-h-[600px]">
-      {/* Conversations */}
       <div className="w-72 border-r border-gray-200 flex flex-col bg-white">
         <div className="px-4 py-4 border-b border-gray-200">
           <div className="bg-gray-100 rounded-xl px-3 py-2 flex items-center gap-2">
             <span className="text-gray-400 text-sm">🔍</span>
-            <span className="text-sm text-gray-400">Axtar...</span>
+            <span className="text-sm text-gray-400">{d.search}</span>
           </div>
         </div>
         <div className="flex-1 overflow-auto">
@@ -347,13 +791,12 @@ function MesajlarDemo() {
         </div>
       </div>
 
-      {/* Active chat */}
       <div className="flex-1 flex flex-col overflow-hidden bg-white">
         <div className="border-b border-gray-200 px-6 py-3 flex items-center gap-3 bg-white flex-shrink-0">
           <div className="w-9 h-9 rounded-full bg-teal-light flex items-center justify-center text-teal text-sm font-semibold">MƏ</div>
           <div>
-            <p className="text-sm font-semibold text-gray-900">Müəllim Əliyev</p>
-            <p className="text-[11px] text-teal">Onlayn</p>
+            <p className="text-sm font-semibold text-gray-900">{d.m_teacher}</p>
+            <p className="text-[11px] text-teal">{d.m_online}</p>
           </div>
         </div>
 
@@ -373,7 +816,7 @@ function MesajlarDemo() {
 
         <div className="border-t border-gray-200 p-4 bg-white flex-shrink-0">
           <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-            <input className="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400" placeholder="Mesaj yazın..." readOnly />
+            <input className="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400" placeholder={d.m_input} readOnly />
             <button className="w-8 h-8 rounded-lg bg-purple flex items-center justify-center hover:bg-purple/90 transition-colors flex-shrink-0">
               <Send className="w-4 h-4 text-white" />
             </button>
@@ -386,21 +829,22 @@ function MesajlarDemo() {
 
 /* ─── Reports Demo ─── */
 function HesabatlarDemo() {
+  const d = useD()
   const reports = [
-    { name: 'Q1 2025 Rüblük Hesabat',    date: '01 Apr 2025', status: 'Hazır',            statusColor: 'text-teal bg-teal-light', dot: 'bg-teal'          },
-    { name: 'Yanvar Davamiyyət',           date: '01 Feb 2025', status: 'E-Gov ✓',          statusColor: 'text-teal bg-teal-light', dot: 'bg-teal'          },
-    { name: 'IB Audit 2025',              date: '15 Mar 2025', status: 'Hazırlanır...',    statusColor: 'text-amber-600 bg-amber-50', dot: 'bg-amber-400'   },
-    { name: 'Milli Kurikulum Uyğunluğu', date: '20 Mar 2025', status: 'Tamamlandı',       statusColor: 'text-purple bg-purple-light', dot: 'bg-purple'     },
-    { name: 'Fevral Davamiyyət',          date: '01 Mar 2025', status: 'E-Gov ✓',          statusColor: 'text-teal bg-teal-light', dot: 'bg-teal'          },
-    { name: 'Şagird İnkişaf Hesabatı',   date: '10 Apr 2025', status: 'Qaralama',         statusColor: 'text-gray-500 bg-gray-100', dot: 'bg-gray-400'    },
+    { name: d.r_1, date: '01 Apr 2025', status: d.r_ready,     statusColor: 'text-teal bg-teal-light',     dot: 'bg-teal'          },
+    { name: d.r_2, date: '01 Feb 2025', status: d.r_egov,      statusColor: 'text-teal bg-teal-light',     dot: 'bg-teal'          },
+    { name: d.r_3, date: '15 Mar 2025', status: d.r_preparing, statusColor: 'text-amber-600 bg-amber-50',  dot: 'bg-amber-400'     },
+    { name: d.r_4, date: '20 Mar 2025', status: d.r_done,      statusColor: 'text-purple bg-purple-light', dot: 'bg-purple'        },
+    { name: d.r_5, date: '01 Mar 2025', status: d.r_egov,      statusColor: 'text-teal bg-teal-light',     dot: 'bg-teal'          },
+    { name: d.r_6, date: '10 Apr 2025', status: d.r_draft,     statusColor: 'text-gray-500 bg-gray-100',   dot: 'bg-gray-400'      },
   ]
 
   return (
     <div className="flex flex-col min-h-[600px] bg-gray-50">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 className="font-semibold text-gray-900">Hesabatlar</h2>
-          <p className="text-[11px] text-gray-400">2024–2025 tədris ili</p>
+          <h2 className="font-semibold text-gray-900">{d.r_title}</h2>
+          <p className="text-[11px] text-gray-400">{d.r_year}</p>
         </div>
         <div className="flex items-center gap-3">
           <select className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 bg-white focus:outline-none">
@@ -408,7 +852,7 @@ function HesabatlarDemo() {
             <option>Excel</option>
             <option>E-Gov.az</option>
           </select>
-          <button className="bg-purple text-white text-sm px-4 py-2 rounded-full hover:bg-purple/90 transition-colors font-medium">+ Yeni hesabat yarat</button>
+          <button className="bg-purple text-white text-sm px-4 py-2 rounded-full hover:bg-purple/90 transition-colors font-medium">{d.r_new}</button>
         </div>
       </div>
 
@@ -440,12 +884,7 @@ function HesabatlarDemo() {
 
 /* ─── IB & State Demo ─── */
 function IbDovletDemo() {
-  const criteria = [
-    { label: 'A — Bilik və anlama',   ib: 6, ibMax: 8 },
-    { label: 'B — Araşdırma',         ib: 7, ibMax: 8 },
-    { label: 'C — Ünsiyyət',          ib: 5, ibMax: 8 },
-    { label: 'D — Düşünmə bacarığı',  ib: 6, ibMax: 8 },
-  ]
+  const d = useD()
   const students = [
     { name: 'Əli Həsənov',      ib: { A: 6, B: 7, C: 5, D: 6 }, total: 24, gov: 8 },
     { name: 'Leyla Məmmədova',  ib: { A: 7, B: 8, C: 7, D: 7 }, total: 29, gov: 9 },
@@ -453,64 +892,53 @@ function IbDovletDemo() {
     { name: 'Aytən Əliyeva',    ib: { A: 8, B: 8, C: 7, D: 8 }, total: 31, gov: 10 },
   ]
 
-  function ibToGov(ibTotal) {
-    if (ibTotal >= 30) return 10
-    if (ibTotal >= 26) return 9
-    if (ibTotal >= 22) return 8
-    if (ibTotal >= 18) return 7
-    if (ibTotal >= 14) return 6
-    return 5
-  }
-
   return (
     <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 className="font-semibold text-gray-900">IB & Dövlət Uyğunluğu</h2>
-          <p className="text-[11px] text-gray-400">MYP Kriteriyaları ↔ Milli 10 ballıq şkala — Avtomatik çevrilmə</p>
+          <h2 className="font-semibold text-gray-900">{d.ib_title}</h2>
+          <p className="text-[11px] text-gray-400">{d.ib_sub}</p>
         </div>
         <div className="flex items-center gap-2 text-[11px] text-teal bg-teal-light rounded-full px-3 py-1.5 border border-teal/20">
           <Check className="w-3 h-3" />
-          IB uyğunluğu təsdiqləndi
+          {d.ib_confirmed}
         </div>
       </div>
 
       <div className="p-6 max-w-5xl mx-auto w-full">
-        {/* Conversion formula */}
         <div className="bg-white rounded-xl border border-purple/20 p-5 mb-5 shadow-sm">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-3">Avtomatik çevrilmə düsturu</p>
+          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-3">{d.ib_formula}</p>
           <div className="flex items-center gap-4 flex-wrap">
             <div className="bg-purple-light rounded-xl px-5 py-3 text-center border border-purple/20">
-              <p className="text-[10px] text-purple uppercase mb-1">IB MYP</p>
+              <p className="text-[10px] text-purple uppercase mb-1">{d.ib_myp}</p>
               <p className="text-2xl font-bold text-purple">A+B+C+D</p>
-              <p className="text-[11px] text-purple/60">Maks: 32</p>
+              <p className="text-[11px] text-purple/60">{d.ib_max}</p>
             </div>
             <div className="text-2xl text-gray-300 font-light">→</div>
             <div className="bg-teal-light rounded-xl px-5 py-3 text-center border border-teal/20">
-              <p className="text-[10px] text-teal uppercase mb-1">Dövlət şkalası</p>
+              <p className="text-[10px] text-teal uppercase mb-1">{d.ib_state_scale}</p>
               <p className="text-2xl font-bold text-teal">1–10</p>
-              <p className="text-[11px] text-teal/60">Milli kurikulum</p>
+              <p className="text-[11px] text-teal/60">{d.ib_curr}</p>
             </div>
             <div className="flex-1 bg-amber-50 rounded-xl px-4 py-3 border border-amber-200">
-              <p className="text-[11px] text-amber-700 font-medium mb-1">Nümunə:</p>
-              <p className="text-xs text-amber-600">IB cəmi 24/32 = Dövlət <strong>8/10</strong></p>
-              <p className="text-xs text-amber-600">IB cəmi 29/32 = Dövlət <strong>9/10</strong></p>
+              <p className="text-[11px] text-amber-700 font-medium mb-1">{d.ib_example}</p>
+              <p className="text-xs text-amber-600">{d.ib_ex1} <strong>8/10</strong></p>
+              <p className="text-xs text-amber-600">{d.ib_ex2} <strong>9/10</strong></p>
             </div>
           </div>
         </div>
 
-        {/* Student table */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium">Şagird</th>
+                <th className="text-left px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium">{d.student}</th>
                 <th className="px-4 py-3 text-[11px] text-purple uppercase tracking-wider font-medium text-center">KR.A</th>
                 <th className="px-4 py-3 text-[11px] text-purple uppercase tracking-wider font-medium text-center">KR.B</th>
                 <th className="px-4 py-3 text-[11px] text-purple uppercase tracking-wider font-medium text-center">KR.C</th>
                 <th className="px-4 py-3 text-[11px] text-purple uppercase tracking-wider font-medium text-center">KR.D</th>
-                <th className="px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium text-center">IB Cəm</th>
-                <th className="px-4 py-3 text-[11px] text-teal uppercase tracking-wider font-medium text-center">Dövlət</th>
+                <th className="px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium text-center">{d.ib_total}</th>
+                <th className="px-4 py-3 text-[11px] text-teal uppercase tracking-wider font-medium text-center">{d.ib_state}</th>
               </tr>
             </thead>
             <tbody>
@@ -547,11 +975,12 @@ function IbDovletDemo() {
 
 /* ─── National Panel Demo ─── */
 function MilliPanelDemo() {
+  const d = useD()
   const kpis = [
-    { label: 'Məktəb',       value: '12',    icon: '🏫', sub: '+3 bu rübdə',     color: 'text-gray-900' },
-    { label: 'Şagird',       value: '5,247', icon: '👤', sub: '+214 bu ay',       color: 'text-purple'   },
-    { label: 'S.İ. Sessiya', value: '52,841',icon: '✨', sub: '+1.2k bu həftə',   color: 'text-teal'     },
-    { label: 'Orta Qiymət',  value: '7.8',   icon: '📊', sub: '↑ 0.4 artış',      color: 'text-amber-600'},
+    { label: d.np_k_schools,  value: '12',     icon: '🏫', sub: d.np_t1, color: 'text-gray-900'  },
+    { label: d.np_k_students, value: '5,247',  icon: '👤', sub: d.np_t2, color: 'text-purple'    },
+    { label: d.np_k_ai,       value: '52,841', icon: '✨', sub: d.np_t3, color: 'text-teal'      },
+    { label: d.np_k_avg,      value: '7.8',    icon: '📊', sub: d.np_t4, color: 'text-amber-600' },
   ]
   const schools = [
     { name: 'TISA (IB)',   score: 8.9, bar: 100, trend: '+0.3' },
@@ -560,24 +989,22 @@ function MilliPanelDemo() {
     { name: 'Məktəb №47',  score: 7.8, bar: 86,  trend: '-0.1' },
     { name: 'Məktəb №89',  score: 7.4, bar: 81,  trend: '+0.4' },
   ]
-  const months = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'İyn', 'İyl', 'Avq', 'Snt', 'Okt', 'Noy', 'Dek']
-  const vals =   [62, 65, 61, 68, 70, 74, 73, 78, 77, 82, 80, 87]
+  const vals = [62, 65, 61, 68, 70, 74, 73, 78, 77, 82, 80, 87]
 
   return (
     <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
         <div>
-          <p className="text-[10px] text-amber-600 uppercase tracking-wider font-semibold">Nazirlik İdarəetmə Paneli</p>
-          <h2 className="font-semibold text-gray-900">Azərbaycan Respublikası Təhsil Nazirliyi</h2>
+          <p className="text-[10px] text-amber-600 uppercase tracking-wider font-semibold">{d.np_label}</p>
+          <h2 className="font-semibold text-gray-900">{d.np_country}</h2>
         </div>
         <div className="flex items-center gap-2 text-[11px] text-teal">
           <span className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-          Canlı · Son yenilənmə: 09:42
+          {d.np_live}
         </div>
       </div>
 
       <div className="p-6 space-y-5">
-        {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {kpis.map(k => (
             <div key={k.label} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
@@ -592,10 +1019,9 @@ function MilliPanelDemo() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Bar chart */}
           <div className="md:col-span-2 bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-semibold text-gray-900">Aylıq Performans Meyli</p>
+              <p className="text-sm font-semibold text-gray-900">{d.np_monthly}</p>
               <span className="text-[11px] text-teal bg-teal-light rounded-full px-3 py-1">↑ 4.2%</span>
             </div>
             <div className="flex items-end gap-1.5 h-28 mb-2">
@@ -609,20 +1035,19 @@ function MilliPanelDemo() {
               ))}
             </div>
             <div className="flex justify-between px-0.5">
-              {months.map(m => <span key={m} className="text-[9px] text-gray-400">{m}</span>)}
+              {d.mon.map(m => <span key={m} className="text-[9px] text-gray-400">{m}</span>)}
             </div>
           </div>
 
-          {/* Activity feed */}
           <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900 mb-4">Son Hadisələr</p>
+            <p className="text-sm font-semibold text-gray-900 mb-4">{d.np_events}</p>
             <div className="space-y-4">
               {[
-                { text: 'Məktəb №47 aylıq hesabat göndərdi',   time: '09:12', color: 'bg-teal'       },
-                { text: 'Yeni məktəb qoşuldu: №89',            time: '08:54', color: 'bg-purple'     },
-                { text: 'E-Gov ixracı avtomatik tamamlandı',   time: '08:30', color: 'bg-amber-400'  },
-                { text: 'TISA davamiyyət hesabatı alındı',     time: '08:01', color: 'bg-teal'       },
-                { text: 'Sistem yedəkləməsi tamamlandı',       time: 'Dün',   color: 'bg-gray-400'   },
+                { text: d.np_e1, time: '09:12',         color: 'bg-teal'       },
+                { text: d.np_e2, time: '08:54',         color: 'bg-purple'     },
+                { text: d.np_e3, time: '08:30',         color: 'bg-amber-400'  },
+                { text: d.np_e4, time: '08:01',         color: 'bg-teal'       },
+                { text: d.np_e5, time: d.np_yesterday,  color: 'bg-gray-400'   },
               ].map((e, i) => (
                 <div key={i} className="flex items-start gap-2.5">
                   <div className={`w-2 h-2 rounded-full ${e.color} mt-1.5 flex-shrink-0`} />
@@ -636,11 +1061,10 @@ function MilliPanelDemo() {
           </div>
         </div>
 
-        {/* School ranking */}
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold text-gray-900">Məktəb Reytinqi</p>
-            <span className="text-[11px] text-purple bg-purple-light rounded-full px-3 py-1">Bu rübdə · 2025</span>
+            <p className="text-sm font-semibold text-gray-900">{d.np_ranking}</p>
+            <span className="text-[11px] text-purple bg-purple-light rounded-full px-3 py-1">{d.np_q_year}</span>
           </div>
           <div className="space-y-3">
             {schools.map((sc, i) => (
@@ -663,41 +1087,42 @@ function MilliPanelDemo() {
 
 /* ─── Auto Reports Demo ─── */
 function AvtomatikHesabatlarDemo() {
+  const d = useD()
+
   return (
     <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
-        <h2 className="font-semibold text-gray-900">Avtomatik Hesabat Generatoru</h2>
-        <p className="text-[11px] text-gray-400">PDF, Excel, E-Gov.az formatında bir kliklə ixrac</p>
+        <h2 className="font-semibold text-gray-900">{d.ar_title}</h2>
+        <p className="text-[11px] text-gray-400">{d.ar_sub}</p>
       </div>
 
       <div className="p-6 max-w-4xl mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Config panel */}
           <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900 mb-5">Hesabat parametrləri</p>
+            <p className="text-sm font-semibold text-gray-900 mb-5">{d.ar_params}</p>
             <div className="space-y-4">
               <div>
-                <label className="text-[11px] text-gray-500 font-medium uppercase tracking-wider block mb-1.5">Hesabat növü</label>
+                <label className="text-[11px] text-gray-500 font-medium uppercase tracking-wider block mb-1.5">{d.ar_type}</label>
                 <select className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 text-gray-700 focus:outline-none focus:border-purple bg-white">
-                  <option>Rüblük Akademik Hesabat</option>
-                  <option>Davamiyyət Hesabatı</option>
-                  <option>IB MYP Audit</option>
-                  <option>Nazirlik İcmalı</option>
+                  <option>{d.ar_type_1}</option>
+                  <option>{d.ar_type_2}</option>
+                  <option>{d.ar_type_3}</option>
+                  <option>{d.ar_type_4}</option>
                 </select>
               </div>
               <div>
-                <label className="text-[11px] text-gray-500 font-medium uppercase tracking-wider block mb-1.5">Tarix aralığı</label>
+                <label className="text-[11px] text-gray-500 font-medium uppercase tracking-wider block mb-1.5">{d.ar_range}</label>
                 <select className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 text-gray-700 focus:outline-none focus:border-purple bg-white">
-                  <option>Q1 2025 (Yan – Mar)</option>
-                  <option>Q2 2025 (Apr – İyn)</option>
-                  <option>2024–2025 Tədris İli</option>
-                  <option>Yanvar 2025</option>
+                  <option>{d.ar_range_1}</option>
+                  <option>{d.ar_range_2}</option>
+                  <option>{d.ar_range_3}</option>
+                  <option>{d.ar_range_4}</option>
                 </select>
               </div>
               <div>
-                <label className="text-[11px] text-gray-500 font-medium uppercase tracking-wider block mb-1.5">Məktəb</label>
+                <label className="text-[11px] text-gray-500 font-medium uppercase tracking-wider block mb-1.5">{d.ar_school}</label>
                 <select className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 text-gray-700 focus:outline-none focus:border-purple bg-white">
-                  <option>Bütün məktəblər</option>
+                  <option>{d.ar_all_schools}</option>
                   <option>TISA</option>
                   <option>Məktəb №132</option>
                   <option>Məktəb №6</option>
@@ -706,8 +1131,8 @@ function AvtomatikHesabatlarDemo() {
               </div>
               <div className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
                 <div>
-                  <p className="text-sm font-medium text-gray-800">Avtomatik göndər</p>
-                  <p className="text-[11px] text-gray-400">Hər ayın 1-i — Nazirlik e-poçtu</p>
+                  <p className="text-sm font-medium text-gray-800">{d.ar_auto}</p>
+                  <p className="text-[11px] text-gray-400">{d.ar_auto_sub}</p>
                 </div>
                 <div className="w-11 h-6 rounded-full bg-teal relative cursor-pointer">
                   <div className="w-5 h-5 rounded-full bg-white shadow absolute top-0.5 right-0.5 transition-transform" />
@@ -727,25 +1152,24 @@ function AvtomatikHesabatlarDemo() {
             </div>
           </div>
 
-          {/* Preview */}
           <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-semibold text-gray-900">Önizləmə</p>
-              <span className="text-[11px] text-teal bg-teal-light rounded-full px-2.5 py-1">Q1 2025</span>
+              <p className="text-sm font-semibold text-gray-900">{d.ar_preview}</p>
+              <span className="text-[11px] text-teal bg-teal-light rounded-full px-2.5 py-1">{d.ar_q1}</span>
             </div>
             <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-3">
               <div className="text-center border-b border-gray-200 pb-3">
-                <p className="text-xs font-bold text-gray-900">Azərbaycan Respublikası Təhsil Nazirliyi</p>
-                <p className="text-[11px] text-gray-500 mt-0.5">Q1 2025 Rüblük Akademik Hesabat</p>
-                <p className="text-[10px] text-gray-400 mt-0.5">Bütün məktəblər · 01 Yanvar – 31 Mart 2025</p>
+                <p className="text-xs font-bold text-gray-900">{d.np_country}</p>
+                <p className="text-[11px] text-gray-500 mt-0.5">{d.ar_rep_title}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">{d.ar_rep_period}</p>
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Ümumi Məktəb',    value: '12' },
-                  { label: 'Aktiv Şagird',     value: '5,247' },
-                  { label: 'Orta Qiymət',      value: '7.8 / 10' },
-                  { label: 'Davamiyyət',        value: '94.2%' },
-                  { label: 'S.İ. Sessiyaları', value: '52,841' },
+                  { label: d.ar_row1, value: '12' },
+                  { label: d.ar_row2, value: '5,247' },
+                  { label: d.ar_row3, value: '7.8 / 10' },
+                  { label: d.ar_row4, value: '94.2%' },
+                  { label: d.ar_row5, value: '52,841' },
                 ].map(row => (
                   <div key={row.label} className="flex justify-between text-xs">
                     <span className="text-gray-500">{row.label}</span>
@@ -754,7 +1178,7 @@ function AvtomatikHesabatlarDemo() {
                 ))}
               </div>
               <div className="border-t border-gray-200 pt-3">
-                <p className="text-[10px] text-gray-400 text-center">Zirva MIS · zirva.az · Gizli sənəd</p>
+                <p className="text-[10px] text-gray-400 text-center">{d.ar_footer}</p>
               </div>
             </div>
           </div>
@@ -766,29 +1190,29 @@ function AvtomatikHesabatlarDemo() {
 
 /* ─── Data Sovereignty Demo ─── */
 function MelumatDemo() {
+  const d = useD()
   const accessLog = [
-    { user: 'Nazirlik Portalı',       action: 'Q1 hesabatı oxundu',         time: '09:12 · Bugün',  status: 'İcazəli' },
-    { user: 'E-Gov.az Sistemi',        action: 'Davamiyyət ixrac edildi',    time: '08:30 · Bugün',  status: 'İcazəli' },
-    { user: 'Audit Xidməti',           action: 'IB audit sənədi oxundu',     time: '14:22 · Dünən',  status: 'İcazəli' },
-    { user: 'ASAN Xidmət Gateway',    action: 'Şagird kimlik doğrulama',    time: '11:05 · Dünən',  status: 'İcazəli' },
-    { user: 'Sistem Yedəkləməsi',     action: 'Avtomatik yedəkləmə',        time: '03:00 · Dünən',  status: 'Sistem'  },
+    { user: d.ds_u1, action: d.ds_a1, time: `09:12 · ${d.ds_today}`, status: d.ds_allowed },
+    { user: d.ds_u2, action: d.ds_a2, time: `08:30 · ${d.ds_today}`, status: d.ds_allowed },
+    { user: d.ds_u3, action: d.ds_a3, time: `14:22 · ${d.ds_yday}`,  status: d.ds_allowed },
+    { user: d.ds_u4, action: d.ds_a4, time: `11:05 · ${d.ds_yday}`,  status: d.ds_allowed },
+    { user: d.ds_u5, action: d.ds_a5, time: `03:00 · ${d.ds_yday}`,  status: d.ds_system },
   ]
 
   return (
     <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
-        <h2 className="font-semibold text-gray-900">Məlumat Suverenliyi Paneli</h2>
-        <p className="text-[11px] text-gray-400">Azərbaycan qanunvericiliyinə tam uyğun infrastruktur</p>
+        <h2 className="font-semibold text-gray-900">{d.ds_title}</h2>
+        <p className="text-[11px] text-gray-400">{d.ds_sub}</p>
       </div>
 
       <div className="p-6 max-w-4xl mx-auto w-full space-y-5">
-        {/* Status cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Server Yeri',       value: 'Bakı, AZ 🇦🇿',  status: 'Aktiv', color: 'text-teal' },
-            { label: 'Şifrələmə',         value: 'AES-256',       status: 'Aktiv', color: 'text-teal' },
-            { label: 'Dövlət Nəzarəti',  value: 'Tam Nəzarət',   status: 'Aktiv', color: 'text-teal' },
-            { label: 'GDPR Uyğunluğu',   value: 'Sertifikatlaşdırılmış', status: '2025', color: 'text-purple' },
+            { label: d.ds_c1, value: d.ds_c1_v, status: d.ds_active, color: 'text-teal' },
+            { label: d.ds_c2, value: d.ds_c2_v, status: d.ds_active, color: 'text-teal' },
+            { label: d.ds_c3, value: d.ds_c3_v, status: d.ds_active, color: 'text-teal' },
+            { label: d.ds_c4, value: d.ds_c4_v, status: '2025',     color: 'text-purple' },
           ].map(c => (
             <div key={c.label} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
               <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-2">{c.label}</p>
@@ -801,16 +1225,15 @@ function MelumatDemo() {
           ))}
         </div>
 
-        {/* Compliance badges */}
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <p className="text-sm font-semibold text-gray-900 mb-4">Sertifikatlar & Uyğunluq</p>
+          <p className="text-sm font-semibold text-gray-900 mb-4">{d.ds_certs}</p>
           <div className="flex flex-wrap gap-3">
             {[
-              { label: 'Azərbaycan "Elektron İmza" Qanunu',  color: 'bg-blue-50 border-blue-200 text-blue-600' },
-              { label: 'ISO 27001 Məlumat Təhlükəsizliyi',   color: 'bg-purple-light border-purple/20 text-purple' },
-              { label: 'GDPR Uyğunluğu',                     color: 'bg-teal-light border-teal/20 text-teal' },
-              { label: 'Dövlət Şifrələmə Standartı',         color: 'bg-amber-50 border-amber-200 text-amber-700' },
-              { label: 'AES-256 Şifrələmə',                  color: 'bg-gray-100 border-gray-200 text-gray-700' },
+              { label: d.ds_b1, color: 'bg-blue-50 border-blue-200 text-blue-600' },
+              { label: d.ds_b2, color: 'bg-purple-light border-purple/20 text-purple' },
+              { label: d.ds_b3, color: 'bg-teal-light border-teal/20 text-teal' },
+              { label: d.ds_b4, color: 'bg-amber-50 border-amber-200 text-amber-700' },
+              { label: d.ds_b5, color: 'bg-gray-100 border-gray-200 text-gray-700' },
             ].map(b => (
               <span key={b.label} className={`text-xs font-medium px-3 py-1.5 rounded-full border ${b.color} flex items-center gap-1.5`}>
                 <Check className="w-3 h-3" />
@@ -820,11 +1243,10 @@ function MelumatDemo() {
           </div>
         </div>
 
-        {/* Access log */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-900">Giriş Jurnalı</p>
-            <span className="text-[11px] text-gray-400">Son 5 hadisə</span>
+            <p className="text-sm font-semibold text-gray-900">{d.ds_log}</p>
+            <span className="text-[11px] text-gray-400">{d.ds_last_5}</span>
           </div>
           <div className="divide-y divide-gray-100">
             {accessLog.map((log, i) => (
@@ -837,7 +1259,7 @@ function MelumatDemo() {
                   <p className="text-[11px] text-gray-400">{log.action}</p>
                 </div>
                 <p className="text-[11px] text-gray-400">{log.time}</p>
-                <span className={`text-[10px] font-medium px-2.5 py-1 rounded-full ${log.status === 'İcazəli' ? 'bg-teal-light text-teal' : 'bg-gray-100 text-gray-500'}`}>{log.status}</span>
+                <span className={`text-[10px] font-medium px-2.5 py-1 rounded-full ${log.status === d.ds_allowed ? 'bg-teal-light text-teal' : 'bg-gray-100 text-gray-500'}`}>{log.status}</span>
               </div>
             ))}
           </div>
@@ -849,11 +1271,10 @@ function MelumatDemo() {
 
 /* ─── Analytics Demo ─── */
 function AnalItikaDemo() {
-  const months = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'İyn', 'İyl', 'Avq', 'Snt', 'Okt', 'Noy', 'Dek']
+  const d = useD()
   const lineData = [6.8, 7.0, 6.9, 7.2, 7.4, 7.3, 7.6, 7.5, 7.8, 7.7, 8.0, 8.1]
   const maxVal = 10
-  const svgH = 120
-  const svgW = 600
+  const svgH = 120, svgW = 600
   const padL = 30, padR = 10, padT = 10, padB = 20
   const drawW = svgW - padL - padR
   const drawH = svgH - padT - padB
@@ -877,60 +1298,53 @@ function AnalItikaDemo() {
     <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 className="font-semibold text-gray-900">Trend Analitikası</h2>
-          <p className="text-[11px] text-gray-400">2024–2025 tədris ili · Milli izləmə</p>
+          <h2 className="font-semibold text-gray-900">{d.an_title}</h2>
+          <p className="text-[11px] text-gray-400">{d.an_sub}</p>
         </div>
         <div className="flex gap-1.5">
-          {['Orta qiymət', 'Davamiyyət', 'S.İ. İstifadəsi'].map((m, i) => (
+          {[d.an_m_avg, d.an_m_att, d.an_m_ai].map((m, i) => (
             <button key={m} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${i === 0 ? 'bg-purple text-white border-purple' : 'border-gray-200 text-gray-500 hover:border-purple hover:text-purple'}`}>{m}</button>
           ))}
         </div>
       </div>
 
       <div className="p-6 max-w-5xl mx-auto w-full space-y-5">
-        {/* Line chart */}
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold text-gray-900">Orta Qiymət Meyli — 12 aylıq</p>
-            <span className="text-[11px] text-teal bg-teal-light rounded-full px-3 py-1">↑ 18.8% illik artım</span>
+            <p className="text-sm font-semibold text-gray-900">{d.an_line}</p>
+            <span className="text-[11px] text-teal bg-teal-light rounded-full px-3 py-1">{d.an_yoy}</span>
           </div>
           <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full" style={{ height: svgH }}>
-            {/* Grid lines */}
             {[6, 7, 8, 9].map(v => {
               const y = padT + drawH - ((v - 5) / (maxVal - 5)) * drawH
               return <line key={v} x1={padL} y1={y} x2={svgW - padR} y2={y} stroke="#f0eeff" strokeWidth="1" />
             })}
-            {/* Area fill */}
             <polygon
               points={`${padL},${padT + drawH} ${pts.join(' ')} ${svgW - padR},${padT + drawH}`}
               fill="rgba(83,74,183,0.07)"
             />
-            {/* Line */}
             <polyline points={polyline} fill="none" stroke="#534AB7" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-            {/* Dots */}
             {pts.map((pt, i) => {
               const [x, y] = pt.split(',')
               return <circle key={i} cx={x} cy={y} r="3.5" fill="white" stroke="#534AB7" strokeWidth="2" />
             })}
-            {/* X labels */}
-            {months.map((m, i) => {
-              const x = padL + (i / (months.length - 1)) * drawW
+            {d.mon.map((m, i) => {
+              const x = padL + (i / (d.mon.length - 1)) * drawW
               return <text key={m} x={x} y={svgH - 4} textAnchor="middle" fontSize="8" fill="#9ca3af">{m}</text>
             })}
           </svg>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* School comparison */}
           <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900 mb-4">Məktəb Müqayisəsi</p>
+            <p className="text-sm font-semibold text-gray-900 mb-4">{d.an_cmp}</p>
             <div className="space-y-3">
-              {schools.map(s => (
-                <div key={s.name} className="flex items-center gap-3">
-                  <p className="text-xs text-gray-700 w-28">{s.name}</p>
+              {schools.map(sc => (
+                <div key={sc.name} className="flex items-center gap-3">
+                  <p className="text-xs text-gray-700 w-28">{sc.name}</p>
                   <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className={`h-full ${s.color} rounded-full flex items-center justify-end pr-2`} style={{ width: `${(s.score / 10) * 100}%` }}>
-                      <span className="text-[9px] text-white font-bold">{s.score}</span>
+                    <div className={`h-full ${sc.color} rounded-full flex items-center justify-end pr-2`} style={{ width: `${(sc.score / 10) * 100}%` }}>
+                      <span className="text-[9px] text-white font-bold">{sc.score}</span>
                     </div>
                   </div>
                 </div>
@@ -938,28 +1352,27 @@ function AnalItikaDemo() {
             </div>
           </div>
 
-          {/* Top/Bottom table */}
           <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900 mb-4">Ən Yaxşı & Ən Zəif</p>
+            <p className="text-sm font-semibold text-gray-900 mb-4">{d.an_tb}</p>
             <div className="space-y-2">
-              <p className="text-[10px] text-teal uppercase tracking-wider font-medium">Top 3</p>
-              {schools.slice(0, 3).map((s, i) => (
-                <div key={s.name} className="flex items-center justify-between py-1.5 border-b border-gray-100">
+              <p className="text-[10px] text-teal uppercase tracking-wider font-medium">{d.an_top}</p>
+              {schools.slice(0, 3).map((sc, i) => (
+                <div key={sc.name} className="flex items-center justify-between py-1.5 border-b border-gray-100">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-gray-400 w-4">{i + 1}</span>
-                    <span className="text-xs text-gray-700">{s.name}</span>
+                    <span className="text-xs text-gray-700">{sc.name}</span>
                   </div>
-                  <span className="text-xs font-bold text-teal">{s.score}</span>
+                  <span className="text-xs font-bold text-teal">{sc.score}</span>
                 </div>
               ))}
-              <p className="text-[10px] text-red-400 uppercase tracking-wider font-medium pt-2">Diqqət</p>
-              {schools.slice(3).map((s, i) => (
-                <div key={s.name} className="flex items-center justify-between py-1.5">
+              <p className="text-[10px] text-red-400 uppercase tracking-wider font-medium pt-2">{d.an_att}</p>
+              {schools.slice(3).map((sc, i) => (
+                <div key={sc.name} className="flex items-center justify-between py-1.5">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-gray-400 w-4">{schools.length - schools.slice(3).length + i + 1}</span>
-                    <span className="text-xs text-gray-700">{s.name}</span>
+                    <span className="text-xs text-gray-700">{sc.name}</span>
                   </div>
-                  <span className="text-xs font-bold text-red-400">{s.score}</span>
+                  <span className="text-xs font-bold text-red-400">{sc.score}</span>
                 </div>
               ))}
             </div>
@@ -972,25 +1385,26 @@ function AnalItikaDemo() {
 
 /* ─── Notifications Demo ─── */
 function BildirislerDemo() {
+  const d = useD()
   const notifications = [
-    { emoji: '🏫', text: 'Məktəb №47 aylıq hesabat göndərdi', time: '09:12', type: 'hesabat', read: false },
-    { emoji: '⚠️', text: 'Məktəb №6 davamiyyət faizi aşağı düşdü (88%)', time: '08:54', type: 'kritik', read: false },
-    { emoji: '✅', text: 'E-Gov.az ixracı avtomatik tamamlandı', time: '08:30', type: 'sistem', read: true },
-    { emoji: '🎓', text: 'Yeni məktəb qoşuldu: Məktəb №89', time: 'Dünən', type: 'sistem', read: true },
-    { emoji: '📊', text: 'TISA Q1 hesabatı hazırlandı — PDF hazırdır', time: 'Dünən', type: 'hesabat', read: true },
-    { emoji: '🔒', text: 'Sistem yedəkləməsi uğurla tamamlandı', time: 'Dünən', type: 'sistem', read: true },
-    { emoji: '⚠️', text: 'Məktəb №132 IB audit sənədini təqdim etmədi', time: '2 gün', type: 'kritik', read: true },
+    { emoji: '🏫', text: d.bn_n1, time: '09:12',           type: d.bn_t_report,   read: false },
+    { emoji: '⚠️', text: d.bn_n2, time: '08:54',           type: d.bn_t_critical, read: false },
+    { emoji: '✅', text: d.bn_n3, time: '08:30',           type: d.bn_t_system,   read: true  },
+    { emoji: '🎓', text: d.bn_n4, time: d.np_yesterday,    type: d.bn_t_system,   read: true  },
+    { emoji: '📊', text: d.bn_n5, time: d.np_yesterday,    type: d.bn_t_report,   read: true  },
+    { emoji: '🔒', text: d.bn_n6, time: d.np_yesterday,    type: d.bn_t_system,   read: true  },
+    { emoji: '⚠️', text: d.bn_n7, time: d.bn_time_2d,      type: d.bn_t_critical, read: true  },
   ]
-  const tabs = ['Hamısı', 'Kritik', 'Hesabat', 'Sistem']
+  const tabs = [d.bn_tab1, d.bn_tab2, d.bn_tab3, d.bn_tab4]
 
   return (
     <div className="flex flex-col min-h-[600px] bg-gray-50">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 className="font-semibold text-gray-900">Bildirişlər</h2>
-          <p className="text-[11px] text-gray-400">2 oxunmamış bildiriş</p>
+          <h2 className="font-semibold text-gray-900">{d.bn_title}</h2>
+          <p className="text-[11px] text-gray-400">{d.bn_unread}</p>
         </div>
-        <button className="text-sm text-purple hover:text-purple/70 transition-colors font-medium">Hamısını oxunmuş say</button>
+        <button className="text-sm text-purple hover:text-purple/70 transition-colors font-medium">{d.bn_mark_all}</button>
       </div>
 
       <div className="bg-white border-b border-gray-200 px-6 flex-shrink-0">
@@ -1011,8 +1425,8 @@ function BildirislerDemo() {
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-[10px] text-gray-400">{n.time}</span>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                    n.type === 'kritik' ? 'bg-red-50 text-red-400' :
-                    n.type === 'hesabat' ? 'bg-purple-light text-purple' :
+                    n.type === d.bn_t_critical ? 'bg-red-50 text-red-400' :
+                    n.type === d.bn_t_report ? 'bg-purple-light text-purple' :
                     'bg-gray-100 text-gray-500'
                   }`}>{n.type}</span>
                 </div>
@@ -1028,58 +1442,57 @@ function BildirislerDemo() {
 
 /* ─── E-Gov Integration Demo ─── */
 function EgovDemo() {
+  const d = useD()
   const services = [
-    { name: 'ASAN Xidmət',    icon: '🏛️', status: 'Bağlı',   lastSync: '09:42 · Bugün',  color: 'text-teal bg-teal-light border-teal/20' },
-    { name: 'E-Gov.az',        icon: '🌐', status: 'Bağlı',   lastSync: '09:30 · Bugün',  color: 'text-teal bg-teal-light border-teal/20' },
-    { name: 'Dövlət Reyestri', icon: '📋', status: 'Bağlı',   lastSync: '08:00 · Bugün',  color: 'text-teal bg-teal-light border-teal/20' },
-    { name: 'MİM',             icon: '🎓', status: 'Bağlı',   lastSync: 'Dünən, 23:00',   color: 'text-teal bg-teal-light border-teal/20' },
+    { name: d.eg_s1, icon: '🏛️', status: d.eg_connected, lastSync: d.eg_sync_1, color: 'text-teal bg-teal-light border-teal/20' },
+    { name: d.eg_s2, icon: '🌐', status: d.eg_connected, lastSync: d.eg_sync_2, color: 'text-teal bg-teal-light border-teal/20' },
+    { name: d.eg_s3, icon: '📋', status: d.eg_connected, lastSync: d.eg_sync_3, color: 'text-teal bg-teal-light border-teal/20' },
+    { name: d.eg_s4, icon: '🎓', status: d.eg_connected, lastSync: d.eg_sync_4, color: 'text-teal bg-teal-light border-teal/20' },
   ]
   const exportLog = [
-    { type: 'Davamiyyət İxracı',   dest: 'E-Gov.az',      time: '09:30', status: 'Uğurlu' },
-    { type: 'Hesabat Paketi Q1',   dest: 'Nazirlik Portalı', time: '08:15', status: 'Uğurlu' },
-    { type: 'Şagird Siyahısı',     dest: 'Dövlət Reyestri',time: '07:00', status: 'Uğurlu' },
-    { type: 'IB Audit Sənədləri', dest: 'ASAN Xidmət',    time: 'Dünən', status: 'Gözlənir' },
+    { type: d.eg_l1, dest: d.eg_d1, time: '09:30',       status: d.eg_st_ok },
+    { type: d.eg_l2, dest: d.eg_d2, time: '08:15',       status: d.eg_st_ok },
+    { type: d.eg_l3, dest: d.eg_d3, time: '07:00',       status: d.eg_st_ok },
+    { type: d.eg_l4, dest: d.eg_d4, time: d.eg_yday,     status: d.eg_st_wait },
   ]
 
   return (
     <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 className="font-semibold text-gray-900">E-Gov İnteqrasiya Paneli</h2>
-          <p className="text-[11px] text-gray-400">ASAN Xidmət, E-Gov.az, Dövlət Reyestri ilə tam inteqrasiya</p>
+          <h2 className="font-semibold text-gray-900">{d.eg_title}</h2>
+          <p className="text-[11px] text-gray-400">{d.eg_sub}</p>
         </div>
         <button className="flex items-center gap-2 bg-teal text-white text-sm px-5 py-2 rounded-full hover:bg-teal/90 transition-colors font-medium">
           <Send className="w-4 h-4" />
-          E-Gov-a Göndər
+          {d.eg_push}
         </button>
       </div>
 
       <div className="p-6 max-w-4xl mx-auto w-full space-y-5">
-        {/* Connected services */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {services.map(s => (
-            <div key={s.name} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm text-center">
-              <div className="text-3xl mb-2">{s.icon}</div>
-              <p className="text-sm font-semibold text-gray-900 mb-1">{s.name}</p>
-              <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full border ${s.color} flex items-center gap-1 justify-center`}>
-                <Check className="w-3 h-3" />{s.status}
+          {services.map(sv => (
+            <div key={sv.name} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm text-center">
+              <div className="text-3xl mb-2">{sv.icon}</div>
+              <p className="text-sm font-semibold text-gray-900 mb-1">{sv.name}</p>
+              <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full border ${sv.color} flex items-center gap-1 justify-center`}>
+                <Check className="w-3 h-3" />{sv.status}
               </span>
-              <p className="text-[10px] text-gray-400 mt-2">{s.lastSync}</p>
+              <p className="text-[10px] text-gray-400 mt-2">{sv.lastSync}</p>
             </div>
           ))}
         </div>
 
-        {/* Push data */}
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold text-gray-900">Məlumat İxracı</p>
-            <span className="text-[11px] text-gray-400">Avtomatik: hər gün 08:00</span>
+            <p className="text-sm font-semibold text-gray-900">{d.eg_export}</p>
+            <span className="text-[11px] text-gray-400">{d.eg_auto}</span>
           </div>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: 'Davamiyyət', count: '5,247 qeyd', color: 'border-teal/20 bg-teal-light text-teal' },
-              { label: 'Qiymətlər', count: '31,482 qeyd', color: 'border-purple/20 bg-purple-light text-purple' },
-              { label: 'Hesabatlar', count: '47 sənəd', color: 'border-amber-200 bg-amber-50 text-amber-600' },
+              { label: d.eg_att,     count: d.eg_att_c,     color: 'border-teal/20 bg-teal-light text-teal' },
+              { label: d.eg_grades,  count: d.eg_grades_c,  color: 'border-purple/20 bg-purple-light text-purple' },
+              { label: d.eg_reports, count: d.eg_reports_c, color: 'border-amber-200 bg-amber-50 text-amber-600' },
             ].map(item => (
               <div key={item.label} className={`rounded-lg border px-4 py-3 text-center ${item.color}`}>
                 <p className="text-base font-bold">{item.count}</p>
@@ -1089,10 +1502,9 @@ function EgovDemo() {
           </div>
         </div>
 
-        {/* Export log */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           <div className="px-5 py-4 border-b border-gray-200">
-            <p className="text-sm font-semibold text-gray-900">Son İxrac Jurnalı</p>
+            <p className="text-sm font-semibold text-gray-900">{d.eg_log}</p>
           </div>
           <div className="divide-y divide-gray-100">
             {exportLog.map((log, i) => (
@@ -1105,7 +1517,7 @@ function EgovDemo() {
                   <p className="text-[11px] text-gray-400">→ {log.dest}</p>
                 </div>
                 <p className="text-[11px] text-gray-400">{log.time}</p>
-                <span className={`text-[10px] font-medium px-2.5 py-1 rounded-full ${log.status === 'Uğurlu' ? 'bg-teal-light text-teal' : 'bg-amber-50 text-amber-600'}`}>{log.status}</span>
+                <span className={`text-[10px] font-medium px-2.5 py-1 rounded-full ${log.status === d.eg_st_ok ? 'bg-teal-light text-teal' : 'bg-amber-50 text-amber-600'}`}>{log.status}</span>
               </div>
             ))}
           </div>
@@ -1133,12 +1545,12 @@ const demoComponents = {
 
 export default function Demo() {
   const { id } = useParams()
-  const meta = demoMeta[id] || { title: 'Demo', subtitle: '' }
+  const d = useD()
+  const meta = d.meta[id] || { title: d.demo, subtitle: '' }
   const DemoContent = demoComponents[id]
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
-      {/* Top bar */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-sm">
         <div className="h-14 px-5 flex items-center justify-between max-w-5xl mx-auto">
           <Link
@@ -1154,27 +1566,26 @@ export default function Demo() {
 
           <div className="flex flex-col items-center">
             <p className="text-sm font-semibold text-gray-900 leading-none">{meta.title}</p>
-            <p className="text-[11px] text-gray-400 mt-0.5">{meta.subtitle} · Demo</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">{meta.subtitle} · {d.demo}</p>
           </div>
 
           <Link
             to="/qeydiyyat"
             className="bg-purple text-white text-sm px-5 py-2 rounded-full hover:bg-purple/90 transition-colors font-medium shadow-sm shadow-purple/20"
           >
-            Qeydiyyat
+            {d.signup}
           </Link>
         </div>
       </header>
 
-      {/* Demo content */}
       <main className="flex-1 py-6 px-4">
         <div className="max-w-5xl mx-auto bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200">
           {DemoContent ? (
             <DemoContent />
           ) : (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400">
-              <p className="text-lg font-medium mb-2">Demo tapılmadı</p>
-              <Link to="/" className="text-sm text-purple hover:underline">Ana səhifəyə qayıt</Link>
+              <p className="text-lg font-medium mb-2">{d.not_found}</p>
+              <Link to="/" className="text-sm text-purple hover:underline">{d.back_home}</Link>
             </div>
           )}
         </div>

@@ -1,10 +1,11 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { t as translate } from '../lib/i18n'
+import { useLang } from './LanguageContext'
 
 const AuthContext = createContext({})
 
 export function AuthProvider({ children }) {
+  const { lang, setLang, t } = useLang()
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -108,14 +109,18 @@ export function AuthProvider({ children }) {
       .single()
     if (error) throw error
     setProfile(data)
+    if (updates.language) setLang(updates.language)
     return data
   }
 
-  const lang = profile?.language || 'az'
-  const t = useCallback((key) => translate(key, lang), [lang])
+  // Sync profile.language → LanguageContext when profile loads/changes
+  useEffect(() => {
+    if (profile?.language && profile.language !== lang) setLang(profile.language)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.language])
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, profileError, lang, t, signIn, signUp, signOut, updateProfile, fetchProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, profileError, lang, t, setLang, signIn, signUp, signOut, updateProfile, fetchProfile }}>
       {children}
     </AuthContext.Provider>
   )
