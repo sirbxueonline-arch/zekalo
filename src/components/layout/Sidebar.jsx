@@ -115,31 +115,36 @@ export default function Sidebar({ open, onClose }) {
       )}
       <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-border-soft z-50 flex flex-col transition-transform duration-200 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between px-6 py-5 border-b border-border-soft">
-          <span className="font-serif text-2xl">
-            <span className="text-gray-900">Zeka</span>
-            <span className="text-purple">lo</span>
+          <span className="font-serif text-2xl tracking-tight">
+            <span className="text-gray-900">Zir</span>
+            <span className="text-purple">va</span>
           </span>
           <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-gray-600">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                `relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 ${
                   isActive
-                    ? 'bg-purple-light text-purple font-medium'
-                    : 'text-gray-600 hover:bg-surface'
+                    ? 'bg-purple-light text-purple font-semibold'
+                    : 'text-gray-600 hover:bg-surface hover:text-gray-900'
                 }`
               }
             >
-              <item.icon className="w-5 h-5 shrink-0" />
-              {item.label}
+              {({ isActive }) => (
+                <>
+                  {isActive && <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-purple rounded-r" />}
+                  <item.icon className={`w-5 h-5 shrink-0 ${isActive ? '' : 'text-gray-400'}`} />
+                  <span className="truncate">{item.label}</span>
+                </>
+              )}
             </NavLink>
           ))}
         </nav>

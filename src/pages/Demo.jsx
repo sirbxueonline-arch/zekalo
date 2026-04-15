@@ -1550,15 +1550,15 @@ export default function Demo() {
   const DemoContent = demoComponents[id]
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-sm">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col font-sans">
+      <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-gray-200/80 shadow-sm">
         <div className="h-14 px-5 flex items-center justify-between max-w-5xl mx-auto">
           <Link
             to="/"
             className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-            <span className="font-serif text-base">
+            <span className="font-serif text-base tracking-tight">
               <span className="text-gray-900">Zir</span>
               <span className="text-purple">va</span>
             </span>
@@ -1566,12 +1566,12 @@ export default function Demo() {
 
           <div className="flex flex-col items-center">
             <p className="text-sm font-semibold text-gray-900 leading-none">{meta.title}</p>
-            <p className="text-[11px] text-gray-400 mt-0.5">{meta.subtitle} · {d.demo}</p>
+            <p className="text-[10px] text-gray-400 mt-0.5 uppercase tracking-wider">{meta.subtitle} · {d.demo}</p>
           </div>
 
           <Link
             to="/qeydiyyat"
-            className="bg-purple text-white text-sm px-5 py-2 rounded-full hover:bg-purple/90 transition-colors font-medium shadow-sm shadow-purple/20"
+            className="bg-gradient-to-br from-purple to-purple-dark text-white text-sm px-5 py-2 rounded-full hover:shadow-md hover:shadow-purple/40 hover:-translate-y-0.5 transition-all duration-300 font-semibold shadow-sm shadow-purple/30"
           >
             {d.signup}
           </Link>

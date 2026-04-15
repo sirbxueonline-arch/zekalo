@@ -744,14 +744,14 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up animation-delay-600">
               <button
                 onClick={() => scrollTo('ministry')}
-                className="group bg-gray-900 text-white rounded-full px-8 py-4 text-sm font-semibold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg shadow-gray-900/20"
+                className="group bg-gradient-to-br from-purple to-purple-dark text-white rounded-full px-8 py-4 text-sm font-semibold hover:shadow-xl hover:shadow-purple/40 hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-purple/30"
               >
                 {s.hero_cta_primary}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
                 onClick={() => scrollTo('zeka')}
-                className="group bg-white border border-gray-200 rounded-full px-8 py-4 text-sm font-medium text-gray-700 hover:border-purple hover:text-purple transition-all flex items-center gap-2 shadow-sm"
+                className="group bg-white/80 backdrop-blur border border-gray-200 rounded-full px-8 py-4 text-sm font-medium text-gray-700 hover:border-purple hover:text-purple hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2 shadow-sm"
               >
                 <Sparkles className="w-4 h-4 text-purple" />
                 {s.hero_cta_secondary}
@@ -927,15 +927,17 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((f, i) => {
               const Icon = f.icon
+              const isP = f.color === 'purple'
               return (
                 <RevealCard key={f.title} delay={i * 90}>
-                  <Link to={f.demo} className="block bg-white rounded-2xl p-8 h-full hover:-translate-y-1 transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md hover:border-purple/30 group">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${f.color === 'purple' ? 'bg-purple-light' : 'bg-teal-light'}`}>
-                      <Icon className={`w-6 h-6 ${f.color === 'purple' ? 'text-purple' : 'text-teal'}`} />
+                  <Link to={f.demo} className={`block bg-white rounded-2xl p-8 h-full hover:-translate-y-1.5 transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-xl ${isP ? 'hover:shadow-purple/10 hover:border-purple/40' : 'hover:shadow-teal/10 hover:border-teal/40'} group relative overflow-hidden`}>
+                    <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${isP ? 'bg-purple-light' : 'bg-teal-light'}`} />
+                    <div className={`relative w-12 h-12 rounded-xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110 ${isP ? 'bg-purple-light' : 'bg-teal-light'}`}>
+                      <Icon className={`w-6 h-6 ${isP ? 'text-purple' : 'text-teal'}`} />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{f.title}</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed mb-4">{f.desc}</p>
-                    <p className="text-xs text-purple font-medium group-hover:underline">{s.feat_demo}</p>
+                    <h3 className="relative text-lg font-semibold text-gray-900 mb-2">{f.title}</h3>
+                    <p className="relative text-sm text-gray-500 leading-relaxed mb-4">{f.desc}</p>
+                    <p className={`relative text-xs font-medium inline-flex items-center gap-1 transition-all ${isP ? 'text-purple' : 'text-teal'} group-hover:gap-2`}>{s.feat_demo}</p>
                   </Link>
                 </RevealCard>
               )
@@ -1228,7 +1230,7 @@ export default function Landing() {
 
                   <div className="bg-gray-50 border border-gray-200 rounded-xl p-8">
                     <Quote className="w-8 h-8 text-purple/20 mb-4" />
-                    <p className="font-serif text-lg text-gray-700 leading-relaxed italic mb-6">
+                    <p className="text-base md:text-lg text-gray-800 leading-relaxed mb-6">
                       {s.decree_quote}
                     </p>
                     <div className="flex items-center gap-4">
@@ -1554,14 +1556,14 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 to="/qeydiyyat"
-                className="group bg-gray-900 text-white rounded-full px-10 py-4 text-sm font-semibold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg shadow-gray-900/20"
+                className="group bg-gradient-to-br from-purple to-purple-dark text-white rounded-full px-10 py-4 text-sm font-semibold hover:shadow-xl hover:shadow-purple/40 hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-purple/30"
               >
                 {s.cta_primary}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <button
                 onClick={() => scrollTo('ministry')}
-                className="bg-white border border-gray-200 text-gray-700 rounded-full px-10 py-4 text-sm font-medium hover:border-purple hover:text-purple transition-all shadow-sm"
+                className="bg-white/80 backdrop-blur border border-gray-200 text-gray-700 rounded-full px-10 py-4 text-sm font-medium hover:border-purple hover:text-purple hover:-translate-y-0.5 transition-all duration-300 shadow-sm"
               >
                 {s.cta_secondary}
               </button>
