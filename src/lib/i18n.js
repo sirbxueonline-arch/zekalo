@@ -263,6 +263,7 @@ const translations = {
     events: 'Events',
     students: 'Students',
     teachers: 'Teachers',
+    parents: 'Parents',
     classes: 'Classes',
     announcements: 'Announcements',
     notifications: 'Notifications',

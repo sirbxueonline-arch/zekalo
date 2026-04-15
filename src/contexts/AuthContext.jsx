@@ -113,9 +113,13 @@ export function AuthProvider({ children }) {
     return data
   }
 
-  // Sync profile.language → LanguageContext when profile loads/changes
+  // Sync profile.language → LanguageContext only if the user has no explicit
+  // browser-level preference stored (i.e. they haven't picked a language on the
+  // landing page or in profile settings in this browser).
   useEffect(() => {
-    if (profile?.language && profile.language !== lang) setLang(profile.language)
+    if (!profile?.language) return
+    const stored = localStorage.getItem('zirva:lang')
+    if (!stored) setLang(profile.language)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.language])
 
