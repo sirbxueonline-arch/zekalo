@@ -5,16 +5,9 @@ import { supabase } from '../../lib/supabase'
 import Badge, { GradeBadge } from '../../components/ui/Badge'
 import { PageSpinner } from '../../components/ui/Spinner'
 import {
-  Flame, BookOpen, Calendar, ClipboardList, Sparkles, ArrowRight,
-  TrendingUp, TrendingDown,
+  Flame, BookOpen, Calendar, ClipboardList, Upload, FolderOpen,
+  ArrowRight, Clock, CheckSquare, Square, AlertCircle, BookMarked,
 } from 'lucide-react'
-
-function greeting() {
-  const h = new Date().getHours()
-  if (h < 12) return 'Sabahınız xeyir'
-  if (h < 18) return 'Günortanız xeyir'
-  return 'Axşamınız xeyir'
-}
 
 function todayLabel() {
   return new Date().toLocaleDateString('az-AZ', {
@@ -22,45 +15,106 @@ function todayLabel() {
   })
 }
 
+function formatDate(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+function isOverdue(dueDateIso) {
+  if (!dueDateIso) return false
+  return new Date(dueDateIso) < new Date()
+}
+
+const SUBJECT_COLORS = [
+  'bg-purple-light text-purple',
+  'bg-teal-light text-teal',
+  'bg-amber-50 text-amber-700',
+  'bg-blue-50 text-blue-700',
+  'bg-pink-50 text-pink-700',
+  'bg-orange-50 text-orange-700',
+]
+
+function subjectColor(name = '') {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return SUBJECT_COLORS[Math.abs(hash) % SUBJECT_COLORS.length]
+}
+
+const TABS = [
+  { key: 'upcoming', label: 'Yaxın' },
+  { key: 'past', label: 'Keçmiş' },
+  { key: 'overdue', label: 'Vaxtı keçmiş' },
+]
+
 export default function StudentDashboard() {
-  const { profile, t } = useAuth()
+  const { profile } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
-  const [grades, setGrades] = useState([])
-  const [attendanceStats, setAttendanceStats] = useState({ pct: 0, total: 0 })
-  const [assignments, setAssignments] = useState([])
-  const [avgGrade, setAvgGrade] = useState(0)
+  const [timetable, setTimetable] = useState([])
+  const [upcomingAssignments, setUpcomingAssignments] = useState([])
+  const [pastAssignments, setPastAssignments] = useState([])
+  const [homeworkItems, setHomeworkItems] = useState([])
+  const [activeTab, setActiveTab] = useState('upcoming')
 
   useEffect(() => {
     if (!profile) return
     async function load() {
+      // 1. Get class IDs
       const { data: memberData } = await supabase
         .from('class_members')
         .select('class_id')
         .eq('student_id', profile.id)
       const classIds = (memberData || []).map(c => c.class_id)
 
-      const [gradesRes, attRes, assignRes] = await Promise.all([
-        supabase.from('grades').select('*, subject:subjects(name)').eq('student_id', profile.id).order('date', { ascending: false }).limit(5),
-        supabase.from('attendance').select('status').eq('student_id', profile.id),
+      const today = new Date().getDay() // 0=Sun … 6=Sat
+      const now = new Date().toISOString()
+      const in7Days = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+
+      const [timetableRes, upcomingRes, pastRes, homeworkRes] = await Promise.all([
         classIds.length
-          ? supabase.from('assignments').select('*, subject:subjects(name)').in('class_id', classIds).gte('due_date', new Date().toISOString()).order('due_date').limit(3)
+          ? supabase
+              .from('timetable_slots')
+              .select('*, subject:subjects(name)')
+              .in('class_id', classIds)
+              .eq('day_of_week', today)
+              .eq('published', true)
+              .order('period')
           : { data: [] },
+
+        classIds.length
+          ? supabase
+              .from('assignments')
+              .select('*, subject:subjects(name)')
+              .in('class_id', classIds)
+              .gte('due_date', now)
+              .lte('due_date', in7Days)
+              .order('due_date')
+              .limit(10)
+          : { data: [] },
+
+        classIds.length
+          ? supabase
+              .from('assignments')
+              .select('*, subject:subjects(name)')
+              .in('class_id', classIds)
+              .lt('due_date', now)
+              .order('due_date', { ascending: false })
+              .limit(5)
+          : { data: [] },
+
+        supabase
+          .from('homework_items')
+          .select('*')
+          .eq('student_id', profile.id)
+          .eq('done', false)
+          .order('due_date')
+          .limit(5),
       ])
 
-      setGrades(gradesRes.data || [])
-      const att = attRes.data || []
-      const present = att.filter(a => a.status === 'present').length
-      setAttendanceStats({ pct: att.length ? Math.round((present / att.length) * 100) : 0, total: att.length })
-      setAssignments(assignRes.data || [])
-
-      if (gradesRes.data?.length) {
-        const avg = gradesRes.data.reduce((sum, g) => {
-          const normalized = g.max_score > 0 ? (g.score / g.max_score) * 10 : g.score
-          return sum + (normalized || 0)
-        }, 0) / gradesRes.data.length
-        setAvgGrade(Math.round(avg * 10) / 10)
-      }
+      setTimetable(timetableRes.data || [])
+      setUpcomingAssignments(upcomingRes.data || [])
+      setPastAssignments(pastRes.data || [])
+      setHomeworkItems(homeworkRes.data || [])
       setLoading(false)
     }
     load()
@@ -68,28 +122,39 @@ export default function StudentDashboard() {
 
   if (loading) return <PageSpinner />
 
+  const firstName = profile?.full_name?.split(' ')[0] || ''
+
+  // Tab content
+  const overdueAssignments = upcomingAssignments.filter(a => isOverdue(a.due_date))
+
+  const tabData = {
+    upcoming: upcomingAssignments,
+    past: pastAssignments,
+    overdue: overdueAssignments,
+  }
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
 
       {/* ── Welcome header ───────────────────────────────────────────────── */}
       <div>
         <p className="text-sm text-gray-400 mb-1">{todayLabel()}</p>
         <h1 className="font-serif text-4xl text-gray-900 tracking-tight leading-tight">
-          {greeting()}, {profile?.full_name?.split(' ')[0]}!
+          Xoş gəldiniz, {firstName}!
         </h1>
       </div>
 
       {/* ── Streak banner ────────────────────────────────────────────────── */}
       {profile?.streak_count > 0 && (
-        <div className="flex items-center gap-4 bg-white border border-border-soft rounded-2xl px-7 py-5 shadow-sm">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+        <div className="flex items-center gap-4 bg-amber-50 border border-amber-200 rounded-2xl px-6 py-4">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
             <Flame className="w-5 h-5 text-amber-500" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-gray-900">
-              {profile.streak_count} {t('streak')}
+            <p className="text-sm font-semibold text-amber-900">
+              {profile.streak_count} günlük dalbadal zolaq!
             </p>
-            <div className="w-full bg-border-soft rounded-full h-1.5 mt-2">
+            <div className="w-full bg-amber-200 rounded-full h-1.5 mt-2">
               <div
                 className="bg-amber-400 rounded-full h-1.5 transition-all"
                 style={{ width: `${Math.min((profile.streak_count / 5) * 100, 100)}%` }}
@@ -99,131 +164,236 @@ export default function StudentDashboard() {
         </div>
       )}
 
-      {/* ── Stat cards ───────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-white rounded-2xl p-7 border border-border-soft shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs tracking-widest text-gray-400 uppercase font-medium">{t('avg_grade')}</span>
-            <span className="w-9 h-9 rounded-xl bg-purple-light flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-purple" />
-            </span>
+      {/* ── Quick-action cards ───────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button
+          onClick={() => navigate('/tapshiriqlar')}
+          className="flex items-center gap-5 bg-purple rounded-2xl px-7 py-6 text-left hover:opacity-90 transition-opacity shadow-sm"
+        >
+          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Upload className="w-6 h-6 text-white" />
           </div>
-          <div className="flex items-end gap-2">
-            <p className="text-4xl font-bold text-gray-900">{avgGrade.toString().replace('.', ',')}</p>
-            {avgGrade >= 7 ? (
-              <span className="flex items-center gap-0.5 text-xs text-teal mb-1"><TrendingUp className="w-3.5 h-3.5" /></span>
-            ) : (
-              <span className="flex items-center gap-0.5 text-xs text-red-500 mb-1"><TrendingDown className="w-3.5 h-3.5" /></span>
-            )}
+          <div className="flex-1">
+            <p className="text-base font-semibold text-white">Tapşırıq Təhvil Ver</p>
+            <p className="text-xs text-white/70 mt-0.5">Gözləyən tapşırıqlar</p>
           </div>
-        </div>
+          <ArrowRight className="w-5 h-5 text-white/60" />
+        </button>
 
-        <div className="bg-white rounded-2xl p-7 border border-border-soft shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs tracking-widest text-gray-400 uppercase font-medium">{t('attendance_pct')}</span>
-            <span className="w-9 h-9 rounded-xl bg-teal-light flex items-center justify-center">
-              <Calendar className="w-4 h-4 text-teal" />
-            </span>
+        <button
+          onClick={() => navigate('/portfolio')}
+          className="flex items-center gap-5 bg-teal rounded-2xl px-7 py-6 text-left hover:opacity-90 transition-opacity shadow-sm"
+        >
+          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+            <FolderOpen className="w-6 h-6 text-white" />
           </div>
-          <div className="flex items-end gap-2">
-            <p className="text-4xl font-bold text-gray-900">{attendanceStats.pct}%</p>
-            {attendanceStats.pct >= 85 ? (
-              <span className="flex items-center gap-0.5 text-xs text-teal mb-1"><TrendingUp className="w-3.5 h-3.5" /></span>
-            ) : (
-              <span className="flex items-center gap-0.5 text-xs text-red-500 mb-1"><TrendingDown className="w-3.5 h-3.5" /></span>
-            )}
+          <div className="flex-1">
+            <p className="text-base font-semibold text-white">Portfelim</p>
+            <p className="text-xs text-white/70 mt-0.5">İşlərimi gör</p>
           </div>
-        </div>
-
-        <div className="bg-white rounded-2xl p-7 border border-border-soft shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs tracking-widest text-gray-400 uppercase font-medium">{t('pending_assignments')}</span>
-            <span className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
-              <ClipboardList className="w-4 h-4 text-amber-500" />
-            </span>
-          </div>
-          <p className="text-4xl font-bold text-gray-900">{assignments.length}</p>
-        </div>
+          <ArrowRight className="w-5 h-5 text-white/60" />
+        </button>
       </div>
 
-      {/* ── Assignments + Grades ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Pending assignments */}
-        <div className="bg-white rounded-2xl border border-border-soft shadow-sm">
-          <div className="flex items-center justify-between px-8 py-5 border-b border-border-soft">
-            <h2 className="font-semibold text-gray-900">{t('pending_assignments')}</h2>
+      {/* ── Three-column widget grid ─────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* LEFT: Bu günün tapşırıqları */}
+        <div className="bg-white rounded-2xl border border-border-soft shadow-sm flex flex-col">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border-soft">
+            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+              <CheckSquare className="w-4 h-4 text-purple" />
+              Bu günün tapşırıqları
+            </h2>
+          </div>
+          {homeworkItems.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-12 text-center px-6">
+              <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
+                <CheckSquare className="w-5 h-5 text-gray-300" />
+              </div>
+              <p className="text-sm text-gray-400">Bu gün tapşırıq yoxdur</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border-soft">
+              {homeworkItems.map(item => (
+                <div key={item.id} className="flex items-center gap-3 px-6 py-3.5 hover:bg-surface/50 transition-colors">
+                  <div className="flex-shrink-0">
+                    {item.done
+                      ? <CheckSquare className="w-4 h-4 text-teal" />
+                      : <Square className="w-4 h-4 text-gray-300" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{item.title}</p>
+                    {item.due_date && (
+                      <p className="text-xs text-gray-400 mt-0.5">{formatDate(item.due_date)}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* CENTER: Günün Cədvəli */}
+        <div className="bg-white rounded-2xl border border-border-soft shadow-sm flex flex-col">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border-soft">
+            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-purple" />
+              Günün Cədvəli
+            </h2>
+          </div>
+          {timetable.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-12 text-center px-6">
+              <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
+                <Calendar className="w-5 h-5 text-gray-300" />
+              </div>
+              <p className="text-sm text-gray-400">Bu gün dərs yoxdur</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border-soft">
+              {timetable.map(slot => (
+                <div key={slot.id} className="flex items-center gap-3 px-6 py-3.5 hover:bg-surface/50 transition-colors">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-purple text-white text-xs font-bold flex items-center justify-center">
+                    {slot.period}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">{slot.subject?.name}</p>
+                    {(slot.room || slot.start_time) && (
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {[slot.start_time, slot.room].filter(Boolean).join(' · ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT: Yaxın Son Tarixlər */}
+        <div className="bg-white rounded-2xl border border-border-soft shadow-sm flex flex-col">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border-soft">
+            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-purple" />
+              Yaxın Son Tarixlər
+            </h2>
             <button
               onClick={() => navigate('/tapshiriqlar')}
-              className="flex items-center gap-1 text-xs text-purple hover:text-purple-dark font-medium transition-colors"
+              className="flex items-center gap-1 text-xs text-purple font-medium hover:opacity-75 transition-opacity"
             >
-              {t('view_all')} <ArrowRight className="w-3.5 h-3.5" />
+              Hamısı <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
-          {assignments.length === 0 ? (
-            <p className="text-sm text-gray-400 px-8 py-10">{t('no_assignments')}</p>
-          ) : (
-            <div className="divide-y divide-border-soft">
-              {assignments.map(a => (
-                <div key={a.id} className="flex items-center justify-between px-8 py-4 hover:bg-surface/50 transition-colors">
-                  <div>
-                    <Badge variant="default">{a.subject?.name}</Badge>
-                    <p className="text-sm font-medium text-gray-900 mt-1.5">{a.title}</p>
-                  </div>
-                  <span className="text-xs text-gray-400 whitespace-nowrap ml-4">
-                    {a.due_date
-                      ? new Date(a.due_date).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })
-                      : ''}
-                  </span>
-                </div>
-              ))}
+          {upcomingAssignments.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-12 text-center px-6">
+              <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
+                <ClipboardList className="w-5 h-5 text-gray-300" />
+              </div>
+              <p className="text-sm text-gray-400">Yaxın tapşırıq yoxdur</p>
             </div>
-          )}
-        </div>
-
-        {/* Recent grades */}
-        <div className="bg-white rounded-2xl border border-border-soft shadow-sm">
-          <div className="flex items-center justify-between px-8 py-5 border-b border-border-soft">
-            <h2 className="font-semibold text-gray-900">{t('recent_grades')}</h2>
-            <button
-              onClick={() => navigate('/qiymetler')}
-              className="flex items-center gap-1 text-xs text-purple hover:text-purple-dark font-medium transition-colors"
-            >
-              {t('view_all')} <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          {grades.length === 0 ? (
-            <p className="text-sm text-gray-400 px-8 py-10">{t('no_grades')}</p>
           ) : (
             <div className="divide-y divide-border-soft">
-              {grades.map(g => (
-                <div key={g.id} className="flex items-center justify-between px-8 py-4 hover:bg-surface/50 transition-colors">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{g.subject?.name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{g.assessment_title}</p>
+              {upcomingAssignments.map(a => {
+                const overdue = isOverdue(a.due_date)
+                const colorClass = subjectColor(a.subject?.name)
+                return (
+                  <div key={a.id} className="flex items-center gap-3 px-6 py-3.5 hover:bg-surface/50 transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <span className={`inline-flex items-center rounded-full text-xs font-medium px-2.5 py-0.5 ${colorClass}`}>
+                        {a.subject?.name || 'Fənn'}
+                      </span>
+                      <p className="text-sm font-medium text-gray-900 truncate mt-1">{a.title}</p>
+                    </div>
+                    <span className={`text-xs whitespace-nowrap flex-shrink-0 font-medium ${overdue ? 'text-red-500' : 'text-gray-400'}`}>
+                      {formatDate(a.due_date)}
+                    </span>
                   </div>
-                  <GradeBadge score={g.max_score > 0 ? Math.round((g.score / g.max_score) * 10) : g.score} />
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
       </div>
 
-      {/* ── Zeka AI promo ────────────────────────────────────────────────── */}
-      <button
-        className="w-full flex items-center gap-5 bg-white border border-border-soft rounded-2xl px-8 py-6 hover:border-purple/40 hover:shadow-sm transition-all group text-left shadow-sm"
-        onClick={() => navigate('/zeka')}
-      >
-        <div className="w-12 h-12 bg-purple-light rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-purple/20 transition-colors">
-          <Sparkles className="w-6 h-6 text-purple" />
+      {/* ── Bottom tabbed assignments section ───────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-border-soft shadow-sm">
+        <div className="px-8 py-5 border-b border-border-soft">
+          <h2 className="font-semibold text-gray-900 mb-4">Tapşırıqlar &amp; Son Tarixlər</h2>
+          <div className="flex gap-1 bg-surface rounded-xl p-1 w-fit">
+            {TABS.map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === tab.key
+                    ? 'bg-white text-purple shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {tab.label}
+                {tab.key === 'overdue' && overdueAssignments.length > 0 && (
+                  <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                    {overdueAssignments.length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold text-gray-900">{t('learn_with_zeka')}</h3>
-          <p className="text-xs text-gray-500 mt-0.5">{t('ask_zeka')}</p>
-        </div>
-        <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-purple transition-colors" />
-      </button>
 
+        {tabData[activeTab].length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-14 text-center">
+            <div className="w-12 h-12 bg-surface rounded-xl flex items-center justify-center mb-3">
+              <BookMarked className="w-6 h-6 text-gray-300" />
+            </div>
+            <p className="text-sm text-gray-400">
+              {activeTab === 'upcoming' && 'Yaxın tapşırıq yoxdur'}
+              {activeTab === 'past' && 'Keçmiş tapşırıq yoxdur'}
+              {activeTab === 'overdue' && 'Vaxtı keçmiş tapşırıq yoxdur'}
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-border-soft">
+            {tabData[activeTab].map(a => {
+              const overdue = activeTab === 'overdue' || isOverdue(a.due_date)
+              const colorClass = subjectColor(a.subject?.name)
+              return (
+                <div
+                  key={a.id}
+                  className={`flex items-center justify-between px-8 py-4 hover:bg-surface/50 transition-colors ${overdue && activeTab === 'overdue' ? 'bg-red-50/40' : ''}`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className={`inline-flex items-center rounded-full text-xs font-medium px-2.5 py-0.5 flex-shrink-0 ${colorClass}`}>
+                      {a.subject?.name || 'Fənn'}
+                    </span>
+                    <p className="text-sm font-medium text-gray-900 truncate">{a.title}</p>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+                    <span className={`text-xs font-medium ${overdue ? 'text-red-500' : 'text-gray-400'}`}>
+                      {formatDate(a.due_date)}
+                    </span>
+                    {activeTab === 'upcoming' && (
+                      <span className="inline-flex items-center rounded-full text-xs font-medium px-2.5 py-0.5 bg-surface text-gray-500 border border-border-soft">
+                        Gözlənilir
+                      </span>
+                    )}
+                    {activeTab === 'past' && (
+                      <span className="inline-flex items-center rounded-full text-xs font-medium px-2.5 py-0.5 bg-teal-light text-teal border border-teal/20">
+                        Keçmiş
+                      </span>
+                    )}
+                    {activeTab === 'overdue' && (
+                      <span className="inline-flex items-center rounded-full text-xs font-medium px-2.5 py-0.5 bg-red-50 text-red-600 border border-red-200">
+                        Vaxtı keçib
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
