@@ -990,8 +990,8 @@ function Footer({ s }) {
 
         <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-4">
-            <a href="#" className="text-xs hover:text-white transition-colors">{s.foot_privacy}</a>
-            <a href="#" className="text-xs hover:text-white transition-colors">{s.foot_terms}</a>
+            <Link to="/privacy" className="text-xs hover:text-white transition-colors">{s.foot_privacy}</Link>
+            <Link to="/terms" className="text-xs hover:text-white transition-colors">{s.foot_terms}</Link>
           </div>
         </div>
       </div>

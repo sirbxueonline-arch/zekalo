@@ -123,6 +123,110 @@ const PAGES = {
     color: 'teal',
     isContact: true,
   },
+  'privacy': {
+    title: 'Privacy Policy',
+    subtitle: 'How Zirva collects, uses, and protects your data',
+    body: `Last updated: 16 April 2026
+
+Zirva ("we", "us", or "our") is committed to protecting the privacy of students, parents, teachers, and school administrators who use our platform. This Privacy Policy explains what personal data we collect, how we use it, and your rights regarding that data.
+
+1. Data We Collect
+
+We collect the following categories of personal data: account information (name, email address, role); school and class information; academic records (grades, attendance, assignments, exam results); communications sent through the platform; device and usage data (IP address, browser type, pages visited); and, where applicable, government identification numbers required for Ministry of Education reporting.
+
+2. How We Use Your Data
+
+We use your data to provide and improve the Zirva platform; to generate academic reports and comply with Ministry of Education requirements; to facilitate communication between students, parents, and teachers; to provide AI-powered tutoring and analytics features; and to send important notifications about your account and your school.
+
+3. Data Storage and Security
+
+All data is stored on servers located within the Republic of Azerbaijan, in full compliance with Azerbaijani data protection legislation and the General Data Protection Regulation (GDPR). We use industry-standard encryption (TLS 1.3 in transit, AES-256 at rest), role-based access controls, and regular independent security audits to protect your information.
+
+4. Data Sharing
+
+We do not sell your personal data. We share data only with: your school administration and authorised staff; the Ministry of Education of Azerbaijan, where required by law; trusted sub-processors (cloud infrastructure, email delivery) under strict data processing agreements; and law enforcement or regulatory bodies when legally required.
+
+5. Data Retention
+
+Student and staff records are retained for the duration of the school's subscription plus a 7-year period required by Azerbaijani educational legislation. You may request deletion of your personal account data at any time, subject to legal retention obligations.
+
+6. Your Rights
+
+You have the right to access, correct, and request deletion of your personal data. You also have the right to data portability and to object to certain processing activities. To exercise these rights, contact us at privacy@birclick.az. We will respond within 30 days.
+
+7. Cookies
+
+Zirva uses strictly necessary cookies to maintain your session and preferences. We do not use advertising or tracking cookies.
+
+8. Children's Privacy
+
+Zirva is used by students of all ages, including children under 18. Schools are responsible for obtaining appropriate parental consent before enrolling students on the platform. We do not knowingly collect data from children without school authorisation.
+
+9. Changes to This Policy
+
+We may update this policy periodically. Schools will be notified of material changes by email at least 30 days before they take effect.
+
+10. Contact
+
+For any privacy-related questions or requests, contact our Data Protection Officer at privacy@birclick.az or write to Zirva, Baku, Azerbaijan.`,
+    color: 'purple',
+  },
+  'terms': {
+    title: 'Terms of Service',
+    subtitle: 'The rules governing use of the Zirva platform',
+    body: `Last updated: 16 April 2026
+
+These Terms of Service ("Terms") govern access to and use of the Zirva school management platform operated by Birclick LLC ("Zirva", "we", "us"). By accessing or using Zirva, you agree to be bound by these Terms.
+
+1. Eligibility
+
+Zirva is a B2B platform licensed to schools and educational institutions. Individual access is granted by a school administrator. You must be at least 13 years old (or have parental consent if younger) and authorised by your school to use the platform.
+
+2. Licence
+
+Subject to payment of applicable fees and compliance with these Terms, we grant your school a non-exclusive, non-transferable licence to access and use Zirva for the school's internal educational management purposes during the subscription term.
+
+3. Acceptable Use
+
+You agree not to: share your login credentials with unauthorised persons; attempt to access accounts or data that do not belong to you; upload harmful, offensive, or illegal content; use the platform to harass, bully, or discriminate against any person; reverse-engineer, decompile, or create derivative works of the platform; or use the platform in any way that violates Azerbaijani law or applicable international regulations.
+
+4. Subscription and Payment
+
+Access to Zirva requires a paid school subscription. Fees are billed annually per the agreed quote. Subscriptions renew automatically unless cancelled at least 30 days before the renewal date. All fees are non-refundable except as required by law.
+
+5. Data Ownership
+
+Your school retains full ownership of all data uploaded to or generated within Zirva. We act as a data processor on behalf of your school. Upon termination, you may export all school data in standard formats within 90 days. After that period, data may be deleted.
+
+6. Availability and Support
+
+We target 99.5% monthly uptime, excluding scheduled maintenance. Support is provided by email and, for Premium Support subscribers, by phone. We do not guarantee specific response times on the standard plan.
+
+7. Intellectual Property
+
+The Zirva platform, including its design, code, and AI models, is the intellectual property of Birclick LLC. Nothing in these Terms transfers ownership of any intellectual property to you.
+
+8. Limitation of Liability
+
+To the maximum extent permitted by law, Zirva's liability for any claim arising out of or relating to these Terms is limited to the fees paid by your school in the 12 months preceding the claim. We are not liable for indirect, incidental, or consequential damages.
+
+9. Termination
+
+Either party may terminate the subscription at the end of any subscription term. We may suspend or terminate access immediately if you materially breach these Terms and fail to remedy the breach within 14 days of written notice.
+
+10. Governing Law
+
+These Terms are governed by the laws of the Republic of Azerbaijan. Any disputes shall be resolved by the courts of Baku, Azerbaijan.
+
+11. Changes to These Terms
+
+We may update these Terms from time to time. Schools will be notified of material changes by email at least 30 days before they take effect. Continued use after that date constitutes acceptance of the updated Terms.
+
+12. Contact
+
+For questions about these Terms, contact us at hello@birclick.az or write to Zirva, Baku, Azerbaijan.`,
+    color: 'teal',
+  },
 }
 
 export default function InfoPage({ type: typeProp }) {

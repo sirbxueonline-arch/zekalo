@@ -235,6 +235,8 @@ export default function App() {
         <Route path="/careers"             element={<InfoPage type="careers" />} />
         <Route path="/partners"            element={<InfoPage type="partners" />} />
         <Route path="/contact"             element={<InfoPage type="contact" />} />
+        <Route path="/privacy"             element={<InfoPage type="privacy" />} />
+        <Route path="/terms"               element={<InfoPage type="terms" />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
