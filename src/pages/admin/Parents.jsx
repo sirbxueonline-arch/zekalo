@@ -34,19 +34,25 @@ export default function Parents() {
   async function fetchData() {
     try {
       setLoading(true)
-      const [parentsRes, studentsRes, linksRes] = await Promise.all([
+      const [parentsRes, studentsRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('school_id', profile.school_id).eq('role', 'parent').order('full_name'),
         supabase.from('profiles').select('id, full_name').eq('school_id', profile.school_id).eq('role', 'student').order('full_name'),
-        supabase.from('parent_children').select('parent_id, child_id, child:profiles!parent_children_child_id_fkey(id, full_name)'),
       ])
       if (parentsRes.error) throw parentsRes.error
 
-      // Build map: parent_id → [child profiles]
+      // Build map: parent_id → [child profiles], scoped to this school's parents
+      const parentIds = (parentsRes.data || []).map(p => p.id)
       const childMap = {}
-      ;(linksRes.data || []).forEach(link => {
-        if (!childMap[link.parent_id]) childMap[link.parent_id] = []
-        if (link.child) childMap[link.parent_id].push(link.child)
-      })
+      if (parentIds.length) {
+        const { data: linksData } = await supabase
+          .from('parent_children')
+          .select('parent_id, child_id, child:profiles!parent_children_child_id_fkey(id, full_name)')
+          .in('parent_id', parentIds)
+        ;(linksData || []).forEach(link => {
+          if (!childMap[link.parent_id]) childMap[link.parent_id] = []
+          if (link.child) childMap[link.parent_id].push(link.child)
+        })
+      }
 
       const parentsWithChildren = (parentsRes.data || []).map(p => ({
         ...p,
@@ -86,14 +92,21 @@ export default function Parents() {
   }
 
   async function handleAdd() {
+    if (!form.full_name.trim() || !form.email.trim() || !form.password) {
+      setError('Ad, e-poçt və şifrə tələb olunur.')
+      return
+    }
+    if (form.password.length < 6) {
+      setError('Şifrə ən azı 6 simvol olmalıdır.')
+      return
+    }
+    if (form.child_ids.length === 0) {
+      setError('Ən azı bir şagird seçin.')
+      return
+    }
     try {
       setSaving(true)
       setError(null)
-
-      if (form.child_ids.length === 0) {
-        setError('Ən azı bir şagird seçin')
-        return
-      }
 
       const userId = await createUser(form.email.trim(), form.password, form.full_name.trim())
 

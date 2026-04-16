@@ -84,6 +84,14 @@ export default function Teachers() {
   }
 
   async function handleAdd() {
+    if (!form.full_name.trim() || !form.email.trim() || !form.password) {
+      setError('Ad, e-poçt və şifrə tələb olunur.')
+      return
+    }
+    if (form.password.length < 6) {
+      setError('Şifrə ən azı 6 simvol olmalıdır.')
+      return
+    }
     try {
       setSaving(true)
       setError(null)
@@ -300,25 +308,26 @@ export default function Teachers() {
       </Card>
 
       {/* Add Modal */}
-      <Modal open={addModal} onClose={() => setAddModal(false)} title={t('add_teacher')}>
+      <Modal open={addModal} onClose={() => { setAddModal(false); setError(null) }} title={t('add_teacher')}>
         <div className="space-y-4">
-          <Input label={t('full_name')} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
-          <Input label={t('email')} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          <Input label="Şifrə" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+          <Input label={t('full_name')} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} placeholder="Müəllimin adı soyadı" />
+          <Input label={t('email')} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="muellim@mekteb.az" />
+          <Input label="Şifrə" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Minimum 6 simvol" />
           <MultiSelect label={t('subject')} options={subjects} selected={form.subject_ids} onToggle={(id) => setForm({ ...form, subject_ids: toggleArrayItem(form.subject_ids, id) })} />
           <MultiSelect label={t('classes')} options={classes} selected={form.class_ids} onToggle={(id) => setForm({ ...form, class_ids: toggleArrayItem(form.class_ids, id) })} />
           {form.class_ids.length > 0 && form.subject_ids.length === 0 && (
             <p className="text-xs text-amber-600 bg-amber-50 rounded px-3 py-2">Sinif seçmək üçün ən azı bir fənn də seçin.</p>
           )}
+          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="ghost" onClick={() => setAddModal(false)}>{t('cancel')}</Button>
-            <Button onClick={handleAdd} loading={saving}>{t('add')}</Button>
+            <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
+            <Button onClick={handleAdd} loading={saving} disabled={!form.full_name || !form.email || !form.password}>{t('add')}</Button>
           </div>
         </div>
       </Modal>
 
       {/* Edit Modal */}
-      <Modal open={!!editModal} onClose={() => setEditModal(null)} title={t('edit')}>
+      <Modal open={!!editModal} onClose={() => { setEditModal(null); setError(null) }} title={t('edit')}>
         <div className="space-y-4">
           <Input label={t('full_name')} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
           <Input label={t('email')} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -327,9 +336,10 @@ export default function Teachers() {
           {form.class_ids.length > 0 && form.subject_ids.length === 0 && (
             <p className="text-xs text-amber-600 bg-amber-50 rounded px-3 py-2">Sinif seçmək üçün ən azı bir fənn də seçin.</p>
           )}
+          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="ghost" onClick={() => setEditModal(null)}>{t('cancel')}</Button>
-            <Button onClick={handleEdit} loading={saving}>{t('save')}</Button>
+            <Button variant="ghost" onClick={() => { setEditModal(null); setError(null) }}>{t('cancel')}</Button>
+            <Button onClick={handleEdit} loading={saving} disabled={!form.full_name || !form.email}>{t('save')}</Button>
           </div>
         </div>
       </Modal>
