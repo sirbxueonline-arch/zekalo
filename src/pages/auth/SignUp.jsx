@@ -47,27 +47,50 @@ export default function SignUp() {
     setError('')
     setLoading(true)
     try {
-      // Use the register-school Edge Function which runs with service-role key,
-      // bypassing RLS for the bootstrap case (no profile exists yet).
-      const { data, error: fnErr } = await supabase.functions.invoke('register-school', {
-        body: {
+      // Step 1: create the auth user
+      const { data: authData, error: authErr } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+      })
+      if (authErr) throw authErr
+      if (!authData.user) throw new Error(t('error'))
+
+      // Step 2: if signUp didn't return a session (email confirmation is on in
+      // Supabase dashboard), sign in straight away so auth.uid() is set for RLS.
+      if (!authData.session) {
+        const { error: signInErr } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
-          full_name: fullName.trim(),
-          school_name: schoolName.trim(),
+        })
+        if (signInErr) throw new Error(
+          'Supabase-da e-poçt təsdiqi aktifdir. Dashboard → Authentication → Settings → "Enable email confirmations" söndürün.'
+        )
+      }
+
+      // Step 3: create the school (RLS allows any authenticated user to insert)
+      const { data: schoolData, error: schoolErr } = await supabase
+        .from('schools')
+        .insert({
+          name: schoolName.trim(),
           district: district.trim() || null,
           edition,
-          language,
-        },
-      })
-      if (fnErr) throw fnErr
-      if (data?.error) throw new Error(data.error)
+          default_language: language,
+        })
+        .select()
+        .single()
+      if (schoolErr) throw schoolErr
 
-      // The function returns a session — set it on the client so the user is
-      // immediately logged in without a separate sign-in call.
-      if (data?.session) {
-        await supabase.auth.setSession(data.session)
-      }
+      // Step 4: create the admin profile linked to the school
+      const { error: profileErr } = await supabase.from('profiles').insert({
+        id: authData.user.id,
+        full_name: fullName.trim(),
+        email: email.trim(),
+        role: 'admin',
+        school_id: schoolData.id,
+        edition,
+        language,
+      })
+      if (profileErr) throw profileErr
 
       navigate('/admin/dashboard')
     } catch (err) {
