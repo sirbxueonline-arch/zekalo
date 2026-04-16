@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
 import { PageSpinner } from './components/ui/Spinner'
@@ -74,6 +75,22 @@ import IBPanel from './pages/admin/IBPanel'
 import Ministry from './pages/admin/Ministry'
 import AdminSettings from './pages/admin/Settings'
 
+// New admin pages (lazy loaded)
+const AdminCAS             = lazy(() => import('./pages/admin/CAS'))
+const AdminAdmissions      = lazy(() => import('./pages/admin/Admissions'))
+const AdminLeaveRequests   = lazy(() => import('./pages/admin/LeaveRequests'))
+const AdminRoomBooking     = lazy(() => import('./pages/admin/RoomBooking'))
+const AdminLibrary         = lazy(() => import('./pages/admin/Library'))
+const AdminSurveys         = lazy(() => import('./pages/admin/Surveys'))
+const AdminCollegeCounseling = lazy(() => import('./pages/admin/CollegeCounseling'))
+const AdminPTConferences   = lazy(() => import('./pages/admin/PTConferences'))
+
+// New teacher pages (lazy loaded)
+const TeacherUnitPlanner   = lazy(() => import('./pages/teacher/UnitPlanner'))
+
+// New student pages (lazy loaded)
+const StudentPortfolio     = lazy(() => import('./pages/student/Portfolio'))
+
 // Shared pages
 import SharedCalendar from './pages/shared/Calendar'
 
@@ -141,6 +158,7 @@ export default function App() {
           <Route path="/mesajlar" element={<StudentMessages />} />
           <Route path="/tedbirler" element={<SharedCalendar />} />
           <Route path="/profil" element={<StudentProfile />} />
+          <Route path="/portfolio" element={<Suspense fallback={<PageSpinner />}><StudentPortfolio /></Suspense>} />
         </Route>
 
         {/* Teacher routes */}
@@ -159,6 +177,7 @@ export default function App() {
           <Route path="/muellim/cedvel" element={<TeacherTimetable />} />
           <Route path="/muellim/tedbirler" element={<SharedCalendar />} />
           <Route path="/muellim/profil" element={<TeacherProfile />} />
+          <Route path="/muellim/vahid-plan" element={<Suspense fallback={<PageSpinner />}><TeacherUnitPlanner /></Suspense>} />
         </Route>
 
         {/* Parent routes */}
@@ -196,6 +215,14 @@ export default function App() {
           <Route path="/admin/ib" element={<IBPanel />} />
           <Route path="/admin/nazirlik" element={<Ministry />} />
           <Route path="/admin/parametrler" element={<AdminSettings />} />
+          <Route path="/admin/cas" element={<Suspense fallback={<PageSpinner />}><AdminCAS /></Suspense>} />
+          <Route path="/admin/kabul" element={<Suspense fallback={<PageSpinner />}><AdminAdmissions /></Suspense>} />
+          <Route path="/admin/izin" element={<Suspense fallback={<PageSpinner />}><AdminLeaveRequests /></Suspense>} />
+          <Route path="/admin/oda-rezerv" element={<Suspense fallback={<PageSpinner />}><AdminRoomBooking /></Suspense>} />
+          <Route path="/admin/kitabxana" element={<Suspense fallback={<PageSpinner />}><AdminLibrary /></Suspense>} />
+          <Route path="/admin/anket" element={<Suspense fallback={<PageSpinner />}><AdminSurveys /></Suspense>} />
+          <Route path="/admin/kollec" element={<Suspense fallback={<PageSpinner />}><AdminCollegeCounseling /></Suspense>} />
+          <Route path="/admin/ptc" element={<Suspense fallback={<PageSpinner />}><AdminPTConferences /></Suspense>} />
         </Route>
 
         {/* Super Admin routes */}

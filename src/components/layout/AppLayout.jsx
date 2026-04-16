@@ -55,12 +55,15 @@ export default function AppLayout() {
   const title = titleKey ? t(titleKey) : 'Zirva'
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-[#F7F7FB]">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+      {/* Sidebar occupies 260 px on large screens */}
+      <div className="flex-1 lg:ml-[260px] flex flex-col min-h-screen">
         <Topbar title={title} onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-auto bg-surface p-8">
-          <Outlet />
+        <main className="flex-1 overflow-auto bg-[#F7F7FB] py-8 px-6 lg:px-10">
+          <div className="max-w-[1400px] mx-auto w-full">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

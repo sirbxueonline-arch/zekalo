@@ -1,15 +1,15 @@
 {
   "redirects": [
     {
-      "source": "/(.*)",
-      "destination": "https://app.tryzirva.com/$1",
-      "permanent": true,
+      "source": "/(daxil-ol|qeydiyyat|admin|muellim|telebe|valideyn|super-admin)(.*)",
+      "destination": "https://app.tryzirva.com/$1$2",
+      "permanent": false,
       "has": [{ "type": "host", "value": "tryzirva.com" }]
     },
     {
-      "source": "/(.*)",
-      "destination": "https://app.tryzirva.com/$1",
-      "permanent": true,
+      "source": "/(daxil-ol|qeydiyyat|admin|muellim|telebe|valideyn|super-admin)(.*)",
+      "destination": "https://app.tryzirva.com/$1$2",
+      "permanent": false,
       "has": [{ "type": "host", "value": "www.tryzirva.com" }]
     }
   ],

@@ -351,6 +351,171 @@ CREATE TABLE IF NOT EXISTS conversation_messages (
   created_at timestamptz DEFAULT now()
 );
 
+-- CAS entries (IB Creativity/Activity/Service)
+CREATE TABLE IF NOT EXISTS cas_entries (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id uuid REFERENCES profiles ON DELETE CASCADE NOT NULL,
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  strand text NOT NULL CHECK (strand IN ('creativity','activity','service')),
+  title text NOT NULL,
+  description text,
+  hours numeric DEFAULT 0,
+  evidence_url text,
+  reflection text,
+  supervisor_id uuid REFERENCES profiles ON DELETE SET NULL,
+  status text DEFAULT 'draft' CHECK (status IN ('draft','submitted','approved')),
+  date date DEFAULT CURRENT_DATE,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Unit plans (curriculum planning)
+CREATE TABLE IF NOT EXISTS unit_plans (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  teacher_id uuid REFERENCES profiles ON DELETE CASCADE NOT NULL,
+  class_id uuid REFERENCES classes ON DELETE SET NULL,
+  subject_id uuid REFERENCES subjects ON DELETE SET NULL,
+  title text NOT NULL,
+  central_idea text,
+  learning_objectives text,
+  atl_skills text[],
+  start_date date,
+  end_date date,
+  status text DEFAULT 'draft' CHECK (status IN ('draft','active','complete')),
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+-- Student portfolios
+CREATE TABLE IF NOT EXISTS portfolio_items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id uuid REFERENCES profiles ON DELETE CASCADE NOT NULL,
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  title text NOT NULL,
+  description text,
+  subject text,
+  reflection text,
+  file_url text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Admissions applications
+CREATE TABLE IF NOT EXISTS admissions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  full_name text NOT NULL,
+  email text,
+  phone text,
+  grade_applying text,
+  date_of_birth date,
+  notes text,
+  status text DEFAULT 'pending' CHECK (status IN ('pending','accepted','rejected','waitlist')),
+  reviewed_by uuid REFERENCES profiles ON DELETE SET NULL,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Staff leave requests
+CREATE TABLE IF NOT EXISTS leave_requests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  teacher_id uuid REFERENCES profiles ON DELETE CASCADE NOT NULL,
+  leave_type text NOT NULL CHECK (leave_type IN ('sick','personal','professional','other')),
+  start_date date NOT NULL,
+  end_date date NOT NULL,
+  reason text,
+  status text DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
+  reviewed_by uuid REFERENCES profiles ON DELETE SET NULL,
+  review_note text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Rooms / resources for booking
+CREATE TABLE IF NOT EXISTS rooms (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  name text NOT NULL,
+  type text DEFAULT 'classroom' CHECK (type IN ('classroom','lab','hall','sports','other')),
+  capacity int,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Room bookings
+CREATE TABLE IF NOT EXISTS room_bookings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  room_id uuid REFERENCES rooms ON DELETE CASCADE NOT NULL,
+  booked_by uuid REFERENCES profiles ON DELETE CASCADE NOT NULL,
+  date date NOT NULL,
+  start_time time NOT NULL,
+  end_time time NOT NULL,
+  purpose text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Library books
+CREATE TABLE IF NOT EXISTS library_books (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  title text NOT NULL,
+  author text,
+  isbn text,
+  total_copies int DEFAULT 1,
+  available_copies int DEFAULT 1,
+  category text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Library checkouts
+CREATE TABLE IF NOT EXISTS library_checkouts (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  book_id uuid REFERENCES library_books ON DELETE CASCADE NOT NULL,
+  student_id uuid REFERENCES profiles ON DELETE CASCADE NOT NULL,
+  checked_out_at timestamptz DEFAULT now(),
+  due_date date NOT NULL,
+  returned_at timestamptz,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Surveys
+CREATE TABLE IF NOT EXISTS surveys (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  created_by uuid REFERENCES profiles ON DELETE CASCADE NOT NULL,
+  title text NOT NULL,
+  description text,
+  audience text DEFAULT 'all' CHECK (audience IN ('all','parents','teachers','students')),
+  status text DEFAULT 'draft' CHECK (status IN ('draft','active','closed')),
+  created_at timestamptz DEFAULT now()
+);
+
+-- College counseling (IB DP)
+CREATE TABLE IF NOT EXISTS college_applications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  student_id uuid REFERENCES profiles ON DELETE CASCADE NOT NULL,
+  university text NOT NULL,
+  program text,
+  deadline date,
+  status text DEFAULT 'planning' CHECK (status IN ('planning','applied','offer','accepted','rejected')),
+  notes text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Parent-teacher conference slots
+CREATE TABLE IF NOT EXISTS ptc_slots (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  school_id uuid REFERENCES schools ON DELETE CASCADE NOT NULL,
+  teacher_id uuid REFERENCES profiles ON DELETE CASCADE NOT NULL,
+  date date NOT NULL,
+  start_time time NOT NULL,
+  end_time time NOT NULL,
+  booked_by uuid REFERENCES profiles ON DELETE SET NULL,
+  student_id uuid REFERENCES profiles ON DELETE SET NULL,
+  notes text,
+  created_at timestamptz DEFAULT now()
+);
+
 -- ================================================================
 -- HELPER FUNCTION (needed by RLS policies below)
 -- ================================================================
@@ -643,3 +808,136 @@ CREATE POLICY "conv_msg_participant_all" ON conversation_messages FOR ALL
       AND (c.parent_id = auth.uid() OR c.teacher_id = auth.uid()
         OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = c.school_id))
   ));
+
+-- ================================================================
+-- NEW TABLES: ENABLE ROW LEVEL SECURITY
+-- ================================================================
+ALTER TABLE cas_entries          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE unit_plans           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE portfolio_items      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admissions           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leave_requests       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rooms                ENABLE ROW LEVEL SECURITY;
+ALTER TABLE room_bookings        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE library_books        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE library_checkouts    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE surveys              ENABLE ROW LEVEL SECURITY;
+ALTER TABLE college_applications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ptc_slots            ENABLE ROW LEVEL SECURITY;
+
+-- ================================================================
+-- NEW TABLES: RLS POLICIES
+-- ================================================================
+
+-- CAS_ENTRIES
+CREATE POLICY "cas_admin_all" ON cas_entries FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = cas_entries.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = cas_entries.school_id));
+CREATE POLICY "cas_supervisor_select" ON cas_entries FOR SELECT
+  USING (supervisor_id = auth.uid());
+CREATE POLICY "cas_supervisor_update" ON cas_entries FOR UPDATE
+  USING (supervisor_id = auth.uid());
+CREATE POLICY "cas_student_all" ON cas_entries FOR ALL
+  USING (student_id = auth.uid()) WITH CHECK (student_id = auth.uid());
+CREATE POLICY "cas_parent_select" ON cas_entries FOR SELECT
+  USING (EXISTS (SELECT 1 FROM parent_children WHERE parent_id = auth.uid() AND child_id = cas_entries.student_id));
+
+-- UNIT_PLANS
+CREATE POLICY "unit_plans_admin_all" ON unit_plans FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = unit_plans.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = unit_plans.school_id));
+CREATE POLICY "unit_plans_teacher_all" ON unit_plans FOR ALL
+  USING (teacher_id = auth.uid()) WITH CHECK (teacher_id = auth.uid());
+CREATE POLICY "unit_plans_school_select" ON unit_plans FOR SELECT
+  USING (school_id = get_my_school_id());
+
+-- PORTFOLIO_ITEMS
+CREATE POLICY "portfolio_admin_all" ON portfolio_items FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = portfolio_items.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = portfolio_items.school_id));
+CREATE POLICY "portfolio_teacher_select" ON portfolio_items FOR SELECT
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = portfolio_items.school_id));
+CREATE POLICY "portfolio_student_all" ON portfolio_items FOR ALL
+  USING (student_id = auth.uid()) WITH CHECK (student_id = auth.uid());
+CREATE POLICY "portfolio_parent_select" ON portfolio_items FOR SELECT
+  USING (EXISTS (SELECT 1 FROM parent_children WHERE parent_id = auth.uid() AND child_id = portfolio_items.student_id));
+
+-- ADMISSIONS
+CREATE POLICY "admissions_admin_all" ON admissions FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = admissions.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = admissions.school_id));
+CREATE POLICY "admissions_teacher_select" ON admissions FOR SELECT
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = admissions.school_id));
+
+-- LEAVE_REQUESTS
+CREATE POLICY "leave_admin_all" ON leave_requests FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = leave_requests.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = leave_requests.school_id));
+CREATE POLICY "leave_teacher_all" ON leave_requests FOR ALL
+  USING (teacher_id = auth.uid()) WITH CHECK (teacher_id = auth.uid());
+
+-- ROOMS
+CREATE POLICY "rooms_school_select" ON rooms FOR SELECT
+  USING (school_id = get_my_school_id());
+CREATE POLICY "rooms_admin_all" ON rooms FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = rooms.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = rooms.school_id));
+
+-- ROOM_BOOKINGS
+CREATE POLICY "room_bookings_school_select" ON room_bookings FOR SELECT
+  USING (school_id = get_my_school_id());
+CREATE POLICY "room_bookings_own_all" ON room_bookings FOR ALL
+  USING (booked_by = auth.uid()) WITH CHECK (booked_by = auth.uid());
+CREATE POLICY "room_bookings_admin_all" ON room_bookings FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = room_bookings.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = room_bookings.school_id));
+
+-- LIBRARY_BOOKS
+CREATE POLICY "library_books_school_select" ON library_books FOR SELECT
+  USING (school_id = get_my_school_id());
+CREATE POLICY "library_books_admin_all" ON library_books FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = library_books.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = library_books.school_id));
+
+-- LIBRARY_CHECKOUTS
+CREATE POLICY "library_checkouts_student_select" ON library_checkouts FOR SELECT
+  USING (student_id = auth.uid());
+CREATE POLICY "library_checkouts_parent_select" ON library_checkouts FOR SELECT
+  USING (EXISTS (SELECT 1 FROM parent_children WHERE parent_id = auth.uid() AND child_id = library_checkouts.student_id));
+CREATE POLICY "library_checkouts_admin_all" ON library_checkouts FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = library_checkouts.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = library_checkouts.school_id));
+CREATE POLICY "library_checkouts_teacher_all" ON library_checkouts FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = library_checkouts.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = library_checkouts.school_id));
+
+-- SURVEYS
+CREATE POLICY "surveys_school_select" ON surveys FOR SELECT
+  USING (school_id = get_my_school_id());
+CREATE POLICY "surveys_admin_all" ON surveys FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = surveys.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = surveys.school_id));
+CREATE POLICY "surveys_teacher_all" ON surveys FOR ALL
+  USING (created_by = auth.uid()) WITH CHECK (created_by = auth.uid());
+
+-- COLLEGE_APPLICATIONS
+CREATE POLICY "college_admin_all" ON college_applications FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = college_applications.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = college_applications.school_id));
+CREATE POLICY "college_teacher_select" ON college_applications FOR SELECT
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = college_applications.school_id));
+CREATE POLICY "college_student_select" ON college_applications FOR SELECT
+  USING (student_id = auth.uid());
+CREATE POLICY "college_parent_select" ON college_applications FOR SELECT
+  USING (EXISTS (SELECT 1 FROM parent_children WHERE parent_id = auth.uid() AND child_id = college_applications.student_id));
+
+-- PTC_SLOTS
+CREATE POLICY "ptc_admin_all" ON ptc_slots FOR ALL
+  USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = ptc_slots.school_id))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = ptc_slots.school_id));
+CREATE POLICY "ptc_teacher_all" ON ptc_slots FOR ALL
+  USING (teacher_id = auth.uid()) WITH CHECK (teacher_id = auth.uid());
+CREATE POLICY "ptc_parent_select" ON ptc_slots FOR SELECT
+  USING (booked_by = auth.uid());
+CREATE POLICY "ptc_student_select" ON ptc_slots FOR SELECT
+  USING (student_id = auth.uid());
