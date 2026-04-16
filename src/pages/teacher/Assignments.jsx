@@ -1,29 +1,225 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
-import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { Select, Textarea } from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
-import Table from '../../components/ui/Table'
+import Badge from '../../components/ui/Badge'
+import Avatar from '../../components/ui/Avatar'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
-import Badge from '../../components/ui/Badge'
-import { ClipboardList, Plus, Sparkles, Loader2 } from 'lucide-react'
+import {
+  ClipboardList,
+  Plus,
+  Sparkles,
+  Loader2,
+  Filter,
+  Eye,
+  BarChart2,
+  Clock,
+  CheckSquare,
+} from 'lucide-react'
+
+// ── Subject colour palette ────────────────────────────────────────────────────
+
+const SUBJECT_PALETTE = [
+  'bg-purple',
+  'bg-teal',
+  'bg-amber-500',
+  'bg-blue-500',
+  'bg-pink-500',
+  'bg-orange-500',
+]
+
+function subjectTopColor(name = '') {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
+  return SUBJECT_PALETTE[Math.abs(h) % SUBJECT_PALETTE.length]
+}
+
+// ── Due-date countdown chip ───────────────────────────────────────────────────
+
+function DueDateChip({ dueDate }) {
+  if (!dueDate) return null
+
+  const now = new Date()
+  const due = new Date(dueDate)
+  const diffMs = due.setHours(0, 0, 0, 0) - now.setHours(0, 0, 0, 0)
+  const diffDays = Math.round(diffMs / 86400000)
+
+  if (diffDays < 0) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-red-50 text-red-600">
+        <Clock className="w-3 h-3" />
+        {Math.abs(diffDays)} gün keçdi
+      </span>
+    )
+  }
+  if (diffDays === 0) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-amber-50 text-amber-600">
+        <Clock className="w-3 h-3" />
+        Bu gün!
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-surface text-gray-500">
+      <Clock className="w-3 h-3" />
+      {diffDays} gün qaldı
+    </span>
+  )
+}
+
+// ── Submission progress bar ───────────────────────────────────────────────────
+
+function SubmissionBar({ submitted, total }) {
+  const pct = total > 0 ? Math.round((submitted / total) * 100) : 0
+  return (
+    <div className="flex items-center gap-2 mt-3">
+      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-teal rounded-full transition-all"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className="text-xs text-gray-500">
+        {submitted}/{total}
+      </span>
+    </div>
+  )
+}
+
+// ── Submission status badge ───────────────────────────────────────────────────
+
+function SubStatusBadge({ status }) {
+  const map = {
+    graded:    { cls: 'bg-teal-light text-teal',          label: 'Qiymətləndirildi' },
+    submitted: { cls: 'bg-purple-light text-purple-dark', label: 'Təhvil verildi'   },
+    late:      { cls: 'bg-amber-50 text-amber-600',       label: 'Gecikən'          },
+  }
+  const s = map[status] || { cls: 'bg-surface text-gray-500', label: status || 'Naməlum' }
+  return (
+    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${s.cls}`}>
+      {s.label}
+    </span>
+  )
+}
+
+// ── Assignment card ───────────────────────────────────────────────────────────
+
+function AssignmentCard({ assignment, onClick }) {
+  const subjectName = assignment.subject?.name || ''
+  const className   = assignment.class?.name   || ''
+  const topColor    = subjectTopColor(subjectName)
+
+  const ungradedCount = assignment.ungradedCount || 0
+
+  return (
+    <div
+      className="bg-white rounded-xl border border-border-soft shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden flex flex-col"
+      onClick={() => onClick(assignment)}
+    >
+      {/* Colour bar */}
+      <div className={`h-1 w-full ${topColor}`} />
+
+      {/* Card body */}
+      <div className="p-5 flex flex-col flex-1">
+
+        {/* Top row: badges + due date */}
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            {subjectName && (
+              <Badge variant="default">{subjectName}</Badge>
+            )}
+            {className && (
+              <Badge variant="national">{className}</Badge>
+            )}
+          </div>
+          <div className="flex-shrink-0">
+            <DueDateChip dueDate={assignment.due_date} />
+          </div>
+        </div>
+
+        {/* Title */}
+        <h3 className="text-base font-semibold text-gray-900 leading-snug mb-1">
+          {assignment.title}
+        </h3>
+
+        {/* Description — 2-line clamp */}
+        {assignment.description && (
+          <p
+            className="text-sm text-gray-500 leading-relaxed mb-auto"
+            style={{
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}
+          >
+            {assignment.description}
+          </p>
+        )}
+
+        {/* Spacer so bar always sits at bottom */}
+        <div className="flex-1" />
+
+        {/* Progress bar */}
+        <SubmissionBar
+          submitted={assignment.submissionCount}
+          total={assignment.totalStudents}
+        />
+
+        {/* Footer row */}
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-soft">
+          <span className="text-xs text-gray-500">
+            {assignment.submissionCount}/{assignment.totalStudents} şagird təhvil verib
+          </span>
+          <div className="flex items-center gap-2">
+            {ungradedCount > 0 && (
+              <span className="rounded-full bg-amber-50 text-amber-600 text-xs font-medium px-2 py-0.5">
+                {ungradedCount} gözləyir
+              </span>
+            )}
+            <button
+              className="flex items-center gap-1 text-xs font-medium text-purple hover:text-purple-dark transition-colors"
+              onClick={e => { e.stopPropagation(); onClick(assignment) }}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Bax
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Filter tab ────────────────────────────────────────────────────────────────
+
+const FILTERS = [
+  { key: 'all',       label: 'Hamısı'            },
+  { key: 'active',    label: 'Aktiv'             },
+  { key: 'ungraded',  label: 'Qiymətləndirilməyib' },
+  { key: 'finished',  label: 'Bitmiş'            },
+]
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export default function TeacherAssignments() {
   const { profile, t } = useAuth()
-  const [loading, setLoading] = useState(true)
-  const [teacherClasses, setTeacherClasses] = useState([])
-  const [assignments, setAssignments] = useState([])
-  const [submissions, setSubmissions] = useState({})
-  const [showNewModal, setShowNewModal] = useState(false)
+
+  const [loading, setLoading]                 = useState(true)
+  const [teacherClasses, setTeacherClasses]   = useState([])
+  const [assignments, setAssignments]         = useState([])
+  const [showNewModal, setShowNewModal]       = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [selectedAssignment, setSelectedAssignment] = useState(null)
-  const [detailSubmissions, setDetailSubmissions] = useState([])
-  const [saving, setSaving] = useState(false)
-  const [aiLoading, setAiLoading] = useState(null)
+  const [detailSubmissions, setDetailSubmissions]   = useState([])
+  const [saving, setSaving]                   = useState(false)
+  const [aiLoading, setAiLoading]             = useState(null)
+  const [activeFilter, setActiveFilter]       = useState('all')
 
   const [newAssignment, setNewAssignment] = useState({
     title: '',
@@ -32,12 +228,15 @@ export default function TeacherAssignments() {
     subject_id: '',
     due_date: '',
     max_score: 10,
+    notify: false,
   })
 
   useEffect(() => {
     if (!profile) return
     loadData()
   }, [profile])
+
+  // ── Data loading ────────────────────────────────────────────────────────────
 
   async function loadData() {
     const { data: tcData } = await supabase
@@ -57,22 +256,26 @@ export default function TeacherAssignments() {
       .order('created_at', { ascending: false })
 
     const assignIds = (assignData || []).map(a => a.id)
-    let subCounts = {}
+
+    // Submission counts (total) + ungraded counts
+    let subCounts    = {}
+    let ungradedMap  = {}
 
     if (assignIds.length) {
       const { data: subData } = await supabase
         .from('submissions')
-        .select('assignment_id')
+        .select('assignment_id, status')
         .in('assignment_id', assignIds)
 
-      const counts = {}
       ;(subData || []).forEach(s => {
-        counts[s.assignment_id] = (counts[s.assignment_id] || 0) + 1
+        subCounts[s.assignment_id]   = (subCounts[s.assignment_id]   || 0) + 1
+        if (s.status !== 'graded') {
+          ungradedMap[s.assignment_id] = (ungradedMap[s.assignment_id] || 0) + 1
+        }
       })
-      subCounts = counts
     }
 
-    // Get student counts per class
+    // Student counts per class
     const classCounts = {}
     for (const cid of [...new Set(classIds)]) {
       const { count } = await supabase
@@ -82,32 +285,40 @@ export default function TeacherAssignments() {
       classCounts[cid] = count || 0
     }
 
-    setSubmissions(subCounts)
     setAssignments(
       (assignData || []).map(a => ({
         ...a,
-        submissionCount: subCounts[a.id] || 0,
-        totalStudents: classCounts[a.class_id] || 0,
+        submissionCount: subCounts[a.id]   || 0,
+        ungradedCount:   ungradedMap[a.id] || 0,
+        totalStudents:   classCounts[a.class_id] || 0,
       }))
     )
     setLoading(false)
   }
 
+  // ── Create assignment ───────────────────────────────────────────────────────
+
   async function handleCreate() {
     setSaving(true)
+    const { notify, ...rest } = newAssignment
     const { error } = await supabase.from('assignments').insert({
-      ...newAssignment,
+      ...rest,
       teacher_id: profile.id,
-      max_score: Number(newAssignment.max_score),
+      max_score: Number(rest.max_score),
     })
 
     if (!error) {
       setShowNewModal(false)
-      setNewAssignment({ title: '', description: '', class_id: '', subject_id: '', due_date: '', max_score: 10 })
+      setNewAssignment({
+        title: '', description: '', class_id: '', subject_id: '',
+        due_date: '', max_score: 10, notify: false,
+      })
       loadData()
     }
     setSaving(false)
   }
+
+  // ── Open detail panel ───────────────────────────────────────────────────────
 
   async function openDetail(assignment) {
     setSelectedAssignment(assignment)
@@ -121,12 +332,21 @@ export default function TeacherAssignments() {
     setShowDetailModal(true)
   }
 
+  // ── Grade submission ────────────────────────────────────────────────────────
+
   async function gradeSubmission(submissionId, score) {
     const val = parseFloat(score)
     if (isNaN(val)) return
-    await supabase.from('submissions').update({ score: val, status: 'graded' }).eq('id', submissionId)
-    setDetailSubmissions(prev => prev.map(s => s.id === submissionId ? { ...s, score: val, status: 'graded' } : s))
+    await supabase
+      .from('submissions')
+      .update({ score: val, status: 'graded' })
+      .eq('id', submissionId)
+    setDetailSubmissions(prev =>
+      prev.map(s => s.id === submissionId ? { ...s, score: val, status: 'graded' } : s)
+    )
   }
+
+  // ── AI feedback ─────────────────────────────────────────────────────────────
 
   async function generateAIFeedback(submission) {
     setAiLoading(submission.id)
@@ -140,7 +360,12 @@ export default function TeacherAssignments() {
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           },
           body: JSON.stringify({
-            messages: [{ role: 'user', content: `Bu tapshiriq cavabina rəy ver:\n\nTapshiriq: ${selectedAssignment.title}\n${selectedAssignment.description || ''}\n\nCavab:\n${submission.content}` }],
+            messages: [
+              {
+                role: 'user',
+                content: `Bu tapshiriq cavabina rəy ver:\n\nTapshiriq: ${selectedAssignment.title}\n${selectedAssignment.description || ''}\n\nCavab:\n${submission.content}`,
+              },
+            ],
             userProfile: profile,
             mode: 'assignment_feedback',
             language: 'az',
@@ -148,7 +373,7 @@ export default function TeacherAssignments() {
         }
       )
 
-      const reader = response.body.getReader()
+      const reader  = response.body.getReader()
       const decoder = new TextDecoder()
       let fullContent = ''
 
@@ -168,15 +393,23 @@ export default function TeacherAssignments() {
       }
 
       await supabase.from('submissions').update({ feedback: fullContent }).eq('id', submission.id)
-      setDetailSubmissions(prev => prev.map(s => s.id === submission.id ? { ...s, feedback: fullContent } : s))
+      setDetailSubmissions(prev =>
+        prev.map(s => s.id === submission.id ? { ...s, feedback: fullContent } : s)
+      )
     } catch {
-      setDetailSubmissions(prev => prev.map(s =>
-        s.id === submission.id ? { ...s, feedback: 'AI rəyi əldə edilə bilmədi. Yenidən cəhd edin.' } : s
-      ))
+      setDetailSubmissions(prev =>
+        prev.map(s =>
+          s.id === submission.id
+            ? { ...s, feedback: 'AI rəyi əldə edilə bilmədi. Yenidən cəhd edin.' }
+            : s
+        )
+      )
     } finally {
       setAiLoading(null)
     }
   }
+
+  // ── Helpers ─────────────────────────────────────────────────────────────────
 
   const formatDate = (d) => {
     if (!d) return ''
@@ -184,160 +417,406 @@ export default function TeacherAssignments() {
     return `${String(dt.getDate()).padStart(2, '0')}.${String(dt.getMonth() + 1).padStart(2, '0')}.${dt.getFullYear()}`
   }
 
+  const isThisWeek = (dueDate) => {
+    if (!dueDate) return false
+    const now  = new Date()
+    const due  = new Date(dueDate)
+    const startOfWeek = new Date(now)
+    startOfWeek.setDate(now.getDate() - now.getDay() + 1)
+    startOfWeek.setHours(0, 0, 0, 0)
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6)
+    endOfWeek.setHours(23, 59, 59, 999)
+    return due >= startOfWeek && due <= endOfWeek
+  }
+
+  const isActive = (a) => {
+    if (!a.due_date) return true
+    return new Date(a.due_date) >= new Date(new Date().setHours(0, 0, 0, 0))
+  }
+
+  // ── Stats ───────────────────────────────────────────────────────────────────
+
+  const totalCount    = assignments.length
+  const ungradedTotal = assignments.reduce((acc, a) => acc + (a.ungradedCount || 0), 0)
+  const thisWeekCount = assignments.filter(a => isThisWeek(a.due_date)).length
+  const avgPct = assignments.length
+    ? Math.round(
+        assignments.reduce((acc, a) =>
+          acc + (a.totalStudents > 0 ? (a.submissionCount / a.totalStudents) * 100 : 0), 0
+        ) / assignments.length
+      )
+    : 0
+
+  // ── Filtered assignments ────────────────────────────────────────────────────
+
+  const filteredAssignments = assignments.filter(a => {
+    if (activeFilter === 'active')   return isActive(a)
+    if (activeFilter === 'ungraded') return (a.ungradedCount || 0) > 0
+    if (activeFilter === 'finished') return !isActive(a)
+    return true
+  })
+
+  // ── Derived form data ───────────────────────────────────────────────────────
+
   if (loading) return <PageSpinner />
 
-  const uniqueClasses = [...new Map(teacherClasses.map(tc => [tc.class_id, tc.class])).values()]
-  const subjectsForClass = (classId) => teacherClasses.filter(tc => tc.class_id === classId).map(tc => tc.subject)
+  const uniqueClasses    = [...new Map(teacherClasses.map(tc => [tc.class_id, tc.class])).values()]
+  const subjectsForClass = (classId) =>
+    teacherClasses.filter(tc => tc.class_id === classId).map(tc => tc.subject)
 
-  const columns = [
-    { key: 'class', label: t('class_name'), render: (_, row) => row.class?.name },
-    { key: 'subject', label: t('subject'), render: (_, row) => <Badge variant="default">{row.subject?.name}</Badge> },
-    { key: 'title', label: t('assignments'), render: (v) => <span className="font-medium text-gray-900">{v}</span> },
-    { key: 'due_date', label: t('date'), render: (v) => formatDate(v) },
-    {
-      key: 'submissionCount',
-      label: t('submit'),
-      render: (v, row) => (
-        <span className="text-sm">
-          {v}/{row.totalStudents}
-          <span className="text-gray-400 ml-1">
-            ({row.totalStudents > 0 ? Math.round((v / row.totalStudents) * 100) : 0}%)
-          </span>
-        </span>
-      ),
-    },
-  ]
+  // ── Submission panel summary ────────────────────────────────────────────────
+
+  const submittedCount = detailSubmissions.length
+  const gradedCount    = detailSubmissions.filter(s => s.status === 'graded').length
+  const pendingCount   = submittedCount - gradedCount
+
+  // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <div className="space-y-6">
+
+      {/* ── Page header ─────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-4xl text-gray-900 tracking-tight">{t('assignments')}</h1>
+        <h1 className="font-serif text-4xl text-gray-900 tracking-tight">
+          Tapşırıqlar
+        </h1>
         <Button onClick={() => setShowNewModal(true)}>
           <Plus className="w-4 h-4 mr-2" />
-          {t('new_assignment')}
+          Yeni tapşırıq
         </Button>
       </div>
 
-      {assignments.length === 0 ? (
+      {/* ── Stats row ───────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+        {/* Total tapşırıqlar */}
+        <div className="bg-white rounded-2xl border border-border-soft p-5 flex items-center gap-4">
+          <span className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <ClipboardList className="w-5 h-5 text-blue-500" />
+          </span>
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">
+              Ümumi tapşırıq
+            </p>
+            <p className="text-2xl font-bold text-gray-900 mt-0.5">{totalCount}</p>
+          </div>
+        </div>
+
+        {/* Gözləyən qiymətləndirmə */}
+        <div className="bg-white rounded-2xl border border-border-soft p-5 flex items-center gap-4">
+          <span className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+            <Clock className="w-5 h-5 text-amber-500" />
+          </span>
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">
+              Gözləyən qiymətləndir.
+            </p>
+            <p className="text-2xl font-bold text-gray-900 mt-0.5">{ungradedTotal}</p>
+          </div>
+        </div>
+
+        {/* Bu həftə son tarix */}
+        <div className="bg-white rounded-2xl border border-border-soft p-5 flex items-center gap-4">
+          <span className="w-10 h-10 rounded-xl bg-teal-light flex items-center justify-center flex-shrink-0">
+            <CheckSquare className="w-5 h-5 text-teal" />
+          </span>
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">
+              Bu həftə son tarix
+            </p>
+            <p className="text-2xl font-bold text-gray-900 mt-0.5">{thisWeekCount}</p>
+          </div>
+        </div>
+
+        {/* Ortalama təhvil % */}
+        <div className="bg-white rounded-2xl border border-border-soft p-5 flex items-center gap-4">
+          <span className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0">
+            <BarChart2 className="w-5 h-5 text-purple" />
+          </span>
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">
+              Ortalama təhvil %
+            </p>
+            <p className="text-2xl font-bold text-gray-900 mt-0.5">{avgPct}%</p>
+          </div>
+        </div>
+
+      </div>
+
+      {/* ── Filter tabs ─────────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-1 bg-surface rounded-xl p-1 w-fit border border-border-soft">
+        <Filter className="w-4 h-4 text-gray-400 mx-2 flex-shrink-0" />
+        {FILTERS.map(f => (
+          <button
+            key={f.key}
+            onClick={() => setActiveFilter(f.key)}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              activeFilter === f.key
+                ? 'bg-white text-gray-900 shadow-sm border border-border-soft'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {f.label}
+            {f.key === 'ungraded' && ungradedTotal > 0 && (
+              <span className="ml-1.5 rounded-full bg-amber-100 text-amber-600 text-xs font-semibold px-1.5 py-0.5">
+                {ungradedTotal}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Assignment grid ──────────────────────────────────────────────────── */}
+      {filteredAssignments.length === 0 ? (
         <EmptyState
           icon={ClipboardList}
-          title={t('no_data')}
-          description={t('new_assignment')}
-          actionLabel={t('new_assignment')}
+          title="Tapşırıq yoxdur"
+          description="Yeni tapşırıq yaradın"
+          actionLabel="Yeni tapşırıq"
           onAction={() => setShowNewModal(true)}
         />
       ) : (
-        <Card hover={false}>
-          <Table columns={columns} data={assignments} onRowClick={openDetail} />
-        </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filteredAssignments.map(a => (
+            <AssignmentCard key={a.id} assignment={a} onClick={openDetail} />
+          ))}
+        </div>
       )}
 
-      <Modal open={showNewModal} onClose={() => setShowNewModal(false)} title={t('new_assignment')}>
+      {/* ── New assignment modal ─────────────────────────────────────────────── */}
+      <Modal
+        open={showNewModal}
+        onClose={() => setShowNewModal(false)}
+        title="Yeni tapşırıq"
+        size="md"
+      >
         <div className="space-y-4">
+
           <Input
-            label={t('assignments')}
+            label="Başlıq"
+            placeholder="Tapşırığın adını daxil edin"
             value={newAssignment.title}
             onChange={e => setNewAssignment(p => ({ ...p, title: e.target.value }))}
           />
+
           <Textarea
-            label={t('note')}
+            label="Açıqlama"
             rows={4}
+            placeholder="Tapşırıq haqqında ətraflı məlumat..."
             value={newAssignment.description}
             onChange={e => setNewAssignment(p => ({ ...p, description: e.target.value }))}
           />
-          <Select
-            label={t('class_name')}
-            value={newAssignment.class_id}
-            onChange={e => setNewAssignment(p => ({ ...p, class_id: e.target.value, subject_id: '' }))}
-          >
-            <option value="">{t('class_name')}</option>
-            {uniqueClasses.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </Select>
-          <Select
-            label={t('subject')}
-            value={newAssignment.subject_id}
-            onChange={e => setNewAssignment(p => ({ ...p, subject_id: e.target.value }))}
-          >
-            <option value="">{t('subject')}</option>
-            {subjectsForClass(newAssignment.class_id).map(s => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </Select>
-          <Input
-            label={t('date')}
-            type="date"
-            value={newAssignment.due_date}
-            onChange={e => setNewAssignment(p => ({ ...p, due_date: e.target.value }))}
-          />
-          <Input
-            label={t('score')}
-            type="number"
-            value={newAssignment.max_score}
-            onChange={e => setNewAssignment(p => ({ ...p, max_score: e.target.value }))}
-          />
-          <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={() => setShowNewModal(false)}>{t('cancel')}</Button>
-            <Button onClick={handleCreate} loading={saving} disabled={!newAssignment.title || !newAssignment.class_id || !newAssignment.subject_id}>{t('submit')}</Button>
-          </div>
-        </div>
-      </Modal>
 
-      <Modal open={showDetailModal} onClose={() => setShowDetailModal(false)} title={selectedAssignment?.title || ''} size="lg">
-        <div className="space-y-4">
-          {selectedAssignment?.description && (
-            <p className="text-sm text-gray-500">{selectedAssignment.description}</p>
-          )}
-
-          {detailSubmissions.length === 0 ? (
-            <p className="text-center py-8 text-sm text-gray-400">Hələ təhvil verilmiş cavab yoxdur</p>
-          ) : (
-            <div className="space-y-4">
-              {detailSubmissions.map(sub => (
-                <div key={sub.id} className="border border-border-soft rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-gray-900">{sub.student?.full_name}</span>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="number"
-                        min={0}
-                        max={selectedAssignment?.max_score || 10}
-                        defaultValue={sub.score || ''}
-                        placeholder="Bal"
-                        className="w-20 border border-border-soft rounded-md px-3 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple"
-                        onBlur={e => gradeSubmission(sub.id, e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-                      />
-                      <span className="text-xs text-gray-400">/ {selectedAssignment?.max_score}</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-700 bg-surface rounded-lg p-3 mb-3">{sub.content}</p>
-                  {sub.feedback ? (
-                    <div className="bg-purple-light rounded-lg p-3">
-                      <p className="text-xs text-purple-dark font-medium mb-1">Zəka rəyi</p>
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{sub.feedback}</p>
-                    </div>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      onClick={() => generateAIFeedback(sub)}
-                      disabled={aiLoading === sub.id}
-                    >
-                      {aiLoading === sub.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      ) : (
-                        <Sparkles className="w-4 h-4 mr-2" />
-                      )}
-                      Zəka rəyi yarat
-                    </Button>
-                  )}
-                </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              label="Sinif"
+              value={newAssignment.class_id}
+              onChange={e =>
+                setNewAssignment(p => ({ ...p, class_id: e.target.value, subject_id: '' }))
+              }
+            >
+              <option value="">Sinif seçin</option>
+              {uniqueClasses.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
               ))}
+            </Select>
+
+            <Select
+              label="Fənn"
+              value={newAssignment.subject_id}
+              onChange={e => setNewAssignment(p => ({ ...p, subject_id: e.target.value }))}
+              disabled={!newAssignment.class_id}
+            >
+              <option value="">Fənn seçin</option>
+              {subjectsForClass(newAssignment.class_id).map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Son tarix"
+              type="date"
+              value={newAssignment.due_date}
+              onChange={e => setNewAssignment(p => ({ ...p, due_date: e.target.value }))}
+            />
+            <Input
+              label="Maksimal bal"
+              type="number"
+              min={1}
+              max={100}
+              value={newAssignment.max_score}
+              onChange={e => setNewAssignment(p => ({ ...p, max_score: e.target.value }))}
+            />
+          </div>
+
+          {/* Announcement toggle */}
+          <label className="flex items-center gap-3 cursor-pointer select-none">
+            <div
+              className={`relative w-10 h-6 rounded-full transition-colors ${newAssignment.notify ? 'bg-purple' : 'bg-gray-200'}`}
+              onClick={() => setNewAssignment(p => ({ ...p, notify: !p.notify }))}
+            >
+              <span
+                className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${newAssignment.notify ? 'translate-x-4' : ''}`}
+              />
             </div>
-          )}
+            <div>
+              <span className="text-sm font-medium text-gray-700">Valideyn/şagirdlərə bildiriş göndər</span>
+              <p className="text-xs text-gray-400">Tapşırıq yaradıldıqda avtomatik bildiriş</p>
+            </div>
+          </label>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="ghost" onClick={() => setShowNewModal(false)}>
+              Ləğv et
+            </Button>
+            <Button
+              onClick={handleCreate}
+              loading={saving}
+              disabled={!newAssignment.title || !newAssignment.class_id || !newAssignment.subject_id}
+            >
+              Yarat
+            </Button>
+          </div>
+
         </div>
       </Modal>
+
+      {/* ── Submission review panel ──────────────────────────────────────────── */}
+      <Modal
+        open={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        title={selectedAssignment?.title || ''}
+        size="lg"
+      >
+        {selectedAssignment && (
+          <div className="space-y-5">
+
+            {/* Assignment meta */}
+            <div className="flex flex-wrap gap-2 items-center">
+              {selectedAssignment.class?.name && (
+                <Badge variant="national">{selectedAssignment.class.name}</Badge>
+              )}
+              {selectedAssignment.subject?.name && (
+                <Badge variant="default">{selectedAssignment.subject.name}</Badge>
+              )}
+              {selectedAssignment.due_date && (
+                <span className="text-xs text-gray-500">
+                  Son tarix: {formatDate(selectedAssignment.due_date)}
+                </span>
+              )}
+              {selectedAssignment.max_score && (
+                <span className="text-xs text-gray-500">
+                  Maks. bal: {selectedAssignment.max_score}
+                </span>
+              )}
+            </div>
+
+            {selectedAssignment.description && (
+              <p className="text-sm text-gray-600 bg-surface rounded-lg p-3">
+                {selectedAssignment.description}
+              </p>
+            )}
+
+            {/* Summary bar */}
+            <div className="flex items-center gap-4 py-3 px-4 bg-surface rounded-xl border border-border-soft text-sm">
+              <span className="text-gray-500">
+                <span className="font-semibold text-gray-900">{submittedCount}</span> təhvil
+              </span>
+              <span className="w-px h-4 bg-border-soft" />
+              <span className="text-gray-500">
+                <span className="font-semibold text-teal">{gradedCount}</span> qiymətləndirildi
+              </span>
+              <span className="w-px h-4 bg-border-soft" />
+              <span className="text-gray-500">
+                <span className="font-semibold text-amber-500">{pendingCount}</span> gözləyir
+              </span>
+            </div>
+
+            {/* Submissions list */}
+            {detailSubmissions.length === 0 ? (
+              <p className="text-center py-10 text-sm text-gray-400">
+                Hələ təhvil verilmiş cavab yoxdur
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {detailSubmissions.map(sub => (
+                  <div
+                    key={sub.id}
+                    className="border border-border-soft rounded-xl p-4 space-y-3"
+                  >
+                    {/* Student row */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar name={sub.student?.full_name || '?'} size="sm" />
+                        <span className="text-sm font-semibold text-gray-900">
+                          {sub.student?.full_name}
+                        </span>
+                        <SubStatusBadge status={sub.status} />
+                      </div>
+
+                      {/* Score input */}
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <input
+                          type="number"
+                          min={0}
+                          max={selectedAssignment?.max_score || 10}
+                          defaultValue={sub.score ?? ''}
+                          placeholder="—"
+                          className="w-16 border border-border-soft rounded-md px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple"
+                          onBlur={e => gradeSubmission(sub.id, e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+                        />
+                        <span className="text-xs text-gray-400">
+                          / {selectedAssignment?.max_score}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Submission content */}
+                    {sub.content && (
+                      <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 leading-relaxed">
+                        {sub.content}
+                      </p>
+                    )}
+
+                    {/* AI feedback */}
+                    {sub.feedback ? (
+                      <div className="bg-purple-light rounded-lg p-3">
+                        <p className="text-xs text-purple-dark font-semibold mb-1.5 flex items-center gap-1">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          Zəka rəyi
+                        </p>
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                          {sub.feedback}
+                        </p>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        className="text-xs px-3 py-1.5"
+                        onClick={() => generateAIFeedback(sub)}
+                        disabled={aiLoading === sub.id || !sub.content}
+                      >
+                        {aiLoading === sub.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                        ) : (
+                          <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                        )}
+                        AI rəyi yarat
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+          </div>
+        )}
+      </Modal>
+
     </div>
   )
 }
