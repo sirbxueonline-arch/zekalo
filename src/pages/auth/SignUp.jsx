@@ -47,35 +47,27 @@ export default function SignUp() {
     setError('')
     setLoading(true)
     try {
-      const { data: authData, error: authErr } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-      })
-      if (authErr) throw authErr
-      if (!authData.user) throw new Error(t('error'))
-
-      const { data: schoolData, error: schoolErr } = await supabase
-        .from('schools')
-        .insert({
-          name: schoolName.trim(),
+      // Use the register-school Edge Function which runs with service-role key,
+      // bypassing RLS for the bootstrap case (no profile exists yet).
+      const { data, error: fnErr } = await supabase.functions.invoke('register-school', {
+        body: {
+          email: email.trim(),
+          password,
+          full_name: fullName.trim(),
+          school_name: schoolName.trim(),
           district: district.trim() || null,
           edition,
-          default_language: language,
-        })
-        .select()
-        .single()
-      if (schoolErr) throw schoolErr
-
-      const { error: profileErr } = await supabase.from('profiles').insert({
-        id: authData.user.id,
-        full_name: fullName.trim(),
-        email: email.trim(),
-        role: 'admin',
-        school_id: schoolData.id,
-        edition,
-        language,
+          language,
+        },
       })
-      if (profileErr) throw profileErr
+      if (fnErr) throw fnErr
+      if (data?.error) throw new Error(data.error)
+
+      // The function returns a session — set it on the client so the user is
+      // immediately logged in without a separate sign-in call.
+      if (data?.session) {
+        await supabase.auth.setSession(data.session)
+      }
 
       navigate('/admin/dashboard')
     } catch (err) {

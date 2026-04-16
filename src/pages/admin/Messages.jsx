@@ -65,19 +65,22 @@ export default function Messages() {
       if (annErr) throw annErr
 
       // Find matching profiles for notifications
-      let query = supabase.from('profiles').select('id').eq('school_id', profile.school_id)
-
-      if (form.audience === 'all_parents') {
-        query = query.eq('role', 'parent')
-      } else if (form.audience === 'all_teachers') {
-        query = query.eq('role', 'teacher')
-      } else if (form.audience === 'all_students') {
-        query = query.eq('role', 'student')
-      } else if (form.audience === 'class' && form.class_id) {
-        query = query.eq('class_id', form.class_id)
+      let recipients = []
+      if (form.audience === 'class' && form.class_id) {
+        // profiles has no class_id — join through class_members
+        const { data } = await supabase
+          .from('class_members')
+          .select('student:profiles!class_members_student_id_fkey(id)')
+          .eq('class_id', form.class_id)
+        recipients = (data || []).map(r => r.student).filter(Boolean)
+      } else {
+        let query = supabase.from('profiles').select('id').eq('school_id', profile.school_id)
+        if (form.audience === 'all_parents') query = query.eq('role', 'parent')
+        else if (form.audience === 'all_teachers') query = query.eq('role', 'teacher')
+        else if (form.audience === 'all_students') query = query.eq('role', 'student')
+        const { data } = await query
+        recipients = data || []
       }
-
-      const { data: recipients } = await query
       if (recipients && recipients.length > 0) {
         const notifications = recipients.map(r => ({
           user_id: r.id,
