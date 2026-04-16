@@ -563,90 +563,117 @@ ALTER TABLE conversation_messages ENABLE ROW LEVEL SECURITY;
 -- ================================================================
 
 -- SCHOOLS
+DROP POLICY IF EXISTS "schools_read" ON schools;
 CREATE POLICY "schools_read"         ON schools FOR SELECT USING (true);
+DROP POLICY IF EXISTS "schools_insert" ON schools;
 CREATE POLICY "schools_insert"       ON schools FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+DROP POLICY IF EXISTS "schools_admin_update" ON schools;
 CREATE POLICY "schools_admin_update" ON schools FOR UPDATE
   USING (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin' AND p.school_id = schools.id));
 
 -- PROFILES (uses get_my_school_id() — defined in Step 2)
+DROP POLICY IF EXISTS "profiles_select" ON profiles;
 CREATE POLICY "profiles_select" ON profiles FOR SELECT USING (
   auth.uid() = id
   OR (school_id IS NOT NULL AND school_id = get_my_school_id())
 );
+DROP POLICY IF EXISTS "profiles_insert" ON profiles;
 CREATE POLICY "profiles_insert"       ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+DROP POLICY IF EXISTS "profiles_update_own" ON profiles;
 CREATE POLICY "profiles_update_own"   ON profiles FOR UPDATE
   USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+DROP POLICY IF EXISTS "profiles_update_admin" ON profiles;
 CREATE POLICY "profiles_update_admin" ON profiles FOR UPDATE USING (
   school_id IS NOT NULL AND school_id = get_my_school_id()
   AND EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
+DROP POLICY IF EXISTS "profiles_delete_admin" ON profiles;
 CREATE POLICY "profiles_delete_admin" ON profiles FOR DELETE USING (
   school_id IS NOT NULL AND school_id = get_my_school_id()
   AND EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
 
 -- SUBJECTS
+DROP POLICY IF EXISTS "subjects_select" ON subjects;
 CREATE POLICY "subjects_select"    ON subjects FOR SELECT USING (true);
+DROP POLICY IF EXISTS "subjects_admin_all" ON subjects;
 CREATE POLICY "subjects_admin_all" ON subjects FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin' AND p.school_id = subjects.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin' AND p.school_id = subjects.school_id));
 
 -- CLASSES
+DROP POLICY IF EXISTS "classes_select" ON classes;
 CREATE POLICY "classes_select"    ON classes FOR SELECT USING (true);
+DROP POLICY IF EXISTS "classes_admin_all" ON classes;
 CREATE POLICY "classes_admin_all" ON classes FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin' AND p.school_id = classes.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin' AND p.school_id = classes.school_id));
 
 -- CLASS_MEMBERS
+DROP POLICY IF EXISTS "class_members_select" ON class_members;
 CREATE POLICY "class_members_select" ON class_members FOR SELECT USING (
   student_id = auth.uid()
   OR EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin','teacher')
              AND p.school_id = (SELECT school_id FROM classes WHERE id = class_members.class_id))
   OR EXISTS (SELECT 1 FROM parent_children pc WHERE pc.parent_id = auth.uid() AND pc.child_id = class_members.student_id)
 );
+DROP POLICY IF EXISTS "class_members_admin_all" ON class_members;
 CREATE POLICY "class_members_admin_all" ON class_members FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
 
 -- TEACHER_CLASSES
+DROP POLICY IF EXISTS "teacher_classes_select" ON teacher_classes;
 CREATE POLICY "teacher_classes_select"    ON teacher_classes FOR SELECT USING (true);
+DROP POLICY IF EXISTS "teacher_classes_admin_all" ON teacher_classes;
 CREATE POLICY "teacher_classes_admin_all" ON teacher_classes FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
 
 -- PARENT_CHILDREN
+DROP POLICY IF EXISTS "parent_children_select" ON parent_children;
 CREATE POLICY "parent_children_select"    ON parent_children FOR SELECT
   USING (parent_id = auth.uid() OR child_id = auth.uid());
+DROP POLICY IF EXISTS "parent_children_admin_all" ON parent_children;
 CREATE POLICY "parent_children_admin_all" ON parent_children FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
 
 -- TIMETABLE_SLOTS
+DROP POLICY IF EXISTS "timetable_select" ON timetable_slots;
 CREATE POLICY "timetable_select"    ON timetable_slots FOR SELECT USING (school_id = get_my_school_id());
+DROP POLICY IF EXISTS "timetable_admin_all" ON timetable_slots;
 CREATE POLICY "timetable_admin_all" ON timetable_slots FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin' AND p.school_id = timetable_slots.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin' AND p.school_id = timetable_slots.school_id));
 
 -- ASSESSMENTS
+DROP POLICY IF EXISTS "assessments_select" ON assessments;
 CREATE POLICY "assessments_select" ON assessments FOR SELECT USING (
   teacher_id = auth.uid()
   OR EXISTS (SELECT 1 FROM class_members cm WHERE cm.student_id = auth.uid() AND cm.class_id = assessments.class_id)
   OR EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'
              AND p.school_id = (SELECT school_id FROM classes WHERE id = assessments.class_id))
 );
+DROP POLICY IF EXISTS "assessments_teacher_all" ON assessments;
 CREATE POLICY "assessments_teacher_all" ON assessments FOR ALL
   USING (teacher_id = auth.uid()) WITH CHECK (teacher_id = auth.uid());
+DROP POLICY IF EXISTS "assessments_admin_all" ON assessments;
 CREATE POLICY "assessments_admin_all"   ON assessments FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
 
 -- GRADES
+DROP POLICY IF EXISTS "grades_student_select" ON grades;
 CREATE POLICY "grades_student_select" ON grades FOR SELECT USING (student_id = auth.uid());
+DROP POLICY IF EXISTS "grades_parent_select" ON grades;
 CREATE POLICY "grades_parent_select"  ON grades FOR SELECT USING (
   EXISTS (SELECT 1 FROM parent_children pc WHERE pc.parent_id = auth.uid() AND pc.child_id = grades.student_id)
 );
+DROP POLICY IF EXISTS "grades_teacher_all" ON grades;
 CREATE POLICY "grades_teacher_all" ON grades FOR ALL
   USING (teacher_id = auth.uid()) WITH CHECK (teacher_id = auth.uid());
+DROP POLICY IF EXISTS "grades_admin_all" ON grades;
 CREATE POLICY "grades_admin_all"   ON grades FOR ALL
   USING (EXISTS (
     SELECT 1 FROM profiles p JOIN classes c ON c.school_id = p.school_id
@@ -658,20 +685,27 @@ CREATE POLICY "grades_admin_all"   ON grades FOR ALL
   ));
 
 -- ATTENDANCE
+DROP POLICY IF EXISTS "attendance_student_select" ON attendance;
 CREATE POLICY "attendance_student_select" ON attendance FOR SELECT USING (student_id = auth.uid());
+DROP POLICY IF EXISTS "attendance_parent_select" ON attendance;
 CREATE POLICY "attendance_parent_select"  ON attendance FOR SELECT USING (
   EXISTS (SELECT 1 FROM parent_children pc WHERE pc.parent_id = auth.uid() AND pc.child_id = attendance.student_id)
 );
+DROP POLICY IF EXISTS "attendance_teacher_select" ON attendance;
 CREATE POLICY "attendance_teacher_select" ON attendance FOR SELECT USING (
   EXISTS (SELECT 1 FROM teacher_classes tc WHERE tc.teacher_id = auth.uid() AND tc.class_id = attendance.class_id)
 );
+DROP POLICY IF EXISTS "attendance_teacher_insert" ON attendance;
 CREATE POLICY "attendance_teacher_insert" ON attendance FOR INSERT WITH CHECK (recorded_by = auth.uid());
+DROP POLICY IF EXISTS "attendance_teacher_upsert" ON attendance;
 CREATE POLICY "attendance_teacher_upsert" ON attendance FOR UPDATE
   USING (recorded_by = auth.uid()
     OR EXISTS (SELECT 1 FROM teacher_classes tc WHERE tc.teacher_id = auth.uid() AND tc.class_id = attendance.class_id));
+DROP POLICY IF EXISTS "attendance_teacher_delete" ON attendance;
 CREATE POLICY "attendance_teacher_delete" ON attendance FOR DELETE
   USING (recorded_by = auth.uid()
     OR EXISTS (SELECT 1 FROM teacher_classes tc WHERE tc.teacher_id = auth.uid() AND tc.class_id = attendance.class_id));
+DROP POLICY IF EXISTS "attendance_admin_all" ON attendance;
 CREATE POLICY "attendance_admin_all" ON attendance FOR ALL
   USING (EXISTS (
     SELECT 1 FROM profiles p JOIN classes c ON c.school_id = p.school_id
@@ -683,124 +717,162 @@ CREATE POLICY "attendance_admin_all" ON attendance FOR ALL
   ));
 
 -- ASSIGNMENTS
+DROP POLICY IF EXISTS "assignments_student_select" ON assignments;
 CREATE POLICY "assignments_student_select" ON assignments FOR SELECT USING (
   EXISTS (SELECT 1 FROM class_members cm WHERE cm.class_id = assignments.class_id AND cm.student_id = auth.uid())
 );
+DROP POLICY IF EXISTS "assignments_parent_select" ON assignments;
 CREATE POLICY "assignments_parent_select" ON assignments FOR SELECT USING (
   EXISTS (
     SELECT 1 FROM parent_children pc JOIN class_members cm ON cm.student_id = pc.child_id
     WHERE pc.parent_id = auth.uid() AND cm.class_id = assignments.class_id
   )
 );
+DROP POLICY IF EXISTS "assignments_teacher_all" ON assignments;
 CREATE POLICY "assignments_teacher_all" ON assignments FOR ALL
   USING (teacher_id = auth.uid()) WITH CHECK (teacher_id = auth.uid());
+DROP POLICY IF EXISTS "assignments_admin_all" ON assignments;
 CREATE POLICY "assignments_admin_all"   ON assignments FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
 
 -- SUBMISSIONS
+DROP POLICY IF EXISTS "submissions_student_all" ON submissions;
 CREATE POLICY "submissions_student_all"    ON submissions FOR ALL
   USING (student_id = auth.uid()) WITH CHECK (student_id = auth.uid());
+DROP POLICY IF EXISTS "submissions_teacher_select" ON submissions;
 CREATE POLICY "submissions_teacher_select" ON submissions FOR SELECT USING (
   EXISTS (SELECT 1 FROM assignments a WHERE a.id = submissions.assignment_id AND a.teacher_id = auth.uid())
 );
+DROP POLICY IF EXISTS "submissions_teacher_update" ON submissions;
 CREATE POLICY "submissions_teacher_update" ON submissions FOR UPDATE USING (
   EXISTS (SELECT 1 FROM assignments a WHERE a.id = submissions.assignment_id AND a.teacher_id = auth.uid())
 );
 
 -- MESSAGES
+DROP POLICY IF EXISTS "messages_select" ON messages;
 CREATE POLICY "messages_select" ON messages FOR SELECT USING (sender_id = auth.uid() OR recipient_id = auth.uid());
+DROP POLICY IF EXISTS "messages_insert" ON messages;
 CREATE POLICY "messages_insert" ON messages FOR INSERT WITH CHECK (sender_id = auth.uid());
+DROP POLICY IF EXISTS "messages_update" ON messages;
 CREATE POLICY "messages_update" ON messages FOR UPDATE USING (recipient_id = auth.uid());
 
 -- NOTIFICATIONS
+DROP POLICY IF EXISTS "notifications_select" ON notifications;
 CREATE POLICY "notifications_select" ON notifications FOR SELECT
   USING (user_id = auth.uid() OR profile_id = auth.uid()
     OR (school_id IS NOT NULL AND school_id = get_my_school_id()
         AND EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')));
+DROP POLICY IF EXISTS "notifications_insert" ON notifications;
 CREATE POLICY "notifications_insert" ON notifications FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "notifications_update" ON notifications;
 CREATE POLICY "notifications_update" ON notifications FOR UPDATE
   USING (user_id = auth.uid() OR profile_id = auth.uid());
 
 -- MINISTRY_REPORTS
+DROP POLICY IF EXISTS "reports_select" ON ministry_reports;
 CREATE POLICY "reports_select" ON ministry_reports FOR SELECT USING (
   submitted_by = auth.uid()
   OR EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin' AND p.school_id = ministry_reports.school_id)
 );
+DROP POLICY IF EXISTS "reports_insert" ON ministry_reports;
 CREATE POLICY "reports_insert" ON ministry_reports FOR INSERT WITH CHECK (
   submitted_by = auth.uid()
   AND EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin','teacher'))
 );
 
 -- ZEKA_CONVERSATIONS
+DROP POLICY IF EXISTS "zeka_own" ON zeka_conversations;
 CREATE POLICY "zeka_own" ON zeka_conversations FOR ALL
   USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
 -- IB_EXTENDED_ESSAYS
+DROP POLICY IF EXISTS "ib_essays_student" ON ib_extended_essays;
 CREATE POLICY "ib_essays_student"    ON ib_extended_essays FOR SELECT USING (student_id = auth.uid());
+DROP POLICY IF EXISTS "ib_essays_supervisor" ON ib_extended_essays;
 CREATE POLICY "ib_essays_supervisor" ON ib_extended_essays FOR SELECT USING (supervisor_id = auth.uid());
+DROP POLICY IF EXISTS "ib_essays_admin_all" ON ib_extended_essays;
 CREATE POLICY "ib_essays_admin_all"  ON ib_extended_essays FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin' AND p.school_id = ib_extended_essays.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin' AND p.school_id = ib_extended_essays.school_id));
 
 -- ANNOUNCEMENTS
+DROP POLICY IF EXISTS "announcements_select" ON announcements;
 CREATE POLICY "announcements_select"    ON announcements FOR SELECT USING (school_id = get_my_school_id());
+DROP POLICY IF EXISTS "announcements_admin_all" ON announcements;
 CREATE POLICY "announcements_admin_all" ON announcements FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin','teacher') AND p.school_id = announcements.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin','teacher') AND p.school_id = announcements.school_id));
 
 -- EVENTS
+DROP POLICY IF EXISTS "events_select" ON events;
 CREATE POLICY "events_select"    ON events FOR SELECT
   USING (school_id IN (SELECT school_id FROM profiles WHERE id = auth.uid()));
+DROP POLICY IF EXISTS "events_admin_all" ON events;
 CREATE POLICY "events_admin_all" ON events FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = events.school_id));
 
 -- EXAMS
+DROP POLICY IF EXISTS "exams_select" ON exams;
 CREATE POLICY "exams_select"      ON exams FOR SELECT
   USING (school_id IN (SELECT school_id FROM profiles WHERE id = auth.uid()));
+DROP POLICY IF EXISTS "exams_admin_all" ON exams;
 CREATE POLICY "exams_admin_all"   ON exams FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = exams.school_id));
+DROP POLICY IF EXISTS "exams_teacher_all" ON exams;
 CREATE POLICY "exams_teacher_all" ON exams FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = exams.school_id));
 
 -- EXAM_RESULTS
+DROP POLICY IF EXISTS "exam_results_select" ON exam_results;
 CREATE POLICY "exam_results_select" ON exam_results FOR SELECT USING (
   student_id = auth.uid()
   OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin','teacher')
              AND school_id = (SELECT school_id FROM exams WHERE id = exam_results.exam_id))
   OR EXISTS (SELECT 1 FROM parent_children WHERE parent_id = auth.uid() AND child_id = exam_results.student_id)
 );
+DROP POLICY IF EXISTS "exam_results_staff_insert" ON exam_results;
 CREATE POLICY "exam_results_staff_insert" ON exam_results FOR INSERT
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin','teacher')));
+DROP POLICY IF EXISTS "exam_results_staff_update" ON exam_results;
 CREATE POLICY "exam_results_staff_update" ON exam_results FOR UPDATE
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin','teacher')));
 
 -- DISCIPLINE
+DROP POLICY IF EXISTS "discipline_admin_all" ON discipline_records;
 CREATE POLICY "discipline_admin_all"   ON discipline_records FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = discipline_records.school_id));
+DROP POLICY IF EXISTS "discipline_teacher_all" ON discipline_records;
 CREATE POLICY "discipline_teacher_all" ON discipline_records FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = discipline_records.school_id));
+DROP POLICY IF EXISTS "discipline_student_select" ON discipline_records;
 CREATE POLICY "discipline_student_select" ON discipline_records FOR SELECT USING (student_id = auth.uid());
+DROP POLICY IF EXISTS "discipline_parent_select" ON discipline_records;
 CREATE POLICY "discipline_parent_select"  ON discipline_records FOR SELECT USING (
   EXISTS (SELECT 1 FROM parent_children WHERE parent_id = auth.uid() AND child_id = discipline_records.student_id)
 );
 
 -- SUBSTITUTIONS
+DROP POLICY IF EXISTS "substitutions_admin_all" ON substitutions;
 CREATE POLICY "substitutions_admin_all"    ON substitutions FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = substitutions.school_id));
+DROP POLICY IF EXISTS "substitutions_teacher_select" ON substitutions;
 CREATE POLICY "substitutions_teacher_select" ON substitutions FOR SELECT
   USING (absent_teacher_id = auth.uid() OR substitute_teacher_id = auth.uid());
 
 -- HOMEWORK_ITEMS
+DROP POLICY IF EXISTS "homework_own" ON homework_items;
 CREATE POLICY "homework_own" ON homework_items FOR ALL
   USING (student_id = auth.uid()) WITH CHECK (student_id = auth.uid());
 
 -- CONVERSATIONS
+DROP POLICY IF EXISTS "conv_participant_all" ON conversations;
 CREATE POLICY "conv_participant_all" ON conversations FOR ALL
   USING (parent_id = auth.uid() OR teacher_id = auth.uid()
     OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = conversations.school_id));
 
 -- CONVERSATION_MESSAGES
+DROP POLICY IF EXISTS "conv_msg_participant_all" ON conversation_messages;
 CREATE POLICY "conv_msg_participant_all" ON conversation_messages FOR ALL
   USING (EXISTS (
     SELECT 1 FROM conversations c
@@ -830,114 +902,152 @@ ALTER TABLE ptc_slots            ENABLE ROW LEVEL SECURITY;
 -- ================================================================
 
 -- CAS_ENTRIES
+DROP POLICY IF EXISTS "cas_admin_all" ON cas_entries;
 CREATE POLICY "cas_admin_all" ON cas_entries FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = cas_entries.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = cas_entries.school_id));
+DROP POLICY IF EXISTS "cas_supervisor_select" ON cas_entries;
 CREATE POLICY "cas_supervisor_select" ON cas_entries FOR SELECT
   USING (supervisor_id = auth.uid());
+DROP POLICY IF EXISTS "cas_supervisor_update" ON cas_entries;
 CREATE POLICY "cas_supervisor_update" ON cas_entries FOR UPDATE
   USING (supervisor_id = auth.uid());
+DROP POLICY IF EXISTS "cas_student_all" ON cas_entries;
 CREATE POLICY "cas_student_all" ON cas_entries FOR ALL
   USING (student_id = auth.uid()) WITH CHECK (student_id = auth.uid());
+DROP POLICY IF EXISTS "cas_parent_select" ON cas_entries;
 CREATE POLICY "cas_parent_select" ON cas_entries FOR SELECT
   USING (EXISTS (SELECT 1 FROM parent_children WHERE parent_id = auth.uid() AND child_id = cas_entries.student_id));
 
 -- UNIT_PLANS
+DROP POLICY IF EXISTS "unit_plans_admin_all" ON unit_plans;
 CREATE POLICY "unit_plans_admin_all" ON unit_plans FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = unit_plans.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = unit_plans.school_id));
+DROP POLICY IF EXISTS "unit_plans_teacher_all" ON unit_plans;
 CREATE POLICY "unit_plans_teacher_all" ON unit_plans FOR ALL
   USING (teacher_id = auth.uid()) WITH CHECK (teacher_id = auth.uid());
+DROP POLICY IF EXISTS "unit_plans_school_select" ON unit_plans;
 CREATE POLICY "unit_plans_school_select" ON unit_plans FOR SELECT
   USING (school_id = get_my_school_id());
 
 -- PORTFOLIO_ITEMS
+DROP POLICY IF EXISTS "portfolio_admin_all" ON portfolio_items;
 CREATE POLICY "portfolio_admin_all" ON portfolio_items FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = portfolio_items.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = portfolio_items.school_id));
+DROP POLICY IF EXISTS "portfolio_teacher_select" ON portfolio_items;
 CREATE POLICY "portfolio_teacher_select" ON portfolio_items FOR SELECT
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = portfolio_items.school_id));
+DROP POLICY IF EXISTS "portfolio_student_all" ON portfolio_items;
 CREATE POLICY "portfolio_student_all" ON portfolio_items FOR ALL
   USING (student_id = auth.uid()) WITH CHECK (student_id = auth.uid());
+DROP POLICY IF EXISTS "portfolio_parent_select" ON portfolio_items;
 CREATE POLICY "portfolio_parent_select" ON portfolio_items FOR SELECT
   USING (EXISTS (SELECT 1 FROM parent_children WHERE parent_id = auth.uid() AND child_id = portfolio_items.student_id));
 
 -- ADMISSIONS
+DROP POLICY IF EXISTS "admissions_admin_all" ON admissions;
 CREATE POLICY "admissions_admin_all" ON admissions FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = admissions.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = admissions.school_id));
+DROP POLICY IF EXISTS "admissions_teacher_select" ON admissions;
 CREATE POLICY "admissions_teacher_select" ON admissions FOR SELECT
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = admissions.school_id));
 
 -- LEAVE_REQUESTS
+DROP POLICY IF EXISTS "leave_admin_all" ON leave_requests;
 CREATE POLICY "leave_admin_all" ON leave_requests FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = leave_requests.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = leave_requests.school_id));
+DROP POLICY IF EXISTS "leave_teacher_all" ON leave_requests;
 CREATE POLICY "leave_teacher_all" ON leave_requests FOR ALL
   USING (teacher_id = auth.uid()) WITH CHECK (teacher_id = auth.uid());
 
 -- ROOMS
+DROP POLICY IF EXISTS "rooms_school_select" ON rooms;
 CREATE POLICY "rooms_school_select" ON rooms FOR SELECT
   USING (school_id = get_my_school_id());
+DROP POLICY IF EXISTS "rooms_admin_all" ON rooms;
 CREATE POLICY "rooms_admin_all" ON rooms FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = rooms.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = rooms.school_id));
 
 -- ROOM_BOOKINGS
+DROP POLICY IF EXISTS "room_bookings_school_select" ON room_bookings;
 CREATE POLICY "room_bookings_school_select" ON room_bookings FOR SELECT
   USING (school_id = get_my_school_id());
+DROP POLICY IF EXISTS "room_bookings_own_all" ON room_bookings;
 CREATE POLICY "room_bookings_own_all" ON room_bookings FOR ALL
   USING (booked_by = auth.uid()) WITH CHECK (booked_by = auth.uid());
+DROP POLICY IF EXISTS "room_bookings_admin_all" ON room_bookings;
 CREATE POLICY "room_bookings_admin_all" ON room_bookings FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = room_bookings.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = room_bookings.school_id));
 
 -- LIBRARY_BOOKS
+DROP POLICY IF EXISTS "library_books_school_select" ON library_books;
 CREATE POLICY "library_books_school_select" ON library_books FOR SELECT
   USING (school_id = get_my_school_id());
+DROP POLICY IF EXISTS "library_books_admin_all" ON library_books;
 CREATE POLICY "library_books_admin_all" ON library_books FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = library_books.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = library_books.school_id));
 
 -- LIBRARY_CHECKOUTS
+DROP POLICY IF EXISTS "library_checkouts_student_select" ON library_checkouts;
 CREATE POLICY "library_checkouts_student_select" ON library_checkouts FOR SELECT
   USING (student_id = auth.uid());
+DROP POLICY IF EXISTS "library_checkouts_parent_select" ON library_checkouts;
 CREATE POLICY "library_checkouts_parent_select" ON library_checkouts FOR SELECT
   USING (EXISTS (SELECT 1 FROM parent_children WHERE parent_id = auth.uid() AND child_id = library_checkouts.student_id));
+DROP POLICY IF EXISTS "library_checkouts_admin_all" ON library_checkouts;
 CREATE POLICY "library_checkouts_admin_all" ON library_checkouts FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = library_checkouts.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = library_checkouts.school_id));
+DROP POLICY IF EXISTS "library_checkouts_teacher_all" ON library_checkouts;
 CREATE POLICY "library_checkouts_teacher_all" ON library_checkouts FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = library_checkouts.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = library_checkouts.school_id));
 
 -- SURVEYS
+DROP POLICY IF EXISTS "surveys_school_select" ON surveys;
 CREATE POLICY "surveys_school_select" ON surveys FOR SELECT
   USING (school_id = get_my_school_id());
+DROP POLICY IF EXISTS "surveys_admin_all" ON surveys;
 CREATE POLICY "surveys_admin_all" ON surveys FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = surveys.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = surveys.school_id));
+DROP POLICY IF EXISTS "surveys_teacher_all" ON surveys;
 CREATE POLICY "surveys_teacher_all" ON surveys FOR ALL
   USING (created_by = auth.uid()) WITH CHECK (created_by = auth.uid());
 
 -- COLLEGE_APPLICATIONS
+DROP POLICY IF EXISTS "college_admin_all" ON college_applications;
 CREATE POLICY "college_admin_all" ON college_applications FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = college_applications.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = college_applications.school_id));
+DROP POLICY IF EXISTS "college_teacher_select" ON college_applications;
 CREATE POLICY "college_teacher_select" ON college_applications FOR SELECT
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'teacher' AND school_id = college_applications.school_id));
+DROP POLICY IF EXISTS "college_student_select" ON college_applications;
 CREATE POLICY "college_student_select" ON college_applications FOR SELECT
   USING (student_id = auth.uid());
+DROP POLICY IF EXISTS "college_parent_select" ON college_applications;
 CREATE POLICY "college_parent_select" ON college_applications FOR SELECT
   USING (EXISTS (SELECT 1 FROM parent_children WHERE parent_id = auth.uid() AND child_id = college_applications.student_id));
 
 -- PTC_SLOTS
+DROP POLICY IF EXISTS "ptc_admin_all" ON ptc_slots;
 CREATE POLICY "ptc_admin_all" ON ptc_slots FOR ALL
   USING    (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = ptc_slots.school_id))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND school_id = ptc_slots.school_id));
+DROP POLICY IF EXISTS "ptc_teacher_all" ON ptc_slots;
 CREATE POLICY "ptc_teacher_all" ON ptc_slots FOR ALL
   USING (teacher_id = auth.uid()) WITH CHECK (teacher_id = auth.uid());
+DROP POLICY IF EXISTS "ptc_parent_select" ON ptc_slots;
 CREATE POLICY "ptc_parent_select" ON ptc_slots FOR SELECT
   USING (booked_by = auth.uid());
+DROP POLICY IF EXISTS "ptc_student_select" ON ptc_slots;
 CREATE POLICY "ptc_student_select" ON ptc_slots FOR SELECT
   USING (student_id = auth.uid());
