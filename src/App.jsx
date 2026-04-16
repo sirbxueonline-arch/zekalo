@@ -61,6 +61,7 @@ import AdminStudents from './pages/admin/Students'
 import AdminTeachers from './pages/admin/Teachers'
 import AdminParents from './pages/admin/Parents'
 import AdminClasses from './pages/admin/Classes'
+import AdminGradebook from './pages/admin/Gradebook'
 import AdminTimetable from './pages/admin/Timetable'
 import AdminReports from './pages/admin/Reports'
 import AdminAnalytics from './pages/admin/Analytics'
@@ -87,6 +88,7 @@ const AdminPTConferences   = lazy(() => import('./pages/admin/PTConferences'))
 
 // New teacher pages (lazy loaded)
 const TeacherUnitPlanner   = lazy(() => import('./pages/teacher/UnitPlanner'))
+const TeacherClasses       = lazy(() => import('./pages/teacher/Classes'))
 
 // New student pages (lazy loaded)
 const StudentPortfolio     = lazy(() => import('./pages/student/Portfolio'))
@@ -178,6 +180,7 @@ export default function App() {
           <Route path="/muellim/tedbirler" element={<SharedCalendar />} />
           <Route path="/muellim/profil" element={<TeacherProfile />} />
           <Route path="/muellim/vahid-plan" element={<Suspense fallback={<PageSpinner />}><TeacherUnitPlanner /></Suspense>} />
+          <Route path="/muellim/sinifler" element={<Suspense fallback={<PageSpinner />}><TeacherClasses /></Suspense>} />
         </Route>
 
         {/* Parent routes */}
@@ -202,6 +205,7 @@ export default function App() {
           <Route path="/admin/muelimler" element={<AdminTeachers />} />
           <Route path="/admin/valideyinler" element={<AdminParents />} />
           <Route path="/admin/sinifler" element={<AdminClasses />} />
+          <Route path="/admin/jurnal" element={<AdminGradebook />} />
           <Route path="/admin/cedvel" element={<AdminTimetable />} />
           <Route path="/admin/imtahanlar" element={<AdminExams />} />
           <Route path="/admin/intizam" element={<AdminDiscipline />} />

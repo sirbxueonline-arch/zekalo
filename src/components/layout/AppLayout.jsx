@@ -37,6 +37,7 @@ const pageTitleKeys = {
   '/admin/shagirdler': 'students',
   '/admin/muelimler': 'teachers',
   '/admin/sinifler': 'classes',
+  '/admin/jurnal': 'gradebook',
   '/admin/cedvel': 'timetable',
   '/admin/hesabatlar': 'reports',
   '/admin/analitika': 'analytics',
@@ -45,6 +46,7 @@ const pageTitleKeys = {
   '/admin/ib': 'ib_panel',
   '/admin/nazirlik': 'ministry',
   '/admin/parametrler': 'settings',
+  '/muellim/sinifler': 'classes',
 }
 
 export default function AppLayout() {

@@ -137,6 +137,7 @@ const teacherGroups = [
   {
     label: 'Akademik',
     items: [
+      { icon: School,          path: '/muellim/sinifler',    label: 'Siniflərim' },
       { icon: BookOpen,        path: '/muellim/jurnal',      key: 'gradebook' },
       { icon: Calendar,        path: '/muellim/davamiyyet',  key: 'attendance' },
       { icon: ClipboardCheck,  path: '/muellim/imtahanlar',  label: 'İmtahanlar' },
