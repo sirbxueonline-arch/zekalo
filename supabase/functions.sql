@@ -1,10 +1,14 @@
+-- ============================================================
+-- FUNCTIONS & TRIGGERS — fully idempotent, safe to re-run
+-- ============================================================
+
 -- Helper: get current user's school_id (security definer to avoid RLS recursion)
 create or replace function get_my_school_id()
 returns uuid as $$
   select school_id from profiles where id = auth.uid();
 $$ language sql security definer stable;
 
--- Auto-update updated_at on profiles
+-- Auto-update updated_at
 create or replace function update_updated_at()
 returns trigger as $$
 begin
@@ -12,6 +16,11 @@ begin
   return new;
 end;
 $$ language plpgsql;
+
+drop trigger if exists profiles_updated_at      on profiles;
+drop trigger if exists grades_updated_at        on grades;
+drop trigger if exists assignments_updated_at   on assignments;
+drop trigger if exists zeka_updated_at          on zeka_conversations;
 
 create trigger profiles_updated_at
   before update on profiles
@@ -29,7 +38,7 @@ create trigger zeka_updated_at
   before update on zeka_conversations
   for each row execute function update_updated_at();
 
--- Create notification on new grade
+-- ─── Notification on new grade ───────────────────────────────
 create or replace function notify_on_grade()
 returns trigger as $$
 declare
@@ -40,7 +49,6 @@ begin
   select full_name into student_name from profiles where id = new.student_id;
   select name into subject_name from subjects where id = new.subject_id;
 
-  -- Notify student
   insert into notifications (user_id, type, title, body, data)
   values (
     new.student_id,
@@ -50,7 +58,6 @@ begin
     jsonb_build_object('grade_id', new.id, 'subject', subject_name)
   );
 
-  -- Notify parent
   for parent_id in
     select pc.parent_id from parent_children pc where pc.child_id = new.student_id
   loop
@@ -68,11 +75,12 @@ begin
 end;
 $$ language plpgsql security definer;
 
+drop trigger if exists grade_notification on grades;
 create trigger grade_notification
   after insert on grades
   for each row execute function notify_on_grade();
 
--- Create notification on absence
+-- ─── Notification on absence ─────────────────────────────────
 create or replace function notify_on_absence()
 returns trigger as $$
 declare
@@ -95,7 +103,6 @@ begin
       );
     end loop;
 
-    -- Also notify student
     insert into notifications (user_id, type, title, body, data)
     values (
       new.student_id,
@@ -110,11 +117,12 @@ begin
 end;
 $$ language plpgsql security definer;
 
+drop trigger if exists absence_notification on attendance;
 create trigger absence_notification
   after insert on attendance
   for each row execute function notify_on_absence();
 
--- Create notification on new message
+-- ─── Notification on new message ─────────────────────────────
 create or replace function notify_on_message()
 returns trigger as $$
 declare
@@ -135,11 +143,12 @@ begin
 end;
 $$ language plpgsql security definer;
 
+drop trigger if exists message_notification on messages;
 create trigger message_notification
   after insert on messages
   for each row execute function notify_on_message();
 
--- Update streak on zeka conversation
+-- ─── Streak update on Zeka conversation ──────────────────────
 create or replace function update_streak()
 returns trigger as $$
 declare
@@ -173,11 +182,12 @@ begin
 end;
 $$ language plpgsql security definer;
 
+drop trigger if exists zeka_streak on zeka_conversations;
 create trigger zeka_streak
   after insert on zeka_conversations
   for each row execute function update_streak();
 
--- Helper: get student average grade
+-- ─── Analytics helpers ────────────────────────────────────────
 create or replace function get_student_average(p_student_id uuid, p_subject_id uuid default null)
 returns numeric as $$
   select round(avg(
@@ -192,7 +202,6 @@ returns numeric as $$
   and score is not null;
 $$ language sql security definer;
 
--- Helper: get student attendance percentage
 create or replace function get_attendance_percentage(p_student_id uuid, p_class_id uuid default null)
 returns numeric as $$
   select round(
@@ -205,7 +214,6 @@ returns numeric as $$
   and (p_class_id is null or class_id = p_class_id);
 $$ language sql security definer;
 
--- Helper: get at-risk students for a school
 create or replace function get_at_risk_students(p_school_id uuid)
 returns table (
   student_id uuid,
