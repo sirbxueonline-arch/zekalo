@@ -170,7 +170,9 @@ export default function TeacherAssignments() {
       await supabase.from('submissions').update({ feedback: fullContent }).eq('id', submission.id)
       setDetailSubmissions(prev => prev.map(s => s.id === submission.id ? { ...s, feedback: fullContent } : s))
     } catch {
-      // silently fail
+      setDetailSubmissions(prev => prev.map(s =>
+        s.id === submission.id ? { ...s, feedback: 'AI rəyi əldə edilə bilmədi. Yenidən cəhd edin.' } : s
+      ))
     } finally {
       setAiLoading(null)
     }

@@ -30,6 +30,7 @@ export default function TeacherDashboard() {
   }, [profile])
 
   async function loadDashboard() {
+    try {
     const today = new Date()
     const dayOfWeek = today.getDay()
     const todayStr = today.toISOString().split('T')[0]
@@ -100,7 +101,11 @@ export default function TeacherDashboard() {
     setWeekAttendance(weekAtt)
     setAtRiskStudents(atRiskRes.data || [])
     setRecentGrades(recentGradesRes.data || [])
+    } catch (err) {
+      console.error('Teacher dashboard load error:', err)
+    } finally {
     setLoading(false)
+    }
   }
 
   if (loading) return <PageSpinner />

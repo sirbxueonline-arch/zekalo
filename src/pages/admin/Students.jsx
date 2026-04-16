@@ -37,17 +37,23 @@ export default function Students() {
   async function fetchData() {
     try {
       setLoading(true)
-      const [studentsRes, classesRes, membersRes] = await Promise.all([
+      const [studentsRes, classesRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('school_id', profile.school_id).eq('role', 'student'),
         supabase.from('classes').select('id, name').eq('school_id', profile.school_id).order('name'),
-        supabase.from('class_members').select('student_id, class_id, class:classes(id, name)'),
       ])
       if (studentsRes.error) throw studentsRes.error
 
+      const studentIds = (studentsRes.data || []).map(s => s.id)
       const classMap = {}
-      ;(membersRes.data || []).forEach(m => {
-        if (m.student_id && m.class) classMap[m.student_id] = m.class
-      })
+      if (studentIds.length) {
+        const { data: membersData } = await supabase
+          .from('class_members')
+          .select('student_id, class_id, class:classes(id, name)')
+          .in('student_id', studentIds)
+        ;(membersData || []).forEach(m => {
+          if (m.student_id && m.class) classMap[m.student_id] = m.class
+        })
+      }
 
       const studentsWithClass = (studentsRes.data || []).map(s => ({
         ...s,

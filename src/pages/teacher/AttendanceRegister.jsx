@@ -114,11 +114,15 @@ export default function TeacherAttendanceRegister() {
         school_id: profile.school_id,
       }))
 
-    if (existingRecords) {
-      await supabase.from('attendance').delete().eq('class_id', selectedClass).eq('date', selectedDate)
+    if (!records.length) {
+      setSaving(false)
+      return
     }
 
-    const { error } = await supabase.from('attendance').insert(records)
+    const { error } = await supabase
+      .from('attendance')
+      .upsert(records, { onConflict: 'student_id,class_id,date' })
+
     if (!error) {
       setExistingRecords(true)
       loadWeekDays()

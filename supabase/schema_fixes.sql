@@ -250,3 +250,17 @@ CREATE POLICY "teachers manage own attendance" ON attendance FOR ALL
 
 DROP POLICY IF EXISTS "students read own attendance" ON attendance;
 CREATE POLICY "students read own attendance" ON attendance FOR SELECT USING (student_id = auth.uid());
+
+-- ─── homework_items: make subject nullable (UI treats it as optional) ──
+ALTER TABLE homework_items ALTER COLUMN subject DROP NOT NULL;
+
+-- ─── RLS: parent reads class assignments (was missing) ────────────────
+DROP POLICY IF EXISTS "parents read child assignments" ON assignments;
+CREATE POLICY "parents read child assignments" ON assignments FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM parent_children pc
+    JOIN class_members cm ON cm.student_id = pc.child_id
+    WHERE pc.parent_id = auth.uid()
+    AND cm.class_id = assignments.class_id
+  )
+);

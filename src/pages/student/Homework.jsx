@@ -116,13 +116,15 @@ export default function StudentHomework() {
     setFormError('')
     const { data, error } = await supabase.from('homework_items').insert({
       student_id: profile.id,
-      subject: form.subject.trim() || null,
+      subject: form.subject.trim() || '—',
       title: form.title.trim(),
       due_date: form.due_date || null,
       completed: false,
     }).select().single()
 
-    if (!error && data) {
+    if (error) {
+      setFormError('Xəta baş verdi. Yenidən cəhd edin.')
+    } else if (data) {
       setItems(prev => [data, ...prev])
       setShowAdd(false)
       setForm({ subject: '', title: '', due_date: '' })
