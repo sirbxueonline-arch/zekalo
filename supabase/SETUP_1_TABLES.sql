@@ -7,16 +7,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ================================================================
--- HELPER FUNCTION (needed by RLS policies below)
--- ================================================================
--- Must exist before any policy that calls get_my_school_id().
--- SETUP_2_FUNCTIONS.sql also contains this (CREATE OR REPLACE is idempotent).
-CREATE OR REPLACE FUNCTION get_my_school_id()
-RETURNS uuid AS $$
-  SELECT school_id FROM profiles WHERE id = auth.uid();
-$$ LANGUAGE sql SECURITY DEFINER STABLE;
-
--- ================================================================
 -- TABLES (dependency order)
 -- ================================================================
 
@@ -360,6 +350,16 @@ CREATE TABLE IF NOT EXISTS conversation_messages (
   read boolean DEFAULT false,
   created_at timestamptz DEFAULT now()
 );
+
+-- ================================================================
+-- HELPER FUNCTION (needed by RLS policies below)
+-- ================================================================
+-- profiles table now exists, so the SQL function body is valid.
+-- SETUP_2_FUNCTIONS.sql also defines this — CREATE OR REPLACE is idempotent.
+CREATE OR REPLACE FUNCTION get_my_school_id()
+RETURNS uuid AS $$
+  SELECT school_id FROM profiles WHERE id = auth.uid();
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 -- ================================================================
 -- ENABLE ROW LEVEL SECURITY
