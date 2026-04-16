@@ -15,11 +15,11 @@ import Button from '../../components/ui/Button'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function greeting() {
+function greeting(t) {
   const h = new Date().getHours()
-  if (h < 12) return 'Sabahınız xeyir'
-  if (h < 18) return 'Günortanız xeyir'
-  return 'Axşamınız xeyir'
+  if (h < 12) return t('good_morning')
+  if (h < 18) return t('good_afternoon')
+  return t('good_evening')
 }
 
 function todayLabel() {
@@ -73,7 +73,7 @@ const eventTypeBg = {
 // ── Main component ─────────────────────────────────────────────────────────
 
 export default function AdminDashboard() {
-  const { profile } = useAuth()
+  const { profile, t } = useAuth()
   const navigate = useNavigate()
 
   const [loading, setLoading]           = useState(true)
@@ -216,7 +216,7 @@ export default function AdminDashboard() {
             {todayLabel()}
           </p>
           <h1 className="font-serif text-3xl text-gray-900 mt-0.5 leading-tight">
-            {greeting()}, {firstName}
+            {greeting(t)}, {firstName}
           </h1>
         </div>
 
@@ -257,7 +257,7 @@ export default function AdminDashboard() {
             <Users className="w-4 h-4 text-purple" />
           </span>
           <div className="min-w-0">
-            <p className="text-[11px] text-gray-400 leading-none">Şagirdlər</p>
+            <p className="text-[11px] text-gray-400 leading-none">{t('students')}</p>
             <p className="text-xl font-bold text-gray-900 leading-tight mt-0.5">{stats.students}</p>
           </div>
         </div>
@@ -268,7 +268,7 @@ export default function AdminDashboard() {
             <GraduationCap className="w-4 h-4 text-teal" />
           </span>
           <div className="min-w-0">
-            <p className="text-[11px] text-gray-400 leading-none">Müəllimlər</p>
+            <p className="text-[11px] text-gray-400 leading-none">{t('teachers')}</p>
             <p className="text-xl font-bold text-gray-900 leading-tight mt-0.5">{stats.teachers}</p>
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function AdminDashboard() {
             <BookOpen className="w-4 h-4 text-blue-500" />
           </span>
           <div className="min-w-0">
-            <p className="text-[11px] text-gray-400 leading-none">Siniflər</p>
+            <p className="text-[11px] text-gray-400 leading-none">{t('classes')}</p>
             <p className="text-xl font-bold text-gray-900 leading-tight mt-0.5">{stats.classes}</p>
           </div>
         </div>
@@ -292,7 +292,7 @@ export default function AdminDashboard() {
             <CalendarCheck className={`w-4 h-4 ${stats.attendance >= 85 ? 'text-teal' : 'text-red-500'}`} />
           </span>
           <div className="min-w-0">
-            <p className="text-[11px] text-gray-400 leading-none">Bugünkü İştirak</p>
+            <p className="text-[11px] text-gray-400 leading-none">{t('today_attendance')}</p>
             <p className={`text-xl font-bold leading-tight mt-0.5 ${
               stats.attendance >= 85 ? 'text-gray-900' : 'text-red-600'
             }`}>
@@ -331,7 +331,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
               <div className="flex items-center gap-2">
                 <CalendarCheck className="w-4 h-4 text-purple flex-shrink-0" />
-                <h2 className="font-semibold text-gray-900 text-sm">Bugünkü Davamiyyət</h2>
+                <h2 className="font-semibold text-gray-900 text-sm">{t('todays_attendance_table')}</h2>
               </div>
               <span className="text-xs text-gray-400">
                 {new Date().toLocaleDateString('az-AZ', { day: 'numeric', month: 'short' })}
@@ -398,7 +398,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                <h2 className="font-semibold text-gray-900 text-sm">Risk Altındakı Şagirdlər</h2>
+                <h2 className="font-semibold text-gray-900 text-sm">{t('at_risk_students')}</h2>
                 {atRisk.length > 0 && (
                   <span className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-100 text-red-700 text-xs font-bold">
                     {atRisk.length}
@@ -410,7 +410,7 @@ export default function AdminDashboard() {
                   onClick={() => navigate('/admin/shagirdler')}
                   className="text-xs text-purple hover:text-purple-dark flex items-center gap-1 transition-colors"
                 >
-                  Hamısı <ChevronRight className="w-3.5 h-3.5" />
+                  {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
@@ -478,20 +478,20 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft flex-shrink-0">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-purple flex-shrink-0" />
-                <h2 className="font-semibold text-gray-900 text-sm">Bildirişlər</h2>
+                <h2 className="font-semibold text-gray-900 text-sm">{t('all_notifications')}</h2>
               </div>
               <button
                 onClick={() => navigate('/admin/mesajlar')}
                 className="text-xs text-purple hover:text-purple-dark flex items-center gap-1 transition-colors"
               >
-                Hamısı <ChevronRight className="w-3.5 h-3.5" />
+                {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
             {activities.length === 0 ? (
               <div className="px-5 py-8 text-center">
                 <Clock className="w-7 h-7 text-gray-200 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">Bildiriş yoxdur</p>
+                <p className="text-sm text-gray-400">{t('no_notifications')}</p>
               </div>
             ) : (
               <ul className="overflow-y-auto max-h-[280px] divide-y divide-border-soft scrollbar-thin">
@@ -521,20 +521,20 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
               <div className="flex items-center gap-2">
                 <Activity className="w-4 h-4 text-teal flex-shrink-0" />
-                <h2 className="font-semibold text-gray-900 text-sm">Yaxın Tədbirlər</h2>
+                <h2 className="font-semibold text-gray-900 text-sm">{t('upcoming_events')}</h2>
               </div>
               <button
                 onClick={() => navigate('/admin/tədbirlər')}
                 className="text-xs text-purple hover:text-purple-dark flex items-center gap-1 transition-colors"
               >
-                Hamısı <ChevronRight className="w-3.5 h-3.5" />
+                {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
             {events.length === 0 ? (
               <div className="px-5 py-8 text-center">
                 <Activity className="w-7 h-7 text-gray-200 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">Yaxın tədbir yoxdur</p>
+                <p className="text-sm text-gray-400">{t('no_upcoming_events')}</p>
               </div>
             ) : (
               <ul className="divide-y divide-border-soft">

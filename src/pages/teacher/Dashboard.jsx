@@ -13,11 +13,11 @@ import Badge from '../../components/ui/Badge'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function greeting() {
+function greeting(t) {
   const h = new Date().getHours()
-  if (h < 12) return 'Sabahınız xeyir'
-  if (h < 18) return 'Günortanız xeyir'
-  return 'Axşamınız xeyir'
+  if (h < 12) return t('good_morning')
+  if (h < 18) return t('good_afternoon')
+  return t('good_evening')
 }
 
 function todayLabel() {
@@ -220,7 +220,7 @@ export default function TeacherDashboard() {
             {todayLabel()}
           </p>
           <h1 className="font-serif text-3xl text-gray-900 mt-0.5">
-            {greeting()}, {firstName} müəllim
+            {greeting(t)}, {firstName} {t('greeting_teacher')}
           </h1>
         </div>
         <div className="flex gap-2">
@@ -228,13 +228,13 @@ export default function TeacherDashboard() {
             onClick={() => navigate('/muellim/davamiyyet')}
             className="flex items-center gap-2 bg-purple text-white px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
           >
-            <CalendarCheck className="w-4 h-4" /> Davamiyyət
+            <CalendarCheck className="w-4 h-4" /> {t('attendance')}
           </button>
           <button
             onClick={() => navigate('/muellim/jurnal')}
             className="flex items-center gap-2 bg-teal text-white px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
           >
-            <BookOpen className="w-4 h-4" /> Jurnal
+            <BookOpen className="w-4 h-4" /> {t('gradebook')}
           </button>
         </div>
       </div>
@@ -244,13 +244,13 @@ export default function TeacherDashboard() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <CalendarCheck className="w-4 h-4 text-purple" />
-            <h2 className="font-semibold text-gray-900 text-sm">Bugünkü Dərslər</h2>
+            <h2 className="font-semibold text-gray-900 text-sm">{t('todays_lessons')}</h2>
           </div>
           <button
             onClick={() => navigate('/muellim/cedvel')}
             className="flex items-center gap-1 text-xs text-purple font-medium hover:opacity-70 transition-opacity"
           >
-            Tam cədvəl <ChevronRight className="w-3.5 h-3.5" />
+            {t('view_full_timetable')} <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
         <div className="overflow-x-auto">
@@ -283,7 +283,7 @@ export default function TeacherDashboard() {
             ))}
             {todaySlots.length === 0 && (
               <div className="flex items-center gap-3 px-4 py-3 bg-surface rounded-xl text-sm text-gray-400">
-                <CalendarCheck className="w-5 h-5" /> Bu gün dərs yoxdur
+                <CalendarCheck className="w-5 h-5" /> {t('no_lessons_today')}
               </div>
             )}
           </div>
@@ -300,7 +300,7 @@ export default function TeacherDashboard() {
           <div className="bg-white rounded-2xl border border-border-soft shadow-sm flex flex-col">
             <div className="flex items-center gap-2 px-6 py-4 border-b border-border-soft">
               <Inbox className="w-4 h-4 text-purple flex-shrink-0" />
-              <h2 className="font-semibold text-gray-900 text-sm">Gözləyən Qiymətləndirmə</h2>
+              <h2 className="font-semibold text-gray-900 text-sm">{t('pending_grading')}</h2>
               {submissions.length > 0 && (
                 <span className="ml-1.5 flex-shrink-0 min-w-[20px] h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1.5">
                   {submissions.length}
@@ -311,7 +311,7 @@ export default function TeacherDashboard() {
                   onClick={() => navigate('/muellim/tapshiriqlar')}
                   className="ml-auto text-xs text-purple font-medium hover:opacity-70 transition-opacity whitespace-nowrap"
                 >
-                  Hamısına bax →
+                  {t('view_all')} →
                 </button>
               )}
             </div>
@@ -319,7 +319,7 @@ export default function TeacherDashboard() {
             {submissions.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 py-12 px-6 text-center">
                 <CheckCircle className="w-8 h-8 text-teal opacity-60" />
-                <p className="text-sm text-gray-400">Bütün qiymətləndirmələr tamamlanıb</p>
+                <p className="text-sm text-gray-400">{t('all_graded')}</p>
               </div>
             ) : (
               <ul className="divide-y divide-border-soft">
@@ -356,13 +356,13 @@ export default function TeacherDashboard() {
           <div className="bg-white rounded-2xl border border-border-soft shadow-sm flex flex-col">
             <div className="flex items-center gap-2 px-6 py-4 border-b border-border-soft">
               <Activity className="w-4 h-4 text-teal flex-shrink-0" />
-              <h2 className="font-semibold text-gray-900 text-sm">Tapşırıq Son Tarixləri</h2>
+              <h2 className="font-semibold text-gray-900 text-sm">{t('assignment_deadlines')}</h2>
             </div>
 
             {assignments.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 py-12 px-6 text-center">
                 <CheckCircle className="w-8 h-8 text-gray-200" />
-                <p className="text-sm text-gray-400">Tapşırıq yoxdur</p>
+                <p className="text-sm text-gray-400">{t('no_assignments_set')}</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -450,7 +450,7 @@ export default function TeacherDashboard() {
           {/* Bu həftənin statistikası — 2 stacked stat cards */}
           <div className="space-y-4">
             <h2 className="text-xs tracking-widest text-gray-400 uppercase font-semibold px-1">
-              Bu həftənin statistikası
+              {t('this_weeks_stats')}
             </h2>
 
             {/* Total students */}
@@ -458,7 +458,7 @@ export default function TeacherDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">
-                    Ümumi şagird
+                    {t('total_students_stat')}
                   </p>
                   <p className="text-4xl font-bold text-gray-900 leading-none">{studentCount}</p>
                 </div>
@@ -473,7 +473,7 @@ export default function TeacherDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">
-                    Həftəlik davamiyyət
+                    {t('weekly_attendance')}
                   </p>
                   <div className="flex items-end gap-2">
                     <p className="text-4xl font-bold text-gray-900 leading-none">
@@ -509,7 +509,7 @@ export default function TeacherDashboard() {
           <div className="bg-white rounded-2xl border border-border-soft shadow-sm flex flex-col">
             <div className="flex items-center gap-2 px-5 py-4 border-b border-border-soft">
               <Bell className="w-4 h-4 text-purple flex-shrink-0" />
-              <h2 className="font-semibold text-gray-900 text-sm">Müəllim Bildirişləri</h2>
+              <h2 className="font-semibold text-gray-900 text-sm">{t('teacher_notifications')}</h2>
               {notifications.length > 0 && (
                 <span className="ml-auto text-xs text-gray-400">{notifications.length}</span>
               )}
@@ -518,7 +518,7 @@ export default function TeacherDashboard() {
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 py-10 px-5 text-center">
                 <Bell className="w-7 h-7 text-gray-200" />
-                <p className="text-xs text-gray-400">Bildiriş yoxdur</p>
+                <p className="text-xs text-gray-400">{t('no_notifications')}</p>
               </div>
             ) : (
               <ul className="divide-y divide-border-soft overflow-y-auto max-h-[220px] scrollbar-thin">

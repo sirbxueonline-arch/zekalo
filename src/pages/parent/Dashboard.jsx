@@ -105,7 +105,7 @@ function DueDateChip({ dueDateIso }) {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ParentDashboard() {
-  const { profile } = useAuth()
+  const { profile, t } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [children, setChildren] = useState([])
@@ -262,7 +262,7 @@ export default function ParentDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs text-gray-400 uppercase tracking-widest">{todayLabel()}</p>
-          <h1 className="font-serif text-3xl text-gray-900 mt-0.5">Xoş gəldiniz, {firstName}!</h1>
+          <h1 className="font-serif text-3xl text-gray-900 mt-0.5">{t('welcome_back')}, {firstName}!</h1>
         </div>
       </div>
 
@@ -373,13 +373,13 @@ export default function ParentDashboard() {
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
                   <h2 className="font-semibold text-gray-900 flex items-center gap-2">
                     <GraduationCap className="w-4 h-4 text-purple" />
-                    Son Qiymətlər
+                    {t('recent_grades')}
                   </h2>
                   <button
                     onClick={() => navigate('/valideyn/qiymetler')}
                     className="flex items-center gap-0.5 text-xs text-purple font-medium hover:opacity-75 transition-opacity"
                   >
-                    Hamısı <ChevronRight className="w-3.5 h-3.5" />
+                    {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
@@ -388,7 +388,7 @@ export default function ParentDashboard() {
                     <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
                       <BookOpen className="w-5 h-5 text-gray-300" />
                     </div>
-                    <p className="text-sm text-gray-400">Qiymət yoxdur</p>
+                    <p className="text-sm text-gray-400">{t('no_grades')}</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-border-soft">
@@ -429,13 +429,13 @@ export default function ParentDashboard() {
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
                   <h2 className="font-semibold text-gray-900 flex items-center gap-2">
                     <ClipboardList className="w-4 h-4 text-purple" />
-                    Yaxın Tapşırıqlar
+                    {t('upcoming_assignments_title')}
                   </h2>
                   <button
                     onClick={() => navigate('/valideyn/tapshiriqlar')}
                     className="flex items-center gap-0.5 text-xs text-purple font-medium hover:opacity-75 transition-opacity"
                   >
-                    Hamısı <ChevronRight className="w-3.5 h-3.5" />
+                    {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
@@ -444,7 +444,7 @@ export default function ParentDashboard() {
                     <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
                       <ClipboardList className="w-5 h-5 text-gray-300" />
                     </div>
-                    <p className="text-sm text-gray-400">Yaxın tapşırıq yoxdur</p>
+                    <p className="text-sm text-gray-400">{t('no_assignments')}</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-border-soft">
@@ -483,7 +483,7 @@ export default function ParentDashboard() {
                 <div className="flex items-center px-5 py-4 border-b border-border-soft">
                   <h2 className="font-semibold text-gray-900 flex items-center gap-2">
                     <Clock className="w-4 h-4 text-purple" />
-                    Uşağın Bu Günü
+                    {t('childs_today')}
                   </h2>
                 </div>
 
@@ -492,7 +492,7 @@ export default function ParentDashboard() {
                     <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
                       <Calendar className="w-5 h-5 text-gray-300" />
                     </div>
-                    <p className="text-sm text-gray-400">Bu gün dərs yoxdur</p>
+                    <p className="text-sm text-gray-400">{t('no_lessons_today')}</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-border-soft">
@@ -525,13 +525,13 @@ export default function ParentDashboard() {
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
                   <h2 className="font-semibold text-gray-900 flex items-center gap-2">
                     <Bell className="w-4 h-4 text-purple" />
-                    Bildirişlər
+                    {t('all_notifications')}
                   </h2>
                   <button
                     onClick={() => navigate('/valideyn/bildirisler')}
                     className="flex items-center gap-0.5 text-xs text-purple font-medium hover:opacity-75 transition-opacity"
                   >
-                    Hamısı <ChevronRight className="w-3.5 h-3.5" />
+                    {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
@@ -540,7 +540,7 @@ export default function ParentDashboard() {
                     <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
                       <Bell className="w-5 h-5 text-gray-300" />
                     </div>
-                    <p className="text-sm text-gray-400">Bildiriş yoxdur</p>
+                    <p className="text-sm text-gray-400">{t('no_notifications')}</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-border-soft">

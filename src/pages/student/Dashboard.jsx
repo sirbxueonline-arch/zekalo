@@ -176,7 +176,7 @@ const ASSIGN_TABS = [
 // ── Main component ───────────────────────────────────────────────────────────
 
 export default function StudentDashboard() {
-  const { profile } = useAuth()
+  const { profile, t } = useAuth()
   const navigate    = useNavigate()
 
   const [loading,       setLoading]       = useState(true)
@@ -327,7 +327,7 @@ export default function StudentDashboard() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <p className="text-xs text-gray-400 uppercase tracking-widest">{todayLabel()}</p>
-          <h1 className="font-serif text-3xl text-gray-900 mt-0.5">Salam, {firstName}! 👋</h1>
+          <h1 className="font-serif text-3xl text-gray-900 mt-0.5">{t('hello_student')}, {firstName}! 👋</h1>
         </div>
         {profile?.streak_count > 0 && (
           <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 px-4 py-2 rounded-xl">
@@ -342,7 +342,7 @@ export default function StudentDashboard() {
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
           <h2 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
             <Clock className="w-4 h-4 text-purple" />
-            Bugünkü Dərslər
+            {t('todays_lessons')}
           </h2>
           <span className="text-xs text-gray-400 capitalize">{todayWeekday()}</span>
         </div>
@@ -350,7 +350,7 @@ export default function StudentDashboard() {
         {timetable.length === 0 ? (
           <div className="flex items-center justify-center py-8 gap-2 text-gray-400">
             <Calendar className="w-4 h-4" />
-            <span className="text-sm">Bu gün dərs yoxdur</span>
+            <span className="text-sm">{t('no_lessons_today')}</span>
           </div>
         ) : (
           <div className="overflow-x-auto scrollbar-thin px-5 py-4">
@@ -432,13 +432,13 @@ export default function StudentDashboard() {
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
                   <CheckSquare className="w-4 h-4 text-purple" />
-                  Tapşırıqlar
+                  {t('all_assignments')}
                 </h2>
                 <button
                   onClick={() => navigate('/tapshiriqlar')}
                   className="flex items-center gap-1 text-xs text-purple font-medium hover:opacity-75 transition-opacity"
                 >
-                  Hamısı <ArrowRight className="w-3.5 h-3.5" />
+                  {t('view_all')} <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
 
@@ -522,13 +522,13 @@ export default function StudentDashboard() {
             <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
               <h2 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-teal" />
-                Son Qiymətlər
+                {t('recent_grades')}
               </h2>
               <button
                 onClick={() => navigate('/qiymetler')}
                 className="flex items-center gap-1 text-xs text-purple font-medium hover:opacity-75 transition-opacity"
               >
-                Hamısı <ArrowRight className="w-3.5 h-3.5" />
+                {t('view_all')} <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
@@ -537,7 +537,7 @@ export default function StudentDashboard() {
                 <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
                   <BookOpen className="w-5 h-5 text-gray-300" />
                 </div>
-                <p className="text-sm text-gray-400">Hələ qiymət yoxdur</p>
+                <p className="text-sm text-gray-400">{t('no_grades')}</p>
               </div>
             ) : (
               <div className="divide-y divide-border-soft">
@@ -576,7 +576,7 @@ export default function StudentDashboard() {
           {/* ─ Quick Actions ─────────────────────────────────────────────── */}
           <div className="bg-white rounded-2xl border border-border-soft shadow-sm">
             <div className="px-5 py-4 border-b border-border-soft">
-              <h2 className="font-semibold text-gray-900 text-sm">Sürətli Keçid</h2>
+              <h2 className="font-semibold text-gray-900 text-sm">{t('quick_nav')}</h2>
             </div>
             <div className="p-3 space-y-2">
               {quickActions.map(a => (
@@ -603,7 +603,7 @@ export default function StudentDashboard() {
             <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
               <h2 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
                 <Bell className="w-4 h-4 text-purple" />
-                Bildirişlər
+                {t('all_notifications')}
               </h2>
               {notifications.some(n => !n.read) && (
                 <span className="w-2 h-2 rounded-full bg-red-500" />
@@ -613,7 +613,7 @@ export default function StudentDashboard() {
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center px-5">
                 <Bell className="w-6 h-6 text-gray-200 mb-2" />
-                <p className="text-xs text-gray-400">Yeni bildiriş yoxdur</p>
+                <p className="text-xs text-gray-400">{t('no_notifications')}</p>
               </div>
             ) : (
               <div className="divide-y divide-border-soft">

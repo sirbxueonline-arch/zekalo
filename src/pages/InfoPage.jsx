@@ -258,8 +258,8 @@ export default function InfoPage({ type: typeProp }) {
             <ArrowLeft className="w-4 h-4" />
             Zirva
           </Link>
-          <Link to="/qeydiyyat" className="bg-purple text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-purple-dark transition-colors">
-            Demo al
+          <Link to="/contact" className="bg-purple text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-purple-dark transition-colors">
+            Bizimlə Əlaqə
           </Link>
         </div>
       </div>
@@ -304,9 +304,9 @@ export default function InfoPage({ type: typeProp }) {
             </div>
           ) : (
             <div className="mt-10 pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <Link to="/qeydiyyat"
+              <Link to="/contact"
                 className="bg-purple text-white font-semibold px-6 py-3 rounded-xl hover:bg-purple-dark transition-colors text-sm shadow-lg shadow-purple/20">
-                Demo al
+                Bizimlə Əlaqə
               </Link>
               <a href="mailto:hello@birclick.az"
                 className={`${accentText} text-sm font-semibold hover:underline`}>

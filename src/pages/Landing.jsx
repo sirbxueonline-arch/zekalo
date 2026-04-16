@@ -3,9 +3,9 @@ import { useState } from 'react'
 import {
   BookOpen, Sparkles, MessageSquare, FileText, GraduationCap,
   Users, BarChart2, ArrowRight, Check, Shield, Globe, Menu, X,
-  Building2, Lock, Clock, Award, ChevronDown, Bell, ClipboardList,
+  Building2, Lock, Clock, Award, Bell, ClipboardList,
   PenLine, TrendingUp, Calendar, HeartHandshake, LayoutDashboard,
-  Mail, HelpCircle, Layers, Star, Zap, CheckCircle, Sliders
+  Mail, HelpCircle, Layers, Star, Zap, CheckCircle, Sliders, Phone
 } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 
@@ -13,12 +13,12 @@ import { useLang } from '../contexts/LanguageContext'
 const STR = {
   az: {
     nav_solutions: 'Həllər', nav_features: 'Xüsusiyyətlər', nav_zeka: 'Zəka AI',
-    nav_resources: 'Resurslar', nav_pricing: 'Paketlər', nav_signin: 'Daxil ol', nav_demo: 'Demo al',
+    nav_resources: 'Resurslar', nav_pricing: 'Paketlər', nav_signin: 'Daxil ol', nav_demo: 'Bizimlə Əlaqə',
 
     hero_h1a: 'Məktəbinizi',
     hero_h1b: 'növbəti pilləyə qaldırın',
     hero_sub: 'IB dünya məktəbləri və Azərbaycan dövlət məktəbləri üçün — kurikulumdan kommunikasiyaya, qiymətləndirmədən hesabata hər şey bir platformada.',
-    hero_cta1: 'Xüsusiyyətlərə bax', hero_cta2: 'Demo al',
+    hero_cta1: 'Xüsusiyyətlərə bax', hero_cta2: 'Bizimlə Əlaqə',
 
     dash_school: 'Zirva Beynəlxalq Məktəbi', dash_welcome: 'Xoş gəlmisiniz, Admin',
     dash_students: 'Şagird', dash_avg_grade: 'Orta Qiymət', dash_attendance: 'Davamiyyət', dash_ai: 'AI Sessiya',
@@ -49,7 +49,7 @@ const STR = {
     at1:'Bir toxunuşla davamiyyət qeydiyyatı', at2:'Valideynlərə ani bildiriş', at3:'Davamiyyət trend analitikası', at4:'E-Gov.az uyğun hesabatlar',
     z1:'Azərbaycan, ingilis, rus dillərində', z2:'IB MYP/DP və milli kurikulum üzrə', z3:'Müəllimlər üçün AI hesabat köməkçisi', z4:'Claude AI ilə gücləndirilmiş',
     co1:'Müəllim-valideyn real vaxtda mesajlaşma', co2:'Məktəb miqyasında elanlar', co3:'Bildiriş idarəetməsi', co4:'Çoxdilli dəstək',
-    feat_cta: 'Demo al',
+    feat_cta: 'Bizimlə Əlaqə',
 
     ben_badge: 'Üstünlüklər', ben_title: 'Daha Ağıllı Məktəb İdarəetməsi üçün Sadələşdirilmiş Həllər',
     ben_sub: 'Məktəb əməliyyatlarının hər tərəfini örtən vahid platforma. Fərdi dəstəqdən tutmuş sertifikasiyaya qədər hər aspekt sizin sürətlə inkişafınız üçün hazırlanmışdır.',
@@ -91,7 +91,7 @@ const STR = {
 
     cta_title: 'Zirva+\'ı əməldə görməyə hazırsınızmı?',
     cta_sub: 'Pilot proqrama qoşulun — texnologiya hazırdır.',
-    cta_btn1: 'Satış ilə əlaqə', cta_btn2: 'Demo al →',
+    cta_btn1: 'Satış ilə əlaqə', cta_btn2: 'Bizimlə Əlaqə →',
 
     foot_tagline: 'Azərbaycanda rəqəmsal məktəbin infrastrukturu',
     foot_col1: 'Zirva+ öyrənmə', foot_col2: 'Resurslar', foot_col3: 'Dəstək Mərkəzi', foot_col4: 'Şirkət',
@@ -104,12 +104,12 @@ const STR = {
   },
   en: {
     nav_solutions: 'Solutions', nav_features: 'Features', nav_zeka: 'Zeka AI',
-    nav_resources: 'Resources', nav_pricing: 'Explore Bundles', nav_signin: 'Sign In', nav_demo: 'Get a Demo',
+    nav_resources: 'Resources', nav_pricing: 'Explore Bundles', nav_signin: 'Sign In', nav_demo: 'Contact Us',
 
     hero_h1a: 'Run Your School',
     hero_h1b: 'Smarter with Zirva',
     hero_sub: 'From curriculum to communication, assessment to reporting — everything your school needs in one powerful platform built for IB World Schools and Azerbaijani state schools.',
-    hero_cta1: 'Explore Features', hero_cta2: 'Get a Demo',
+    hero_cta1: 'Explore Features', hero_cta2: 'Contact Us',
 
     dash_school: 'Zirva International School', dash_welcome: 'Welcome back, Admin',
     dash_students: 'Students', dash_avg_grade: 'Avg Grade', dash_attendance: 'Attendance', dash_ai: 'AI Sessions',
@@ -140,7 +140,7 @@ const STR = {
     at1:'One-tap attendance recording', at2:'Instant parent notifications', at3:'Attendance trend analytics', at4:'E-Gov.az compliant reports',
     z1:'Available in Azerbaijani, English and Russian', z2:'Covers IB MYP/DP and national curriculum', z3:'AI report-writing assistant for teachers', z4:'Powered by Claude AI',
     co1:'Real-time teacher–parent messaging', co2:'School-wide announcements', co3:'Notification management', co4:'Multi-language support',
-    feat_cta: 'Get a Demo',
+    feat_cta: 'Contact Us',
 
     ben_badge: 'Benefits', ben_title: 'Streamlined Solutions for Smarter Learning and School Management',
     ben_sub: 'Unlock a world of opportunities with a learning platform that prioritises your success. From personalised support to industry-recognised certifications, every aspect is crafted to help you achieve your goals faster and more effectively.',
@@ -182,7 +182,7 @@ const STR = {
 
     cta_title: 'Ready to See Zirva+ in Action?',
     cta_sub: 'Empower your school with curriculum, teaching and reporting.',
-    cta_btn1: 'Contact Sales', cta_btn2: 'Get a Demo →',
+    cta_btn1: 'Contact Sales', cta_btn2: 'Contact Us →',
 
     foot_tagline: 'The digital school infrastructure for Azerbaijan',
     foot_col1: 'Zirva+ for Learning', foot_col2: 'Resources', foot_col3: 'Support Centre', foot_col4: 'Company',
@@ -209,52 +209,65 @@ function ZirvaLogo({ size = 32, invert = false }) {
   )
 }
 
+/* ─── Keyframe styles ─── */
+const globalStyles = `
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4); }
+    50%       { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+  }
+  .nav-link {
+    position: relative;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #534AB7, #2dd4bf);
+    border-radius: 1px;
+    transition: width 0.25s ease, left 0.25s ease;
+  }
+  .nav-link:hover::after {
+    width: calc(100% - 24px);
+    left: 12px;
+  }
+  .hero-float { animation: float 6s ease-in-out infinite; }
+  .hero-float-2 { animation: float 7s ease-in-out infinite 1s; }
+  .hero-float-3 { animation: float 5.5s ease-in-out infinite 0.5s; }
+  .fade-up { animation: fadeUp 0.6s ease forwards; }
+  .stat-pill { animation: pulseGlow 3s ease-in-out infinite; }
+`
+
 /* ─── Nav ─── */
 function Nav({ s, lang, setLang }) {
   const [open, setOpen] = useState(false)
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        <Link to="/" className="flex items-center gap-2.5 shrink-0">
-          <ZirvaLogo size={32} />
-          <span className="font-serif text-xl text-gray-900 tracking-tight">Zirva</span>
-        </Link>
+    <>
+      <style>{globalStyles}</style>
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-gray-100/80 shadow-sm shadow-gray-100/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
+            <ZirvaLogo size={32} />
+            <span className="font-serif text-xl text-gray-900 tracking-tight group-hover:text-purple transition-colors duration-200">Zirva</span>
+          </Link>
 
-        <nav className="hidden lg:flex items-center gap-0.5">
-          {[
-            { label: s.nav_solutions, href: '#solutions' },
-            { label: s.nav_features,  href: '#features' },
-            { label: s.nav_zeka,      href: '#features' },
-            { label: s.nav_resources, href: '#integrations' },
-          ].map(({ label, href }) => (
-            <a key={label} href={href} className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium rounded-lg hover:bg-gray-50 transition-colors">
-              {label}
-            </a>
-          ))}
-          <a href="#solutions" className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium rounded-lg hover:bg-gray-50 transition-colors">{s.nav_pricing}</a>
-        </nav>
-
-        <div className="hidden lg:flex items-center gap-2">
-          <div className="flex items-center bg-gray-100 rounded-lg p-1 mr-1">
-            {['az', 'en'].map(l => (
-              <button key={l} onClick={() => setLang(l)}
-                className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-colors ${lang === l ? 'bg-white text-purple shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>
-                {l.toUpperCase()}
-              </button>
-            ))}
-          </div>
-          <Link to="/daxil-ol" className="text-sm text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">{s.nav_signin}</Link>
-          <Link to="/qeydiyyat" className="bg-purple text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-purple-dark transition-colors shadow-sm">{s.nav_demo}</Link>
-        </div>
-
-        <button onClick={() => setOpen(v => !v)} className="lg:hidden p-2 text-gray-600 hover:text-gray-900">
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
-      </div>
-
-      {open && (
-        <div className="lg:hidden border-t border-gray-100 bg-white px-4 py-4">
-          <div className="space-y-0.5 mb-4">
+          {/* Center nav */}
+          <nav className="hidden lg:flex items-center gap-1">
             {[
               { label: s.nav_solutions, href: '#solutions' },
               { label: s.nav_features,  href: '#features' },
@@ -262,31 +275,107 @@ function Nav({ s, lang, setLang }) {
               { label: s.nav_resources, href: '#integrations' },
               { label: s.nav_pricing,   href: '#solutions' },
             ].map(({ label, href }) => (
-              <a key={label} href={href} onClick={() => setOpen(false)} className="block py-2.5 text-sm text-gray-700 font-medium px-2">{label}</a>
+              <a
+                key={label}
+                href={href}
+                className="nav-link px-3 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium rounded-lg hover:bg-gray-50/80 transition-colors duration-150"
+              >
+                {label}
+              </a>
             ))}
-          </div>
-          <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-1">
+          </nav>
+
+          {/* Right actions */}
+          <div className="hidden lg:flex items-center gap-2">
+            {/* Lang switcher */}
+            <div className="flex items-center bg-gray-100 rounded-lg p-0.5 mr-1">
               {['az', 'en'].map(l => (
-                <button key={l} onClick={() => setLang(l)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${lang === l ? 'bg-purple text-white' : 'text-gray-400 border border-gray-200'}`}>
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`px-2.5 py-1.5 rounded-md text-xs font-semibold transition-all duration-200 ${
+                    lang === l
+                      ? 'bg-white text-purple shadow-sm'
+                      : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                >
                   {l.toUpperCase()}
                 </button>
               ))}
             </div>
-            <div className="flex gap-2">
-              <Link to="/daxil-ol" className="text-sm text-gray-600 font-medium px-3 py-2">{s.nav_signin}</Link>
-              <Link to="/qeydiyyat" className="bg-purple text-white text-sm font-semibold px-4 py-2 rounded-lg">{s.nav_demo}</Link>
+            <Link
+              to="/daxil-ol"
+              className="text-sm text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              {s.nav_signin}
+            </Link>
+            <Link
+              to="/contact"
+              className="relative overflow-hidden bg-purple text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-md shadow-purple/25 hover:shadow-lg hover:shadow-purple/30 hover:-translate-y-0.5 transition-all duration-200"
+            >
+              {s.nav_demo}
+            </Link>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setOpen(v => !v)}
+            className="lg:hidden p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
+            aria-label="Toggle menu"
+          >
+            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
+
+        {/* Mobile menu */}
+        {open && (
+          <div className="lg:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl px-4 py-4">
+            <div className="space-y-1 mb-4">
+              {[
+                { label: s.nav_solutions, href: '#solutions' },
+                { label: s.nav_features,  href: '#features' },
+                { label: s.nav_zeka,      href: '#features' },
+                { label: s.nav_resources, href: '#integrations' },
+                { label: s.nav_pricing,   href: '#solutions' },
+              ].map(({ label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  className="block py-2.5 text-sm text-gray-700 font-medium px-3 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+            <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                {['az', 'en'].map(l => (
+                  <button
+                    key={l}
+                    onClick={() => setLang(l)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                      lang === l ? 'bg-purple text-white' : 'text-gray-400 border border-gray-200'
+                    }`}
+                  >
+                    {l.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Link to="/daxil-ol" className="text-sm text-gray-600 font-medium px-3 py-2">{s.nav_signin}</Link>
+                <Link to="/contact" className="bg-purple text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-md shadow-purple/25">{s.nav_demo}</Link>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </header>
+        )}
+      </header>
+    </>
   )
 }
 
-/* ─── Hero ─── */
-function DashboardMockup({ s, dark = false }) {
+/* ─── Dashboard Mockup ─── */
+function DashboardMockup({ s }) {
   const sideItems = [
     { icon: LayoutDashboard, label: 'Dashboard', active: true },
     { icon: BookOpen, label: s.tab_assessment, active: false },
@@ -296,15 +385,21 @@ function DashboardMockup({ s, dark = false }) {
     { icon: Sparkles, label: s.tab_zeka, active: false },
   ]
   return (
-    <div className="rounded-t-2xl overflow-hidden shadow-2xl" style={{ border: dark ? '1px solid rgba(255,255,255,0.15)' : '1px solid #e5e7eb' }}>
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{
+        border: '1px solid rgba(255,255,255,0.15)',
+        boxShadow: '0 50px 100px -20px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08)',
+      }}
+    >
       {/* Browser chrome */}
-      <div className="bg-gray-100 px-4 py-2.5 flex items-center gap-3">
+      <div className="bg-gray-900/90 px-4 py-2.5 flex items-center gap-3">
         <div className="flex gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
           <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
           <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
         </div>
-        <div className="flex-1 bg-white rounded px-3 py-1 text-[11px] text-gray-400 text-center max-w-xs mx-auto">
+        <div className="flex-1 bg-gray-800 rounded-md px-3 py-1 text-[11px] text-gray-500 text-center max-w-xs mx-auto">
           app.zirva.az/admin/dashboard
         </div>
       </div>
@@ -318,7 +413,12 @@ function DashboardMockup({ s, dark = false }) {
             <span className="font-serif text-sm font-bold text-gray-900">Zirva</span>
           </div>
           {sideItems.map(({ icon: Icon, label, active }) => (
-            <div key={label} className={`flex items-center gap-2.5 mx-2 px-3 py-2 rounded-lg text-[11px] font-medium mb-0.5 ${active ? 'bg-purple-light text-purple' : 'text-gray-400'}`}>
+            <div
+              key={label}
+              className={`flex items-center gap-2.5 mx-2 px-3 py-2 rounded-lg text-[11px] font-medium mb-0.5 ${
+                active ? 'bg-purple-light text-purple' : 'text-gray-400'
+              }`}
+            >
               <Icon className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">{label}</span>
             </div>
@@ -398,51 +498,97 @@ function DashboardMockup({ s, dark = false }) {
   )
 }
 
+/* ─── Hero ─── */
 function Hero({ s }) {
   return (
     <section
       className="relative overflow-hidden px-6 pt-20 pb-0"
-      style={{ background: 'linear-gradient(160deg, #c7c2f5 0%, #a095ec 25%, #7b6fe0 55%, #534AB7 80%, #3730a3 100%)' }}
+      style={{ background: 'linear-gradient(135deg, #0f0e2a 0%, #1a1350 40%, #2d1b7d 70%, #534AB7 100%)' }}
     >
+      {/* Decorative blobs */}
+      <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-purple/20 blur-[100px]" />
+      <div className="pointer-events-none absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-teal/10 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-1/3 left-1/4 w-64 h-64 rounded-full bg-indigo-400/15 blur-[80px]" />
+
       <div className="relative max-w-6xl mx-auto z-10">
-        <div className="text-center mb-14">
+        <div className="text-center mb-16">
+          {/* Badge pill */}
+          <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full border border-teal/40 bg-teal/10 backdrop-blur-sm">
+            <span className="text-sm">🚀</span>
+            <span className="text-teal text-sm font-medium">Azərbaycanın #1 Məktəb İdarəetmə Sistemi</span>
+          </div>
+
+          {/* Headline */}
           <h1
-            className="font-serif font-bold text-[#1a0f3d] tracking-tight leading-[1.05] mb-7"
-            style={{ fontSize: 'clamp(2.6rem, 7vw, 5.5rem)' }}
+            className="font-serif font-bold text-white tracking-tight leading-[1.05] mb-7"
+            style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)', lineHeight: 1.08 }}
           >
             {s.hero_h1a}
             {s.hero_h1b && (
               <>
                 <br />
-                {s.hero_h1b}
+                <span
+                  style={{
+                    background: 'linear-gradient(90deg, #a78bfa, #34d399)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
+                  {s.hero_h1b}
+                </span>
               </>
             )}
           </h1>
 
-          <p className="text-lg md:text-xl text-[#1a0f3d]/70 leading-relaxed max-w-2xl mx-auto mb-12">
+          {/* Subtitle */}
+          <p className="text-white/70 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10">
             {s.hero_sub}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <a
               href="#features"
-              className="border-2 border-[#1a0f3d]/40 text-[#1a0f3d] font-semibold rounded-full px-8 py-3.5 text-sm hover:bg-white/20 transition-colors"
+              className="border-2 border-white/30 text-white font-semibold rounded-full px-8 py-3.5 text-sm hover:bg-white/10 hover:border-white/50 transition-all duration-200"
             >
               {s.hero_cta1}
             </a>
             <Link
-              to="/qeydiyyat"
-              className="bg-[#1a0f3d] text-white font-semibold rounded-full px-8 py-3.5 text-sm hover:bg-[#0f0a26] transition-colors flex items-center gap-2 shadow-lg"
+              to="/contact"
+              className="bg-white text-purple font-semibold rounded-full px-8 py-3.5 text-sm flex items-center gap-2 shadow-xl shadow-black/30 hover:shadow-2xl hover:shadow-black/40 hover:-translate-y-0.5 transition-all duration-200"
             >
               {s.hero_cta2}
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+
+          {/* Stat pills */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-16">
+            {[
+              { label: '342+ Şagird', icon: Users, bg: 'bg-teal/20 border-teal/30', iconBg: 'bg-teal/30', iconColor: 'text-teal' },
+              { label: '50+ İnteqrasiya', icon: Zap, bg: 'bg-purple/30 border-purple/40', iconBg: 'bg-purple/40', iconColor: 'text-violet-300' },
+              { label: '3 Dil', icon: Globe, bg: 'bg-blue-500/20 border-blue-400/30', iconBg: 'bg-blue-500/30', iconColor: 'text-blue-300' },
+            ].map(({ label, icon: Icon, bg, iconBg, iconColor }) => (
+              <div
+                key={label}
+                className={`flex items-center gap-3 px-5 py-3 rounded-full border backdrop-blur-sm ${bg}`}
+              >
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center ${iconBg}`}>
+                  <Icon className={`w-3.5 h-3.5 ${iconColor}`} />
+                </div>
+                <span className="text-white text-sm font-semibold">{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Dashboard mockup — flush to section bottom */}
-        <div style={{ perspective: '1200px' }}>
-          <div style={{ transform: 'rotateX(6deg)', transformOrigin: 'top center' }} className="max-w-5xl mx-auto">
+        {/* Dashboard mockup with perspective */}
+        <div style={{ perspective: '1400px' }}>
+          <div
+            className="max-w-5xl mx-auto"
+            style={{ transform: 'rotateX(5deg)', transformOrigin: 'top center' }}
+          >
             <DashboardMockup s={s} />
           </div>
         </div>
@@ -451,22 +597,81 @@ function Hero({ s }) {
   )
 }
 
-/* ─── Trust strip ─── */
+/* ─── Trust / Marquee Strip ─── */
 function TrustStrip({ s }) {
-  const items = ['IBO Certified', 'E-Gov.az', 'ASAN Xidmət', 'Google Workspace', 'Microsoft 365', 'Claude AI', 'Turnitin', 'ISO 27001']
+  const items = ['IBO Certified', 'E-Gov.az', 'ASAN Xidmət', 'Google Workspace', 'Microsoft 365', 'Claude AI', 'Turnitin', 'ISO 27001', 'GDPR', 'CIS Standards']
   return (
-    <div className="bg-white py-4 overflow-hidden relative">
-      <style>{`@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
-      <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-      <div style={{ display:'flex', gap:'3rem', animation:'marquee 28s linear infinite', width:'max-content' }}>
-        {[...items,...items].map((item,i)=>(
-          <span key={i} className="flex items-center gap-2 text-gray-400 text-sm font-medium whitespace-nowrap">
-            <span className="w-1.5 h-1.5 rounded-full bg-purple/30 shrink-0" />{item}
+    <div className="bg-white py-8 overflow-hidden relative border-b border-gray-100 shadow-sm">
+      {/* Title */}
+      <p className="text-center text-xs text-gray-400 font-semibold uppercase tracking-widest mb-5">{s.trust_title}</p>
+
+      {/* Fade edges */}
+      <div className="absolute left-0 top-8 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-8 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+
+      {/* Marquee */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '2.5rem',
+          animation: 'marquee 30s linear infinite',
+          width: 'max-content',
+        }}
+      >
+        {[...items, ...items].map((item, i) => (
+          <span
+            key={i}
+            className="flex items-center gap-2.5 text-gray-400 text-sm font-medium whitespace-nowrap"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-purple/40 shrink-0" />
+            {item}
+            <span className="w-1.5 h-1.5 rounded-full bg-teal/40 shrink-0" />
           </span>
         ))}
       </div>
     </div>
+  )
+}
+
+/* ─── Stats section ─── */
+function Stats() {
+  const items = [
+    { value: '500+', label: 'Aktif İstifadəçi', icon: Users, color: 'text-purple' },
+    { value: '99.9%', label: 'Sistem Sabitliyi', icon: Shield, color: 'text-teal' },
+    { value: '3', label: 'Dil Dəstəyi', icon: Globe, color: 'text-purple' },
+    { value: '24/7', label: 'Texniki Dəstək', icon: HeartHandshake, color: 'text-teal' },
+  ]
+  return (
+    <section className="bg-white py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
+          {items.map(({ value, label, icon: Icon, color }, idx) => (
+            <div key={label} className="flex flex-col items-center py-10 px-6 gap-3 group">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-1 ${
+                color === 'text-teal' ? 'bg-teal/10' : 'bg-purple/10'
+              }`}>
+                <Icon className={`w-6 h-6 ${color}`} />
+              </div>
+              <span
+                className="font-serif font-bold"
+                style={{
+                  fontSize: 'clamp(2rem, 4vw, 3rem)',
+                  background: idx % 2 === 0
+                    ? 'linear-gradient(135deg, #534AB7, #7c6ff7)'
+                    : 'linear-gradient(135deg, #0d9488, #2dd4bf)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                {value}
+              </span>
+              <span className="text-gray-500 text-sm font-medium text-center">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -481,26 +686,56 @@ function Solutions({ s }) {
     { icon: Users,         t: s.sol_pyp_t,   d: s.sol_pyp_d,   c: 'teal'   },
   ]
   return (
-    <section id="solutions" className="py-24 bg-white">
+    <section id="solutions" className="py-24 bg-[#F7F7FB]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Left/right header */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-14">
           <div className="max-w-xl">
-            <h2 className="font-serif text-gray-900 mb-3" style={{ fontSize:'clamp(1.75rem,3.5vw,2.75rem)' }}>{s.sol_title}</h2>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-purple/10 border border-purple/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple" />
+              <span className="text-purple text-xs font-semibold tracking-wide uppercase">{s.sol_badge}</span>
+            </div>
+            <h2
+              className="font-serif text-gray-900 mb-3 leading-tight"
+              style={{ fontSize: 'clamp(1.875rem, 3.5vw, 2.875rem)' }}
+            >
+              {s.sol_title}
+            </h2>
             <p className="text-gray-500 text-base leading-relaxed">{s.sol_sub}</p>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map(({ icon:Icon, t, d, c }) => (
-            <a href="#features" key={t} className="group relative p-6 rounded-2xl bg-white border border-border-soft hover:border-purple/20 hover:shadow-2xl hover:shadow-purple/8 hover:-translate-y-1 transition-all duration-300 overflow-hidden block">
-              <div className={`absolute top-0 left-5 right-5 h-0.5 rounded-b-full ${c==='teal' ? 'bg-teal' : 'bg-purple'}`} />
+
+        {/* Cards grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {items.map(({ icon: Icon, t, d, c }) => (
+            <a
+              href="#features"
+              key={t}
+              className="group relative p-7 rounded-2xl bg-white border border-gray-100 hover:border-purple/20 hover:shadow-2xl hover:shadow-purple/8 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden block"
+            >
+              {/* Top accent bar */}
+              <div
+                className={`absolute top-0 left-6 right-6 h-0.5 rounded-b-full transition-all duration-300 ${
+                  c === 'teal' ? 'bg-teal' : 'bg-purple'
+                } opacity-0 group-hover:opacity-100`}
+              />
+              {/* Icon */}
               <div className="mb-5">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${c==='teal' ? 'bg-teal-light' : 'bg-purple-light'}`}>
-                  <Icon className={`w-5 h-5 ${c==='teal' ? 'text-teal' : 'text-purple'}`} />
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  c === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
+                }`}>
+                  <Icon className={`w-6 h-6 ${c === 'teal' ? 'text-teal' : 'text-purple'}`} />
                 </div>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-sm leading-snug">{t}</h3>
+              <h3 className="font-semibold text-gray-900 mb-2 text-base leading-snug">{t}</h3>
               <p className="text-sm text-gray-500 leading-relaxed">{d}</p>
-              <div className={`mt-4 flex items-center gap-1 text-xs font-semibold translate-y-1 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ${c==='teal' ? 'text-teal' : 'text-purple'}`}>
+              {/* Hover arrow */}
+              <div
+                className={`mt-5 flex items-center gap-1.5 text-xs font-semibold translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ${
+                  c === 'teal' ? 'text-teal' : 'text-purple'
+                }`}
+              >
                 {s.sol_cta} <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </a>
@@ -511,7 +746,7 @@ function Solutions({ s }) {
   )
 }
 
-/* ─── Features ─── */
+/* ─── Feature Visual ─── */
 function FeatureVisual({ idx, s }) {
   if (idx === 0) return (
     <div className="space-y-2.5">
@@ -626,75 +861,98 @@ function FeatureVisual({ idx, s }) {
   )
 }
 
+/* ─── Features ─── */
 function Features({ s }) {
   const [active, setActive] = useState(0)
   const tabs = [
-    { label: s.tab_curriculum, icon: BookOpen, bullets: [s.c1, s.c2, s.c3, s.c4] },
-    { label: s.tab_teaching, icon: PenLine, bullets: [s.t1, s.t2, s.t3, s.t4] },
-    { label: s.tab_assessment, icon: BarChart2, bullets: [s.a1, s.a2, s.a3, s.a4] },
-    { label: s.tab_reports, icon: FileText, bullets: [s.r1, s.r2, s.r3, s.r4] },
-    { label: s.tab_attendance, icon: Clock, bullets: [s.at1, s.at2, s.at3, s.at4] },
-    { label: s.tab_zeka, icon: Sparkles, bullets: [s.z1, s.z2, s.z3, s.z4] },
-    { label: s.tab_comms, icon: MessageSquare, bullets: [s.co1, s.co2, s.co3, s.co4] },
+    { label: s.tab_curriculum,  icon: BookOpen,      bullets: [s.c1,  s.c2,  s.c3,  s.c4]  },
+    { label: s.tab_teaching,    icon: PenLine,        bullets: [s.t1,  s.t2,  s.t3,  s.t4]  },
+    { label: s.tab_assessment,  icon: BarChart2,      bullets: [s.a1,  s.a2,  s.a3,  s.a4]  },
+    { label: s.tab_reports,     icon: FileText,       bullets: [s.r1,  s.r2,  s.r3,  s.r4]  },
+    { label: s.tab_attendance,  icon: Clock,          bullets: [s.at1, s.at2, s.at3, s.at4] },
+    { label: s.tab_zeka,        icon: Sparkles,       bullets: [s.z1,  s.z2,  s.z3,  s.z4]  },
+    { label: s.tab_comms,       icon: MessageSquare,  bullets: [s.co1, s.co2, s.co3, s.co4] },
   ]
   const cur = tabs[active]
 
   return (
-    <section id="features" className="py-24 bg-surface">
+    <section id="features" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="font-serif text-gray-900 mb-4" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}>
-            {s.feat_title} <span className="text-teal">{s.feat_title_b}</span>
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-teal/10 border border-teal/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal" />
+            <span className="text-teal text-xs font-semibold tracking-wide uppercase">{s.feat_badge}</span>
+          </div>
+          <h2
+            className="font-serif text-gray-900 mb-4"
+            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+          >
+            {s.feat_title}{' '}
+            <span
+              style={{
+                background: 'linear-gradient(90deg, #0d9488, #2dd4bf)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              {s.feat_title_b}
+            </span>
           </h2>
           <p className="text-gray-500 text-lg max-w-2xl mx-auto">{s.feat_sub}</p>
         </div>
 
-        {/* Layout: sidebar nav + content card */}
-        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-4 max-w-6xl mx-auto">
-          {/* Left nav */}
+        {/* Tab + content layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-5 max-w-6xl mx-auto">
+          {/* Vertical tab buttons */}
           <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
             {tabs.map(({ label, icon: Icon }, i) => (
               <button
                 key={label}
                 onClick={() => setActive(i)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left whitespace-nowrap lg:whitespace-normal transition-all duration-150 shrink-0 w-full ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left whitespace-nowrap lg:whitespace-normal transition-all duration-200 shrink-0 w-full ${
                   active === i
-                    ? 'bg-purple text-white shadow-lg shadow-purple/20'
-                    : 'bg-white text-gray-500 hover:text-gray-900 border border-border-soft hover:border-purple/30'
+                    ? 'bg-purple text-white shadow-lg shadow-purple/25'
+                    : 'bg-[#F7F7FB] text-gray-500 hover:text-gray-900 border border-transparent hover:border-purple/20'
                 }`}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${active === i ? 'text-white' : 'text-purple'}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${active === i ? 'text-white/80' : 'text-purple'}`} />
                 {label}
               </button>
             ))}
           </div>
 
-          {/* Right card */}
-          <div className="bg-white rounded-2xl border border-border-soft overflow-hidden shadow-sm">
+          {/* Content card */}
+          <div className="bg-[#F7F7FB] rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              {/* Bullets */}
-              <div className="p-8 lg:p-10">
-                <div className="w-11 h-11 rounded-xl bg-purple-light flex items-center justify-center mb-6">
-                  <cur.icon className="w-5 h-5 text-purple" />
+              {/* Bullets panel */}
+              <div className="p-8 lg:p-10 bg-white">
+                <div className="w-12 h-12 rounded-xl bg-purple/10 flex items-center justify-center mb-6">
+                  <cur.icon className="w-6 h-6 text-purple" />
                 </div>
                 <h3 className="font-serif text-2xl text-gray-900 mb-6">{cur.label}</h3>
-                <ul className="space-y-3.5">
+                <ul className="space-y-4">
                   {cur.bullets.map(b => (
                     <li key={b} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-teal-light flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-5 h-5 rounded-full bg-teal/15 flex items-center justify-center shrink-0 mt-0.5">
                         <Check className="w-3 h-3 text-teal" />
                       </div>
                       <span className="text-gray-600 text-sm leading-relaxed">{b}</span>
                     </li>
                   ))}
                 </ul>
-                <Link to="/qeydiyyat" className="inline-flex items-center gap-2 mt-8 text-purple text-sm font-semibold hover:gap-3 transition-all group">
-                  {s.feat_cta} <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center gap-2 mt-8 text-purple text-sm font-semibold hover:gap-3 transition-all duration-200 group"
+                >
+                  {s.feat_cta}
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
-              {/* Visual */}
-              <div className="bg-surface border-t lg:border-t-0 lg:border-l border-border-soft p-8 lg:p-10 flex flex-col justify-center">
+
+              {/* Visual panel */}
+              <div className="bg-[#F7F7FB] border-t lg:border-t-0 lg:border-l border-gray-100 p-8 lg:p-10 flex flex-col justify-center">
                 <FeatureVisual idx={active} s={s} />
               </div>
             </div>
@@ -705,35 +963,133 @@ function Features({ s }) {
   )
 }
 
+/* ─── Testimonials ─── */
+function Testimonials({ s }) {
+  const testimonials = [
+    { q: s.t1q, name: s.t1n, role: s.t1r },
+    { q: s.t2q, name: s.t2n, role: s.t2r },
+    { q: s.t3q, name: s.t3n, role: s.t3r },
+  ]
+
+  // Deterministic color from name
+  const avatarColors = [
+    { bg: 'bg-purple', text: 'text-white' },
+    { bg: 'bg-teal',   text: 'text-white' },
+    { bg: 'bg-indigo-500', text: 'text-white' },
+  ]
+
+  return (
+    <section className="py-24 bg-[#F7F7FB]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <span className="text-amber-700 text-xs font-semibold tracking-wide uppercase">{s.test_badge}</span>
+          </div>
+          <h2
+            className="font-serif text-gray-900 mb-3 leading-tight"
+            style={{ fontSize: 'clamp(1.875rem, 3.5vw, 2.875rem)' }}
+          >
+            {s.test_title}
+          </h2>
+          <p className="text-gray-500 text-base max-w-xl mx-auto">{s.test_sub}</p>
+        </div>
+
+        {/* Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {testimonials.map(({ q, name, role }, idx) => {
+            const av = avatarColors[idx % avatarColors.length]
+            const initial = name.charAt(0)
+            return (
+              <div
+                key={name}
+                className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col"
+              >
+                {/* Stars */}
+                <div className="flex gap-0.5 mb-5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
+                  ))}
+                </div>
+
+                {/* Quote */}
+                <blockquote className="italic text-gray-700 text-base leading-relaxed mb-6 flex-1">
+                  {q}
+                </blockquote>
+
+                {/* Author */}
+                <div className="flex items-center gap-3 pt-5 border-t border-gray-50">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${av.bg} ${av.text}`}>
+                    {initial}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 text-sm leading-tight">{name}</p>
+                    <p className="text-gray-400 text-xs mt-0.5">{role}</p>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /* ─── Benefits ─── */
 function Benefits({ s }) {
   const items = [
-    { icon: Zap,           t: s.b1t, d: s.b1d },
-    { icon: HeartHandshake,t: s.b2t, d: s.b2d },
-    { icon: GraduationCap, t: s.b3t, d: s.b3d },
-    { icon: Sliders,       t: s.b4t, d: s.b4d },
-    { icon: Layers,        t: s.b5t, d: s.b5d },
-    { icon: CheckCircle,   t: s.b6t, d: s.b6d },
-    { icon: Shield,        t: s.b7t, d: s.b7d },
-    { icon: TrendingUp,    t: s.b8t, d: s.b8d },
+    { icon: Zap,            t: s.b1t, d: s.b1d, c: 'teal'   },
+    { icon: HeartHandshake, t: s.b2t, d: s.b2d, c: 'purple' },
+    { icon: GraduationCap,  t: s.b3t, d: s.b3d, c: 'teal'   },
+    { icon: Sliders,        t: s.b4t, d: s.b4d, c: 'purple' },
+    { icon: Layers,         t: s.b5t, d: s.b5d, c: 'teal'   },
+    { icon: CheckCircle,    t: s.b6t, d: s.b6d, c: 'purple' },
+    { icon: Shield,         t: s.b7t, d: s.b7d, c: 'teal'   },
+    { icon: TrendingUp,     t: s.b8t, d: s.b8d, c: 'purple' },
   ]
   return (
-    <section id="benefits" className="py-24 bg-[#0f0e2a]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="benefits" className="py-24 bg-[#0f0e2a] relative overflow-hidden">
+      {/* Subtle blobs */}
+      <div className="pointer-events-none absolute top-0 right-0 w-96 h-96 rounded-full bg-purple/10 blur-[100px]" />
+      <div className="pointer-events-none absolute bottom-0 left-0 w-80 h-80 rounded-full bg-teal/8 blur-[100px]" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 items-start">
+          {/* Left sticky */}
           <div className="lg:sticky lg:top-28">
-            <h2 className="font-serif text-white mb-5 leading-tight" style={{ fontSize:'clamp(1.75rem,3vw,2.5rem)' }}>{s.ben_title}</h2>
+            <div className="inline-flex items-center gap-2 mb-5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal" />
+              <span className="text-white/60 text-xs font-semibold tracking-wide uppercase">{s.ben_badge}</span>
+            </div>
+            <h2
+              className="font-serif text-white mb-5 leading-tight"
+              style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)' }}
+            >
+              {s.ben_title}
+            </h2>
             <p className="text-white/40 text-sm leading-relaxed mb-8">{s.ben_sub}</p>
-            <Link to="/qeydiyyat" className="inline-flex items-center gap-2 bg-purple text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-purple-dark transition-colors shadow-lg shadow-purple/30">
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 bg-purple text-white text-sm font-semibold px-5 py-3 rounded-xl hover:bg-purple-dark transition-all duration-200 shadow-lg shadow-purple/30 hover:shadow-xl hover:shadow-purple/40 hover:-translate-y-0.5"
+            >
               {s.feat_cta} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+
+          {/* Right grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {items.map(({ icon:Icon, t, d }) => (
-              <div key={t} className="group p-5 rounded-2xl bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.07] hover:border-white/[0.12] transition-all duration-200">
+            {items.map(({ icon: Icon, t, d, c }) => (
+              <div
+                key={t}
+                className="group p-5 rounded-2xl bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.07] hover:border-white/[0.15] transition-all duration-200"
+              >
                 <div className="flex items-start gap-4">
-                  <div className="w-9 h-9 rounded-xl bg-purple/20 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-purple/30 transition-colors">
-                    <Icon className="w-4 h-4 text-teal-mid" />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform duration-200 ${
+                    c === 'teal' ? 'bg-teal/20' : 'bg-purple/30'
+                  }`}>
+                    <Icon className={`w-5 h-5 ${c === 'teal' ? 'text-teal' : 'text-violet-300'}`} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-white text-sm mb-1 leading-snug">{t}</h3>
@@ -749,9 +1105,7 @@ function Benefits({ s }) {
   )
 }
 
-
 /* ─── Integration logos ─── */
-/* Microsoft — official 4-color squares (no separate PNG provided) */
 function MicrosoftLogo() {
   return (
     <svg viewBox="0 0 21 21" width="42" height="42">
@@ -774,10 +1128,16 @@ const INT_ITEMS = [
 
 function IntCard({ item: { name, Logo } }) {
   return (
-    <div className="group flex flex-col items-center gap-3 bg-white rounded-2xl py-8 px-4 cursor-pointer transition-all duration-200 hover:-translate-y-1"
-      style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)' }}
-      onMouseEnter={e => e.currentTarget.style.boxShadow='0 12px 32px rgba(83,74,183,0.15)'}
-      onMouseLeave={e => e.currentTarget.style.boxShadow='0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)'}>
+    <div
+      className="group flex flex-col items-center gap-3 bg-white rounded-2xl py-8 px-4 cursor-pointer transition-all duration-200 hover:-translate-y-1.5 border border-gray-100"
+      style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03)' }}
+      onMouseEnter={e => {
+        e.currentTarget.style.boxShadow = '0 16px 40px rgba(83,74,183,0.18), 0 0 0 1px rgba(83,74,183,0.12)'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03)'
+      }}
+    >
       <div className="h-12 flex items-center justify-center"><Logo /></div>
       <span className="text-xs text-gray-500 font-medium text-center leading-tight group-hover:text-gray-800 transition-colors">{name}</span>
     </div>
@@ -788,19 +1148,33 @@ function Integrations({ s }) {
   return (
     <section id="integrations" className="py-24 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="font-serif text-gray-900 mb-4" style={{ fontSize:'clamp(1.75rem,3.5vw,2.75rem)' }}>{s.int_title}</h2>
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-purple/10 border border-purple/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-purple" />
+            <span className="text-purple text-xs font-semibold tracking-wide uppercase">{s.int_badge}</span>
+          </div>
+          <h2
+            className="font-serif text-gray-900 mb-4"
+            style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)' }}
+          >
+            {s.int_title}
+          </h2>
           <p className="text-gray-500 text-base max-w-xl mx-auto leading-relaxed">{s.int_sub}</p>
         </div>
+
+        {/* Hub badge */}
         <div className="flex justify-center mb-10">
-          <div className="flex items-center gap-3 bg-purple-light border border-purple/15 rounded-2xl px-6 py-3">
-            <div className="w-8 h-8 bg-purple rounded-xl flex items-center justify-center shadow">
-              <img src="/logo.png" alt="Zirva" width="18" height="18" className="object-contain" style={{ filter:'brightness(0) invert(1)' }} />
+          <div className="flex items-center gap-3 bg-purple/8 border border-purple/15 rounded-2xl px-6 py-3">
+            <div className="w-9 h-9 bg-purple rounded-xl flex items-center justify-center shadow-md shadow-purple/30">
+              <img src="/logo.png" alt="Zirva" width="18" height="18" className="object-contain" style={{ filter: 'brightness(0) invert(1)' }} />
             </div>
             <span className="text-purple font-semibold text-sm">{s.int_hub}</span>
             <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
           </div>
         </div>
+
+        {/* Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {INT_ITEMS.map(item => <IntCard key={item.name} item={item} />)}
         </div>
@@ -812,31 +1186,61 @@ function Integrations({ s }) {
 /* ─── Security ─── */
 function Security({ s }) {
   const items = [
-    { icon: Globe,  t: s.s1t, d: s.s1d },
-    { icon: Shield, t: s.s2t, d: s.s2d },
-    { icon: Lock,   t: s.s3t, d: s.s3d },
-    { icon: Bell,   t: s.s4t, d: s.s4d },
+    { icon: Globe,  t: s.s1t, d: s.s1d, c: 'teal'   },
+    { icon: Shield, t: s.s2t, d: s.s2d, c: 'purple' },
+    { icon: Lock,   t: s.s3t, d: s.s3d, c: 'teal'   },
+    { icon: Bell,   t: s.s4t, d: s.s4d, c: 'purple' },
   ]
+  const badges = ['ISO 27001', 'GDPR', 'E-Gov.az', 'SOC 2']
+
   return (
-    <section id="security" className="py-24 overflow-hidden" style={{ background:'linear-gradient(135deg,#0f0e2a 0%,#1a1350 55%,#0f0e2a 100%)' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="security"
+      className="py-24 relative overflow-hidden"
+      style={{ background: 'linear-gradient(135deg, #0f0e2a 0%, #1a1350 55%, #0f0e2a 100%)' }}
+    >
+      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-purple/10 blur-[100px]" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          {/* Left */}
           <div>
-            <h2 className="font-serif text-white mb-5 leading-tight" style={{ fontSize:'clamp(1.75rem,3vw,2.75rem)', lineHeight:1.2 }}>{s.sec_title}</h2>
+            <div className="inline-flex items-center gap-2 mb-5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal" />
+              <span className="text-white/60 text-xs font-semibold tracking-wide uppercase">{s.sec_badge}</span>
+            </div>
+            <h2
+              className="font-serif text-white mb-5 leading-tight"
+              style={{ fontSize: 'clamp(1.75rem, 3vw, 2.75rem)', lineHeight: 1.2 }}
+            >
+              {s.sec_title}
+            </h2>
             <p className="text-white/50 text-sm leading-relaxed mb-8 max-w-md">{s.sec_sub}</p>
+
+            {/* Compliance badges */}
             <div className="flex flex-wrap gap-2">
-              {['ISO 27001','GDPR','E-Gov.az','SOC 2'].map(b=>(
-                <span key={b} className="flex items-center gap-1.5 bg-white/5 border border-white/10 text-white/60 text-xs font-medium px-3 py-1.5 rounded-full">
+              {badges.map(b => (
+                <span
+                  key={b}
+                  className="flex items-center gap-1.5 bg-white/5 border border-white/10 text-white/70 text-xs font-medium px-4 py-2 rounded-full hover:bg-white/10 hover:border-white/20 transition-colors"
+                >
                   <Check className="w-3 h-3 text-teal shrink-0" />{b}
                 </span>
               ))}
             </div>
           </div>
+
+          {/* Right cards */}
           <div className="grid grid-cols-2 gap-4">
-            {items.map(({ icon:Icon, t, d }) => (
-              <div key={t} className="group p-5 rounded-2xl bg-white/[0.05] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/[0.15] transition-all">
-                <div className="w-10 h-10 rounded-xl bg-teal/15 flex items-center justify-center mb-4 group-hover:bg-teal/25 transition-colors">
-                  <Icon className="w-5 h-5 text-teal" />
+            {items.map(({ icon: Icon, t, d, c }) => (
+              <div
+                key={t}
+                className="group p-5 rounded-2xl bg-white/[0.05] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/[0.18] transition-all duration-200"
+              >
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-200 ${
+                  c === 'teal' ? 'bg-teal/20' : 'bg-purple/30'
+                }`}>
+                  <Icon className={`w-5 h-5 ${c === 'teal' ? 'text-teal' : 'text-violet-300'}`} />
                 </div>
                 <h3 className="font-semibold text-white mb-1.5 text-sm leading-snug">{t}</h3>
                 <p className="text-xs text-white/40 leading-relaxed">{d}</p>
@@ -852,26 +1256,53 @@ function Security({ s }) {
 /* ─── Support ─── */
 function Support({ s }) {
   return (
-    <section id="support" className="py-24 bg-surface">
+    <section id="support" className="py-24 bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <h2 className="font-serif text-gray-900 mb-3" style={{ fontSize:'clamp(1.75rem,3.5vw,2.75rem)' }}>{s.sup_title}</h2>
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-teal/10 border border-teal/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal" />
+            <span className="text-teal text-xs font-semibold tracking-wide uppercase">{s.sup_badge}</span>
+          </div>
+          <h2
+            className="font-serif text-gray-900 mb-3"
+            style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)' }}
+          >
+            {s.sup_title}
+          </h2>
           <p className="text-gray-500 text-base">{s.sup_sub}</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {[
-            { icon:Mail,       t:s.su1t, d:s.su1d, cta:s.su1cta, href:'mailto:hello@birclick.az', accent:'purple' },
-            { icon:HelpCircle, t:s.su2t, d:s.su2d, cta:s.su2cta, href:'https://zirva.az/help',   accent:'teal'   },
-          ].map(({ icon:Icon, t, d, cta, href, accent }) => (
-            <div key={t} className="group relative overflow-hidden p-8 rounded-2xl bg-white border border-border-soft hover:shadow-2xl hover:shadow-purple/8 hover:-translate-y-1 transition-all duration-300">
-              <div className={`absolute top-0 left-0 right-0 h-1 ${accent==='teal' ? 'bg-gradient-to-r from-teal to-teal/30' : 'bg-gradient-to-r from-purple to-purple/30'}`} />
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${accent==='teal' ? 'bg-teal-light' : 'bg-purple-light'}`}>
-                <Icon className={`w-7 h-7 ${accent==='teal' ? 'text-teal' : 'text-purple'}`} />
+            { icon: Mail,       t: s.su1t, d: s.su1d, cta: s.su1cta, href: 'mailto:hello@birclick.az', accent: 'purple' },
+            { icon: HelpCircle, t: s.su2t, d: s.su2d, cta: s.su2cta, href: 'https://zirva.az/help',   accent: 'teal'   },
+          ].map(({ icon: Icon, t, d, cta, href, accent }) => (
+            <div
+              key={t}
+              className="group relative overflow-hidden p-9 rounded-2xl bg-white border border-gray-100 hover:shadow-2xl hover:shadow-purple/8 hover:-translate-y-1.5 transition-all duration-300"
+            >
+              {/* Top gradient bar */}
+              <div className={`absolute top-0 left-0 right-0 h-1 ${
+                accent === 'teal'
+                  ? 'bg-gradient-to-r from-teal to-teal/30'
+                  : 'bg-gradient-to-r from-purple to-purple/30'
+              }`} />
+              {/* Icon */}
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${
+                accent === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
+              }`}>
+                <Icon className={`w-7 h-7 ${accent === 'teal' ? 'text-teal' : 'text-purple'}`} />
               </div>
               <h3 className="font-serif text-xl text-gray-900 mb-2">{t}</h3>
               <p className="text-gray-500 text-sm mb-6 leading-relaxed">{d}</p>
-              <a href={href} className={`inline-flex items-center gap-2 text-sm font-semibold group/btn ${accent==='teal' ? 'text-teal' : 'text-purple'}`}>
-                {cta} <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+              <a
+                href={href}
+                className={`inline-flex items-center gap-2 text-sm font-semibold group/btn ${
+                  accent === 'teal' ? 'text-teal' : 'text-purple'
+                }`}
+              >
+                {cta}
+                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </a>
             </div>
           ))}
@@ -884,19 +1315,35 @@ function Support({ s }) {
 /* ─── Closing CTA ─── */
 function ClosingCTA({ s }) {
   return (
-    <section style={{ background:'linear-gradient(135deg,#534AB7 0%,#3730a3 50%,#1a1040 100%)' }} className="py-28 overflow-hidden relative">
-      <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-teal/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-white/5 rounded-full blur-3xl pointer-events-none" />
+    <section
+      className="py-32 overflow-hidden relative"
+      style={{ background: 'linear-gradient(135deg, #534AB7 0%, #3730a3 50%, #1a1040 100%)' }}
+    >
+      {/* Decorative blur orbs */}
+      <div className="pointer-events-none absolute top-0 left-1/3 w-[500px] h-[500px] bg-teal/15 rounded-full blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-white/5 rounded-full blur-[100px]" />
+      <div className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-0 w-64 h-64 bg-indigo-400/10 rounded-full blur-[80px]" />
+
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="font-serif text-white mb-6 leading-tight" style={{ fontSize:'clamp(2.5rem,5vw,4.5rem)', lineHeight:1.1 }}>
+        <h2
+          className="font-serif text-white mb-6 leading-tight"
+          style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', lineHeight: 1.1 }}
+        >
           {s.cta_title}
         </h2>
         <p className="text-white/60 text-xl mb-12 leading-relaxed max-w-2xl mx-auto">{s.cta_sub}</p>
+
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="mailto:hello@birclick.az" className="border-2 border-white/30 text-white font-semibold px-8 py-4 rounded-xl hover:bg-white/10 transition-colors text-sm">
+          <a
+            href="mailto:hello@birclick.az"
+            className="border-2 border-white/30 text-white font-semibold px-9 py-4 rounded-xl hover:bg-white/10 hover:border-white/50 transition-all duration-200 text-sm"
+          >
             {s.cta_btn1}
           </a>
-          <Link to="/qeydiyyat" className="bg-white text-purple font-semibold px-8 py-4 rounded-xl hover:bg-purple-light transition-colors text-sm shadow-2xl shadow-black/20">
+          <Link
+            to="/contact"
+            className="bg-white text-purple font-semibold px-9 py-4 rounded-xl hover:bg-purple-light hover:-translate-y-0.5 transition-all duration-200 text-sm shadow-2xl shadow-black/30"
+          >
             {s.cta_btn2}
           </Link>
         </div>
@@ -909,6 +1356,9 @@ function ClosingCTA({ s }) {
 function Footer({ s }) {
   return (
     <footer className="bg-[#0f0e2a] text-white/60 text-sm">
+      {/* Thin teal accent line */}
+      <div className="h-px bg-gradient-to-r from-transparent via-teal/50 to-transparent" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           {/* Brand */}
@@ -917,18 +1367,27 @@ function Footer({ s }) {
               <ZirvaLogo size={32} invert />
               <span className="font-serif text-xl text-white">Zirva</span>
             </div>
-            <p className="text-xs text-white/40 leading-relaxed mb-3">{s.foot_tagline}</p>
-            <a href="tel:+994502411442" className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors mb-3">
-              <span className="text-teal">📞</span> +994 50 241 14 42
+            <p className="text-xs text-white/40 leading-relaxed mb-4">{s.foot_tagline}</p>
+            <a
+              href="tel:+994502411442"
+              className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors mb-2.5"
+            >
+              <Phone className="w-3 h-3 text-teal shrink-0" />
+              +994 50 241 14 42
             </a>
-            <a href="mailto:hello@birclick.az" className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors mb-4">
-              <span className="text-teal">✉</span> hello@birclick.az
+            <a
+              href="mailto:hello@birclick.az"
+              className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors mb-5"
+            >
+              <Mail className="w-3 h-3 text-teal shrink-0" />
+              hello@birclick.az
             </a>
-            <p className="text-[10px] text-white/30">© 2026 Zirva LLC. {s.foot_rights}</p>
+            <p className="text-[10px] text-white/25">© 2026 Zirva LLC. {s.foot_rights}</p>
           </div>
 
+          {/* Col 1 */}
           <div>
-            <h4 className="text-white font-semibold text-xs tracking-wide uppercase mb-4">{s.foot_col1}</h4>
+            <h4 className="text-white font-semibold text-xs tracking-wider uppercase mb-4">{s.foot_col1}</h4>
             <ul className="space-y-2.5">
               {[
                 { label: s.fl1, to: '/ib-diploma' },
@@ -939,13 +1398,16 @@ function Footer({ s }) {
                 { label: s.fl6, to: '/mobile' },
                 { label: s.fl7, to: '/online-exams' },
               ].map(({ label, to }) => (
-                <li key={label}><Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link></li>
+                <li key={label}>
+                  <Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link>
+                </li>
               ))}
             </ul>
           </div>
 
+          {/* Col 2 */}
           <div>
-            <h4 className="text-white font-semibold text-xs tracking-wide uppercase mb-4">{s.foot_col2}</h4>
+            <h4 className="text-white font-semibold text-xs tracking-wider uppercase mb-4">{s.foot_col2}</h4>
             <ul className="space-y-2.5">
               {[
                 { label: s.fr1, to: '/ceo-letter' },
@@ -956,25 +1418,31 @@ function Footer({ s }) {
                 { label: s.fr6, to: '/reviews' },
                 { label: s.fr7, to: '/faq' },
               ].map(({ label, to }) => (
-                <li key={label}><Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link></li>
+                <li key={label}>
+                  <Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link>
+                </li>
               ))}
             </ul>
           </div>
 
+          {/* Col 3 */}
           <div>
-            <h4 className="text-white font-semibold text-xs tracking-wide uppercase mb-4">{s.foot_col3}</h4>
+            <h4 className="text-white font-semibold text-xs tracking-wider uppercase mb-4">{s.foot_col3}</h4>
             <ul className="space-y-2.5">
               {[
                 { label: s.fs1, to: '/premium-support' },
                 { label: s.fs2, to: '/help' },
               ].map(({ label, to }) => (
-                <li key={label}><Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link></li>
+                <li key={label}>
+                  <Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link>
+                </li>
               ))}
             </ul>
           </div>
 
+          {/* Col 4 */}
           <div>
-            <h4 className="text-white font-semibold text-xs tracking-wide uppercase mb-4">{s.foot_col4}</h4>
+            <h4 className="text-white font-semibold text-xs tracking-wider uppercase mb-4">{s.foot_col4}</h4>
             <ul className="space-y-2.5">
               {[
                 { label: s.fc1, to: '/about' },
@@ -982,12 +1450,15 @@ function Footer({ s }) {
                 { label: s.fc3, to: '/partners' },
                 { label: s.fc4, to: '/contact' },
               ].map(({ label, to }) => (
-                <li key={label}><Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link></li>
+                <li key={label}>
+                  <Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link>
+                </li>
               ))}
             </ul>
           </div>
         </div>
 
+        {/* Bottom bar */}
         <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <Link to="/privacy" className="text-xs hover:text-white transition-colors">{s.foot_privacy}</Link>
@@ -1009,8 +1480,10 @@ export default function Landing() {
       <Nav s={s} lang={lang} setLang={setLang} />
       <Hero s={s} />
       <TrustStrip s={s} />
+      <Stats />
       <Solutions s={s} />
       <Features s={s} />
+      <Testimonials s={s} />
       <Benefits s={s} />
       <Integrations s={s} />
       <Security s={s} />
