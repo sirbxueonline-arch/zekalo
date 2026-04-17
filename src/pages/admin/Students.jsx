@@ -78,8 +78,10 @@ export default function Students() {
     const { data, error } = await supabase.functions.invoke('create-user', {
       body: { email, password, full_name, role: 'student', school_id: profile.school_id },
     })
-    if (error) throw error
+    // The edge function returns { error: "..." } in data when it fails
     if (data?.error) throw new Error(data.error)
+    if (error) throw new Error(error.message || 'Funksiya xətası')
+    if (!data?.user_id) throw new Error('İstifadəçi yaradıla bilmədi')
     return data.user_id
   }
 
@@ -199,45 +201,33 @@ export default function Students() {
 
   // Bulk import handler — called per-row by BulkAddModal
   async function handleBulkImport(row) {
-    const userId = await createUser(row.email.trim(), row.password?.trim() || 'Zirva2025!', row.full_name.trim())
+    const email    = row.email?.trim()
+    const name     = row.full_name?.trim()
+    const password = row.password?.trim() || 'Zirva2025!'
 
-    const className = row.class_name?.trim()
-    if (className) {
-      // Find existing class by name (case-insensitive), or create it on the fly
-      let classId
-      const existing = classes.find(c => c.name.toLowerCase() === className.toLowerCase())
-      if (existing) {
-        classId = existing.id
-      } else {
-        const { data: newClass } = await supabase
-          .from('classes')
-          .insert({ name: className, school_id: profile.school_id })
-          .select('id')
-          .single()
-        if (newClass) {
-          classId = newClass.id
-          // Keep local classes list in sync so subsequent rows reuse the same class
-          setClasses(prev => [...prev, { id: newClass.id, name: className }])
-        }
-      }
-      if (classId) {
-        await supabase.from('class_members').insert({
-          class_id: classId,
-          student_id: userId,
-        })
-      }
+    if (!email || !name) throw new Error('Ad və e-poçt tələb olunur')
+
+    const userId = await createUser(email, password, name)
+
+    // class_id is the actual UUID from the select
+    const classId = row.class_id?.trim()
+    if (classId) {
+      await supabase.from('class_members').insert({
+        class_id: classId,
+        student_id: userId,
+      })
     }
   }
 
   const bulkColumns = [
-    { key: 'full_name', label: 'Ad Soyad', required: true, placeholder: 'Əli Əliyev' },
-    { key: 'email', label: 'E-poçt', required: true, type: 'email', placeholder: 'sehifad@mekteb.az' },
-    { key: 'password', label: 'Şifrə', placeholder: 'Zirva2025!' },
+    { key: 'full_name', label: 'Ad Soyad',  required: true, placeholder: 'Əli Əliyev' },
+    { key: 'email',     label: 'E-poçt',    required: true, type: 'email', placeholder: 'sagird@mekteb.az' },
+    { key: 'password',  label: 'Şifrə',     placeholder: 'Zirva2025! (boş buraxsanız default)' },
     {
-      key: 'class_name',
+      key:  'class_id',
       label: 'Sinif',
       type: 'select',
-      options: Array.from({ length: 11 }, (_, i) => ({ value: String(i + 1), label: `${i + 1}` })),
+      options: classes.map(c => ({ value: c.id, label: c.name })),
     },
   ]
 

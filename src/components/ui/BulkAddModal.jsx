@@ -23,7 +23,7 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
 
   const [rows, setRows] = useState([emptyRow()])
   const [importing, setImporting] = useState(false)
-  const [results, setResults] = useState(null) // null | { done, failed }
+  const [results, setResults] = useState(null) // null | { done, failed, errors: [{row, msg}] }
   const [progress, setProgress] = useState(0)
 
   function reset() {
@@ -121,19 +121,24 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
 
     let done = 0
     let failed = 0
+    const errors = []
 
     for (let i = 0; i < validRows.length; i++) {
       try {
         await onImport(validRows[i])
         done++
-      } catch {
+      } catch (err) {
         failed++
+        errors.push({
+          row: validRows[i],
+          msg: err?.message || 'Naməlum xəta',
+        })
       }
       setProgress(Math.round(((i + 1) / validRows.length) * 100))
     }
 
     setImporting(false)
-    setResults({ done, failed })
+    setResults({ done, failed, errors })
     if (done > 0) onDone?.()
   }
 
@@ -141,31 +146,50 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
     <Modal open={open} onClose={handleClose} title={title} size="xl">
       {/* Results screen */}
       {results && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-center gap-8 py-6">
+        <div className="space-y-5">
+          {/* Summary row */}
+          <div className="flex items-center justify-center gap-10 py-4">
             <div className="text-center">
-              <div className="flex items-center justify-center w-16 h-16 rounded-full bg-teal-light mx-auto mb-2">
-                <CheckCircle className="w-8 h-8 text-teal" />
+              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-teal-light mx-auto mb-2">
+                <CheckCircle className="w-7 h-7 text-teal" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{results.done}</p>
               <p className="text-xs text-gray-500">uğurlu</p>
             </div>
             {results.failed > 0 && (
               <div className="text-center">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-red-50 mx-auto mb-2">
-                  <XCircle className="w-8 h-8 text-red-500" />
+                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-red-50 mx-auto mb-2">
+                  <XCircle className="w-7 h-7 text-red-500" />
                 </div>
                 <p className="text-2xl font-bold text-gray-900">{results.failed}</p>
                 <p className="text-xs text-gray-500">xəta</p>
               </div>
             )}
           </div>
-          {results.failed > 0 && (
-            <p className="text-xs text-center text-gray-400">
-              Xətalı sətirləri yoxlayın: e-poçt artıq mövcud ola bilər
-            </p>
+
+          {/* Per-row errors */}
+          {results.errors?.length > 0 && (
+            <div className="border border-red-100 rounded-lg overflow-hidden">
+              <div className="bg-red-50 px-4 py-2 border-b border-red-100">
+                <p className="text-xs font-semibold text-red-700">Xətalı sətirlərin təfərrüatı</p>
+              </div>
+              <ul className="divide-y divide-red-50 max-h-48 overflow-y-auto">
+                {results.errors.map((e, i) => (
+                  <li key={i} className="flex items-start gap-3 px-4 py-2.5">
+                    <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-gray-800 truncate">
+                        {e.row.full_name || e.row.email || `Sətir ${i + 1}`}
+                      </p>
+                      <p className="text-xs text-red-600 mt-0.5">{e.msg}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
-          <div className="flex justify-end gap-3">
+
+          <div className="flex justify-end gap-3 pt-1">
             <Button variant="ghost" onClick={() => { reset(); }}>Yenidən əlavə et</Button>
             <Button onClick={handleClose}>Bağla</Button>
           </div>
