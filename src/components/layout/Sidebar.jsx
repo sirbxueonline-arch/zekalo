@@ -27,34 +27,34 @@ function getAdminGroups(profile, t) {
         { icon: HeartHandshake, path: '/admin/valideyinler', label: t('parents') },
         { icon: School,         path: '/admin/sinifler',   label: t('classes') },
         { icon: BookOpen,       path: '/admin/jurnal',     label: t('gradebook') },
-        { icon: BookOpen,       path: '/admin/fenler',     label: 'Fənlər' },
+        { icon: BookOpen,       path: '/admin/fenler',     label: t('subjects') },
         { icon: Clock,          path: '/admin/cedvel',     label: t('timetable') },
-        { icon: ClipboardCheck, path: '/admin/imtahanlar', label: 'İmtahanlar' },
+        { icon: ClipboardCheck, path: '/admin/imtahanlar', label: t('exams') },
       ],
     },
     {
       label: 'Davranış',
       items: [
-        { icon: AlertTriangle,  path: '/admin/intizam',    label: 'İntizam' },
-        { icon: ArrowLeftRight, path: '/admin/evezetme',   label: 'Əvəzetmə' },
+        { icon: AlertTriangle,  path: '/admin/intizam',    label: t('discipline') },
+        { icon: ArrowLeftRight, path: '/admin/evezetme',   label: t('substitutions') },
       ],
     },
     {
       label: 'İdarəetmə',
       items: [
-        { icon: UserPlus,       path: '/admin/kabul',      label: 'Qəbul' },
-        { icon: CalendarOff,    path: '/admin/izin',       label: 'İzin Sorğuları' },
-        { icon: DoorOpen,       path: '/admin/oda-rezerv', label: 'Otaq Rezervi' },
-        { icon: Library,        path: '/admin/kitabxana',  label: 'Kitabxana' },
-        { icon: ClipboardList,  path: '/admin/anket',      label: 'Anketlər' },
-        { icon: CalendarCheck,  path: '/admin/ptc',        label: 'Valideyn Görüşü' },
+        { icon: UserPlus,       path: '/admin/kabul',      label: t('admissions') },
+        { icon: CalendarOff,    path: '/admin/izin',       label: t('leave_requests') },
+        { icon: DoorOpen,       path: '/admin/oda-rezerv', label: t('room_booking') },
+        { icon: Library,        path: '/admin/kitabxana',  label: t('library') },
+        { icon: ClipboardList,  path: '/admin/anket',      label: t('surveys') },
+        { icon: CalendarCheck,  path: '/admin/ptc',        label: t('pt_conferences') },
       ],
     },
     {
       label: 'İletişim',
       items: [
         { icon: Megaphone,      path: '/admin/mesajlar',   label: t('announcements') },
-        { icon: CalendarDays,   path: '/admin/tedbirler',  label: 'Tədbirlər' },
+        { icon: CalendarDays,   path: '/admin/tedbirler',  label: t('events') },
       ],
     },
     {
@@ -62,8 +62,8 @@ function getAdminGroups(profile, t) {
       items: [
         { icon: FileText,       path: '/admin/hesabatlar', label: t('reports') },
         { icon: BarChart2,      path: '/admin/analitika',  label: t('analytics') },
-        { icon: FileBarChart,   path: '/admin/sehadetname', label: 'Şəhadətnamə' },
-        { icon: TrendingUp,     path: '/admin/teraqqi',    label: 'Tərəqqi' },
+        { icon: FileBarChart,   path: '/admin/sehadetname', label: t('report_cards') },
+        { icon: TrendingUp,     path: '/admin/teraqqi',    label: t('progress') },
       ],
     },
   ]
@@ -74,7 +74,7 @@ function getAdminGroups(profile, t) {
       items: [
         { icon: Award,          path: '/admin/ib',         label: t('ib_panel') },
         { icon: Award,          path: '/admin/cas',        label: 'CAS' },
-        { icon: GraduationCap,  path: '/admin/kollec',     label: 'Kollec Məsləhəti' },
+        { icon: GraduationCap,  path: '/admin/kollec',     label: t('college_counseling') },
       ],
     })
   }
@@ -112,16 +112,16 @@ const studentGroups = [
       { icon: BookOpen,        path: '/qiymetler',          key: 'grades' },
       { icon: Calendar,        path: '/davamiyyet',         key: 'attendance' },
       { icon: ClipboardList,   path: '/tapshiriqlar',       key: 'assignments' },
-      { icon: PenLine,         path: '/ev-tapshiriqlari',   label: 'Ev Tapşırıqları' },
-      { icon: ClipboardCheck,  path: '/imtahanlar',         label: 'İmtahanlar' },
-      { icon: TrendingUp,      path: '/teraqqi',            label: 'Tərəqqim' },
-      { icon: FolderOpen,      path: '/portfolio',          label: 'Portfoliom' },
+      { icon: PenLine,         path: '/ev-tapshiriqlari',   key: 'homework' },
+      { icon: ClipboardCheck,  path: '/imtahanlar',         key: 'exams' },
+      { icon: TrendingUp,      path: '/teraqqi',            key: 'my_progress' },
+      { icon: FolderOpen,      path: '/portfolio',          key: 'portfolio' },
     ],
   },
   {
     label: 'İletişim',
     items: [
-      { icon: CalendarDays,    path: '/tedbirler',          label: 'Tədbirlər' },
+      { icon: CalendarDays,    path: '/tedbirler',          key: 'events' },
       { icon: MessageSquare,   path: '/mesajlar',           key: 'messages' },
       { icon: User,            path: '/profil',             key: 'profile' },
     ],
@@ -138,10 +138,10 @@ const teacherGroups = [
   {
     label: 'Akademik',
     items: [
-      { icon: School,          path: '/muellim/sinifler',    label: 'Siniflərim' },
+      { icon: School,          path: '/muellim/sinifler',    key: 'my_classes' },
       { icon: BookOpen,        path: '/muellim/jurnal',      key: 'gradebook' },
       { icon: Calendar,        path: '/muellim/davamiyyet',  key: 'attendance' },
-      { icon: ClipboardCheck,  path: '/muellim/imtahanlar',  label: 'İmtahanlar' },
+      { icon: ClipboardCheck,  path: '/muellim/imtahanlar',  key: 'exams' },
       { icon: ClipboardList,   path: '/muellim/tapshiriqlar',key: 'assignments' },
       { icon: Clock,           path: '/muellim/cedvel',      key: 'timetable' },
     ],
@@ -149,21 +149,21 @@ const teacherGroups = [
   {
     label: 'Davranış',
     items: [
-      { icon: AlertTriangle,   path: '/muellim/intizam',     label: 'İntizam' },
+      { icon: AlertTriangle,   path: '/muellim/intizam',     key: 'discipline' },
     ],
   },
   {
     label: 'İletişim',
     items: [
-      { icon: MessagesSquare,  path: '/muellim/yazismalar',  label: 'Yazışmalar' },
+      { icon: MessagesSquare,  path: '/muellim/yazismalar',  key: 'conversations' },
       { icon: MessageSquare,   path: '/muellim/mesajlar',    key: 'messages' },
-      { icon: CalendarDays,    path: '/muellim/tedbirler',   label: 'Tədbirlər' },
+      { icon: CalendarDays,    path: '/muellim/tedbirler',   key: 'events' },
     ],
   },
   {
     label: 'Planlaşdırma',
     items: [
-      { icon: BookMarked,      path: '/muellim/vahid-plan',  label: 'Vahid Planı' },
+      { icon: BookMarked,      path: '/muellim/vahid-plan',  key: 'unit_plan' },
     ],
   },
   {
@@ -195,17 +195,17 @@ const parentGroups = [
       { icon: BookOpen,        path: '/valideyn/qiymetler',    key: 'grades' },
       { icon: Calendar,        path: '/valideyn/davamiyyet',   key: 'attendance' },
       { icon: ClipboardList,   path: '/valideyn/tapshiriqlar', key: 'assignments' },
-      { icon: ClipboardCheck,  path: '/valideyn/imtahanlar',   label: 'İmtahanlar' },
-      { icon: TrendingUp,      path: '/valideyn/teraqqi',      label: 'Tərəqqi' },
+      { icon: ClipboardCheck,  path: '/valideyn/imtahanlar',   key: 'exams' },
+      { icon: TrendingUp,      path: '/valideyn/teraqqi',      key: 'progress' },
     ],
   },
   {
     label: 'İletişim',
     items: [
-      { icon: MessagesSquare,  path: '/valideyn/yazismalar',   label: 'Yazışmalar' },
+      { icon: MessagesSquare,  path: '/valideyn/yazismalar',   key: 'conversations' },
       { icon: MessageSquare,   path: '/valideyn/mesajlar',     key: 'messages' },
       { icon: Bell,            path: '/valideyn/bildirisler',  key: 'notifications' },
-      { icon: CalendarDays,    path: '/valideyn/tedbirler',    label: 'Tədbirlər' },
+      { icon: CalendarDays,    path: '/valideyn/tedbirler',    key: 'events' },
       { icon: User,            path: '/valideyn/profil',       key: 'profile' },
     ],
   },
