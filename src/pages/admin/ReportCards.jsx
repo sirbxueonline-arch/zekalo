@@ -414,7 +414,7 @@ export default function ReportCards() {
       doc.setFontSize(8)
       doc.setFont('helvetica', 'normal')
       doc.text(`Yaradılma tarixi: ${generatedDate}`, margin, footerY)
-      doc.text('Zirva Məktəb İdarəetmə Sistemi', pageW - margin, footerY, { align: 'right' })
+      doc.text(profile?.school?.name || 'Zirva Məktəb İdarəetmə Sistemi', pageW - margin, footerY, { align: 'right' })
 
       const safeName = (previewData.student?.full_name || 'sagird').replace(/\s+/g, '_')
       doc.save(`${safeName}_sehadetname.pdf`)

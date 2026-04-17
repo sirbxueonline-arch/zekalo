@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Plus, Edit2, Trash2, Search, UserPlus, Heart, X } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
@@ -83,12 +84,27 @@ export default function Parents() {
   }
 
   async function createUser(email, password, full_name) {
-    const { data, error } = await supabase.functions.invoke('create-user', {
-      body: { email, password, full_name, role: 'parent', school_id: profile.school_id },
+    // Use an isolated client so the new user's signup session doesn't replace the admin's session.
+    // After signUp the temp client holds the new user's session, satisfying the RLS
+    // "users insert own profile" policy (auth.uid() = id).
+    const tempClient = createClient(
+      import.meta.env.VITE_SUPABASE_URL,
+      import.meta.env.VITE_SUPABASE_ANON_KEY,
+      { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+    )
+    const { data: signUpData, error: signUpError } = await tempClient.auth.signUp({ email, password })
+    if (signUpError) throw new Error(signUpError.message)
+    if (!signUpData?.user) throw new Error('İstifadəçi yaradıla bilmədi')
+    const userId = signUpData.user.id
+    const { error: profileError } = await tempClient.from('profiles').insert({
+      id: userId,
+      full_name,
+      email,
+      role: 'parent',
+      school_id: profile.school_id,
     })
-    if (error) throw error
-    if (data?.error) throw new Error(data.error)
-    return data.user_id
+    if (profileError) throw new Error(profileError.message)
+    return userId
   }
 
   async function handleAdd() {

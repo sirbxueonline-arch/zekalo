@@ -30,15 +30,21 @@ export default function TeacherAnalytics() {
   }, [selectedClass])
 
   async function loadInitial() {
-    const [tcRes, arRes] = await Promise.all([
-      supabase.from('teacher_classes').select('*, class:classes(id, name), subject:subjects(id, name)').eq('teacher_id', profile.id),
-      supabase.rpc('get_at_risk_students', { p_school_id: profile.school_id }),
-    ])
+    const tcRes = await supabase
+      .from('teacher_classes')
+      .select('*, class:classes(id, name), subject:subjects(id, name)')
+      .eq('teacher_id', profile.id)
 
     const unique = [...new Map((tcRes.data || []).map(tc => [tc.class_id, tc.class])).values()]
     setTeacherClasses(unique)
     if (unique.length) setSelectedClass(unique[0].id)
-    setAtRiskStudents(arRes.data || [])
+
+    // get_at_risk_students is an optional RPC — fall back gracefully if it doesn't exist
+    try {
+      const { data } = await supabase.rpc('get_at_risk_students', { p_school_id: profile.school_id })
+      setAtRiskStudents(data || [])
+    } catch { /* RPC not deployed — ignore */ }
+
     setLoading(false)
   }
 

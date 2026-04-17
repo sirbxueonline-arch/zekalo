@@ -97,8 +97,14 @@ export default function Analytics() {
 
       const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
 
-      const [atRiskRes, gradesRes, attendanceRes, workloadRes] = await Promise.all([
-        supabase.rpc('get_at_risk_students', { p_school_id: profile.school_id }),
+      // get_at_risk_students is an optional RPC — fall back gracefully if it doesn't exist
+      let atRiskData = []
+      try {
+        const { data } = await supabase.rpc('get_at_risk_students', { p_school_id: profile.school_id })
+        atRiskData = data || []
+      } catch { /* RPC not deployed — ignore */ }
+
+      const [gradesRes, attendanceRes, workloadRes] = await Promise.all([
         classIds.length
           ? supabase.from('grades').select('score, class:classes(name)').in('class_id', classIds)
           : Promise.resolve({ data: [] }),
@@ -110,7 +116,7 @@ export default function Analytics() {
           : Promise.resolve({ data: [] }),
       ])
 
-      setAtRisk(atRiskRes.data || [])
+      setAtRisk(atRiskData)
 
       // Grade distribution by class
       const gradesByClass = {}

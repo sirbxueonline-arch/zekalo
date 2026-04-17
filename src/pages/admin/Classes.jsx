@@ -62,6 +62,7 @@ export default function Classes() {
       const { error: err } = await supabase.from('classes').insert({
         name: form.name.trim(),
         grade_level: form.grade_level || null,
+        teacher_id: form.teacher_id || null,
         school_id: profile.school_id,
       })
       if (err) throw err
