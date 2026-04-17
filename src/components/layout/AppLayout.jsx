@@ -45,6 +45,7 @@ const pageTitleKeys = {
   '/admin/tedbirler': 'events',
   '/admin/ib': 'ib_panel',
   '/admin/nazirlik': 'ministry',
+  '/admin/fenler': 'subjects',
   '/admin/parametrler': 'settings',
   '/muellim/sinifler': 'classes',
 }

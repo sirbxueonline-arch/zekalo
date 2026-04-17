@@ -20,6 +20,7 @@ const translations = {
     announcements: 'Elanlar',
     notifications: 'Bildirişlər',
     settings: 'Parametrlər',
+    subjects: 'Fənlər',
     ib_panel: 'IB Panel',
     ministry: 'Nazirlik',
 

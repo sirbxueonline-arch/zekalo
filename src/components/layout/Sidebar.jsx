@@ -27,6 +27,7 @@ function getAdminGroups(profile, t) {
         { icon: HeartHandshake, path: '/admin/valideyinler', label: t('parents') },
         { icon: School,         path: '/admin/sinifler',   label: t('classes') },
         { icon: BookOpen,       path: '/admin/jurnal',     label: t('gradebook') },
+        { icon: BookOpen,       path: '/admin/fenler',     label: 'Fənlər' },
         { icon: Clock,          path: '/admin/cedvel',     label: t('timetable') },
         { icon: ClipboardCheck, path: '/admin/imtahanlar', label: 'İmtahanlar' },
       ],

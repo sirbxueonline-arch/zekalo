@@ -75,6 +75,7 @@ import AdminStudentProgress from './pages/admin/StudentProgress'
 import IBPanel from './pages/admin/IBPanel'
 import Ministry from './pages/admin/Ministry'
 import AdminSettings from './pages/admin/Settings'
+import AdminSubjects from './pages/admin/Subjects'
 
 // New admin pages (lazy loaded)
 const AdminCAS             = lazy(() => import('./pages/admin/CAS'))
@@ -218,6 +219,7 @@ export default function App() {
           <Route path="/admin/tedbirler" element={<AdminEvents />} />
           <Route path="/admin/ib" element={<IBPanel />} />
           <Route path="/admin/nazirlik" element={<Ministry />} />
+          <Route path="/admin/fenler" element={<AdminSubjects />} />
           <Route path="/admin/parametrler" element={<AdminSettings />} />
           <Route path="/admin/cas" element={<Suspense fallback={<PageSpinner />}><AdminCAS /></Suspense>} />
           <Route path="/admin/kabul" element={<Suspense fallback={<PageSpinner />}><AdminAdmissions /></Suspense>} />
