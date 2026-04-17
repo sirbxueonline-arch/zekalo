@@ -635,7 +635,6 @@ function TrustStrip({ s }) {
 /* ─── Stats section ─── */
 function Stats() {
   const items = [
-    { value: '500+', label: 'Aktif İstifadəçi', icon: Users, color: 'text-purple' },
     { value: '99.9%', label: 'Sistem Sabitliyi', icon: Shield, color: 'text-teal' },
     { value: '3', label: 'Dil Dəstəyi', icon: Globe, color: 'text-purple' },
     { value: '24/7', label: 'Texniki Dəstək', icon: HeartHandshake, color: 'text-teal' },
@@ -643,7 +642,7 @@ function Stats() {
   return (
     <section className="bg-white py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
           {items.map(({ value, label, icon: Icon, color }, idx) => (
             <div key={label} className="flex flex-col items-center py-10 px-6 gap-3 group">
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-1 ${
