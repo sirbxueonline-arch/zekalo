@@ -566,7 +566,6 @@ function Hero({ s }) {
           {/* Stat pills */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-16">
             {[
-              { label: '342+ Şagird', icon: Users, bg: 'bg-teal/20 border-teal/30', iconBg: 'bg-teal/30', iconColor: 'text-teal' },
               { label: '50+ İnteqrasiya', icon: Zap, bg: 'bg-purple/30 border-purple/40', iconBg: 'bg-purple/40', iconColor: 'text-violet-300' },
               { label: '3 Dil', icon: Globe, bg: 'bg-blue-500/20 border-blue-400/30', iconBg: 'bg-blue-500/30', iconColor: 'text-blue-300' },
             ].map(({ label, icon: Icon, bg, iconBg, iconColor }) => (
