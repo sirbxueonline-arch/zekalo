@@ -245,11 +245,46 @@ const globalStyles = `
     width: calc(100% - 24px);
     left: 12px;
   }
+  @keyframes shimmerSlide {
+    0% { transform: translateX(-200%) skewX(-15deg); }
+    100% { transform: translateX(200%) skewX(-15deg); }
+  }
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  @keyframes badgePop {
+    0% { opacity: 0; transform: translateY(8px) scale(0.95); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
   .hero-float { animation: float 6s ease-in-out infinite; }
   .hero-float-2 { animation: float 7s ease-in-out infinite 1s; }
   .hero-float-3 { animation: float 5.5s ease-in-out infinite 0.5s; }
   .fade-up { animation: fadeUp 0.6s ease forwards; }
   .stat-pill { animation: pulseGlow 3s ease-in-out infinite; }
+  .badge-pop { animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+  .shimmer-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
+    animation: shimmerSlide 3.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .gradient-text-animate {
+    background-size: 200% 200%;
+    animation: gradientShift 5s ease infinite;
+  }
+  .card-spring {
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  }
+  .card-spring:hover {
+    transform: translateY(-6px);
+  }
 `
 
 /* ─── Nav ─── */
@@ -504,17 +539,29 @@ function Hero({ s }) {
       className="relative overflow-hidden px-6 pt-20 pb-0"
       style={{ background: 'linear-gradient(135deg, #0a0820 0%, #1a1350 45%, #2d1b7d 75%, #534AB7 100%)' }}
     >
+      {/* Dot-grid texture */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)',
+          backgroundSize: '36px 36px',
+        }}
+      />
       {/* Decorative blobs */}
-      <div className="pointer-events-none absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-purple/20 blur-[120px]" />
-      <div className="pointer-events-none absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-teal/8 blur-[140px]" />
-      <div className="pointer-events-none absolute bottom-1/3 left-1/4 w-80 h-80 rounded-full bg-indigo-400/15 blur-[90px]" />
+      <div className="pointer-events-none absolute -top-32 -left-32 w-[560px] h-[560px] rounded-full bg-purple/25 blur-[130px]" />
+      <div className="pointer-events-none absolute top-0 right-0 w-[640px] h-[640px] rounded-full bg-teal/10 blur-[150px]" />
+      <div className="pointer-events-none absolute bottom-1/3 left-1/4 w-80 h-80 rounded-full bg-indigo-400/20 blur-[90px]" />
+      <div className="pointer-events-none absolute top-1/2 right-1/3 w-48 h-48 rounded-full bg-violet-500/10 blur-[70px]" />
 
       <div className="relative max-w-6xl mx-auto z-10">
         <div className="text-center mb-10">
           {/* Badge pill */}
-          <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full border border-teal/40 bg-teal/10 backdrop-blur-sm">
-            <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-            <span className="text-teal text-sm font-semibold">Azərbaycanın #1 Məktəb İdarəetmə Platforması</span>
+          <div
+            className="badge-pop inline-flex items-center gap-2.5 mb-8 px-5 py-2.5 rounded-full border border-teal/50 bg-teal/15 backdrop-blur-sm"
+            style={{ boxShadow: '0 0 24px rgba(29,158,117,0.25), inset 0 1px 0 rgba(255,255,255,0.1)' }}
+          >
+            <div className="w-2 h-2 rounded-full bg-teal animate-pulse" style={{ boxShadow: '0 0 6px rgba(29,158,117,0.8)' }} />
+            <span className="text-teal text-sm font-semibold tracking-wide">Azərbaycanın #1 Məktəb İdarəetmə Platforması</span>
           </div>
 
           {/* Headline */}
@@ -527,11 +574,13 @@ function Hero({ s }) {
               <>
                 <br />
                 <span
+                  className="gradient-text-animate"
                   style={{
-                    background: 'linear-gradient(90deg, #a78bfa, #34d399)',
+                    background: 'linear-gradient(90deg, #c4b5fd, #7dd3fc, #34d399, #a78bfa)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
+                    backgroundSize: '300% 100%',
                   }}
                 >
                   {s.hero_h1b}
@@ -555,7 +604,7 @@ function Hero({ s }) {
             </a>
             <Link
               to="/contact"
-              className="bg-white text-purple font-semibold rounded-full px-8 py-3.5 text-sm flex items-center gap-2 shadow-xl shadow-black/30 hover:shadow-2xl hover:shadow-black/40 hover:-translate-y-0.5 transition-all duration-200"
+              className="shimmer-card relative bg-white text-purple font-semibold rounded-full px-8 py-3.5 text-sm flex items-center gap-2 shadow-xl shadow-black/30 hover:shadow-2xl hover:shadow-black/40 hover:-translate-y-1 transition-all duration-200"
             >
               {s.hero_cta2}
               <ArrowRight className="w-4 h-4" />
@@ -565,13 +614,14 @@ function Hero({ s }) {
           {/* Feature highlight pills */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-14">
             {[
-              { label: 'IB + Milli Kurikulum', icon: GraduationCap, bg: 'bg-purple/30 border-purple/40', iconBg: 'bg-purple/40', iconColor: 'text-violet-300' },
-              { label: 'Claude AI ilə gücləndirilmiş', icon: Sparkles, bg: 'bg-teal/20 border-teal/40', iconBg: 'bg-teal/30', iconColor: 'text-teal' },
-              { label: 'Az · En · Ru', icon: Globe, bg: 'bg-blue-500/20 border-blue-400/30', iconBg: 'bg-blue-500/30', iconColor: 'text-blue-300' },
-            ].map(({ label, icon: Icon, bg, iconBg, iconColor }) => (
+              { label: 'IB + Milli Kurikulum', icon: GraduationCap, bg: 'bg-purple/30 border-purple/40', iconBg: 'bg-purple/50', iconColor: 'text-violet-200', glow: 'rgba(139,92,246,0.3)' },
+              { label: 'Claude AI ilə gücləndirilmiş', icon: Sparkles, bg: 'bg-teal/20 border-teal/40', iconBg: 'bg-teal/35', iconColor: 'text-teal', glow: 'rgba(29,158,117,0.3)' },
+              { label: 'Az · En · Ru', icon: Globe, bg: 'bg-blue-500/20 border-blue-400/30', iconBg: 'bg-blue-500/35', iconColor: 'text-blue-200', glow: 'rgba(59,130,246,0.3)' },
+            ].map(({ label, icon: Icon, bg, iconBg, iconColor, glow }) => (
               <div
                 key={label}
-                className={`flex items-center gap-3 px-5 py-3 rounded-full border backdrop-blur-sm ${bg}`}
+                className={`flex items-center gap-3 px-5 py-3 rounded-full border backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 cursor-default ${bg}`}
+                style={{ boxShadow: `0 4px 16px ${glow}` }}
               >
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center ${iconBg}`}>
                   <Icon className={`w-3.5 h-3.5 ${iconColor}`} />
@@ -650,19 +700,19 @@ function TrustStrip({ s }) {
       <div
         style={{
           display: 'flex',
-          gap: '2.5rem',
-          animation: 'marquee 35s linear infinite',
+          gap: '1.25rem',
+          animation: 'marquee 40s linear infinite',
           width: 'max-content',
         }}
       >
         {[...items, ...items].map((item, i) => (
           <span
             key={i}
-            className="flex items-center gap-2.5 text-gray-400 text-sm font-medium whitespace-nowrap"
+            className="flex items-center gap-2 text-gray-500 text-xs font-semibold whitespace-nowrap px-4 py-2 rounded-full border border-gray-100 bg-white shadow-sm"
+            style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-purple/40 shrink-0" />
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${i % 2 === 0 ? 'bg-purple/50' : 'bg-teal/50'}`} />
             {item}
-            <span className="w-1.5 h-1.5 rounded-full bg-teal/40 shrink-0" />
           </span>
         ))}
       </div>
@@ -701,25 +751,48 @@ function Stats() {
   return (
     <section className="bg-white py-14">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-gray-100 shadow-lg shadow-gray-100/60 overflow-hidden">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
-            {items.map(({ icon: Icon, label, desc, color }) => (
-              <div
-                key={label}
-                className="flex flex-col items-center text-center py-10 px-6 gap-3 group hover:bg-gray-50/50 transition-colors duration-200"
-              >
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-1 ${
-                  color === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
-                }`}>
-                  <Icon className={`w-6 h-6 ${color === 'teal' ? 'text-teal' : 'text-purple'}`} />
-                </div>
-                <span className={`font-serif font-bold text-lg ${color === 'teal' ? 'text-teal' : 'text-purple'}`}>
-                  {label}
-                </span>
-                <span className="text-gray-500 text-sm leading-relaxed">{desc}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {items.map(({ icon: Icon, label, desc, color }) => (
+            <div
+              key={label}
+              className="card-spring group relative overflow-hidden rounded-2xl p-7 border cursor-default"
+              style={{
+                background: color === 'teal'
+                  ? 'linear-gradient(140deg, #f0fdf9 0%, #ffffff 65%)'
+                  : 'linear-gradient(140deg, #f5f3ff 0%, #ffffff 65%)',
+                borderColor: color === 'teal' ? 'rgba(29,158,117,0.18)' : 'rgba(83,74,183,0.18)',
+                boxShadow: color === 'teal'
+                  ? '0 1px 3px rgba(29,158,117,0.08), 0 0 0 1px rgba(29,158,117,0.05)'
+                  : '0 1px 3px rgba(83,74,183,0.08), 0 0 0 1px rgba(83,74,183,0.05)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.boxShadow = color === 'teal'
+                  ? '0 20px 40px rgba(29,158,117,0.15), 0 0 0 1px rgba(29,158,117,0.12)'
+                  : '0 20px 40px rgba(83,74,183,0.15), 0 0 0 1px rgba(83,74,183,0.12)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.boxShadow = color === 'teal'
+                  ? '0 1px 3px rgba(29,158,117,0.08), 0 0 0 1px rgba(29,158,117,0.05)'
+                  : '0 1px 3px rgba(83,74,183,0.08), 0 0 0 1px rgba(83,74,183,0.05)'
+              }}
+            >
+              {/* Watermark icon */}
+              <div className="pointer-events-none absolute -bottom-2 -right-2 opacity-[0.06]">
+                <Icon className={`w-24 h-24 ${color === 'teal' ? 'text-teal' : 'text-purple'}`} />
               </div>
-            ))}
-          </div>
+              {/* Top accent line */}
+              <div className={`absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl ${color === 'teal' ? 'bg-teal' : 'bg-purple'}`} />
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
+                color === 'teal' ? 'bg-teal/15' : 'bg-purple/15'
+              }`}>
+                <Icon className={`w-6 h-6 ${color === 'teal' ? 'text-teal' : 'text-purple'}`} />
+              </div>
+              <span className={`font-serif font-bold text-lg block mb-2 ${color === 'teal' ? 'text-teal' : 'text-purple'}`}>
+                {label}
+              </span>
+              <span className="text-gray-500 text-sm leading-relaxed">{desc}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -760,15 +833,35 @@ function Solutions({ s }) {
             <a
               href="#features"
               key={t}
-              className="group relative p-7 rounded-2xl bg-white border border-border-soft hover:border-purple/20 hover:shadow-2xl hover:shadow-purple/8 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden block"
+              className="card-spring group relative p-7 rounded-2xl bg-white border border-border-soft overflow-hidden block"
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = c === 'teal' ? 'rgba(29,158,117,0.25)' : 'rgba(83,74,183,0.25)'
+                e.currentTarget.style.boxShadow = c === 'teal'
+                  ? '0 20px 50px rgba(29,158,117,0.12), 0 4px 12px rgba(0,0,0,0.06)'
+                  : '0 20px 50px rgba(83,74,183,0.12), 0 4px 12px rgba(0,0,0,0.06)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = ''
+                e.currentTarget.style.boxShadow = ''
+              }}
             >
               {/* Color-coded top border */}
               <div
                 className={`absolute top-0 left-0 right-0 h-1 ${c === 'teal' ? 'bg-teal' : 'bg-purple'} rounded-t-2xl`}
               />
+              {/* Hover gradient glow */}
+              <div
+                className={`pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                  c === 'teal' ? 'bg-gradient-to-br from-teal/5 to-transparent' : 'bg-gradient-to-br from-purple/5 to-transparent'
+                }`}
+              />
+              {/* Watermark icon */}
+              <div className="pointer-events-none absolute -bottom-3 -right-3 opacity-0 group-hover:opacity-[0.07] transition-opacity duration-300">
+                <Icon className={`w-24 h-24 ${c === 'teal' ? 'text-teal' : 'text-purple'}`} />
+              </div>
               {/* Icon in colored circle */}
               <div className="mb-5 mt-2">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 group-hover:scale-110 ${
                   c === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
                 }`}>
                   <Icon className={`w-6 h-6 ${c === 'teal' ? 'text-teal' : 'text-purple'}`} />
@@ -1087,13 +1180,18 @@ function Features({ s }) {
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 shrink-0 ${
                   isActive
                     ? tc === 'teal'
-                      ? 'bg-teal text-white shadow-lg shadow-teal/30'
-                      : 'bg-purple text-white shadow-lg shadow-purple/25'
+                      ? 'bg-teal text-white'
+                      : 'bg-purple text-white'
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800'
                 }`}
+                style={isActive ? {
+                  boxShadow: tc === 'teal'
+                    ? '0 4px 16px rgba(29,158,117,0.4), 0 0 0 2px rgba(29,158,117,0.2)'
+                    : '0 4px 16px rgba(83,74,183,0.4), 0 0 0 2px rgba(83,74,183,0.2)',
+                } : undefined}
               >
                 <span className={`w-2 h-2 rounded-full shrink-0 ${
-                  isActive ? 'bg-white/60' : tc === 'teal' ? 'bg-teal/60' : 'bg-purple/60'
+                  isActive ? 'bg-white/70' : tc === 'teal' ? 'bg-teal/60' : 'bg-purple/60'
                 }`} />
                 <Icon className="w-3.5 h-3.5 shrink-0" />
                 {label}
@@ -1104,7 +1202,13 @@ function Features({ s }) {
 
         {/* Content area */}
         <div className="max-w-6xl mx-auto">
-          <div className="bg-[#F7F7FB] rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+          <div
+            className="rounded-3xl overflow-hidden"
+            style={{
+              border: '1px solid rgba(0,0,0,0.07)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)',
+            }}
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2">
               {/* Left: bullets */}
               <div className="p-8 lg:p-10 bg-white">
@@ -1138,7 +1242,14 @@ function Features({ s }) {
               </div>
 
               {/* Right: visual mockup card */}
-              <div className="bg-[#F7F7FB] border-t lg:border-t-0 lg:border-l border-gray-100 p-8 lg:p-10 flex flex-col justify-center">
+              <div
+                className="border-t lg:border-t-0 lg:border-l border-gray-100 p-8 lg:p-10 flex flex-col justify-center"
+                style={{
+                  background: curColor === 'teal'
+                    ? 'linear-gradient(145deg, #f0fdf9 0%, #f7f7fb 60%, #ffffff 100%)'
+                    : 'linear-gradient(145deg, #f5f3ff 0%, #f7f7fb 60%, #ffffff 100%)',
+                }}
+              >
                 <FeatureVisual idx={active} s={s} />
               </div>
             </div>
@@ -1152,10 +1263,19 @@ function Features({ s }) {
 /* ─── Zeka AI section ─── */
 function ZekaAI({ s }) {
   return (
-    <section id="zeka" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #f5f3ff 0%, #ffffff 50%, #f0fdf8 100%)' }}>
-      {/* Subtle blobs */}
-      <div className="pointer-events-none absolute top-0 left-0 w-80 h-80 rounded-full bg-purple/8 blur-[100px]" />
-      <div className="pointer-events-none absolute bottom-0 right-0 w-96 h-96 rounded-full bg-teal/8 blur-[100px]" />
+    <section id="zeka" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(145deg, #f5f3ff 0%, #fafaff 40%, #f0fdf8 100%)' }}>
+      {/* Subtle mesh blobs */}
+      <div className="pointer-events-none absolute top-0 left-0 w-96 h-96 rounded-full bg-purple/10 blur-[110px]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 w-[28rem] h-[28rem] rounded-full bg-teal/10 blur-[110px]" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-indigo-200/20 blur-[90px]" />
+      {/* Dot grid */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(83,74,183,0.04) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+        }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -1206,7 +1326,7 @@ function ZekaAI({ s }) {
 
           {/* Right: AI chat mockup */}
           <div className="relative">
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl shadow-purple/10 overflow-hidden">
+            <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden" style={{ boxShadow: '0 30px 80px rgba(83,74,183,0.15), 0 4px 16px rgba(0,0,0,0.06)' }}>
               {/* Chat header */}
               <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-purple/5 to-teal/5">
                 <div className="w-9 h-9 rounded-xl bg-purple flex items-center justify-center shadow-md shadow-purple/30">
@@ -1433,17 +1553,21 @@ function Benefits({ s }) {
             {items.map(({ icon: Icon, t, d, c }) => (
               <div
                 key={t}
-                className="group p-5 rounded-2xl bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.07] hover:border-white/[0.15] transition-all duration-200"
+                className="group relative p-5 rounded-2xl bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.08] hover:border-white/[0.18] transition-all duration-200 overflow-hidden hover:-translate-y-0.5"
               >
+                {/* Left accent bar */}
+                <div className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-full opacity-40 group-hover:opacity-80 transition-opacity duration-200 ${
+                  c === 'teal' ? 'bg-teal' : 'bg-violet-400'
+                }`} />
                 <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform duration-200 ${
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-200 ${
                     c === 'teal' ? 'bg-teal/20' : 'bg-purple/30'
                   }`}>
                     <Icon className={`w-5 h-5 ${c === 'teal' ? 'text-teal' : 'text-violet-300'}`} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-white text-sm mb-1 leading-snug">{t}</h3>
-                    <p className="text-white/40 text-xs leading-relaxed">{d}</p>
+                    <p className="text-white/45 text-xs leading-relaxed">{d}</p>
                   </div>
                 </div>
               </div>
@@ -1496,7 +1620,7 @@ function IntCard({ item: { name, Logo } }) {
 
 function Integrations({ s }) {
   return (
-    <section id="integrations" className="py-24 bg-white">
+    <section id="integrations" className="py-24" style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f7f7fb 50%, #ffffff 100%)' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-purple/10 border border-purple/20">
@@ -1543,26 +1667,38 @@ function Security({ s }) {
   return (
     <section
       id="security"
-      className="py-24 bg-[#F7F7FB]"
+      className="py-24 relative overflow-hidden"
+      style={{ background: 'linear-gradient(135deg, #0d0c26 0%, #0f0e2a 50%, #0d1a14 100%)' }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Background effects */}
+      <div className="pointer-events-none absolute top-0 left-0 w-96 h-96 rounded-full bg-teal/8 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 w-80 h-80 rounded-full bg-purple/10 blur-[100px]" />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-20"
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(29,158,117,0.06) 1px, transparent 1px)',
+          backgroundSize: '36px 36px',
+        }}
+      />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-teal/10 border border-teal/20">
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-teal/15 border border-teal/30">
             <span className="w-1.5 h-1.5 rounded-full bg-teal" />
             <span className="text-teal text-xs font-semibold tracking-wide uppercase">{s.sec_badge}</span>
           </div>
           <h2
-            className="font-serif text-gray-900 mb-4 leading-tight"
+            className="font-serif text-white mb-4 leading-tight"
             style={{ fontSize: 'clamp(1.875rem, 3.5vw, 2.875rem)' }}
           >
             {s.sec_title}
           </h2>
-          <p className="text-gray-500 text-base max-w-2xl mx-auto leading-relaxed mb-6">{s.sec_sub}</p>
+          <p className="text-white/50 text-base max-w-2xl mx-auto leading-relaxed mb-6">{s.sec_sub}</p>
           <div className="flex flex-wrap gap-2 justify-center">
             {badges.map(b => (
               <span
                 key={b}
-                className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-600 text-xs font-medium px-4 py-2 rounded-full"
+                className="flex items-center gap-1.5 bg-white/5 border border-white/10 text-white/70 text-xs font-medium px-4 py-2 rounded-full"
               >
                 <Check className="w-3 h-3 text-teal shrink-0" />{b}
               </span>
@@ -1575,13 +1711,15 @@ function Security({ s }) {
           {items.map(({ icon: Icon, t, d }) => (
             <div
               key={t}
-              className="group bg-white rounded-2xl p-6 border border-border-soft hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+              className="group relative overflow-hidden rounded-2xl p-6 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] hover:border-teal/30 transition-all duration-300 hover:-translate-y-1"
             >
-              <div className="w-12 h-12 rounded-xl bg-teal/10 flex items-center justify-center mb-4 group-hover:bg-teal/15 transition-colors">
-                <Shield className="w-6 h-6 text-teal" />
+              {/* Left accent bar */}
+              <div className="absolute left-0 top-4 bottom-4 w-0.5 rounded-full bg-teal/40 group-hover:bg-teal transition-colors duration-300" />
+              <div className="w-12 h-12 rounded-xl bg-teal/15 flex items-center justify-center mb-4 group-hover:bg-teal/25 transition-colors">
+                <Icon className="w-6 h-6 text-teal" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-base">{t}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{d}</p>
+              <h3 className="font-semibold text-white mb-2 text-base">{t}</h3>
+              <p className="text-sm text-white/45 leading-relaxed">{d}</p>
             </div>
           ))}
         </div>
@@ -1616,15 +1754,36 @@ function Support({ s }) {
           ].map(({ icon: Icon, t, d, cta, href, accent }) => (
             <div
               key={t}
-              className="group relative overflow-hidden p-9 rounded-2xl bg-white border border-gray-100 hover:shadow-2xl hover:shadow-purple/8 hover:-translate-y-1.5 transition-all duration-300"
+              className="card-spring group relative overflow-hidden p-9 rounded-2xl border transition-all duration-300"
+              style={{
+                background: accent === 'teal'
+                  ? 'linear-gradient(145deg, #f0fdf9 0%, #ffffff 100%)'
+                  : 'linear-gradient(145deg, #f5f3ff 0%, #ffffff 100%)',
+                borderColor: accent === 'teal' ? 'rgba(29,158,117,0.15)' : 'rgba(83,74,183,0.15)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.boxShadow = accent === 'teal'
+                  ? '0 20px 50px rgba(29,158,117,0.15), 0 4px 16px rgba(0,0,0,0.06)'
+                  : '0 20px 50px rgba(83,74,183,0.15), 0 4px 16px rgba(0,0,0,0.06)'
+                e.currentTarget.style.borderColor = accent === 'teal' ? 'rgba(29,158,117,0.3)' : 'rgba(83,74,183,0.3)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.boxShadow = ''
+                e.currentTarget.style.borderColor = accent === 'teal' ? 'rgba(29,158,117,0.15)' : 'rgba(83,74,183,0.15)'
+              }}
             >
+              {/* Top accent strip */}
               <div className={`absolute top-0 left-0 right-0 h-1 ${
                 accent === 'teal'
                   ? 'bg-gradient-to-r from-teal to-teal/30'
                   : 'bg-gradient-to-r from-purple to-purple/30'
               }`} />
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${
-                accent === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
+              {/* Watermark */}
+              <div className="pointer-events-none absolute -bottom-4 -right-4 opacity-[0.05]">
+                <Icon className={`w-28 h-28 ${accent === 'teal' ? 'text-teal' : 'text-purple'}`} />
+              </div>
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm ${
+                accent === 'teal' ? 'bg-teal/15' : 'bg-purple/15'
               }`}>
                 <Icon className={`w-7 h-7 ${accent === 'teal' ? 'text-teal' : 'text-purple'}`} />
               </div>
@@ -1663,27 +1822,44 @@ function ClosingCTA({ s }) {
       <div className="pointer-events-none absolute top-8 right-8 w-32 h-32 rounded-full bg-white/10" />
       <div className="pointer-events-none absolute bottom-8 left-8 w-24 h-24 rounded-full bg-white/10" />
 
+      {/* Dot grid */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-10"
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+        }}
+      />
+
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        {/* Top badge */}
+        <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
+          <Sparkles className="w-3.5 h-3.5 text-white/80" />
+          <span className="text-white/80 text-xs font-semibold tracking-wide uppercase">Pilot Proqram</span>
+        </div>
+
         <h2
           className="font-serif text-white mb-6 leading-tight"
-          style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', lineHeight: 1.1 }}
+          style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', lineHeight: 1.1, textShadow: '0 2px 40px rgba(0,0,0,0.2)' }}
         >
           {s.cta_title}
         </h2>
-        <p className="text-white/80 text-xl mb-12 leading-relaxed max-w-2xl mx-auto">{s.cta_sub}</p>
+        <p className="text-white/75 text-xl mb-12 leading-relaxed max-w-2xl mx-auto">{s.cta_sub}</p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="mailto:hello@birclick.az"
-            className="bg-white text-purple font-semibold px-9 py-4 rounded-xl hover:bg-gray-50 hover:-translate-y-0.5 transition-all duration-200 text-sm shadow-2xl shadow-black/20"
+            className="shimmer-card relative bg-white text-purple font-semibold px-9 py-4 rounded-xl hover:bg-gray-50 hover:-translate-y-1 transition-all duration-200 text-sm"
+            style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.15)' }}
           >
             {s.cta_btn1}
           </a>
           <Link
             to="/contact"
-            className="border-2 border-white/40 text-white font-semibold px-9 py-4 rounded-xl hover:bg-white/10 hover:border-white/60 transition-all duration-200 text-sm"
+            className="group border-2 border-white/40 text-white font-semibold px-9 py-4 rounded-xl hover:bg-white/15 hover:border-white/70 transition-all duration-200 text-sm flex items-center gap-2"
           >
             {s.cta_btn2}
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </div>
