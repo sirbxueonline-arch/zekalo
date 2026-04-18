@@ -862,6 +862,7 @@ export default function TeacherAssignments() {
                             </span>
                           )}
                           <input
+                            key={sub.id}
                             type="number"
                             min={0}
                             max={selectedAssignment?.max_score || 10}

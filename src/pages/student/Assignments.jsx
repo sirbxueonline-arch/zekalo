@@ -178,19 +178,30 @@ function ScoreDisplay({ score, maxScore }) {
 
 // ─── Feedback panel (teacher + AI tabs) ──────────────────────────────────────
 
-function FeedbackPanel({ feedback, aiReview }) {
+function FeedbackPanel({ feedback }) {
+  if (!feedback) return null
+
+  return (
+    <div className="mt-4 border-t border-border-soft pt-4">
+      <p className="text-xs font-semibold text-gray-500 mb-2">Müəllim rəyi</p>
+      <div className="bg-purple-light/40 rounded-lg px-3 py-2.5">
+        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{feedback}</p>
+      </div>
+    </div>
+  )
+}
+
+function _FeedbackPanelTabbed({ feedback }) {
   const [activeTab, setActiveTab] = useState('teacher')
   const hasFeedback = !!feedback
-  const hasAI = !!aiReview
 
-  if (!hasFeedback && !hasAI) return null
+  if (!hasFeedback) return null
 
   const tabs = [
     { key: 'teacher', label: 'Müəllim rəyi', visible: hasFeedback },
-    { key: 'ai', label: 'Zəka AI rəyi', visible: hasAI },
   ].filter(t => t.visible)
 
-  const content = activeTab === 'teacher' ? feedback : aiReview
+  const content = feedback
 
   return (
     <div className="mt-4 border-t border-border-soft pt-4">
@@ -459,7 +470,7 @@ function AssignmentCard({ assignment, status, submission, onSubmitClick }) {
         </div>
 
         {/* Feedback panel */}
-        <FeedbackPanel feedback={submission?.feedback} aiReview={submission?.ai_review} />
+        <FeedbackPanel feedback={submission?.feedback} />
       </div>
     </div>
   )

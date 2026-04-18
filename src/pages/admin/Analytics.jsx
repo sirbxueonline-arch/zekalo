@@ -112,7 +112,7 @@ export default function Analytics() {
           ? supabase.from('attendance').select('date, status').in('class_id', classIds).order('date')
           : Promise.resolve({ data: [] }),
         classIds.length
-          ? supabase.from('grades').select('teacher:profiles(full_name), id').in('class_id', classIds).gte('created_at', monthStart)
+          ? supabase.from('grades').select('teacher_id:profiles(full_name), id').in('class_id', classIds).gte('created_at', monthStart)
           : Promise.resolve({ data: [] }),
       ])
 
@@ -150,7 +150,7 @@ export default function Analytics() {
       // Teacher workload
       const byTeacher = {}
       ;(workloadRes.data || []).forEach(g => {
-        const name = g.teacher?.full_name || 'Naməlum'
+        const name = g.teacher_id?.full_name || 'Naməlum'
         if (!byTeacher[name]) byTeacher[name] = { name, count: 0 }
         byTeacher[name].count++
       })
