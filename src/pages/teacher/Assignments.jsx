@@ -218,6 +218,7 @@ export default function TeacherAssignments() {
   const [selectedAssignment, setSelectedAssignment] = useState(null)
   const [detailSubmissions, setDetailSubmissions]   = useState([])
   const [saving, setSaving]                   = useState(false)
+  const [saveError, setSaveError]             = useState(null)
   const [aiLoading, setAiLoading]             = useState(null)
   const [activeFilter, setActiveFilter]       = useState('all')
 
@@ -300,15 +301,23 @@ export default function TeacherAssignments() {
 
   async function handleCreate() {
     setSaving(true)
+    setSaveError(null)
     const { notify, ...rest } = newAssignment
     const { error } = await supabase.from('assignments').insert({
-      ...rest,
+      title:      rest.title.trim(),
+      description: rest.description.trim() || null,
+      class_id:   rest.class_id,
+      subject_id: rest.subject_id,
+      due_date:   rest.due_date || null,   // empty string → null (Postgres rejects '')
+      max_score:  Number(rest.max_score),
       teacher_id: profile.id,
-      max_score: Number(rest.max_score),
     })
 
-    if (!error) {
+    if (error) {
+      setSaveError(error.message)
+    } else {
       setShowNewModal(false)
+      setSaveError(null)
       setNewAssignment({
         title: '', description: '', class_id: '', subject_id: '',
         due_date: '', max_score: 10, notify: false,
@@ -668,8 +677,12 @@ export default function TeacherAssignments() {
             </div>
           </label>
 
+          {saveError && (
+            <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{saveError}</p>
+          )}
+
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => setShowNewModal(false)}>
+            <Button variant="ghost" onClick={() => { setShowNewModal(false); setSaveError(null) }}>
               Ləğv et
             </Button>
             <Button
