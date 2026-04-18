@@ -891,20 +891,144 @@ function FeatureVisual({ idx, s }) {
       ))}
     </div>
   )
-  const icons = [BookOpen, PenLine, BarChart2, FileText, Clock, Sparkles, MessageSquare]
-  const Icon = icons[idx] || BookOpen
-  return (
-    <div className="flex flex-col items-center justify-center h-full gap-4 py-8">
-      <div className="w-20 h-20 rounded-2xl bg-purple-light flex items-center justify-center">
-        <Icon className="w-10 h-10 text-purple/30" />
+  // idx 1 — Tədris (Teaching & Learning)
+  if (idx === 1) return (
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-gray-400 text-[10px] font-medium uppercase tracking-wide">Tapşırıqlar</span>
+        <span className="bg-purple-light text-purple text-[9px] font-semibold px-2 py-0.5 rounded-full">3 aktiv</span>
       </div>
-      <div className="space-y-2 w-full">
-        {[80, 60, 45, 70].map((w, i) => (
-          <div key={i} className="h-2 bg-gray-100 rounded-full" style={{ width: `${w}%` }} />
-        ))}
+      {[
+        { title: 'Quadratic Equations – HW', subj: 'Riyaziyyat', due: '20 Apr', pct: 68, c: 'purple' },
+        { title: 'Essay: Romeo & Juliet', subj: 'İngilis dili', due: '22 Apr', pct: 42, c: 'teal' },
+        { title: 'Lab Report – Titration', subj: 'Kimya', due: '25 Apr', pct: 85, c: 'purple' },
+      ].map(({ title, subj, due, pct, c }) => (
+        <div key={title} className="bg-white rounded-xl border border-border-soft p-3.5">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p className="text-gray-800 text-[11px] font-semibold leading-snug">{title}</p>
+              <p className="text-gray-400 text-[9px] mt-0.5">{subj} · Son tarix: {due}</p>
+            </div>
+            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${c === 'teal' ? 'bg-teal-light text-teal' : 'bg-purple-light text-purple'}`}>
+              {pct}%
+            </span>
+          </div>
+          <div className="h-1.5 bg-gray-100 rounded-full">
+            <div className={`h-full rounded-full transition-all ${c === 'teal' ? 'bg-teal' : 'bg-purple'}`} style={{ width: `${pct}%` }} />
+          </div>
+          <p className="text-gray-400 text-[9px] mt-1">{pct}% təhvil verildi</p>
+        </div>
+      ))}
+    </div>
+  )
+
+  // idx 3 — Hesabatlar (Reports)
+  if (idx === 3) return (
+    <div className="space-y-2.5">
+      {/* Mini report card header */}
+      <div className="bg-white rounded-xl border border-border-soft p-3.5">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <p className="text-gray-800 text-[11px] font-semibold">Şagird Qiymət Cədvəli</p>
+            <p className="text-gray-400 text-[9px]">9A sinfi · Aprel 2025</p>
+          </div>
+          <div className="flex gap-1">
+            <span className="bg-surface border border-border-soft text-gray-500 text-[8px] font-semibold px-2 py-0.5 rounded-md">PDF</span>
+            <span className="bg-surface border border-border-soft text-gray-500 text-[8px] font-semibold px-2 py-0.5 rounded-md">Excel</span>
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <div className="grid grid-cols-4 text-[8px] text-gray-400 font-semibold uppercase tracking-wide pb-1 border-b border-gray-50">
+            <span>Şagird</span><span>Riyaziyyat</span><span>Fizika</span><span>Ortalama</span>
+          </div>
+          {[
+            { n: 'Aytən M.', m: '8', p: '7', avg: '7.5', c: 'teal' },
+            { n: 'Rauf A.',  m: '6', p: '5', avg: '5.5', c: 'red' },
+            { n: 'Günel H.', m: '9', p: '8', avg: '8.5', c: 'teal' },
+          ].map(({ n, m, p, avg, c }) => (
+            <div key={n} className="grid grid-cols-4 items-center py-1 border-b border-gray-50 last:border-0">
+              <span className="text-gray-700 text-[10px] font-medium">{n}</span>
+              <span className="text-gray-500 text-[10px]">{m}</span>
+              <span className="text-gray-500 text-[10px]">{p}</span>
+              <span className={`text-[10px] font-bold ${c === 'teal' ? 'text-teal' : 'text-red-500'}`}>{avg}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Export status */}
+      <div className="flex gap-2">
+        <div className="flex-1 bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-teal/10 flex items-center justify-center shrink-0">
+            <CheckCircle className="w-3.5 h-3.5 text-teal" />
+          </div>
+          <div>
+            <p className="text-gray-700 text-[10px] font-medium">E-Gov.az ixracı</p>
+            <p className="text-teal text-[9px]">Hazır</p>
+          </div>
+        </div>
+        <div className="flex-1 bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-purple/10 flex items-center justify-center shrink-0">
+            <FileText className="w-3.5 h-3.5 text-purple" />
+          </div>
+          <div>
+            <p className="text-gray-700 text-[10px] font-medium">IB Audit</p>
+            <p className="text-purple text-[9px]">Sənədlər hazır</p>
+          </div>
+        </div>
       </div>
     </div>
   )
+
+  // idx 6 — Kommunikasiya (Communications)
+  if (idx === 6) return (
+    <div className="space-y-2">
+      {/* Announcement banner */}
+      <div className="bg-purple-light border border-purple/20 rounded-xl px-3.5 py-2.5 flex items-start gap-2.5">
+        <div className="w-6 h-6 rounded-lg bg-purple flex items-center justify-center shrink-0 mt-0.5">
+          <Bell className="w-3 h-3 text-white" />
+        </div>
+        <div>
+          <p className="text-purple text-[10px] font-semibold">Məktəb Elanı</p>
+          <p className="text-purple/70 text-[9px] leading-snug mt-0.5">Yarımillik imtahanlar 12 May tarixindən başlayır. Cədvəl tezliklə bildiriləcək.</p>
+        </div>
+      </div>
+
+      {/* Message thread */}
+      <div className="bg-white rounded-xl border border-border-soft p-3 space-y-2">
+        <p className="text-[9px] text-gray-400 font-medium uppercase tracking-wide mb-2">Müəllim → Valideyn</p>
+
+        {/* Teacher message */}
+        <div className="flex items-end gap-2">
+          <div className="w-6 h-6 rounded-full bg-purple flex items-center justify-center text-white text-[8px] font-bold shrink-0">M</div>
+          <div className="bg-surface rounded-xl rounded-bl-md px-3 py-2 max-w-[75%]">
+            <p className="text-gray-700 text-[10px] leading-snug">Aytənin riyaziyyat nəticəsi bu ay əhəmiyyətli dərəcədə yaxşılaşıb. Təbriklər!</p>
+            <p className="text-gray-400 text-[8px] mt-1">09:42</p>
+          </div>
+        </div>
+
+        {/* Parent reply */}
+        <div className="flex items-end gap-2 flex-row-reverse">
+          <div className="w-6 h-6 rounded-full bg-teal flex items-center justify-center text-white text-[8px] font-bold shrink-0">V</div>
+          <div className="bg-teal-light rounded-xl rounded-br-md px-3 py-2 max-w-[75%]">
+            <p className="text-teal text-[10px] leading-snug">Çox sağ olun! Evdə də çox çalışır.</p>
+            <p className="text-teal/60 text-[8px] mt-1">09:55</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Unread badge */}
+      <div className="bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+          <p className="text-gray-700 text-[10px] font-medium">3 oxunmamış mesaj</p>
+        </div>
+        <span className="text-purple text-[9px] font-semibold">Hamısına bax →</span>
+      </div>
+    </div>
+  )
+
+  // fallback (should never be reached now)
+  return null
 }
 
 /* ─── Features ─── */
