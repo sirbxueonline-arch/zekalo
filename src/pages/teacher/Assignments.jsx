@@ -423,7 +423,15 @@ export default function TeacherAssignments() {
 
   async function generateAIFeedback(submission) {
     setAiLoading(submission.id)
+    // Update feedback in textarea as AI streams
+    setTeacherFeedback(prev => ({ ...prev, [submission.id]: '' }))
     try {
+      const contentPart = submission.content
+        ? `Şagirdin cavabı:\n${submission.content}`
+        : submission.file_url
+        ? `Şagird fayl göndərib (fayl məzmunu burada göstərilmir).`
+        : `Şagird cavab göndərib, lakin məzmun saxlanılmayıb.`
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/zeka-chat`,
         {
@@ -436,7 +444,7 @@ export default function TeacherAssignments() {
             messages: [
               {
                 role: 'user',
-                content: `Bu tapshiriq cavabina rəy ver:\n\nTapshiriq: ${selectedAssignment.title}\n${selectedAssignment.description || ''}\n\nCavab:\n${submission.content}`,
+                content: `Sən müəllim köməkçisisən. Aşağıdakı tapşırıq üçün şagirdə qısa Azərbaycan dilində rəy ver.\n\nTapşırıq: ${selectedAssignment.title}\n${selectedAssignment.description ? `Açıqlama: ${selectedAssignment.description}` : ''}\n\n${contentPart}`,
               },
             ],
             userProfile: profile,
@@ -445,6 +453,10 @@ export default function TeacherAssignments() {
           }),
         }
       )
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
 
       const reader  = response.body.getReader()
       const decoder = new TextDecoder()
@@ -457,26 +469,26 @@ export default function TeacherAssignments() {
         const lines = chunk.split('\n').filter(l => l.startsWith('data: '))
         for (const line of lines) {
           try {
-            const data = JSON.parse(line.slice(6))
-            if (data.type === 'content_block_delta' && data.delta?.text) {
-              fullContent += data.delta.text
+            const parsed = JSON.parse(line.slice(6))
+            if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+              fullContent += parsed.delta.text
+              // Stream text into the feedback textarea live
+              setTeacherFeedback(prev => ({ ...prev, [submission.id]: fullContent }))
             }
           } catch {}
         }
       }
 
-      await supabase.from('submissions').update({ feedback: fullContent }).eq('id', submission.id)
-      setDetailSubmissions(prev =>
-        prev.map(s => s.id === submission.id ? { ...s, feedback: fullContent } : s)
-      )
-    } catch {
-      setDetailSubmissions(prev =>
-        prev.map(s =>
-          s.id === submission.id
-            ? { ...s, feedback: 'AI rəyi əldə edilə bilmədi. Yenidən cəhd edin.' }
-            : s
+      if (fullContent) {
+        await supabase.from('submissions').update({ feedback: fullContent }).eq('id', submission.id)
+        setDetailSubmissions(prev =>
+          prev.map(s => s.id === submission.id ? { ...s, feedback: fullContent } : s)
         )
-      )
+      }
+    } catch (err) {
+      console.error('AI feedback error:', err)
+      const errMsg = 'AI rəyi əldə edilə bilmədi. Yenidən cəhd edin.'
+      setTeacherFeedback(prev => ({ ...prev, [submission.id]: errMsg }))
     } finally {
       setAiLoading(null)
     }
@@ -894,9 +906,14 @@ export default function TeacherAssignments() {
                           </p>
                         )}
 
-                        {/* No content and no file */}
+                        {/* No content — file not saved or text-only gap */}
                         {!sub.content && !sub.file_url && (
-                          <p className="text-xs text-gray-400 italic">Cavab məzmunu yoxdur</p>
+                          <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+                            <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                            <p className="text-xs text-amber-700">
+                              Şagird fayl yükləyib, lakin keçmiş cavablar üçün fayl linki saxlanılmayıb. Yeni göndərmələr düzgün görünəcək.
+                            </p>
+                          </div>
                         )}
 
                         {/* Teacher feedback textarea */}
@@ -916,7 +933,7 @@ export default function TeacherAssignments() {
                               variant="ghost"
                               className="text-xs px-2.5 py-1"
                               onClick={() => generateAIFeedback(sub)}
-                              disabled={aiLoading === sub.id || (!sub.content && !sub.file_url)}
+                              disabled={aiLoading === sub.id}
                             >
                               {aiLoading === sub.id
                                 ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
