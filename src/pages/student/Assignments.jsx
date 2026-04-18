@@ -224,7 +224,7 @@ function formatFileSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function SubmitModal({ assignment, open, onClose, onSubmit, submitting }) {
+function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error }) {
   const [content, setContent] = useState('')
   const [file, setFile] = useState(null)
   const [dragOver, setDragOver] = useState(false)
@@ -360,6 +360,14 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting }) {
             )}
           </div>
 
+          {/* Error message */}
+          {error && (
+            <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-red-700 font-medium">{error}</p>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-1">
             <Button variant="ghost" onClick={onClose} disabled={submitting}>
@@ -490,6 +498,7 @@ export default function StudentAssignments() {
   const [activeTab, setActiveTab] = useState('all')
   const [selectedAssignment, setSelectedAssignment] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
 
   useEffect(() => {
     if (!profile) return
@@ -544,6 +553,7 @@ export default function StudentAssignments() {
   async function handleSubmit(content, file) {
     if (!selectedAssignment) return
     setSubmitting(true)
+    setSubmitError(null)
     try {
       const isLate =
         selectedAssignment.due_date && new Date(selectedAssignment.due_date) < new Date()
@@ -558,12 +568,14 @@ export default function StudentAssignments() {
           .upload(path, file, { upsert: true })
         if (uploadError) {
           console.error('File upload error:', uploadError)
-        } else if (uploadData) {
-          const { data: urlData } = supabase.storage
-            .from('submissions')
-            .getPublicUrl(uploadData.path)
-          file_url = urlData?.publicUrl || null
+          setSubmitError(`Fayl yüklənmədi: ${uploadError.message}`)
+          setSubmitting(false)
+          return
         }
+        const { data: urlData } = supabase.storage
+          .from('submissions')
+          .getPublicUrl(uploadData.path)
+        file_url = urlData?.publicUrl || null
       }
 
       // Upsert submission — updates existing row if student already submitted
@@ -580,13 +592,18 @@ export default function StudentAssignments() {
         .upsert(payload, { onConflict: 'assignment_id,student_id' })
 
       if (upsertError) {
-        console.error('Submission upsert error:', upsertError)
+        console.error('Submission save error:', upsertError)
+        setSubmitError(`Cavab saxlanılmadı: ${upsertError.message}`)
+        setSubmitting(false)
+        return
       }
 
       setSelectedAssignment(null)
+      setSubmitError(null)
       await loadData()
     } catch (err) {
       console.error('Submit error:', err)
+      setSubmitError(`Xəta: ${err.message}`)
     }
     setSubmitting(false)
   }
@@ -707,9 +724,10 @@ export default function StudentAssignments() {
       <SubmitModal
         assignment={selectedAssignment}
         open={!!selectedAssignment}
-        onClose={() => setSelectedAssignment(null)}
+        onClose={() => { setSelectedAssignment(null); setSubmitError(null) }}
         onSubmit={handleSubmit}
         submitting={submitting}
+        error={submitError}
       />
     </div>
   )
