@@ -20,9 +20,9 @@ const audienceConfig = {
 }
 
 const statusConfig = {
-  draft: { label: 'Qaralama', className: 'bg-surface text-gray-600 border border-border-soft' },
-  active: { label: 'Aktiv', className: 'bg-teal-light text-[#085041] border border-teal-mid' },
-  closed: { label: 'Bağlandı', className: 'bg-red-50 text-red-700 border border-red-200' },
+  draft: { label: 'Qaralama', className: 'bg-gray-100 text-gray-500 border border-gray-200', dot: null },
+  active: { label: 'Aktiv', className: 'bg-[#D1FAF0] text-[#085041] border border-teal-mid', dot: 'bg-[#1D9E75] animate-pulse' },
+  closed: { label: 'Bağlandı', className: 'bg-red-50 text-red-700 border border-red-200', dot: 'bg-red-500' },
 }
 
 
@@ -133,19 +133,22 @@ export default function Surveys() {
       label: 'Auditoriya',
       render: (val) => {
         const cfg = audienceConfig[val] || audienceConfig.all
-        return <span className={`rounded-full text-xs font-medium px-3 py-0.5 ${cfg.className}`}>{cfg.label}</span>
+        return <span className={`rounded-full text-xs font-semibold px-3 py-1 inline-flex items-center ${cfg.className}`}>{cfg.label}</span>
       },
     },
     {
       key: 'responses_count',
       label: 'Cavablar',
       sortable: true,
-      render: (val) => (
-        <div className="flex items-center gap-2">
-          <BarChart2 className="w-4 h-4 text-gray-400" />
-          <span className="font-medium text-gray-900">{val || 0}</span>
-        </div>
-      ),
+      render: (val) => {
+        const count = val || 0
+        return (
+          <div className="flex items-center gap-2">
+            <BarChart2 className="w-4 h-4 text-gray-400" />
+            <span className={`font-bold tabular-nums ${count > 0 ? 'text-purple' : 'text-gray-400'}`}>{count}</span>
+          </div>
+        )
+      },
     },
     {
       key: 'created_at',
@@ -158,7 +161,12 @@ export default function Surveys() {
       label: 'Status',
       render: (val) => {
         const cfg = statusConfig[val] || statusConfig.draft
-        return <span className={`rounded-full text-xs font-medium px-3 py-0.5 inline-flex items-center ${cfg.className}`}>{cfg.label}</span>
+        return (
+          <span className={`rounded-full text-xs font-semibold px-3 py-1 inline-flex items-center gap-1.5 ${cfg.className}`}>
+            {cfg.dot && <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />}
+            {cfg.label}
+          </span>
+        )
       },
     },
     {
@@ -238,12 +246,18 @@ export default function Surveys() {
         {detailModal && (
           <div className="space-y-5">
             <div className="flex flex-wrap gap-2">
-              <span className={`rounded-full text-sm font-medium px-4 py-1 ${(audienceConfig[detailModal.audience] || audienceConfig.all).className}`}>
+              <span className={`rounded-full text-sm font-semibold px-4 py-1 inline-flex items-center ${(audienceConfig[detailModal.audience] || audienceConfig.all).className}`}>
                 {(audienceConfig[detailModal.audience] || audienceConfig.all).label}
               </span>
-              <span className={`rounded-full text-sm font-medium px-4 py-1 ${(statusConfig[detailModal.status] || statusConfig.draft).className}`}>
-                {(statusConfig[detailModal.status] || statusConfig.draft).label}
-              </span>
+              {(() => {
+                const cfg = statusConfig[detailModal.status] || statusConfig.draft
+                return (
+                  <span className={`rounded-full text-sm font-semibold px-4 py-1 inline-flex items-center gap-1.5 ${cfg.className}`}>
+                    {cfg.dot && <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}`} />}
+                    {cfg.label}
+                  </span>
+                )
+              })()}
             </div>
 
             {detailModal.description && (

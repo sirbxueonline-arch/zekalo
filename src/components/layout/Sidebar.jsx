@@ -259,13 +259,22 @@ export default function Sidebar({ open, onClose }) {
         }`}
         style={{ width: 260 }}
       >
-        {/* Logo */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-border-soft flex-shrink-0">
-          <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Zirva" width="26" height="26" className="object-contain" />
-            <span className="font-serif text-xl text-gray-900 tracking-tight">Zirva</span>
+        {/* Logo / brand */}
+        <div className="flex items-center justify-between px-5 py-5 border-b border-border-soft flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-purple flex items-center justify-center flex-shrink-0 shadow-sm">
+              <img src="/logo.png" alt="Zirva" width="20" height="20" className="object-contain brightness-0 invert" />
+            </div>
+            <div className="min-w-0">
+              <span className="font-serif text-xl text-gray-900 tracking-tight leading-tight block">Zirva</span>
+              {profile?.school?.name && (
+                <span className="text-[10px] text-gray-400 truncate block leading-tight max-w-[140px]">
+                  {profile.school.name}
+                </span>
+              )}
+            </div>
           </div>
-          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-surface transition-colors">
+          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-surface transition-colors flex-shrink-0">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -275,7 +284,7 @@ export default function Sidebar({ open, onClose }) {
           {resolvedGroups.map((group, gi) => (
             <div key={gi}>
               {/* Section label */}
-              <p className="px-3 mb-1.5 text-[10px] font-semibold tracking-widest text-gray-400 uppercase select-none">
+              <p className="px-3 mb-1 text-[10px] font-semibold tracking-widest text-gray-400 uppercase select-none mt-1">
                 {group.label}
               </p>
               {/* Items */}
@@ -286,10 +295,10 @@ export default function Sidebar({ open, onClose }) {
                     to={item.path}
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 ${
+                      `relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors duration-150 ${
                         isActive
                           ? 'bg-purple-light text-purple font-semibold'
-                          : 'text-gray-600 hover:bg-surface hover:text-gray-900'
+                          : 'text-gray-600 hover:bg-surface hover:text-gray-800'
                       }`
                     }
                   >
@@ -318,21 +327,31 @@ export default function Sidebar({ open, onClose }) {
         </nav>
 
         {/* User footer */}
-        <div className="border-t border-border-soft px-4 py-4 flex-shrink-0">
+        <div className="border-t border-border-soft px-4 py-4 flex-shrink-0 bg-surface/40">
           <div className="flex items-center gap-3 mb-3">
-            <Avatar name={profile?.full_name} color={profile?.avatar_color} size="sm" />
+            {/* Avatar initials circle */}
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-sm"
+              style={{
+                backgroundColor: profile?.avatar_color || '#534AB7',
+              }}
+            >
+              {profile?.full_name
+                ? profile.full_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+                : '?'}
+            </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-gray-900 truncate leading-tight">
+              <p className="text-sm font-semibold text-gray-900 truncate leading-tight">
                 {profile?.full_name}
               </p>
-              <p className="text-xs text-gray-400 capitalize">{t(profile?.role)}</p>
+              <p className="text-xs text-gray-400 capitalize leading-tight mt-0.5">{t(profile?.role)}</p>
             </div>
           </div>
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2 text-xs text-gray-400 hover:text-red-500 transition-colors w-full px-1 py-1 rounded-md hover:bg-red-50"
+            className="flex items-center gap-2 text-xs text-gray-500 hover:text-red-500 transition-colors duration-150 w-full px-2 py-1.5 rounded-lg hover:bg-red-50"
           >
-            <LogOut className="w-3.5 h-3.5" />
+            <LogOut className="w-3.5 h-3.5 flex-shrink-0" />
             {t('sign_out')}
           </button>
         </div>

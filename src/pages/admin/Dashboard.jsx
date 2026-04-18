@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import { PageSpinner } from '../../components/ui/Spinner'
+import { DashboardSkeleton } from '../../components/ui/Skeleton'
 import Avatar from '../../components/ui/Avatar'
 import { fmtDate } from '../../lib/dateUtils'
 
@@ -89,12 +89,12 @@ function SectionHeader({ icon: Icon, iconBg, iconColor, title, sub, action, onAc
   return (
     <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
       <div className="flex items-center gap-3">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBg}`}>
-          <Icon className={`w-4 h-4 ${iconColor}`} />
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
+          <Icon className={`w-4.5 h-4.5 ${iconColor}`} />
         </div>
-        <div>
-          <h2 className="text-sm font-bold text-gray-900 leading-none">{title}</h2>
-          {sub && <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>}
+        <div className="border-l-4 border-purple pl-3">
+          <h2 className="font-serif text-xl text-gray-900 leading-none">{title}</h2>
+          {sub && <p className="text-xs text-gray-500 mt-0.5">{sub}</p>}
         </div>
       </div>
       {action && (
@@ -192,7 +192,7 @@ export default function AdminDashboard() {
     }
   }
 
-  if (loading) return <PageSpinner />
+  if (loading) return <DashboardSkeleton />
   if (error) {
     return (
       <div className="text-center py-20">
@@ -534,17 +534,17 @@ export default function AdminDashboard() {
                 <p className="text-sm text-gray-400">{t('no_notifications')}</p>
               </div>
             ) : (
-              <ul className="overflow-y-auto max-h-[340px] divide-y divide-border-soft">
-                {activities.map(a => (
-                  <li key={a.id} className="flex items-start gap-3 px-5 py-3.5 hover:bg-surface/50 transition-colors">
-                    <span className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${DOT_COLORS[a.type] || 'bg-gray-300'}`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-gray-900 leading-snug">{a.title}</p>
-                      {a.body && <p className="text-[11px] text-gray-400 mt-0.5 truncate">{a.body}</p>}
+              <ul className="overflow-y-auto max-h-[340px]">
+                {activities.map((a, i) => (
+                  <li key={a.id} className="flex items-start gap-3.5 px-5 py-4 hover:bg-surface/60 transition-colors border-b border-border-soft last:border-0">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${DOT_COLORS[a.type] ? DOT_COLORS[a.type].replace('bg-', 'bg-').replace('500','50').replace('400','50').replace('purple','purple-light') : 'bg-gray-100'}`}>
+                      <span className={`w-2.5 h-2.5 rounded-full ${DOT_COLORS[a.type] || 'bg-gray-300'}`} />
                     </div>
-                    <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5 font-medium">
-                      {timeAgo(a.created_at)} əvvəl
-                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 leading-snug">{a.title}</p>
+                      {a.body && <p className="text-xs text-gray-400 mt-0.5 truncate">{a.body}</p>}
+                      <p className="text-[11px] text-gray-400 font-medium mt-1">{timeAgo(a.created_at)} əvvəl</p>
+                    </div>
                   </li>
                 ))}
               </ul>

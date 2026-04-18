@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { TrendingUp, TrendingDown, Minus, BookOpen, Award, BarChart2 } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, BookOpen, Award, BarChart2, Check } from 'lucide-react'
 import { GradeBadge } from '../../components/ui/Badge'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
@@ -52,6 +52,20 @@ function gpaTextColor(avg) {
   return 'text-red-600'
 }
 
+function gpaBorderColor(avg) {
+  if (avg >= 8.5) return 'border-teal'
+  if (avg >= 7)   return 'border-blue-400'
+  if (avg >= 5)   return 'border-amber-400'
+  return 'border-red-400'
+}
+
+function gpaBgLight(avg) {
+  if (avg >= 8.5) return 'bg-teal-light'
+  if (avg >= 7)   return 'bg-blue-50'
+  if (avg >= 5)   return 'bg-amber-50'
+  return 'bg-red-50'
+}
+
 // ─── Row left-border color ───────────────────────────────────────────────────
 function rowBorderColor(norm) {
   if (norm >= 8.5) return 'border-l-teal-500'
@@ -85,8 +99,6 @@ function computeSubjectStats(grades) {
       normed.length > 0
         ? Math.round((normed.reduce((a, b) => a + b, 0) / normed.length) * 10) / 10
         : 0
-    // normed is already in date-desc order (matching query order)
-    // last grade is normed[0], second-to-last is normed[1]
     let trend = 'flat'
     if (normed.length >= 2) {
       if (normed[0] > normed[1]) trend = 'up'
@@ -114,6 +126,53 @@ function TrendIcon({ trend }) {
     <span className="inline-flex items-center gap-0.5 text-xs font-medium text-gray-400">
       <Minus className="w-3.5 h-3.5" /> Sabit
     </span>
+  )
+}
+
+// ─── Circular GPA badge ──────────────────────────────────────────────────────
+function CircularGPA({ avg }) {
+  const radius = 54
+  const stroke = 8
+  const normalizedRadius = radius - stroke / 2
+  const circumference = normalizedRadius * 2 * Math.PI
+  const pct = Math.min((avg / 10) * 100, 100)
+  const strokeDashoffset = circumference - (pct / 100) * circumference
+
+  const strokeColor = avg >= 8.5 ? '#1D9E75' : avg >= 7 ? '#534AB7' : avg >= 5 ? '#D97706' : '#EF4444'
+
+  return (
+    <div className="relative inline-flex items-center justify-center">
+      <svg width={radius * 2} height={radius * 2} className="-rotate-90">
+        {/* Track */}
+        <circle
+          cx={radius}
+          cy={radius}
+          r={normalizedRadius}
+          fill="none"
+          stroke="#f3f4f6"
+          strokeWidth={stroke}
+        />
+        {/* Progress */}
+        <circle
+          cx={radius}
+          cy={radius}
+          r={normalizedRadius}
+          fill="none"
+          stroke={strokeColor}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={strokeDashoffset}
+          className="transition-all duration-700"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className={`font-serif text-3xl font-bold leading-none ${gpaTextColor(avg)}`}>
+          {avg.toString().replace('.', ',')}
+        </span>
+        <span className="text-gray-400 text-xs font-medium">/ 10</span>
+      </div>
+    </div>
   )
 }
 
@@ -196,26 +255,46 @@ export default function StudentGrades() {
       {/* ── Page heading ── */}
       <h1 className="font-serif text-4xl text-gray-900 tracking-tight">Qiymətlərim</h1>
 
-      {/* ── GPA Hero Card ── */}
-      <div className="bg-white border border-border-soft rounded-2xl p-8 flex flex-col items-center gap-4 shadow-sm">
-        <div className="flex items-end gap-3">
-          <span className={`font-serif text-7xl font-bold leading-none ${gpaTextColor(overallAvg)}`}>
-            {overallAvg.toString().replace('.', ',')}
-          </span>
-          <span className="text-gray-400 text-xl mb-2 font-medium">/ 10</span>
-        </div>
+      {/* ── GPA Hero Card — circular badge ── */}
+      <div className="bg-white border border-border-soft rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex flex-col sm:flex-row items-center gap-8">
+          {/* Large circular GPA */}
+          <div className="flex flex-col items-center gap-3">
+            <CircularGPA avg={overallAvg} />
+            <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border ${gpaBorderColor(overallAvg)} ${gpaBgLight(overallAvg)}`}>
+              <Award className={`w-3.5 h-3.5 ${gpaTextColor(overallAvg)}`} />
+              <span className={`text-xs font-semibold ${gpaTextColor(overallAvg)}`}>Ümumi Ortalama</span>
+            </div>
+          </div>
 
-        {/* Full-width colored progress bar */}
-        <div className="w-full max-w-md bg-gray-100 rounded-full h-3 overflow-hidden">
-          <div
-            className={`h-3 rounded-full transition-all duration-700 ${gpaBarColor(overallAvg)}`}
-            style={{ width: `${Math.min((overallAvg / 10) * 100, 100)}%` }}
-          />
-        </div>
+          {/* Summary stats */}
+          <div className="flex-1 w-full space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-surface rounded-xl p-4">
+                <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Fənn sayı</p>
+                <p className="font-serif text-3xl font-bold text-gray-900 mt-1">{subjectStats.length}</p>
+              </div>
+              <div className="bg-surface rounded-xl p-4">
+                <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Qiymət sayı</p>
+                <p className="font-serif text-3xl font-bold text-gray-900 mt-1">{grades.length}</p>
+              </div>
+            </div>
 
-        <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
-          <Award className="w-4 h-4" />
-          Ümumi Ortalama
+            {/* Full-width progress bar */}
+            <div>
+              <div className="flex justify-between text-xs text-gray-400 mb-1.5">
+                <span>0</span>
+                <span>5</span>
+                <span>10</span>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                <div
+                  className={`h-3 rounded-full transition-all duration-700 ${gpaBarColor(overallAvg)}`}
+                  style={{ width: `${Math.min((overallAvg / 10) * 100, 100)}%` }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -227,43 +306,50 @@ export default function StudentGrades() {
           return (
             <button
               key={subject.id}
-              onClick={() =>
-                setSelectedSubject(isActive ? null : subject.id)
-              }
-              className={`text-left bg-white border rounded-xl overflow-hidden transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300 ${
+              onClick={() => setSelectedSubject(isActive ? null : subject.id)}
+              className={`text-left bg-white border rounded-2xl overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-300 ${
                 isActive
                   ? 'border-purple ring-2 ring-purple-200 -translate-y-0.5'
                   : 'border-border-soft hover:border-purple-mid hover:-translate-y-0.5'
               }`}
             >
-              {/* 3px colored top accent bar */}
-              <div className={`h-[3px] w-full ${accentBg}`} />
+              {/* 4px colored top accent bar */}
+              <div className={`h-1 w-full ${accentBg}`} />
 
               <div className="p-5 space-y-3">
                 {/* Subject name */}
-                <p className="font-semibold text-gray-900 text-sm leading-tight">
+                <p className="font-bold text-gray-900 text-sm leading-tight">
                   {subject.name}
                 </p>
 
-                {/* Average badge */}
-                <div className="flex items-center justify-between">
-                  <GradeBadge score={Math.round(avg * 10) / 10} />
+                {/* Average score — large with color */}
+                <div className="flex items-end justify-between">
+                  <span className={`font-serif text-4xl font-bold leading-none ${gpaTextColor(avg)}`}>
+                    {avg.toString().replace('.', ',')}
+                  </span>
                   <TrendIcon trend={trend} />
                 </div>
 
-                {/* Mini progress bar */}
-                <div className="bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                {/* Mini progress bar — taller h-2 */}
+                <div className="bg-gray-100 rounded-full h-2 overflow-hidden">
                   <div
-                    className={`h-1.5 rounded-full ${gpaBarColor(avg)}`}
+                    className={`h-2 rounded-full transition-all duration-500 ${gpaBarColor(avg)}`}
                     style={{ width: `${Math.min((avg / 10) * 100, 100)}%` }}
                   />
                 </div>
 
-                {/* Count */}
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <BarChart2 className="w-3 h-3" />
-                  {count} qiymətləndirmə
-                </p>
+                {/* Count badge */}
+                <div className="flex items-center justify-between">
+                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${gpaBorderColor(avg)} ${gpaBgLight(avg)} ${gpaTextColor(avg)}`}>
+                    <BarChart2 className="w-3 h-3" />
+                    {count} qiymət
+                  </span>
+                  {isActive && (
+                    <span className="text-[10px] font-semibold text-purple bg-purple-light px-2 py-0.5 rounded-full">
+                      Seçildi
+                    </span>
+                  )}
+                </div>
               </div>
             </button>
           )
@@ -274,33 +360,33 @@ export default function StudentGrades() {
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
         <button
           onClick={() => setSelectedSubject(null)}
-          className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap flex-shrink-0 ${
+          className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap flex-shrink-0 ${
             !selectedSubject
               ? 'border-purple bg-purple-light text-purple'
               : 'border-border-soft text-gray-500 hover:bg-surface'
           }`}
         >
+          {!selectedSubject && <Check className="w-3 h-3 mr-1" />}
           Hamısı
         </button>
         {uniqueSubjects.map(s => (
           <button
             key={s.id}
-            onClick={() =>
-              setSelectedSubject(selectedSubject === s.id ? null : s.id)
-            }
-            className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap flex-shrink-0 ${
+            onClick={() => setSelectedSubject(selectedSubject === s.id ? null : s.id)}
+            className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap flex-shrink-0 ${
               selectedSubject === s.id
                 ? 'border-purple bg-purple-light text-purple'
                 : 'border-border-soft text-gray-500 hover:bg-surface'
             }`}
           >
+            {selectedSubject === s.id && <Check className="w-3 h-3 mr-1" />}
             {s.name}
           </button>
         ))}
       </div>
 
       {/* ── Grade history table ── */}
-      <div className="bg-white border border-border-soft rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-border-soft rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
         <div className="px-6 py-4 border-b border-border-soft flex items-center gap-2">
           <BarChart2 className="w-4 h-4 text-gray-400" />
           <span className="font-semibold text-gray-700 text-sm">
@@ -336,15 +422,15 @@ export default function StudentGrades() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(g => {
+              {filtered.map((g, idx) => {
                 const _n = g.score != null ? normalize(g.score, g.max_score) : null
                 const norm = _n != null ? Math.round(_n * 10) / 10 : null
-                const borderClass =
-                  norm != null ? rowBorderColor(norm) : 'border-l-gray-200'
+                const borderClass = norm != null ? rowBorderColor(norm) : 'border-l-gray-200'
+                const isEven = idx % 2 === 1
                 return (
                   <tr
                     key={g.id}
-                    className={`border-b border-border-soft border-l-4 ${borderClass} hover:bg-surface transition-colors`}
+                    className={`border-b border-border-soft border-l-4 ${borderClass} hover:bg-purple-light/10 transition-colors ${isEven ? 'bg-surface/50' : 'bg-white'}`}
                   >
                     {/* Tarix */}
                     <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
@@ -367,9 +453,9 @@ export default function StudentGrades() {
                         <div className="flex flex-col items-center gap-1.5">
                           <GradeBadge score={norm} />
                           {/* Inline mini score bar */}
-                          <div className="w-16 bg-gray-100 rounded-full h-1 overflow-hidden">
+                          <div className="w-16 bg-gray-100 rounded-full h-1.5 overflow-hidden">
                             <div
-                              className={`h-1 rounded-full ${gpaBarColor(norm)}`}
+                              className={`h-1.5 rounded-full ${gpaBarColor(norm)}`}
                               style={{ width: `${Math.min((norm / 10) * 100, 100)}%` }}
                             />
                           </div>

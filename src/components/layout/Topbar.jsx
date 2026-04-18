@@ -102,11 +102,11 @@ export default function Topbar({ title, onMenuClick }) {
       <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={onMenuClick}
-          className="lg:hidden text-gray-500 hover:text-gray-900 p-1.5 rounded-lg hover:bg-surface transition-colors flex-shrink-0"
+          className="lg:hidden text-gray-500 hover:text-gray-900 p-1.5 rounded-lg hover:bg-surface transition-colors duration-150 flex-shrink-0"
         >
           <Menu className="w-5 h-5" />
         </button>
-        <h1 className="font-semibold text-base text-gray-900 truncate">{title}</h1>
+        <h1 className="font-serif text-lg text-gray-900 truncate">{title}</h1>
       </div>
 
       {/* Right: actions + avatar */}
@@ -123,7 +123,7 @@ export default function Topbar({ title, onMenuClick }) {
           >
             <Bell className="w-[18px] h-[18px]" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center ring-2 ring-white">
+              <span className="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center ring-2 ring-white animate-pulse">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -231,16 +231,18 @@ export default function Topbar({ title, onMenuClick }) {
         {/* Avatar + name */}
         <button
           onClick={() => navigate(profilePath)}
-          className="flex items-center gap-2.5 pl-1 pr-2 py-1.5 rounded-lg hover:bg-surface transition-colors"
+          className="group flex items-center gap-2.5 pl-1 pr-2 py-1.5 rounded-lg hover:bg-surface transition-colors duration-150"
         >
-          <Avatar name={profile?.full_name} color={profile?.avatar_color} size="sm" />
+          <div className="ring-2 ring-transparent group-hover:ring-purple/40 rounded-full transition-all duration-150">
+            <Avatar name={profile?.full_name} color={profile?.avatar_color} size="sm" />
+          </div>
           <div className="hidden sm:block text-left min-w-0">
             <p className="text-xs font-semibold text-gray-900 leading-tight truncate max-w-[120px]">
               {profile?.full_name}
             </p>
             <p className="text-[10px] text-gray-400 leading-tight">{roleLabel}</p>
           </div>
-          <ChevronDown className="w-3.5 h-3.5 text-gray-400 hidden sm:block flex-shrink-0" />
+          <ChevronDown className="w-3.5 h-3.5 text-gray-400 hidden sm:block flex-shrink-0 group-hover:text-purple transition-colors duration-150" />
         </button>
       </div>
     </header>

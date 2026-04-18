@@ -14,14 +14,73 @@ const MONTH_NAMES = [
 
 const DAY_HEADERS = ['B.e', 'Ç.a', 'Ç', 'C.a', 'C', 'Ş', 'B']
 
-function StatCard({ icon: Icon, value, label, iconBg, iconColor }) {
+// ─── SVG Ring percentage display ─────────────────────────────────────────────
+function AttendanceRing({ pct }) {
+  const radius = 70
+  const stroke = 10
+  const normalizedRadius = radius - stroke / 2
+  const circumference = normalizedRadius * 2 * Math.PI
+  const strokeDashoffset = circumference - (pct / 100) * circumference
+
+  const ringColor = pct >= 85 ? '#1D9E75' : pct >= 70 ? '#534AB7' : pct >= 50 ? '#D97706' : '#EF4444'
+  const textColor = pct >= 85 ? 'text-teal-700' : pct >= 70 ? 'text-purple' : pct >= 50 ? 'text-amber-600' : 'text-red-600'
+  const label    = pct >= 85 ? 'Mükəmməl' : pct >= 70 ? 'Yaxşı' : pct >= 50 ? 'Orta' : 'Aşağı'
+
   return (
-    <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-5 py-5 flex items-center gap-4">
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
+    <div className="flex flex-col items-center gap-3">
+      <div className="relative inline-flex items-center justify-center">
+        <svg width={radius * 2} height={radius * 2} className="-rotate-90">
+          {/* Background track */}
+          <circle
+            cx={radius}
+            cy={radius}
+            r={normalizedRadius}
+            fill="none"
+            stroke="#f3f4f6"
+            strokeWidth={stroke}
+          />
+          {/* Progress arc */}
+          <circle
+            cx={radius}
+            cy={radius}
+            r={normalizedRadius}
+            fill="none"
+            stroke={ringColor}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            strokeDasharray={`${circumference} ${circumference}`}
+            strokeDashoffset={strokeDashoffset}
+            className="transition-all duration-700"
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className={`font-serif text-4xl font-bold leading-none ${textColor}`}>{pct}%</span>
+          <span className="text-gray-400 text-xs font-medium mt-0.5">iştirak</span>
+        </div>
+      </div>
+      <span
+        className="text-xs font-semibold px-3 py-1 rounded-full"
+        style={{
+          backgroundColor: ringColor + '20',
+          color: ringColor,
+          border: `1px solid ${ringColor}40`,
+        }}
+      >
+        {label}
+      </span>
+    </div>
+  )
+}
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
+function StatCard({ icon: Icon, value, label, iconBg, iconColor, cardBg, pillBg, pillText }) {
+  return (
+    <div className={`rounded-2xl border border-border-soft shadow-sm hover:shadow-md transition-shadow px-5 py-5 flex items-center gap-4 ${cardBg || 'bg-white'}`}>
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
         <Icon className={`w-5 h-5 ${iconColor}`} />
       </div>
       <div>
-        <p className="text-2xl font-bold text-gray-900 leading-none">{value}</p>
+        <p className={`font-serif text-3xl font-bold leading-none ${pillText || 'text-gray-900'}`}>{value}</p>
         <p className="text-xs text-gray-400 mt-1 leading-tight">{label}</p>
       </div>
     </div>
@@ -72,24 +131,22 @@ export default function StudentAttendance() {
     )
 
   const present = records.filter(r => r.status === 'present').length
-  const absent = records.filter(r => r.status === 'absent').length
-  const late = records.filter(r => r.status === 'late').length
-  const pct = records.length ? Math.round((present / records.length) * 100) : 0
+  const absent  = records.filter(r => r.status === 'absent').length
+  const late    = records.filter(r => r.status === 'late').length
+  const pct     = records.length ? Math.round((present / records.length) * 100) : 0
 
   // Calendar logic
-  const year = currentMonth.getFullYear()
-  const month = currentMonth.getMonth()
+  const year     = currentMonth.getFullYear()
+  const month    = currentMonth.getMonth()
   const firstDay = new Date(year, month, 1)
-  const lastDay = new Date(year, month + 1, 0)
+  const lastDay  = new Date(year, month + 1, 0)
   // Monday-based week (0=Mon … 6=Sun)
   const startDow = (firstDay.getDay() + 6) % 7
 
   const recordMap = {}
-  records.forEach(r => {
-    recordMap[r.date] = r.status
-  })
+  records.forEach(r => { recordMap[r.date] = r.status })
 
-  const today = new Date()
+  const today    = new Date()
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 
   const calendarDays = []
@@ -101,14 +158,14 @@ export default function StudentAttendance() {
 
   function dayCellClass(cell) {
     if (!cell) return ''
-    const base = 'rounded-xl aspect-square flex items-center justify-center text-sm font-medium transition-colors relative'
-    const today = cell.dateStr === todayStr
+    const base = 'rounded-xl aspect-square flex items-center justify-center text-sm font-medium transition-all relative cursor-default'
+    const isToday = cell.dateStr === todayStr
     let color = ''
-    if (cell.status === 'present') color = 'bg-[#1D9E75] text-white font-bold'
-    else if (cell.status === 'absent') color = 'bg-red-500 text-white font-bold'
-    else if (cell.status === 'late') color = 'bg-amber-400 text-white font-bold'
-    else color = 'text-gray-400'
-    const ring = today ? ' ring-2 ring-purple ring-offset-1' : ''
+    if      (cell.status === 'present') color = 'bg-[#1D9E75] text-white font-bold shadow-sm'
+    else if (cell.status === 'absent')  color = 'bg-red-500 text-white font-bold shadow-sm'
+    else if (cell.status === 'late')    color = 'bg-amber-400 text-white font-bold shadow-sm'
+    else color = 'text-gray-400 hover:bg-surface'
+    const ring = isToday ? ' ring-2 ring-purple ring-offset-1' : ''
     return `${base} ${color}${ring}`
   }
 
@@ -117,45 +174,57 @@ export default function StudentAttendance() {
 
   return (
     <div className="space-y-8">
-      {/* Page header */}
-      <div>
-        <h1 className="font-serif text-4xl text-gray-900">Davamiyyət</h1>
+
+      {/* ── Page header ── */}
+      <h1 className="font-serif text-4xl text-gray-900">Davamiyyət</h1>
+
+      {/* ── Hero: Ring + Stats side-by-side ── */}
+      <div className="bg-white rounded-2xl border border-border-soft shadow-sm hover:shadow-md transition-shadow p-6">
+        <div className="flex flex-col sm:flex-row items-center gap-8">
+
+          {/* Attendance ring */}
+          <AttendanceRing pct={pct} />
+
+          {/* Divider */}
+          <div className="hidden sm:block w-px h-32 bg-border-soft" />
+
+          {/* Stats pills */}
+          <div className="flex-1 grid grid-cols-1 gap-3 w-full sm:w-auto">
+            <div className="flex items-center justify-between bg-teal-light rounded-xl px-4 py-3 border border-teal/20">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-teal flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-teal-800">İştirak</span>
+              </div>
+              <span className="font-serif text-2xl font-bold text-teal-700">{present} <span className="text-sm font-normal text-teal-600">gün</span></span>
+            </div>
+
+            <div className="flex items-center justify-between bg-red-50 rounded-xl px-4 py-3 border border-red-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-red-500 flex items-center justify-center flex-shrink-0">
+                  <XCircle className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-red-800">Qayıb</span>
+              </div>
+              <span className="font-serif text-2xl font-bold text-red-600">{absent} <span className="text-sm font-normal text-red-500">gün</span></span>
+            </div>
+
+            <div className="flex items-center justify-between bg-amber-50 rounded-xl px-4 py-3 border border-amber-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-amber-400 flex items-center justify-center flex-shrink-0">
+                  <Clock className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-amber-800">Gecikmə</span>
+              </div>
+              <span className="font-serif text-2xl font-bold text-amber-600">{late} <span className="text-sm font-normal text-amber-500">gün</span></span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* 4 Stats cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon={Calendar}
-          value={`${pct}%`}
-          label="İştirak %"
-          iconBg="bg-purple-light"
-          iconColor="text-purple"
-        />
-        <StatCard
-          icon={CheckCircle}
-          value={present}
-          label="İştirak günü"
-          iconBg="bg-[#E1F5EE]"
-          iconColor="text-[#1D9E75]"
-        />
-        <StatCard
-          icon={XCircle}
-          value={absent}
-          label="Qayıb"
-          iconBg="bg-red-50"
-          iconColor="text-red-500"
-        />
-        <StatCard
-          icon={Clock}
-          value={late}
-          label="Gecikmə"
-          iconBg="bg-[#faeeda]"
-          iconColor="text-[#633806]"
-        />
-      </div>
-
-      {/* Monthly calendar */}
-      <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-6 py-6">
+      {/* ── Monthly calendar ── */}
+      <div className="bg-white rounded-2xl border border-border-soft shadow-sm hover:shadow-md transition-shadow px-6 py-6">
         {/* Navigation header */}
         <div className="flex items-center justify-between mb-6">
           <button
@@ -184,7 +253,7 @@ export default function StudentAttendance() {
           ))}
         </div>
 
-        {/* Calendar grid */}
+        {/* Calendar grid — colored day chips */}
         <div className="grid grid-cols-7 gap-1">
           {calendarDays.map((cell, i) => (
             <div key={i} className={dayCellClass(cell)}>
@@ -194,30 +263,42 @@ export default function StudentAttendance() {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-4 mt-5 pt-4 border-t border-border-soft">
-          <span className="flex items-center gap-1.5 text-xs text-gray-500">
-            <span className="w-3 h-3 rounded-full bg-[#1D9E75] inline-block" />
+        <div className="flex items-center gap-5 mt-5 pt-4 border-t border-border-soft flex-wrap">
+          <span className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
+            <span className="w-3.5 h-3.5 rounded-full bg-[#1D9E75] inline-block" />
             İştirak
           </span>
-          <span className="flex items-center gap-1.5 text-xs text-gray-500">
-            <span className="w-3 h-3 rounded-full bg-red-500 inline-block" />
+          <span className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
+            <span className="w-3.5 h-3.5 rounded-full bg-red-500 inline-block" />
             Qayıb
           </span>
-          <span className="flex items-center gap-1.5 text-xs text-gray-500">
-            <span className="w-3 h-3 rounded-full bg-amber-400 inline-block" />
+          <span className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
+            <span className="w-3.5 h-3.5 rounded-full bg-amber-400 inline-block" />
             Gecikmə
+          </span>
+          <span className="flex items-center gap-1.5 text-xs text-gray-400">
+            <span className="w-3.5 h-3.5 rounded-full border-2 border-purple inline-block" />
+            Bu gün
           </span>
         </div>
       </div>
 
-      {/* Attendance log — only non-present days */}
-      <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-border-soft">
-          <h2 className="text-sm font-semibold text-gray-700">Buraxılmış dərslər</h2>
+      {/* ── Attendance log — only non-present days ── */}
+      <div className="bg-white rounded-2xl border border-border-soft shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+        <div className="px-6 py-4 border-b border-border-soft flex items-center justify-between">
+          <h2 className="font-semibold text-gray-900 text-sm">Buraxılmış dərslər</h2>
+          {missedRecords.length > 0 && (
+            <span className="text-xs text-gray-400">{missedRecords.length} qeyd</span>
+          )}
         </div>
+
         {missedRecords.length === 0 ? (
-          <div className="px-6 py-10 text-center text-sm text-gray-400">
-            Buraxılmış dərs yoxdur. Əla!
+          <div className="px-6 py-12 flex flex-col items-center gap-3 text-center">
+            <div className="w-12 h-12 bg-teal-light rounded-xl flex items-center justify-center">
+              <CheckCircle className="w-6 h-6 text-teal" />
+            </div>
+            <p className="text-sm font-semibold text-gray-700">Buraxılmış dərs yoxdur</p>
+            <p className="text-xs text-gray-400">Əla! Bütün dərslərə qatılmısınız.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -239,15 +320,16 @@ export default function StudentAttendance() {
                 </tr>
               </thead>
               <tbody>
-                {missedRecords.map(r => {
-                  const borderColor =
-                    r.status === 'absent'
-                      ? 'border-l-red-400'
-                      : 'border-l-amber-400'
+                {missedRecords.map((r, idx) => {
+                  const isAbsent = r.status === 'absent'
+                  const borderColor = isAbsent ? 'border-l-red-400' : 'border-l-amber-400'
+                  const rowBg = isAbsent
+                    ? (idx % 2 === 1 ? 'bg-red-50/40' : 'bg-white')
+                    : (idx % 2 === 1 ? 'bg-amber-50/40' : 'bg-white')
                   return (
                     <tr
                       key={r.id}
-                      className={`border-b border-border-soft last:border-0 hover:bg-surface transition-colors border-l-4 ${borderColor}`}
+                      className={`border-b border-border-soft last:border-0 hover:bg-surface transition-colors border-l-4 ${borderColor} ${rowBg}`}
                     >
                       <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
                         {fmtNumeric(r.date)}

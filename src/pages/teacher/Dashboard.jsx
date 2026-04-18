@@ -4,11 +4,11 @@ import {
   CalendarCheck, BookOpen, CheckCircle, Clock,
   Users, TrendingUp, TrendingDown, ChevronRight,
   Inbox, Activity, Bell, AlertCircle, Info,
-  PenLine, ClipboardList, BarChart2,
+  PenLine, ClipboardList, BarChart2, Star,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import { PageSpinner } from '../../components/ui/Spinner'
+import { DashboardSkeleton } from '../../components/ui/Skeleton'
 import Avatar from '../../components/ui/Avatar'
 import Badge from '../../components/ui/Badge'
 import { todayFull } from '../../lib/dateUtils'
@@ -236,56 +236,110 @@ export default function TeacherDashboard() {
     }
   }
 
-  if (loading) return <PageSpinner />
+  if (loading) return <DashboardSkeleton />
 
   const firstName = profile?.full_name?.split(' ')[0] || ''
 
   return (
     <div className="space-y-5">
 
-      {/* ── 1. Header ─────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">{todayLabel()}</p>
-          <h1 className="font-serif text-3xl text-gray-900 mt-0.5">
-            {greeting(t)}, {firstName}
-          </h1>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <QuickBtn icon={CalendarCheck} label={t('attendance')} onClick={() => navigate('/muellim/davamiyyet')} color="purple" />
-          <QuickBtn icon={BookOpen}      label={t('gradebook')}  onClick={() => navigate('/muellim/jurnal')}     color="teal"   />
-          <QuickBtn icon={PenLine}       label="Tapşırıq"        onClick={() => navigate('/muellim/tapshiriqlar')} color="amber" />
+      {/* ── 1. Gradient welcome header card ──────────────────────────────── */}
+      <div className="relative overflow-hidden rounded-2xl border border-border-soft shadow-sm"
+        style={{ background: 'linear-gradient(135deg, #534AB7 0%, #6d63cc 50%, #1D9E75 100%)' }}
+      >
+        {/* Decorative circles */}
+        <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5" />
+        <div className="absolute -bottom-10 -left-6 w-32 h-32 rounded-full bg-white/5" />
+
+        <div className="relative flex items-center justify-between flex-wrap gap-4 px-6 py-5">
+          <div>
+            <p className="text-xs text-white/60 uppercase tracking-widest font-medium">{todayLabel()}</p>
+            <h1 className="font-serif text-3xl text-white mt-1">
+              {greeting(t)}, {firstName}
+            </h1>
+            {todaySlots.length > 0 && (
+              <p className="text-sm text-white/70 mt-1.5 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5" />
+                Bu gün {todaySlots.length} dərs var
+              </p>
+            )}
+          </div>
+
+          {/* Quick action buttons */}
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => navigate('/muellim/davamiyyet')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-sm font-semibold transition-all backdrop-blur-sm"
+            >
+              <CalendarCheck className="w-4 h-4" /> {t('attendance')}
+            </button>
+            <button
+              onClick={() => navigate('/muellim/jurnal')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-sm font-semibold transition-all backdrop-blur-sm"
+            >
+              <BookOpen className="w-4 h-4" /> {t('gradebook')}
+            </button>
+            <button
+              onClick={() => navigate('/muellim/tapshiriqlar')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-purple text-sm font-semibold transition-all hover:bg-white/90"
+            >
+              <PenLine className="w-4 h-4" /> Tapşırıq
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ── 2. Mini stats ────────────────────────────────────────────────── */}
+      {/* ── 2. Stats row ─────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white rounded-xl border border-border-soft shadow-sm px-4 py-3.5">
-          <p className="text-[11px] text-gray-400 font-medium">Cəmi Şagird</p>
-          <p className="text-2xl font-bold text-gray-900 mt-0.5">{studentCount}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-border-soft shadow-sm px-4 py-3.5">
-          <p className="text-[11px] text-gray-400 font-medium">Həftəlik Davamiyyət</p>
-          <div className="flex items-end gap-1.5 mt-0.5">
-            <p className={`text-2xl font-bold ${weekAttendance >= 85 ? 'text-gray-900' : 'text-red-600'}`}>{weekAttendance}<span className="text-base">%</span></p>
-            {weekAttendance >= 85
-              ? <TrendingUp className="w-3.5 h-3.5 text-teal mb-1" />
-              : <TrendingDown className="w-3.5 h-3.5 text-red-400 mb-1" />
-            }
+        {/* Classes today */}
+        <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-4 py-4 flex items-start gap-3">
+          <span className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0">
+            <Clock className="w-5 h-5 text-purple" />
+          </span>
+          <div>
+            <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wide">Bu günki dərs</p>
+            <p className="font-serif text-2xl font-bold text-gray-900 mt-0.5 leading-none">{todaySlots.length}</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-border-soft shadow-sm px-4 py-3.5">
-          <p className="text-[11px] text-gray-400 font-medium">Qiymətləndirilməyən</p>
-          <p className={`text-2xl font-bold mt-0.5 ${submissions.length > 0 ? 'text-red-600' : 'text-gray-900'}`}>{submissions.length}</p>
+        {/* Pending submissions */}
+        <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-4 py-4 flex items-start gap-3">
+          <span className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${submissions.length > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
+            <Inbox className={`w-5 h-5 ${submissions.length > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+          </span>
+          <div>
+            <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wide">Gözləyən</p>
+            <p className={`font-serif text-2xl font-bold mt-0.5 leading-none ${submissions.length > 0 ? 'text-red-600' : 'text-gray-900'}`}>{submissions.length}</p>
+          </div>
         </div>
-        <div className="bg-white rounded-xl border border-border-soft shadow-sm px-4 py-3.5">
-          <p className="text-[11px] text-gray-400 font-medium">Aktiv Tapşırıq</p>
-          <p className="text-2xl font-bold text-gray-900 mt-0.5">{assignments.length}</p>
+        {/* Students */}
+        <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-4 py-4 flex items-start gap-3">
+          <span className="w-10 h-10 rounded-xl bg-teal-light flex items-center justify-center flex-shrink-0">
+            <Users className="w-5 h-5 text-teal" />
+          </span>
+          <div>
+            <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wide">Cəmi Şagird</p>
+            <p className="font-serif text-2xl font-bold text-gray-900 mt-0.5 leading-none">{studentCount}</p>
+          </div>
+        </div>
+        {/* Weekly attendance */}
+        <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-4 py-4 flex items-start gap-3">
+          <span className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${weekAttendance >= 85 ? 'bg-teal-light' : 'bg-red-50'}`}>
+            {weekAttendance >= 85
+              ? <TrendingUp className="w-5 h-5 text-teal" />
+              : <TrendingDown className="w-5 h-5 text-red-400" />
+            }
+          </span>
+          <div>
+            <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wide">Həftəlik dav.</p>
+            <p className={`font-serif text-2xl font-bold mt-0.5 leading-none ${weekAttendance >= 85 ? 'text-gray-900' : 'text-red-600'}`}>
+              {weekAttendance}<span className="text-sm font-semibold text-gray-400">%</span>
+            </p>
+          </div>
         </div>
       </div>
 
       {/* ── 3. Today's timetable strip ──────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-purple" />
@@ -369,7 +423,7 @@ export default function TeacherDashboard() {
         <div className="lg:col-span-8 space-y-5">
 
           {/* Gözləyən Qiymətləndirmə */}
-          <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
             <div className="flex items-center gap-2 px-5 py-3.5 border-b border-border-soft">
               <Inbox className="w-4 h-4 text-purple" />
               <h2 className="font-semibold text-gray-900 text-sm">{t('pending_grading')}</h2>
@@ -389,38 +443,55 @@ export default function TeacherDashboard() {
             </div>
             {submissions.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-                <CheckCircle className="w-8 h-8 text-teal opacity-60" />
-                <p className="text-sm text-gray-400">{t('all_graded')}</p>
+                <div className="w-14 h-14 rounded-full bg-teal-light flex items-center justify-center">
+                  <CheckCircle className="w-7 h-7 text-teal" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">{t('all_graded')}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Bütün cavablar qiymətləndirilib</p>
+                </div>
               </div>
             ) : (
               <ul className="divide-y divide-border-soft">
-                {submissions.map(sub => (
-                  <li
-                    key={sub.id}
-                    className="flex items-center gap-3 px-5 py-3 hover:bg-surface/50 transition-colors cursor-pointer"
-                    onClick={() => navigate('/muellim/tapshiriqlar')}
-                  >
-                    <Avatar name={sub.student?.full_name || '?'} size="sm" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{sub.student?.full_name}</p>
-                      <p className="text-xs text-gray-500 mt-0.5 truncate">{sub.assignment?.title}</p>
-                    </div>
-                    {sub.assignment?.subject?.name && (
-                      <Badge variant="default" className="flex-shrink-0 hidden sm:inline-flex">
-                        {sub.assignment.subject.name}
-                      </Badge>
-                    )}
-                    <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
-                      {timeAgo(sub.submitted_at)}
-                    </span>
-                  </li>
-                ))}
+                {submissions.map(sub => {
+                  const initials = (sub.student?.full_name || '?')
+                    .split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+                  return (
+                    <li
+                      key={sub.id}
+                      className="flex items-center gap-3 px-5 py-3.5 hover:bg-surface/50 transition-colors cursor-pointer group"
+                      onClick={() => navigate('/muellim/tapshiriqlar')}
+                    >
+                      {/* Initials avatar circle */}
+                      <div className="w-9 h-9 rounded-full bg-purple-light flex items-center justify-center flex-shrink-0 text-purple font-bold text-xs">
+                        {initials}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{sub.student?.full_name}</p>
+                        <p className="text-xs text-gray-500 mt-0.5 truncate">{sub.assignment?.title}</p>
+                      </div>
+                      {sub.assignment?.subject?.name && (
+                        <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-light text-purple flex-shrink-0">
+                          {sub.assignment.subject.name}
+                        </span>
+                      )}
+                      <div className="flex-shrink-0 text-right">
+                        <span className="text-[11px] text-gray-400 whitespace-nowrap block">
+                          {timeAgo(sub.submitted_at)}
+                        </span>
+                        <span className="text-[10px] text-purple font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                          Qiymətləndir →
+                        </span>
+                      </div>
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </div>
 
           {/* Tapşırıq Son Tarixləri */}
-          <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
             <div className="flex items-center gap-2 px-5 py-3.5 border-b border-border-soft">
               <ClipboardList className="w-4 h-4 text-teal" />
               <h2 className="font-semibold text-gray-900 text-sm">{t('assignment_deadlines')}</h2>
@@ -511,7 +582,7 @@ export default function TeacherDashboard() {
         <div className="lg:col-span-4 space-y-5">
 
           {/* Week stats */}
-          <div className="bg-white rounded-xl border border-border-soft shadow-sm p-5 space-y-4">
+          <div className="bg-white rounded-2xl border border-border-soft shadow-sm p-5 space-y-4">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{t('this_weeks_stats')}</p>
 
             <div className="flex items-center justify-between">
@@ -554,7 +625,7 @@ export default function TeacherDashboard() {
           </div>
 
           {/* Bildirişlər */}
-          <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
             <div className="flex items-center gap-2 px-5 py-3.5 border-b border-border-soft">
               <Bell className="w-4 h-4 text-purple" />
               <h2 className="font-semibold text-gray-900 text-sm">{t('teacher_notifications')}</h2>

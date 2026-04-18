@@ -26,6 +26,9 @@ import {
   AlertCircle,
   Save,
   Trash2,
+  Calendar,
+  Users,
+  BookOpen,
 } from 'lucide-react'
 
 // ── Subject colour palette ────────────────────────────────────────────────────
@@ -114,52 +117,94 @@ function SubStatusBadge({ status }) {
   )
 }
 
+// ── Assignment status helpers ─────────────────────────────────────────────────
+
+function getAssignmentStatus(assignment) {
+  if (!assignment.due_date) return 'active'
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  const due = new Date(assignment.due_date)
+  due.setHours(0, 0, 0, 0)
+  const diff = Math.round((due - now) / 86400000)
+  if (diff < 0) return 'overdue'
+  const allGraded = assignment.submissionCount > 0 &&
+    assignment.ungradedCount === 0 &&
+    assignment.submissionCount === assignment.totalStudents
+  if (allGraded) return 'completed'
+  return 'active'
+}
+
+const STATUS_LEFT_BORDER = {
+  overdue:   'border-l-red-500',
+  active:    'border-l-[#534AB7]',
+  completed: 'border-l-[#1D9E75]',
+}
+
+const STATUS_BADGE = {
+  overdue:   { cls: 'bg-red-50 text-red-600',    label: 'Gecikib'  },
+  active:    { cls: 'bg-purple-light text-purple', label: 'Aktiv'   },
+  completed: { cls: 'bg-teal-light text-teal',    label: 'Tamamlandı' },
+}
+
 // ── Assignment card ───────────────────────────────────────────────────────────
 
 function AssignmentCard({ assignment, onClick, onDelete }) {
-  const subjectName = assignment.subject?.name || ''
-  const className   = assignment.class?.name   || ''
-  const topColor    = subjectTopColor(subjectName)
+  const subjectName   = assignment.subject?.name || ''
+  const className     = assignment.class?.name   || ''
   const ungradedCount = assignment.ungradedCount || 0
+  const status        = getAssignmentStatus(assignment)
+  const borderCls     = STATUS_LEFT_BORDER[status]
+  const statusBadge   = STATUS_BADGE[status]
+
+  const submitted  = assignment.submissionCount || 0
+  const total      = assignment.totalStudents   || 0
+  const pct        = total > 0 ? Math.round((submitted / total) * 100) : 0
 
   return (
     <div
-      className="bg-white rounded-xl border border-border-soft shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden flex flex-col"
+      className={`bg-white rounded-2xl border border-border-soft border-l-4 ${borderCls} shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden flex flex-col`}
       onClick={() => onClick(assignment)}
     >
-      {/* Colour bar */}
-      <div className={`h-1 w-full ${topColor}`} />
-
-      {/* Card body */}
       <div className="p-5 flex flex-col flex-1">
 
-        {/* Top row: badges + due date + delete */}
+        {/* Top row: status badge + delete */}
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-wrap">
-            {subjectName && <Badge variant="default">{subjectName}</Badge>}
-            {className   && <Badge variant="national">{className}</Badge>}
+            {/* Status indicator */}
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wide ${statusBadge.cls}`}>
+              {statusBadge.label}
+            </span>
+            {/* Subject chip */}
+            {subjectName && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600">
+                <BookOpen className="w-2.5 h-2.5" />
+                {subjectName}
+              </span>
+            )}
+            {className && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-600">
+                {className}
+              </span>
+            )}
           </div>
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <DueDateChip dueDate={assignment.due_date} />
-            <button
-              onClick={e => { e.stopPropagation(); onDelete(assignment) }}
-              className="p-1 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
-              aria-label="Sil"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          <button
+            onClick={e => { e.stopPropagation(); onDelete(assignment) }}
+            className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+            aria-label="Sil"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {/* Title */}
-        <h3 className="text-base font-semibold text-gray-900 leading-snug mb-1">
+        <h3 className="text-base font-semibold text-gray-900 leading-snug mb-1.5">
           {assignment.title}
         </h3>
 
         {/* Description — 2-line clamp */}
         {assignment.description && (
           <p
-            className="text-sm text-gray-500 leading-relaxed mb-auto"
+            className="text-sm text-gray-500 leading-relaxed"
             style={{
               display: '-webkit-box',
               WebkitLineClamp: 2,
@@ -171,19 +216,34 @@ function AssignmentCard({ assignment, onClick, onDelete }) {
           </p>
         )}
 
-        {/* Spacer so bar always sits at bottom */}
         <div className="flex-1" />
 
+        {/* Due date + submission badge row */}
+        <div className="flex items-center justify-between mt-4 mb-3 gap-2 flex-wrap">
+          <DueDateChip dueDate={assignment.due_date} />
+          {/* Submission count badge */}
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-surface text-gray-600 border border-border-soft">
+            <Users className="w-3 h-3" />
+            {submitted}/{total} təhvil
+          </span>
+        </div>
+
         {/* Progress bar */}
-        <SubmissionBar
-          submitted={assignment.submissionCount}
-          total={assignment.totalStudents}
-        />
+        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${
+              status === 'overdue'   ? 'bg-red-400'  :
+              status === 'completed' ? 'bg-teal'     :
+              'bg-purple'
+            }`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
 
         {/* Footer row */}
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-soft">
-          <span className="text-xs text-gray-500">
-            {assignment.submissionCount}/{assignment.totalStudents} şagird təhvil verib
+          <span className="text-xs text-gray-400">
+            {pct}% tamamlandı
           </span>
           <div className="flex items-center gap-2">
             {ungradedCount > 0 && (
@@ -192,7 +252,7 @@ function AssignmentCard({ assignment, onClick, onDelete }) {
               </span>
             )}
             <button
-              className="flex items-center gap-1 text-xs font-medium text-purple hover:text-purple-dark transition-colors"
+              className="flex items-center gap-1 text-xs font-semibold text-purple hover:text-purple-dark transition-colors"
               onClick={e => { e.stopPropagation(); onClick(assignment) }}
             >
               <Eye className="w-3.5 h-3.5" />
@@ -705,13 +765,36 @@ export default function TeacherAssignments() {
 
       {/* ── Assignment grid ──────────────────────────────────────────────────── */}
       {filteredAssignments.length === 0 ? (
-        <EmptyState
-          icon={ClipboardList}
-          title="Tapşırıq yoxdur"
-          description="Yeni tapşırıq yaradın"
-          actionLabel="Yeni tapşırıq"
-          onAction={() => setShowNewModal(true)}
-        />
+        <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
+          <div className="w-20 h-20 rounded-2xl bg-purple-light flex items-center justify-center shadow-sm">
+            <ClipboardList className="w-10 h-10 text-purple opacity-60" />
+          </div>
+          <div>
+            <p className="text-base font-semibold text-gray-700">
+              {activeFilter === 'all'
+                ? 'Hələ tapşırıq əlavə edilməyib'
+                : activeFilter === 'active'
+                ? 'Aktiv tapşırıq yoxdur'
+                : activeFilter === 'ungraded'
+                ? 'Qiymətləndirilməmiş tapşırıq yoxdur'
+                : 'Bitmiş tapşırıq yoxdur'}
+            </p>
+            <p className="text-sm text-gray-400 mt-1 max-w-xs mx-auto">
+              {activeFilter === 'all'
+                ? 'Şagirdlərə tapşırıq vermək üçün "Yeni tapşırıq" düyməsinə basın'
+                : 'Filteri dəyişdirərək digər tapşırıqlara baxa bilərsiniz'}
+            </p>
+          </div>
+          {activeFilter === 'all' && (
+            <button
+              onClick={() => setShowNewModal(true)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-purple text-white rounded-xl text-sm font-semibold hover:bg-purple/90 transition-colors shadow-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Yeni tapşırıq
+            </button>
+          )}
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredAssignments.map(a => (
@@ -877,59 +960,87 @@ export default function TeacherAssignments() {
 
             {/* Submissions list */}
             {detailSubmissions.length === 0 ? (
-              <p className="text-center py-10 text-sm text-gray-400">
-                Hələ təhvil verilmiş cavab yoxdur
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-surface flex items-center justify-center border border-border-soft">
+                  <ClipboardList className="w-8 h-8 text-gray-300" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">Hələ heç bir cavab yoxdur</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Şagirdlər tapşırığı təhvil verdikdə burada görünəcək
+                  </p>
+                </div>
+              </div>
             ) : (
               <div className="space-y-4">
                 {detailSubmissions.map(sub => {
-                  const status = gradeStatus[sub.id]
+                  const status   = gradeStatus[sub.id]
+                  const initials = (sub.student?.full_name || '?')
+                    .split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+                  const submittedTime = sub.submitted_at
+                    ? new Date(sub.submitted_at).toLocaleString('az-AZ', {
+                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                      })
+                    : null
                   return (
                     <div
                       key={sub.id}
-                      className="border border-border-soft rounded-xl overflow-hidden"
+                      className="border border-border-soft rounded-2xl overflow-hidden shadow-sm"
                     >
                       {/* Student header row */}
-                      <div className="flex items-center justify-between gap-3 px-4 py-3 bg-surface/60">
+                      <div className="flex items-center justify-between gap-3 px-4 py-3.5 bg-surface/60 border-b border-border-soft">
                         <div className="flex items-center gap-3">
-                          <Avatar name={sub.student?.full_name || '?'} size="sm" />
-                          <span className="text-sm font-semibold text-gray-900">
-                            {sub.student?.full_name}
-                          </span>
+                          {/* Initials avatar */}
+                          <div className="w-9 h-9 rounded-full bg-purple-light flex items-center justify-center flex-shrink-0 text-purple font-bold text-xs">
+                            {initials}
+                          </div>
+                          <div className="min-w-0">
+                            <span className="text-sm font-semibold text-gray-900 block">
+                              {sub.student?.full_name}
+                            </span>
+                            {submittedTime && (
+                              <span className="text-[11px] text-gray-400 flex items-center gap-1 mt-0.5">
+                                <Clock className="w-2.5 h-2.5" />
+                                {submittedTime}
+                              </span>
+                            )}
+                          </div>
                           <SubStatusBadge status={sub.status} />
                         </div>
 
-                        {/* Score input + feedback */}
+                        {/* Inline grade input */}
                         <div className="flex items-center gap-2 flex-shrink-0">
                           {status === 'saved' && (
-                            <span className="flex items-center gap-1 text-xs text-teal font-medium">
-                              <Check className="w-3.5 h-3.5" /> Saxlandı
+                            <span className="flex items-center gap-1 text-xs text-teal font-semibold bg-teal-light px-2 py-0.5 rounded-full">
+                              <Check className="w-3 h-3" /> Saxlandı
                             </span>
                           )}
                           {status === 'error' && (
-                            <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                              <AlertCircle className="w-3.5 h-3.5" /> Xəta
+                            <span className="flex items-center gap-1 text-xs text-red-500 font-semibold bg-red-50 px-2 py-0.5 rounded-full">
+                              <AlertCircle className="w-3 h-3" /> Xəta
                             </span>
                           )}
-                          <input
-                            key={sub.id}
-                            type="number"
-                            min={0}
-                            max={selectedAssignment?.max_score || 10}
-                            defaultValue={sub.score ?? ''}
-                            placeholder="—"
-                            className={`w-16 border rounded-md px-2 py-1.5 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple transition-colors ${
-                              status === 'saving' ? 'border-purple bg-purple-light/30' :
-                              status === 'saved'  ? 'border-teal bg-teal-light'        :
-                              status === 'error'  ? 'border-red-300 bg-red-50'         :
-                              'border-border-soft'
-                            }`}
-                            onBlur={e => gradeSubmission(sub.id, e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-                          />
-                          <span className="text-xs text-gray-400 font-medium">
-                            / {selectedAssignment?.max_score}
-                          </span>
+                          <div className="flex items-center gap-1.5 bg-white border border-border-soft rounded-xl px-3 py-1.5 shadow-sm">
+                            <input
+                              key={sub.id}
+                              type="number"
+                              min={0}
+                              max={selectedAssignment?.max_score || 10}
+                              defaultValue={sub.score ?? ''}
+                              placeholder="—"
+                              className={`w-12 text-sm text-center font-bold focus:outline-none bg-transparent transition-colors ${
+                                status === 'saving' ? 'text-purple' :
+                                status === 'saved'  ? 'text-teal'   :
+                                status === 'error'  ? 'text-red-500' :
+                                'text-gray-900'
+                              }`}
+                              onBlur={e => gradeSubmission(sub.id, e.target.value)}
+                              onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+                            />
+                            <span className="text-xs text-gray-400 font-medium">
+                              / {selectedAssignment?.max_score}
+                            </span>
+                          </div>
                         </div>
                       </div>
 

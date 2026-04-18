@@ -8,6 +8,24 @@ import Modal from '../../components/ui/Modal'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 
+// Deterministically pick one of 8 palette entries based on subject name
+const SUBJECT_PALETTE = [
+  { bg: 'bg-[#EDE9FF]', text: 'text-[#534AB7]', dot: '#534AB7' },
+  { bg: 'bg-[#D1FAF0]', text: 'text-[#0D6B52]', dot: '#1D9E75' },
+  { bg: 'bg-[#FEF3C7]', text: 'text-[#92400E]', dot: '#D97706' },
+  { bg: 'bg-[#DBEAFE]', text: 'text-[#1E40AF]', dot: '#3B82F6' },
+  { bg: 'bg-[#FCE7F3]', text: 'text-[#9D174D]', dot: '#EC4899' },
+  { bg: 'bg-[#FEE2E2]', text: 'text-[#991B1B]', dot: '#EF4444' },
+  { bg: 'bg-[#E0F2FE]', text: 'text-[#0C4A6E]', dot: '#0EA5E9' },
+  { bg: 'bg-[#F3F4F6]', text: 'text-[#374151]', dot: '#6B7280' },
+]
+
+function subjectColor(name = '') {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return SUBJECT_PALETTE[Math.abs(hash) % SUBJECT_PALETTE.length]
+}
+
 export default function AdminSubjects() {
   const { profile } = useAuth()
   const [loading, setLoading]     = useState(true)
@@ -21,6 +39,7 @@ export default function AdminSubjects() {
   const [form, setForm]           = useState({ name: '', name_az: '' })
   const [saving, setSaving]       = useState(false)
   const [error, setError]         = useState(null)
+  const [classCounts, setClassCounts] = useState({}) // subject_id -> count
 
   function handleSort(key) {
     if (sortKey === key) {
@@ -37,12 +56,19 @@ export default function AdminSubjects() {
 
   async function fetchSubjects() {
     setLoading(true)
-    const { data } = await supabase
-      .from('subjects')
-      .select('*')
-      .eq('school_id', profile.school_id)
-      .order('name')
-    setSubjects(data || [])
+    const [subjectsRes, timetableRes] = await Promise.all([
+      supabase.from('subjects').select('*').eq('school_id', profile.school_id).order('name'),
+      supabase.from('timetable').select('subject_id').eq('school_id', profile.school_id),
+    ])
+    const subs = subjectsRes.data || []
+    setSubjects(subs)
+
+    // Count how many timetable entries (proxy for class usage) each subject has
+    const counts = {}
+    for (const row of (timetableRes.data || [])) {
+      if (row.subject_id) counts[row.subject_id] = (counts[row.subject_id] || 0) + 1
+    }
+    setClassCounts(counts)
     setLoading(false)
   }
 
@@ -129,7 +155,7 @@ export default function AdminSubjects() {
           placeholder="Fənn axtar..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full border border-border-soft rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+          className="w-full border border-border-soft rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple/20 focus:border-purple/40 transition-shadow"
         />
       </div>
 
@@ -173,39 +199,50 @@ export default function AdminSubjects() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border-soft">
-              {filtered.map(sub => (
-                <tr key={sub.id} className="hover:bg-surface/50 transition-colors">
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-lg bg-purple-light flex items-center justify-center flex-shrink-0">
-                        <BookOpen className="w-4 h-4 text-purple" />
-                      </span>
-                      <span className="font-semibold text-gray-900">{sub.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-500 hidden sm:table-cell">
-                    {sub.name_az || <span className="text-gray-300 italic">—</span>}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => openEdit(sub)}
-                        className="p-1.5 text-gray-400 hover:text-purple transition-colors rounded-lg hover:bg-purple-light"
-                        aria-label="Redaktə et"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteModal(sub)}
-                        className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
-                        aria-label="Sil"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {filtered.map(sub => {
+                const palette = subjectColor(sub.name)
+                const usageCount = classCounts[sub.id] || 0
+                return (
+                  <tr key={sub.id} className="hover:bg-purple-light/20 transition-colors duration-100">
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <span className={`w-9 h-9 rounded-xl ${palette.bg} flex items-center justify-center flex-shrink-0`}>
+                          <BookOpen className="w-4 h-4" style={{ color: palette.dot }} />
+                        </span>
+                        <div>
+                          <span className="font-semibold text-gray-900">{sub.name}</span>
+                          {usageCount > 0 && (
+                            <span className={`ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${palette.bg} ${palette.text}`}>
+                              {usageCount} dərs
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-5 py-3.5 text-gray-500 hidden sm:table-cell">
+                      {sub.name_az || <span className="text-gray-300 italic">—</span>}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => openEdit(sub)}
+                          className="p-1.5 text-gray-400 hover:text-purple transition-colors rounded-lg hover:bg-purple-light"
+                          aria-label="Redaktə et"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteModal(sub)}
+                          className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
+                          aria-label="Sil"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

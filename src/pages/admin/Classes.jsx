@@ -10,8 +10,6 @@ import Modal from '../../components/ui/Modal'
 import Table from '../../components/ui/Table'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
-import Avatar from '../../components/ui/Avatar'
-import Badge from '../../components/ui/Badge'
 
 export default function Classes() {
   const { profile, t } = useAuth()
@@ -159,12 +157,24 @@ export default function Classes() {
   if (selectedClass) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <button onClick={() => setSelectedClass(null)} className="p-2 text-gray-400 hover:text-gray-600 transition-colors" aria-label="Geri">
+        <div className="flex items-center gap-4 flex-wrap">
+          <button
+            onClick={() => setSelectedClass(null)}
+            className="p-2 text-gray-400 hover:text-purple transition-colors rounded-lg hover:bg-purple-light"
+            aria-label="Geri"
+          >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="font-serif text-3xl text-gray-900">{selectedClass.name}</h1>
-          <Badge variant="default">{classStudents.length} {t('students')}</Badge>
+          <div>
+            <h1 className="font-serif text-3xl text-gray-900">{selectedClass.name}</h1>
+            {selectedClass.grade_level && (
+              <p className="text-sm text-gray-400 mt-0.5">{selectedClass.grade_level}-ci sinif</p>
+            )}
+          </div>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold bg-teal-light text-[#085041]">
+            <Users className="w-4 h-4" />
+            {classStudents.length} {t('students')}
+          </span>
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -218,21 +228,48 @@ export default function Classes() {
               {
                 key: 'full_name',
                 label: t('full_name'),
-                render: (val) => (
-                  <div className="flex items-center gap-3">
-                    <Avatar name={val} size="sm" />
-                    <span className="font-medium text-gray-900">{val}</span>
-                  </div>
-                ),
+                render: (val, row) => {
+                  // Generate initials and a stable color from the name
+                  const parts = (val || '').split(' ').filter(Boolean)
+                  const initials = parts.length >= 2
+                    ? parts[0][0] + parts[parts.length - 1][0]
+                    : (parts[0]?.[0] || '?')
+                  const colors = [
+                    'bg-[#EDE9FF] text-[#534AB7]',
+                    'bg-[#D1FAF0] text-[#0D6B52]',
+                    'bg-[#DBEAFE] text-[#1E40AF]',
+                    'bg-[#FEF3C7] text-[#92400E]',
+                    'bg-[#FCE7F3] text-[#9D174D]',
+                    'bg-[#FEE2E2] text-[#991B1B]',
+                  ]
+                  let hash = 0
+                  for (const c of (val || '')) hash = c.charCodeAt(0) + ((hash << 5) - hash)
+                  const colorClass = colors[Math.abs(hash) % colors.length]
+                  return (
+                    <div className="flex items-center gap-3">
+                      <span className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 uppercase ${colorClass}`}>
+                        {initials.toUpperCase()}
+                      </span>
+                      <div>
+                        <p className="font-medium text-gray-900">{val}</p>
+                        <p className="text-xs text-gray-400">{row.email}</p>
+                      </div>
+                    </div>
+                  )
+                },
               },
-              { key: 'email', label: t('email') },
+              {
+                key: 'email',
+                label: t('email'),
+                render: () => null, // email shown in name cell — hide duplicate
+              },
               {
                 key: 'actions',
                 label: '',
                 render: (_, row) => (
                   <button
                     onClick={() => removeStudentFromClass(row.id)}
-                    className="p-1.5 text-gray-400 hover:text-red-600 transition-colors"
+                    className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
                     aria-label="Sil"
                   >
                     <X className="w-4 h-4" />
@@ -263,23 +300,45 @@ export default function Classes() {
         <EmptyState icon={BookOpen} title={t('no_data')} description={t('add')} actionLabel={t('add')} onAction={() => setAddModal(true)} />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {classes.map(cls => (
-            <Card key={cls.id} className="cursor-pointer" onClick={() => openClassDetail(cls)}>
-              <h3 className="font-serif text-xl text-gray-900 mb-4">{cls.name}</h3>
-              <div className="space-y-2">
-                {cls.grade_level && (
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <BookOpen className="w-4 h-4" />
-                    <span>Səviyyə: {cls.grade_level}</span>
+          {classes.map(cls => {
+            const teacher = teachers.find(tc => tc.id === cls.teacher_id)
+            return (
+              <Card key={cls.id} className="cursor-pointer group" onClick={() => openClassDetail(cls)}>
+                {/* Card header accent */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0 group-hover:bg-purple/20 transition-colors">
+                    <BookOpen className="w-5 h-5 text-purple" />
                   </div>
-                )}
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Users className="w-4 h-4" />
-                  <span>{cls.student_count} {t('students')}</span>
+                  {/* Student count pill */}
+                  <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold
+                    ${cls.student_count > 0 ? 'bg-teal-light text-[#085041]' : 'bg-surface text-gray-500'}`}>
+                    <Users className="w-3 h-3" />
+                    {cls.student_count}
+                  </span>
                 </div>
-              </div>
-            </Card>
-          ))}
+
+                <h3 className="font-serif text-xl text-gray-900 mb-3">{cls.name}</h3>
+
+                <div className="flex flex-wrap gap-2">
+                  {cls.grade_level && (
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-surface text-gray-600 border border-border-soft">
+                      {cls.grade_level}-ci sinif
+                    </span>
+                  )}
+                  {teacher && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-light text-purple-dark border border-[#AFA9EC]">
+                      {teacher.full_name}
+                    </span>
+                  )}
+                  {!teacher && (
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-surface text-gray-400 border border-border-soft italic">
+                      Müəllim yoxdur
+                    </span>
+                  )}
+                </div>
+              </Card>
+            )
+          })}
         </div>
       )}
 

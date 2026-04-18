@@ -194,17 +194,22 @@ export default function SuperAdminDashboard() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard label="Ümumi məktəblər" value={stats.schools} icon={School} />
-        <StatCard label="Ümumi şagirdlər" value={stats.students} icon={Users} />
-        <StatCard label="Ümumi müəllimlər" value={stats.teachers} icon={GraduationCap} />
-        <StatCard label="Ümumi valideynlər" value={stats.parents} icon={Heart} />
+        <StatCard label="Ümumi məktəblər"  value={stats.schools}  icon={School}       iconBg="bg-purple-light" iconColor="text-purple" />
+        <StatCard label="Ümumi şagirdlər"  value={stats.students} icon={Users}        iconBg="bg-teal-light"   iconColor="text-teal" />
+        <StatCard label="Ümumi müəllimlər" value={stats.teachers} icon={GraduationCap} iconBg="bg-blue-50"     iconColor="text-blue-500" />
+        <StatCard label="Ümumi valideynlər" value={stats.parents} icon={Heart}        iconBg="bg-pink-50"      iconColor="text-pink-500" />
       </div>
 
       {/* Recent schools */}
       <Card hover={false}>
         <div className="flex items-center gap-3 mb-6">
-          <School className="w-5 h-5 text-purple-mid" />
-          <h2 className="font-serif text-xl text-gray-900">Son qeydiyyat olunan məktəblər</h2>
+          <div className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0">
+            <School className="w-5 h-5 text-purple" />
+          </div>
+          <div className="border-l-4 border-purple pl-3">
+            <h2 className="font-serif text-xl text-gray-900">Son qeydiyyat olunan məktəblər</h2>
+            <p className="text-sm text-gray-500 mt-0.5">Son 10 əlavə edilmiş məktəb</p>
+          </div>
         </div>
         {recentSchools.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-8">Heç bir məktəb tapılmadı</p>
@@ -227,7 +232,12 @@ export default function SuperAdminDashboard() {
                     key={school.id || i}
                     className="border-b border-border-soft hover:bg-surface transition-colors"
                   >
-                    <td className="px-4 py-4 text-sm font-medium text-gray-900">{school.name}</td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-2 h-2 rounded-full bg-teal flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-900">{school.name}</span>
+                      </div>
+                    </td>
                     <td className="px-4 py-4 text-sm text-gray-600">{school.district || '—'}</td>
                     <td className="px-4 py-4">
                       <EditionBadge edition={school.edition} />
@@ -247,24 +257,28 @@ export default function SuperAdminDashboard() {
         {/* Recent activity — new signups */}
         <Card hover={false}>
           <div className="flex items-center gap-3 mb-6">
-            <Activity className="w-5 h-5 text-purple-mid" />
-            <h2 className="font-serif text-xl text-gray-900">Fəaliyyət</h2>
-            <span className="text-xs text-gray-400 ml-auto">Son 20 qeydiyyat</span>
+            <div className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0">
+              <Activity className="w-5 h-5 text-purple" />
+            </div>
+            <div className="border-l-4 border-purple pl-3 flex-1">
+              <h2 className="font-serif text-xl text-gray-900">Fəaliyyət</h2>
+              <p className="text-xs text-gray-500 mt-0.5">Son 20 qeydiyyat</p>
+            </div>
           </div>
           {recentProfiles.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-8">Heç bir qeydiyyat tapılmadı</p>
           ) : (
-            <div className="space-y-0">
+            <div>
               {recentProfiles.map((p, i) => (
                 <div
                   key={p.id || i}
-                  className="flex items-center justify-between py-3 border-b border-border-soft last:border-0"
+                  className="flex items-center justify-between py-3.5 border-b border-border-soft last:border-0 hover:bg-surface/60 transition-colors -mx-6 px-6"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <Avatar name={p.full_name} size="sm" />
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{p.full_name}</p>
-                      <p className="text-xs text-gray-400 truncate">{p.schoolName}</p>
+                      <p className="text-sm font-semibold text-gray-900 truncate">{p.full_name}</p>
+                      <p className="text-xs text-gray-400 truncate mt-0.5">{p.schoolName}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 ml-3 shrink-0">
@@ -282,9 +296,13 @@ export default function SuperAdminDashboard() {
         {/* Top schools by student count — div-based bar chart */}
         <Card hover={false}>
           <div className="flex items-center gap-3 mb-6">
-            <BarChart2 className="w-5 h-5 text-purple-mid" />
-            <h2 className="font-serif text-xl text-gray-900">Məktəb statistikası</h2>
-            <span className="text-xs text-gray-400 ml-auto">Şagird sayına görə top 5</span>
+            <div className="w-10 h-10 rounded-xl bg-teal-light flex items-center justify-center flex-shrink-0">
+              <BarChart2 className="w-5 h-5 text-teal" />
+            </div>
+            <div className="border-l-4 border-teal pl-3 flex-1">
+              <h2 className="font-serif text-xl text-gray-900">Məktəb statistikası</h2>
+              <p className="text-xs text-gray-500 mt-0.5">Şagird sayına görə top 5</p>
+            </div>
           </div>
           {topSchoolsByStudents.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-8">Heç bir məlumat tapılmadı</p>

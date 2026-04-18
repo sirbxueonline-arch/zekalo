@@ -177,13 +177,18 @@ export default function ParentGrades() {
       ) : (
         <>
           {/* Report card header */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-6 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-purple-light flex items-center justify-center text-purple font-bold text-lg">
+              {/* School logo placeholder */}
+              <div className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0">
+                <BookOpen className="w-5 h-5 text-purple" />
+              </div>
+              <div className="w-px h-10 bg-border-soft flex-shrink-0" />
+              <div className="w-14 h-14 rounded-full bg-purple-light flex items-center justify-center text-purple font-bold text-xl flex-shrink-0 shadow-sm">
                 {childInitials}
               </div>
               <div>
-                <p className="font-semibold text-gray-900 text-lg leading-tight">
+                <p className="font-serif font-semibold text-gray-900 text-xl leading-tight">
                   {selectedChild?.full_name}
                 </p>
                 <p className="text-sm text-gray-500 mt-0.5">
@@ -192,16 +197,16 @@ export default function ParentGrades() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-xs text-gray-400 uppercase tracking-wider">Ümumi ortalama</p>
-                <p className="font-serif text-3xl text-gray-900 leading-none mt-1">
+                <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Ümumi ortalama</p>
+                <p className="font-serif text-4xl text-gray-900 leading-none">
                   {overallAvg != null ? overallAvg.toString().replace('.', ',') : '—'}
                 </p>
               </div>
               {overallAvg != null && (
                 <div
-                  className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg ${
+                  className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md ${
                     overallAvg >= 8
                       ? 'bg-[#1D9E75]'
                       : overallAvg >= 6
@@ -248,16 +253,19 @@ export default function ParentGrades() {
                       )}
                       <span className="text-xs text-gray-400">{count} qiymət</span>
                     </div>
-                    {/* Mini progress bar */}
-                    <div className="w-full h-1.5 bg-surface rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${barColor}`}
-                        style={{ width: `${barPct}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-300">
-                      <span>0</span>
-                      <span>10</span>
+                    {/* Progress bar with percentage label */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-2 bg-surface rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${barColor}`}
+                          style={{ width: `${barPct}%` }}
+                        />
+                      </div>
+                      <span className={`text-xs font-semibold w-8 text-right flex-shrink-0 ${
+                        avg == null ? 'text-gray-300' : avg >= 8 ? 'text-teal' : avg >= 6 ? 'text-purple' : 'text-red-400'
+                      }`}>
+                        {avg != null ? `${Math.round(barPct)}%` : '—'}
+                      </span>
                     </div>
                   </div>
                 )
@@ -325,46 +333,49 @@ export default function ParentGrades() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map(g => {
+                  {filtered.map((g, idx) => {
                     const normScore =
                       g.score == null ? null :
                       g.max_score > 0 ? Math.round((g.score / g.max_score) * 10) : g.score
                     const borderColor = getRowBorderColor(normScore)
+                    const isEven = idx % 2 === 0
                     return (
                       <tr
                         key={g.id}
-                        className={`border-b border-border-soft last:border-0 hover:bg-surface transition-colors border-l-4 ${borderColor}`}
+                        className={`border-b border-border-soft last:border-0 hover:bg-purple-light/20 transition-colors duration-100 border-l-4 ${borderColor} ${
+                          isEven ? 'bg-white' : 'bg-surface/40'
+                        }`}
                       >
-                        <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                        <td className="px-6 py-3.5 text-sm text-gray-500 whitespace-nowrap">
                           {fmtNumeric(g.date)}
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                        <td className="px-6 py-3.5 text-sm font-semibold text-gray-900">
                           {g.subject?.name}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-700">
+                        <td className="px-6 py-3.5 text-sm text-gray-600">
                           {g.assessment_title || '—'}
                         </td>
                         {isIb ? (
                           <>
-                            <td className="px-4 py-4 text-center">
+                            <td className="px-4 py-3.5 text-center">
                               {g.criterion_a != null && <GradeBadge score={g.criterion_a} />}
                             </td>
-                            <td className="px-4 py-4 text-center">
+                            <td className="px-4 py-3.5 text-center">
                               {g.criterion_b != null && <GradeBadge score={g.criterion_b} />}
                             </td>
-                            <td className="px-4 py-4 text-center">
+                            <td className="px-4 py-3.5 text-center">
                               {g.criterion_c != null && <GradeBadge score={g.criterion_c} />}
                             </td>
-                            <td className="px-4 py-4 text-center">
+                            <td className="px-4 py-3.5 text-center">
                               {g.criterion_d != null && <GradeBadge score={g.criterion_d} />}
                             </td>
                           </>
                         ) : (
-                          <td className="px-6 py-4 text-center">
+                          <td className="px-6 py-3.5 text-center">
                             <GradeBadge score={normScore} />
                           </td>
                         )}
-                        <td className="px-6 py-4 text-sm text-gray-400">
+                        <td className="px-6 py-3.5 text-sm text-gray-400">
                           {g.notes || '—'}
                         </td>
                       </tr>

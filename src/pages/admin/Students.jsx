@@ -9,7 +9,7 @@ import Input from '../../components/ui/Input'
 import { Select } from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
 import Table from '../../components/ui/Table'
-import { PageSpinner } from '../../components/ui/Spinner'
+import { TableRowSkeleton } from '../../components/ui/Skeleton'
 import { GradeBadge } from '../../components/ui/Badge'
 import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
@@ -320,33 +320,79 @@ export default function Students() {
     },
   ]
 
-  if (loading) return <PageSpinner />
+  if (loading) return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="h-9 w-48 bg-gray-200 rounded-lg animate-pulse" />
+        <div className="flex gap-3">
+          <div className="h-9 w-28 bg-gray-200 rounded-lg animate-pulse" />
+          <div className="h-9 w-28 bg-gray-200 rounded-lg animate-pulse" />
+          <div className="h-9 w-32 bg-gray-200 rounded-lg animate-pulse" />
+        </div>
+      </div>
+      <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+      <div className="bg-white rounded-2xl border border-border-soft overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-surface border-b border-border-soft">
+              {['Ad Soyad', 'Sinif', 'E-poçt', 'Davamiyyət', 'Ortalama', ''].map((h) => (
+                <th key={h} className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <TableRowSkeleton key={i} cols={6} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-serif text-3xl text-gray-900">{t('students')}</h1>
-        <div className="flex items-center gap-3 flex-wrap">
-          <Button variant="ghost" onClick={exportCsv}>
-            <span className="flex items-center gap-2"><Download className="w-4 h-4" /> {t('export_csv')}</span>
-          </Button>
-          <Button variant="ghost" onClick={() => setBulkModal(true)}>
-            <span className="flex items-center gap-2"><UserPlus className="w-4 h-4" /> Toplu əlavə</span>
-          </Button>
-          <Button onClick={() => { resetForm(); setAddModal(true) }}>
-            <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> {t('add_student')}</span>
-          </Button>
+      {/* Page header with gradient banner */}
+      <div className="rounded-2xl overflow-hidden border border-border-soft">
+        <div className="bg-gradient-to-r from-purple/10 via-purple/5 to-transparent px-7 py-6">
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="font-serif text-3xl text-gray-900">{t('students')}</h1>
+              <p className="text-sm text-gray-500 mt-1">{t('students')} idarəetməsi</p>
+              <div className="flex items-center gap-3 mt-3 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 bg-white border border-border-soft rounded-full px-3 py-1 text-xs font-semibold text-gray-700">
+                  <Users className="w-3.5 h-3.5 text-purple" />
+                  Ümumi: {students.length}
+                </span>
+                <span className="inline-flex items-center gap-1.5 bg-teal-light border border-teal/20 rounded-full px-3 py-1 text-xs font-semibold text-teal">
+                  Nəticə: {filtered.length}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <Button variant="ghost" onClick={exportCsv}>
+                <span className="flex items-center gap-2"><Download className="w-4 h-4" /> {t('export_csv')}</span>
+              </Button>
+              <Button variant="ghost" onClick={() => setBulkModal(true)}>
+                <span className="flex items-center gap-2"><UserPlus className="w-4 h-4" /> Toplu əlavə</span>
+              </Button>
+              <Button onClick={() => { resetForm(); setAddModal(true) }}>
+                <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> {t('add_student')}</span>
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
+      {/* Search bar */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         <input
           type="text"
           placeholder={t('search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full border border-border-soft rounded-md pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+          className="w-full border border-border-soft rounded-xl pl-10 pr-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple/20 focus:border-purple transition-colors"
         />
       </div>
 

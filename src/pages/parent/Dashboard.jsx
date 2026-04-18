@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import Badge, { GradeBadge } from '../../components/ui/Badge'
-import { PageSpinner } from '../../components/ui/Spinner'
+import { DashboardSkeleton } from '../../components/ui/Skeleton'
 import Avatar from '../../components/ui/Avatar'
 import EmptyState from '../../components/ui/EmptyState'
 import {
@@ -228,7 +228,7 @@ export default function ParentDashboard() {
 
   // ── Guard states ───────────────────────────────────────────────────────────
 
-  if (loading && !children.length) return <PageSpinner />
+  if (loading && !children.length) return <DashboardSkeleton />
 
   if (children.length === 0) {
     return (
@@ -263,74 +263,125 @@ export default function ParentDashboard() {
         </div>
       </div>
 
-      {/* ── Child selector pill tabs (only when >1 child) ──────────────────── */}
+      {/* ── Child selector profile cards (only when >1 child) ─────────────── */}
       {children.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {children.map(child => (
-            <button
-              key={child.id}
-              onClick={() => setSelectedChild(child)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
-                selectedChild?.id === child.id
-                  ? 'border-purple bg-purple-light text-purple'
-                  : 'border-border-soft text-gray-500 hover:bg-surface bg-white'
-              }`}
-            >
-              <span
-                className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
-                style={{ backgroundColor: avatarColor(child.full_name) }}
+        <div className="flex gap-3 overflow-x-auto pb-1">
+          {children.map(child => {
+            const initials = child.full_name
+              ? child.full_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+              : '?'
+            const active = selectedChild?.id === child.id
+            const color = avatarColor(child.full_name)
+            return (
+              <button
+                key={child.id}
+                onClick={() => setSelectedChild(child)}
+                className={`flex flex-col items-center gap-2 px-5 py-4 rounded-2xl border transition-all duration-150 whitespace-nowrap flex-shrink-0 ${
+                  active
+                    ? 'border-purple bg-purple-light shadow-sm'
+                    : 'border-border-soft bg-white hover:bg-surface hover:border-gray-300'
+                }`}
               >
-                {child.full_name?.charAt(0)}
-              </span>
-              {child.full_name}
-            </button>
-          ))}
+                <span
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-white text-base font-bold flex-shrink-0 shadow-sm"
+                  style={{ backgroundColor: color }}
+                >
+                  {initials}
+                </span>
+                <span className={`text-sm font-semibold ${active ? 'text-purple' : 'text-gray-700'}`}>
+                  {child.full_name}
+                </span>
+                {child.school?.name && (
+                  <span className={`text-xs ${active ? 'text-purple/70' : 'text-gray-400'}`}>
+                    {child.school.name}
+                  </span>
+                )}
+              </button>
+            )
+          })}
         </div>
       )}
 
       {loading ? (
-        <PageSpinner />
+        <DashboardSkeleton />
       ) : (
         <>
-          {/* ── Child summary card ────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm p-5">
-            <div className="flex items-center gap-4">
+          {/* ── Child summary — identity + stat cards ─────────────────────── */}
+          <div className="space-y-4">
+            {/* Identity row */}
+            <div className="flex items-center gap-3">
               <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0"
+                className="w-11 h-11 rounded-full flex items-center justify-center text-white text-base font-bold flex-shrink-0 shadow-sm"
                 style={{ backgroundColor: avatarColor(selectedChild?.full_name || '') }}
               >
-                {selectedChild?.full_name?.charAt(0)}
+                {selectedChild?.full_name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
               </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="text-lg font-bold text-gray-900">{selectedChild?.full_name}</h2>
-                <p className="text-sm text-gray-500">
+              <div className="min-w-0">
+                <h2 className="text-base font-bold text-gray-900 leading-tight">{selectedChild?.full_name}</h2>
+                <p className="text-xs text-gray-400">
                   {[childData.className, selectedChild?.school?.name].filter(Boolean).join(' · ')}
                 </p>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {/* Attendance percentage chip */}
-                  <span
-                    className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${
-                      childData.attendancePct >= 90
-                        ? 'bg-teal-light text-teal border-teal/20'
-                        : childData.attendancePct >= 75
-                        ? 'bg-amber-50 text-amber-700 border-amber-200'
-                        : 'bg-red-50 text-red-600 border-red-200'
-                    }`}
-                  >
-                    <Calendar className="w-3 h-3" />
-                    {childData.attendancePct}% iştirak
-                  </span>
-                  {/* Days present this week */}
-                  <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-surface text-gray-600 border border-border-soft">
-                    Bu həftə: {childData.daysPresent} gün
-                  </span>
-                  {/* Last grade */}
-                  {lastGradeScore !== null && (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-surface text-gray-600 border border-border-soft">
-                      Son qiymət: <GradeBadge score={lastGradeScore} />
-                    </span>
-                  )}
+              </div>
+            </div>
+
+            {/* Stat cards row */}
+            <div className="grid grid-cols-3 gap-3">
+              {/* Attendance */}
+              <div className={`rounded-2xl border p-4 flex flex-col gap-1 ${
+                childData.attendancePct >= 90
+                  ? 'bg-teal-light border-teal/20'
+                  : childData.attendancePct >= 75
+                  ? 'bg-amber-50 border-amber-200'
+                  : 'bg-red-50 border-red-200'
+              }`}>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <Calendar className={`w-3.5 h-3.5 flex-shrink-0 ${
+                    childData.attendancePct >= 90 ? 'text-teal' : childData.attendancePct >= 75 ? 'text-amber-600' : 'text-red-500'
+                  }`} />
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">İştirak</span>
                 </div>
+                <p className={`font-serif text-2xl font-bold leading-none ${
+                  childData.attendancePct >= 90 ? 'text-teal' : childData.attendancePct >= 75 ? 'text-amber-700' : 'text-red-600'
+                }`}>
+                  {childData.attendancePct}%
+                </p>
+                <p className="text-xs text-gray-400">bu həftə: {childData.daysPresent} gün</p>
+              </div>
+
+              {/* Average grade */}
+              <div className={`rounded-2xl border p-4 flex flex-col gap-1 ${
+                lastGradeScore != null && lastGradeScore >= 8
+                  ? 'bg-teal-light border-teal/20'
+                  : lastGradeScore != null && lastGradeScore >= 6
+                  ? 'bg-purple-light border-purple/20'
+                  : 'bg-surface border-border-soft'
+              }`}>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <GraduationCap className="w-3.5 h-3.5 text-purple flex-shrink-0" />
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">Son qiymət</span>
+                </div>
+                <p className={`font-serif text-2xl font-bold leading-none ${
+                  lastGradeScore != null && lastGradeScore >= 8
+                    ? 'text-teal'
+                    : lastGradeScore != null && lastGradeScore >= 6
+                    ? 'text-purple'
+                    : 'text-gray-400'
+                }`}>
+                  {lastGradeScore != null ? lastGradeScore : '—'}
+                </p>
+                <p className="text-xs text-gray-400">{childData.lastGrade?.subject?.name || 'Fənn yoxdur'}</p>
+              </div>
+
+              {/* Upcoming assignments */}
+              <div className="bg-white rounded-2xl border border-border-soft p-4 flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <ClipboardList className="w-3.5 h-3.5 text-purple flex-shrink-0" />
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">Tapşırıqlar</span>
+                </div>
+                <p className="font-serif text-2xl font-bold leading-none text-gray-900">
+                  {(childData.upcomingAssignments || []).length}
+                </p>
+                <p className="text-xs text-gray-400">gözləyən tapşırıq</p>
               </div>
             </div>
           </div>
@@ -394,26 +445,43 @@ export default function ParentDashboard() {
                       const score = g.max_score > 0
                         ? Math.round((g.score / g.max_score) * 10)
                         : g.score
+                      const barPct = Math.min((score / 10) * 100, 100)
+                      const barColor =
+                        score >= 8 ? 'bg-teal' : score >= 6 ? 'bg-purple' : 'bg-red-400'
                       return (
                         <div
                           key={g.id}
-                          className="flex items-center gap-3 px-5 py-3 hover:bg-surface/50 transition-colors"
+                          className="px-5 py-3.5 hover:bg-surface/50 transition-colors"
                         >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-gray-900 truncate">
-                              {g.subject?.name}
-                            </p>
-                            {g.assessment_title && (
-                              <p className="text-xs text-gray-400 mt-0.5 truncate">
-                                {g.assessment_title}
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-gray-900 truncate leading-tight">
+                                {g.subject?.name}
                               </p>
-                            )}
+                              {g.assessment_title && (
+                                <p className="text-xs text-gray-400 mt-0.5 truncate">
+                                  {g.assessment_title}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <GradeBadge score={score} />
+                              {g.date && (
+                                <span className="text-xs text-gray-300">{formatDate(g.date)}</span>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <GradeBadge score={score} />
-                            {g.date && (
-                              <span className="text-xs text-gray-300">{formatDate(g.date)}</span>
-                            )}
+                          {/* Mini grade bar */}
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-1.5 bg-surface rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+                                style={{ width: `${barPct}%` }}
+                              />
+                            </div>
+                            <span className="text-[10px] text-gray-400 w-6 text-right flex-shrink-0">
+                              {score}/10
+                            </span>
                           </div>
                         </div>
                       )
@@ -451,19 +519,29 @@ export default function ParentDashboard() {
                       return (
                         <div
                           key={a.id}
-                          className="flex items-center gap-3 px-5 py-3 hover:bg-surface/50 transition-colors"
+                          className="flex items-start gap-3 px-5 py-3.5 hover:bg-surface/50 transition-colors"
                         >
+                          {/* Subject color dot */}
                           <span
-                            className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-md text-white flex-shrink-0"
+                            className="mt-1 w-2.5 h-2.5 rounded-full flex-shrink-0"
                             style={{ backgroundColor: hex }}
-                          >
-                            {a.subject?.name || 'Fənn'}
-                          </span>
-                          <p className="flex-1 text-sm font-medium text-gray-900 truncate min-w-0">
-                            {a.title}
-                          </p>
-                          <div className="flex-shrink-0">
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate leading-tight">
+                              {a.title}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5 truncate">
+                              {a.subject?.name || 'Fənn'}
+                            </p>
+                          </div>
+                          {/* Due date — prominent on the right */}
+                          <div className="flex flex-col items-end gap-1 flex-shrink-0">
                             <DueDateChip dueDateIso={a.due_date} />
+                            {a.due_date && (
+                              <span className="text-[10px] text-gray-300">
+                                {formatDate(a.due_date)}
+                              </span>
+                            )}
                           </div>
                         </div>
                       )

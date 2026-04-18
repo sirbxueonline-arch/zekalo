@@ -11,10 +11,10 @@ import Input from '../../components/ui/Input'
 import { Textarea } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
-import Table from '../../components/ui/Table'
+
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
-import Badge from '../../components/ui/Badge'
+
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -40,6 +40,14 @@ const TYPE_BADGE_CLASSES = {
   meeting: 'bg-blue-50 text-blue-700',
   event: 'bg-teal-light text-teal',
   other: 'bg-gray-100 text-gray-600',
+}
+
+const TYPE_BORDER_COLORS = {
+  holiday: '#EF4444',
+  exam: '#534AB7',
+  meeting: '#3B82F6',
+  event: '#1D9E75',
+  other: '#9CA3AF',
 }
 
 const PRESET_COLORS = [
@@ -296,63 +304,7 @@ export default function Events() {
 
   const calendarDays = buildCalendarDays(currentYear, currentMonth)
 
-  // ── Table columns ──────────────────────────────────────────────────────────
 
-  const columns = [
-    {
-      key: 'title',
-      label: 'Başlıq',
-      render: (val, row) => (
-        <div className="flex items-center gap-2">
-          <span
-            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-            style={{ backgroundColor: row.color || '#7C3AED' }}
-          />
-          <span className="font-medium text-gray-900">{val}</span>
-        </div>
-      ),
-    },
-    {
-      key: 'type',
-      label: 'Növ',
-      render: (val) => <TypeBadge type={val} />,
-    },
-    {
-      key: 'start_date',
-      label: 'Başlanğıc',
-      render: (val) => val,
-    },
-    {
-      key: 'end_date',
-      label: 'Bitmə',
-      render: (val) => val,
-    },
-    {
-      key: 'visible_to',
-      label: 'Görünür',
-      render: (val) => VISIBLE_LABELS[val] || val,
-    },
-    {
-      key: 'actions',
-      label: '',
-      render: (_, row) => (
-        <div className="flex items-center gap-2">
-          <button
-            onClick={(e) => { e.stopPropagation(); openEdit(row) }}
-            className="p-1.5 text-gray-400 hover:text-purple transition-colors"
-          >
-            <Edit2 className="w-4 h-4" />
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); setDeleteModal(row) }}
-            className="p-1.5 text-gray-400 hover:text-red-600 transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-      ),
-    },
-  ]
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -403,9 +355,19 @@ export default function Events() {
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <h2 className="font-serif text-xl text-gray-900">
-              {AZ_MONTHS[currentMonth]} {currentYear}
-            </h2>
+            <div className="flex items-center gap-3">
+              <h2 className="font-serif text-xl text-gray-900">
+                {AZ_MONTHS[currentMonth]} {currentYear}
+              </h2>
+              {(currentMonth !== today.getMonth() || currentYear !== today.getFullYear()) && (
+                <button
+                  onClick={() => { setCurrentMonth(today.getMonth()); setCurrentYear(today.getFullYear()) }}
+                  className="text-xs font-medium px-2.5 py-1 rounded-full bg-purple-light text-purple hover:bg-purple hover:text-white transition-colors"
+                >
+                  Bu gün
+                </button>
+              )}
+            </div>
             <button
               onClick={nextMonth}
               className="p-2 rounded-lg hover:bg-surface transition-colors text-gray-600"
@@ -478,19 +440,120 @@ export default function Events() {
 
       {/* ── List View ── */}
       {view === 'list' && (
-        <Card hover={false} className="p-0 overflow-hidden">
+        <>
           {events.length === 0 ? (
-            <EmptyState
-              icon={Calendar}
-              title="Tədbir yoxdur"
-              description="Hələ heç bir tədbir əlavə edilməyib."
-              actionLabel="Tədbir əlavə et"
-              onAction={() => openAdd()}
-            />
-          ) : (
-            <Table columns={columns} data={events} />
-          )}
-        </Card>
+            <Card hover={false} className="p-0 overflow-hidden">
+              <EmptyState
+                icon={Calendar}
+                title="Tədbir yoxdur"
+                description="Hələ heç bir tədbir əlavə edilməyib."
+                actionLabel="Tədbir əlavə et"
+                onAction={() => openAdd()}
+              />
+            </Card>
+          ) : (() => {
+            // Group events by year-month of start_date
+            const groups = {}
+            for (const event of events) {
+              if (!event.start_date) continue
+              const [year, month] = event.start_date.split('-')
+              const key = `${year}-${month}`
+              if (!groups[key]) groups[key] = { year: Number(year), month: Number(month) - 1, items: [] }
+              groups[key].items.push(event)
+            }
+            const sortedKeys = Object.keys(groups).sort()
+            return (
+              <div className="space-y-8">
+                {sortedKeys.map(key => {
+                  const group = groups[key]
+                  return (
+                    <div key={key}>
+                      {/* Month heading */}
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="font-serif text-lg text-gray-700">
+                          {AZ_MONTHS[group.month]} {group.year}
+                        </h3>
+                        <div className="flex-1 h-px bg-border-soft" />
+                        <span className="text-xs text-gray-400">{group.items.length} tədbir</span>
+                      </div>
+
+                      <div className="space-y-2">
+                        {group.items.map(event => {
+                          const isToday = event.start_date <= todayStr && event.end_date >= todayStr
+                          const borderColor = event.color || TYPE_BORDER_COLORS[event.type] || '#9CA3AF'
+                          // Format date nicely
+                          const startParts = event.start_date?.split('-') || []
+                          const endParts = event.end_date?.split('-') || []
+                          const isSameDay = event.start_date === event.end_date
+                          const dateLabel = isSameDay
+                            ? `${startParts[2]} ${AZ_MONTHS[Number(startParts[1]) - 1] || ''}`
+                            : `${startParts[2]} ${AZ_MONTHS[Number(startParts[1]) - 1] || ''} – ${endParts[2]} ${AZ_MONTHS[Number(endParts[1]) - 1] || ''}`
+
+                          return (
+                            <div
+                              key={event.id}
+                              className={`flex items-stretch bg-white rounded-xl border border-border-soft overflow-hidden shadow-sm hover:shadow-md transition-shadow ${isToday ? 'ring-2 ring-purple/20' : ''}`}
+                            >
+                              {/* Colored left border */}
+                              <div className="w-1 flex-shrink-0" style={{ backgroundColor: borderColor }} />
+
+                              {/* Date block */}
+                              <div className="flex flex-col items-center justify-center px-4 py-3 min-w-[64px] border-r border-border-soft">
+                                <span className="text-xl font-bold text-gray-800 leading-none">
+                                  {startParts[2]}
+                                </span>
+                                <span className="text-xs text-gray-400 mt-0.5">
+                                  {AZ_MONTHS[Number(startParts[1]) - 1]?.slice(0, 3) || ''}
+                                </span>
+                                {isToday && (
+                                  <span className="mt-1 px-1.5 py-0.5 rounded-full bg-purple text-white text-[9px] font-bold uppercase tracking-wide leading-none">
+                                    Bu gün
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Event info */}
+                              <div className="flex-1 px-4 py-3 flex items-center gap-3">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-semibold text-gray-900 truncate">{event.title}</p>
+                                  {!isSameDay && (
+                                    <p className="text-xs text-gray-400 mt-0.5">{dateLabel}</p>
+                                  )}
+                                  {event.description && (
+                                    <p className="text-xs text-gray-400 mt-0.5 truncate">{event.description}</p>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <TypeBadge type={event.type} />
+                                </div>
+                              </div>
+
+                              {/* Actions */}
+                              <div className="flex items-center gap-1 pr-3">
+                                <button
+                                  onClick={() => openEdit(event)}
+                                  className="p-1.5 text-gray-400 hover:text-purple transition-colors rounded-lg hover:bg-purple-light"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => setDeleteModal(event)}
+                                  className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
+        </>
       )}
 
       {/* ── Add Modal ── */}

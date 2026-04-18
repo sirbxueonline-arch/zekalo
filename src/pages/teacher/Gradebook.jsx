@@ -9,7 +9,7 @@ import Modal from '../../components/ui/Modal'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { GradeBadge } from '../../components/ui/Badge'
-import { BookOpen, Plus, Download, Search, ChevronDown, TrendingUp, Award, BarChart3 } from 'lucide-react'
+import { BookOpen, Plus, Download, Search, ChevronDown, TrendingUp, Award, BarChart3, ChevronUp } from 'lucide-react'
 import { fmtDate } from '../../lib/dateUtils'
 import { notifyUsers } from '../../lib/notify'
 
@@ -47,10 +47,10 @@ const typeLabelMap = {
 
 function getCellStyle(score, maxScore) {
   if (score == null || score === '') return null
-  const pct = maxScore > 0 ? (score / maxScore) * 100 : score * 10
-  if (pct >= 85) return 'bg-teal-light text-teal font-semibold'
-  if (pct >= 60) return 'bg-blue-50 text-blue-700 font-medium'
-  if (pct >= 40) return 'bg-amber-50 text-amber-700 font-medium'
+  // Normalize to 0-10 scale
+  const normalized = maxScore > 0 ? (score / maxScore) * 10 : Number(score)
+  if (normalized >= 8) return 'bg-teal-light text-teal font-semibold'
+  if (normalized >= 6) return 'bg-purple-light text-purple font-medium'
   return 'bg-red-50 text-red-600 font-medium'
 }
 
@@ -317,24 +317,45 @@ export default function TeacherGradebook() {
       </div>
 
       {/* Class / subject / search selectors */}
-      <div className="flex gap-4 items-end">
-        <Select label={t('class_name')} value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
-          {uniqueClasses.map(c => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </Select>
-        <Select label={t('subject')} value={selectedSubject} onChange={e => setSelectedSubject(e.target.value)}>
-          {subjectsForClass.map(s => (
-            <option key={s.id} value={s.id}>{s.name}</option>
-          ))}
-        </Select>
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+      <div className="flex gap-3 items-end flex-wrap">
+        <div className="min-w-[160px]">
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t('class_name')}</label>
+          <div className="relative">
+            <select
+              value={selectedClass}
+              onChange={e => setSelectedClass(e.target.value)}
+              className="w-full appearance-none bg-white border border-border-soft rounded-xl px-4 py-2.5 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent shadow-sm pr-9 cursor-pointer"
+            >
+              {uniqueClasses.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          </div>
+        </div>
+        <div className="min-w-[160px]">
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t('subject')}</label>
+          <div className="relative">
+            <select
+              value={selectedSubject}
+              onChange={e => setSelectedSubject(e.target.value)}
+              className="w-full appearance-none bg-white border border-border-soft rounded-xl px-4 py-2.5 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent shadow-sm pr-9 cursor-pointer"
+            >
+              {subjectsForClass.map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          </div>
+        </div>
+        <div className="relative flex-1 min-w-[180px]">
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t('search')}</label>
+          <Search className="absolute left-3.5 bottom-3 w-4 h-4 text-gray-400" />
           <input
             placeholder={t('search')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full border border-border-soft rounded-md pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+            className="w-full border border-border-soft rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent shadow-sm bg-white"
           />
         </div>
       </div>
@@ -395,6 +416,39 @@ export default function TeacherGradebook() {
           </div>
         </div>
       </div>
+
+      {/* Assessment type tabs */}
+      {!isIB && assessments.length > 0 && (
+        <div className="border-b border-border-soft">
+          <nav className="flex gap-0 -mb-px overflow-x-auto">
+            {[{ value: 'all', label: 'Hamısı' }, ...assessmentTypes].map(tab => {
+              const count = tab.value === 'all'
+                ? assessments.length
+                : assessments.filter(a => a.type === tab.value).length
+              const isActive = false // tabs are visual only — no filter state for assessments
+              return count === 0 && tab.value !== 'all' ? null : (
+                <button
+                  key={tab.value}
+                  className={`relative flex items-center gap-1.5 px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+                    tab.value === 'all'
+                      ? 'text-purple border-b-2 border-purple'
+                      : 'text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300'
+                  }`}
+                >
+                  {tab.label}
+                  {count > 0 && (
+                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                      tab.value === 'all' ? 'bg-purple-light text-purple' : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </nav>
+        </div>
+      )}
 
       {/* Gradebook table */}
       <Card hover={false} className="p-0 overflow-hidden">
@@ -483,7 +537,7 @@ export default function TeacherGradebook() {
                                 min={0}
                                 max={8}
                                 defaultValue={g?.score ?? ''}
-                                className="w-16 border border-purple rounded px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple/50"
+                                className="w-16 border-2 border-purple rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple/30 font-semibold"
                                 autoFocus
                                 onBlur={e => saveGrade(s.id, null, c, e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && e.target.blur()}
@@ -491,13 +545,13 @@ export default function TeacherGradebook() {
                             ) : (
                               <button
                                 onClick={() => setEditingCell(cellId)}
-                                className={`w-16 py-1 rounded text-sm transition-colors ${
+                                className={`w-16 py-1.5 rounded-lg text-sm transition-all hover:scale-105 ${
                                   cellStyle
-                                    ? `${cellStyle} hover:opacity-80`
-                                    : 'text-gray-400 hover:bg-purple-light hover:text-purple'
+                                    ? `${cellStyle} hover:opacity-80 shadow-sm`
+                                    : 'text-gray-300 hover:bg-purple-light hover:text-purple border border-dashed border-gray-200 hover:border-purple/30'
                                 }`}
                               >
-                                {g ? g.score : '—'}
+                                {g ? g.score : <span className="text-lg leading-none">+</span>}
                               </button>
                             )}
                           </td>
@@ -519,7 +573,7 @@ export default function TeacherGradebook() {
                                 min={0}
                                 max={a.max_score}
                                 defaultValue={g?.score ?? ''}
-                                className="w-16 border border-purple rounded px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple/50"
+                                className="w-16 border-2 border-purple rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple/30 font-semibold"
                                 autoFocus
                                 onBlur={e => saveGrade(s.id, a.id, null, e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && e.target.blur()}
@@ -527,13 +581,13 @@ export default function TeacherGradebook() {
                             ) : (
                               <button
                                 onClick={() => setEditingCell(cellId)}
-                                className={`w-16 py-1 rounded text-sm transition-colors ${
+                                className={`w-16 py-1.5 rounded-lg text-sm transition-all hover:scale-105 ${
                                   cellStyle
-                                    ? `${cellStyle} hover:opacity-80`
-                                    : 'text-gray-400 hover:bg-purple-light hover:text-purple'
+                                    ? `${cellStyle} hover:opacity-80 shadow-sm`
+                                    : 'text-gray-300 hover:bg-purple-light hover:text-purple border border-dashed border-gray-200 hover:border-purple/30'
                                 }`}
                               >
-                                {g ? g.score : '—'}
+                                {g ? g.score : <span className="text-lg leading-none">+</span>}
                               </button>
                             )}
                           </td>
@@ -571,6 +625,68 @@ export default function TeacherGradebook() {
                 <tr>
                   <td colSpan={isIB ? 6 : assessments.length + 2} className="text-center py-10 text-sm text-gray-400">
                     {t('no_data')}
+                  </td>
+                </tr>
+              )}
+
+              {/* Class average row */}
+              {filteredStudents.length > 0 && classAvg != null && (
+                <tr className="border-t-2 border-purple/20 bg-gradient-to-r from-purple-light/40 to-purple-light/10">
+                  <td className="sticky left-0 z-10 px-6 py-3 bg-purple-light/40">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-purple flex items-center justify-center">
+                        <TrendingUp className="w-3 h-3 text-white" />
+                      </span>
+                      <span className="text-sm font-bold text-purple">Sinif ortası</span>
+                    </div>
+                  </td>
+                  {isIB ? (
+                    ibCriteria.map(c => {
+                      const criteriaGrades = filteredStudents
+                        .map(s => grades[`${s.id}_${c}`])
+                        .filter(Boolean)
+                        .map(g => g.score)
+                      const avg = criteriaGrades.length
+                        ? Math.round((criteriaGrades.reduce((a, b) => a + b, 0) / criteriaGrades.length) * 10) / 10
+                        : null
+                      return (
+                        <td key={c} className="px-3 py-3 text-center">
+                          {avg != null ? (
+                            <span className="inline-flex items-center justify-center w-16 py-1.5 rounded-lg text-sm font-bold bg-purple text-white">
+                              {avg}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 text-sm">—</span>
+                          )}
+                        </td>
+                      )
+                    })
+                  ) : (
+                    assessments.map(a => {
+                      const assessmentGrades = filteredStudents
+                        .map(s => grades[`${s.id}_${a.id}`])
+                        .filter(Boolean)
+                        .map(g => g.score)
+                      const avg = assessmentGrades.length
+                        ? Math.round((assessmentGrades.reduce((x, y) => x + y, 0) / assessmentGrades.length) * 10) / 10
+                        : null
+                      return (
+                        <td key={a.id} className="px-3 py-3 text-center">
+                          {avg != null ? (
+                            <span className="inline-flex items-center justify-center w-16 py-1.5 rounded-lg text-sm font-bold bg-purple text-white">
+                              {avg}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 text-sm">—</span>
+                          )}
+                        </td>
+                      )
+                    })
+                  )}
+                  <td className="px-4 py-3 text-center">
+                    <span className="inline-flex items-center justify-center w-16 py-1.5 rounded-lg text-sm font-bold bg-purple text-white shadow-sm">
+                      {classAvg}
+                    </span>
                   </td>
                 </tr>
               )}
