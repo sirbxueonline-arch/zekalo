@@ -177,7 +177,6 @@ export default function AdminDashboard() {
         activitiesRes,
         eventsRes,
         activeEventsRes,
-        atRiskRes,
       ] = await Promise.all([
         supabase.from('profiles')
           .select('id', { count: 'exact', head: true })
@@ -207,8 +206,14 @@ export default function AdminDashboard() {
           .select('id', { count: 'exact', head: true })
           .eq('school_id', profile.school_id)
           .gte('start_date', todayStr),
-        supabase.rpc('get_at_risk_students', { p_school_id: profile.school_id }),
       ])
+
+      // get_at_risk_students is an optional RPC — isolated so it can't crash the dashboard
+      let atRiskData = []
+      try {
+        const { data } = await supabase.rpc('get_at_risk_students', { p_school_id: profile.school_id })
+        atRiskData = data || []
+      } catch { /* RPC not deployed — skip */ }
 
       const totalAtt   = attendanceRes.data?.length || 0
       const presentCnt = attendanceRes.data?.filter(a => a.status === 'present').length || 0
@@ -243,7 +248,7 @@ export default function AdminDashboard() {
       setClassAttendance(classAttList)
       setActivities(activitiesRes.data || [])
       setEvents(eventsRes.data || [])
-      setAtRisk(atRiskRes.data || [])
+      setAtRisk(atRiskData)
     } catch {
       setError('Məlumatlar yüklənərkən xəta baş verdi.')
     } finally {

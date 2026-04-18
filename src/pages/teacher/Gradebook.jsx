@@ -160,11 +160,13 @@ export default function TeacherGradebook() {
   async function handleAddAssessment() {
     setSaving(true)
     const { data, error } = await supabase.from('assessments').insert({
-      ...newAssessment,
-      class_id: selectedClass,
+      title:      newAssessment.title.trim(),
+      type:       newAssessment.type,
+      date:       newAssessment.date || null,   // empty string → null so Postgres uses DEFAULT CURRENT_DATE
+      class_id:   selectedClass,
       subject_id: selectedSubject,
       teacher_id: profile.id,
-      max_score: Number(newAssessment.max_score),
+      max_score:  Number(newAssessment.max_score),
     }).select().single()
 
     if (!error && data) {

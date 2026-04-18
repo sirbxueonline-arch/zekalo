@@ -120,10 +120,21 @@ export default function Library() {
 
   async function markReturned(checkoutId, bookId) {
     try {
-      await Promise.all([
-        supabase.from('library_checkouts').update({ returned: true, returned_at: new Date().toISOString() }).eq('id', checkoutId),
-        supabase.from('library_books').update({ copies_available: supabase.rpc('increment', { x: 1 }) }).eq('id', bookId),
-      ])
+      // Mark the checkout as returned
+      await supabase.from('library_checkouts')
+        .update({ returned: true, returned_at: new Date().toISOString() })
+        .eq('id', checkoutId)
+
+      // Increment copies_available by reading current value first
+      // (supabase.rpc() returns a query builder, not a scalar — can't use it as update value)
+      const { data: book } = await supabase.from('library_books')
+        .select('copies_available').eq('id', bookId).single()
+      if (book != null) {
+        await supabase.from('library_books')
+          .update({ copies_available: (book.copies_available || 0) + 1 })
+          .eq('id', bookId)
+      }
+
       await fetchData()
     } catch {
       // silently handle for demo
