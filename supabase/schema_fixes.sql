@@ -254,6 +254,33 @@ CREATE POLICY "students read own attendance" ON attendance FOR SELECT USING (stu
 -- ─── submissions: add file_url (student file uploads) ────────────────
 ALTER TABLE submissions ADD COLUMN IF NOT EXISTS file_url text;
 
+-- ─── Storage: submissions bucket + policies ───────────────────────────
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('submissions', 'submissions', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "students upload own submissions" ON storage.objects;
+CREATE POLICY "students upload own submissions" ON storage.objects
+  FOR INSERT WITH CHECK (
+    bucket_id = 'submissions' AND auth.role() = 'authenticated'
+  );
+
+DROP POLICY IF EXISTS "public read submissions" ON storage.objects;
+CREATE POLICY "public read submissions" ON storage.objects
+  FOR SELECT USING (bucket_id = 'submissions');
+
+DROP POLICY IF EXISTS "students update own submissions" ON storage.objects;
+CREATE POLICY "students update own submissions" ON storage.objects
+  FOR UPDATE USING (
+    bucket_id = 'submissions' AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+DROP POLICY IF EXISTS "students delete own submissions" ON storage.objects;
+CREATE POLICY "students delete own submissions" ON storage.objects
+  FOR DELETE USING (
+    bucket_id = 'submissions' AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
 -- ─── homework_items: make subject nullable (UI treats it as optional) ──
 ALTER TABLE homework_items ALTER COLUMN subject DROP NOT NULL;
 

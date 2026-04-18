@@ -556,7 +556,9 @@ export default function StudentAssignments() {
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('submissions')
           .upload(path, file, { upsert: true })
-        if (!uploadError && uploadData) {
+        if (uploadError) {
+          console.error('File upload error:', uploadError)
+        } else if (uploadData) {
           const { data: urlData } = supabase.storage
             .from('submissions')
             .getPublicUrl(uploadData.path)
@@ -564,17 +566,21 @@ export default function StudentAssignments() {
         }
       }
 
-      // Insert submission — try with file_url, fall back without if column missing
+      // Upsert submission — updates existing row if student already submitted
       const payload = {
         assignment_id: selectedAssignment.id,
-        student_id: profile.id,
-        content: content.trim() || null,
-        status: isLate ? 'late' : 'submitted',
+        student_id:    profile.id,
+        content:       content.trim() || null,
+        file_url,
+        status:        isLate ? 'late' : 'submitted',
+        submitted_at:  new Date().toISOString(),
       }
-      const { error: insertError } = await supabase.from('submissions').insert({ ...payload, file_url })
-      if (insertError) {
-        // file_url column may not exist yet — retry without it
-        await supabase.from('submissions').insert(payload)
+      const { error: upsertError } = await supabase
+        .from('submissions')
+        .upsert(payload, { onConflict: 'assignment_id,student_id' })
+
+      if (upsertError) {
+        console.error('Submission upsert error:', upsertError)
       }
 
       setSelectedAssignment(null)
