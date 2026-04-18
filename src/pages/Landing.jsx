@@ -537,7 +537,7 @@ function Hero({ s }) {
   return (
     <section
       className="relative overflow-hidden px-6 pt-20 pb-0"
-      style={{ background: 'linear-gradient(135deg, #0a0820 0%, #1a1350 45%, #2d1b7d 75%, #534AB7 100%)' }}
+      style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4f46e5 75%, #7c3aed 100%)' }}
     >
       {/* Dot-grid texture */}
       <div
@@ -574,13 +574,11 @@ function Hero({ s }) {
               <>
                 <br />
                 <span
-                  className="gradient-text-animate"
                   style={{
-                    background: 'linear-gradient(90deg, #c4b5fd, #7dd3fc, #34d399, #a78bfa)',
+                    background: 'linear-gradient(90deg, #c4b5fd, #7dd3fc, #34d399)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
-                    backgroundSize: '300% 100%',
                   }}
                 >
                   {s.hero_h1b}
@@ -604,7 +602,7 @@ function Hero({ s }) {
             </a>
             <Link
               to="/contact"
-              className="shimmer-card relative bg-white text-purple font-semibold rounded-full px-8 py-3.5 text-sm flex items-center gap-2 shadow-xl shadow-black/30 hover:shadow-2xl hover:shadow-black/40 hover:-translate-y-1 transition-all duration-200"
+              className="relative bg-white text-purple font-semibold rounded-full px-8 py-3.5 text-sm flex items-center gap-2 shadow-xl shadow-black/30 hover:shadow-2xl hover:shadow-black/40 hover:-translate-y-1 transition-all duration-200"
             >
               {s.hero_cta2}
               <ArrowRight className="w-4 h-4" />
@@ -755,25 +753,14 @@ function Stats() {
           {items.map(({ icon: Icon, label, desc, color }) => (
             <div
               key={label}
-              className="card-spring group relative overflow-hidden rounded-2xl p-7 border cursor-default"
+              className={`card-spring group relative overflow-hidden rounded-2xl p-7 border cursor-default hover:shadow-xl hover:-translate-y-1.5 ${
+                color === 'teal' ? 'hover:border-teal/35' : 'hover:border-purple/35'
+              }`}
               style={{
                 background: color === 'teal'
                   ? 'linear-gradient(140deg, #f0fdf9 0%, #ffffff 65%)'
                   : 'linear-gradient(140deg, #f5f3ff 0%, #ffffff 65%)',
                 borderColor: color === 'teal' ? 'rgba(29,158,117,0.18)' : 'rgba(83,74,183,0.18)',
-                boxShadow: color === 'teal'
-                  ? '0 1px 3px rgba(29,158,117,0.08), 0 0 0 1px rgba(29,158,117,0.05)'
-                  : '0 1px 3px rgba(83,74,183,0.08), 0 0 0 1px rgba(83,74,183,0.05)',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.boxShadow = color === 'teal'
-                  ? '0 20px 40px rgba(29,158,117,0.15), 0 0 0 1px rgba(29,158,117,0.12)'
-                  : '0 20px 40px rgba(83,74,183,0.15), 0 0 0 1px rgba(83,74,183,0.12)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.boxShadow = color === 'teal'
-                  ? '0 1px 3px rgba(29,158,117,0.08), 0 0 0 1px rgba(29,158,117,0.05)'
-                  : '0 1px 3px rgba(83,74,183,0.08), 0 0 0 1px rgba(83,74,183,0.05)'
               }}
             >
               {/* Watermark icon */}
@@ -833,17 +820,11 @@ function Solutions({ s }) {
             <a
               href="#features"
               key={t}
-              className="card-spring group relative p-7 rounded-2xl bg-white border border-border-soft overflow-hidden block"
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = c === 'teal' ? 'rgba(29,158,117,0.25)' : 'rgba(83,74,183,0.25)'
-                e.currentTarget.style.boxShadow = c === 'teal'
-                  ? '0 20px 50px rgba(29,158,117,0.12), 0 4px 12px rgba(0,0,0,0.06)'
-                  : '0 20px 50px rgba(83,74,183,0.12), 0 4px 12px rgba(0,0,0,0.06)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = ''
-                e.currentTarget.style.boxShadow = ''
-              }}
+              className={`card-spring group relative p-7 rounded-2xl bg-white border overflow-hidden block ${
+                c === 'teal'
+                  ? 'border-teal/15 hover:border-teal/25 hover:shadow-xl'
+                  : 'border-purple/15 hover:border-purple/25 hover:shadow-xl'
+              }`}
             >
               {/* Color-coded top border */}
               <div
@@ -1268,14 +1249,6 @@ function ZekaAI({ s }) {
       <div className="pointer-events-none absolute top-0 left-0 w-96 h-96 rounded-full bg-purple/10 blur-[110px]" />
       <div className="pointer-events-none absolute bottom-0 right-0 w-[28rem] h-[28rem] rounded-full bg-teal/10 blur-[110px]" />
       <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-indigo-200/20 blur-[90px]" />
-      {/* Dot grid */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: 'radial-gradient(circle, rgba(83,74,183,0.04) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-        }}
-      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -1458,7 +1431,7 @@ function Testimonials({ s }) {
           {/* Top gradient band */}
           <div
             className="px-8 pt-12 pb-10 text-center"
-            style={{ background: 'linear-gradient(135deg, #0a0820 0%, #1a1350 50%, #2d1b7d 100%)' }}
+            style={{ background: 'linear-gradient(135deg, #4338ca 0%, #534AB7 50%, #6d28d9 100%)' }}
           >
             <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-teal/40 bg-teal/10 backdrop-blur-sm">
               <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
@@ -1521,28 +1494,25 @@ function Benefits({ s }) {
     { icon: TrendingUp,     t: s.b8t, d: s.b8d, c: 'purple' },
   ]
   return (
-    <section id="benefits" className="py-24 bg-[#0f0e2a] relative overflow-hidden">
-      <div className="pointer-events-none absolute top-0 right-0 w-96 h-96 rounded-full bg-purple/10 blur-[100px]" />
-      <div className="pointer-events-none absolute bottom-0 left-0 w-80 h-80 rounded-full bg-teal/8 blur-[100px]" />
-
+    <section id="benefits" className="py-24 bg-white relative overflow-hidden">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 items-start">
           {/* Left sticky */}
           <div className="lg:sticky lg:top-28">
-            <div className="inline-flex items-center gap-2 mb-5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-teal" />
-              <span className="text-white/60 text-xs font-semibold tracking-wide uppercase">{s.ben_badge}</span>
+            <div className="inline-flex items-center gap-2 mb-5 px-3 py-1 rounded-full bg-purple/10 border border-purple/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple" />
+              <span className="text-purple text-xs font-semibold tracking-wide uppercase">{s.ben_badge}</span>
             </div>
             <h2
-              className="font-serif text-white mb-5 leading-tight"
+              className="font-serif text-gray-900 mb-5 leading-tight"
               style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)' }}
             >
               {s.ben_title}
             </h2>
-            <p className="text-white/40 text-sm leading-relaxed mb-8">{s.ben_sub}</p>
+            <p className="text-gray-500 text-sm leading-relaxed mb-8">{s.ben_sub}</p>
             <Link
               to="/contact"
-              className="inline-flex items-center gap-2 bg-purple text-white text-sm font-semibold px-5 py-3 rounded-xl hover:bg-purple-dark transition-all duration-200 shadow-lg shadow-purple/30 hover:shadow-xl hover:shadow-purple/40 hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 bg-purple text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-purple/20 hover:shadow-xl hover:shadow-purple/30 hover:-translate-y-0.5"
             >
               {s.feat_cta} <ArrowRight className="w-4 h-4" />
             </Link>
@@ -1553,21 +1523,17 @@ function Benefits({ s }) {
             {items.map(({ icon: Icon, t, d, c }) => (
               <div
                 key={t}
-                className="group relative p-5 rounded-2xl bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.08] hover:border-white/[0.18] transition-all duration-200 overflow-hidden hover:-translate-y-0.5"
+                className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-white hover:border-purple/20 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-default"
               >
-                {/* Left accent bar */}
-                <div className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-full opacity-40 group-hover:opacity-80 transition-opacity duration-200 ${
-                  c === 'teal' ? 'bg-teal' : 'bg-violet-400'
-                }`} />
                 <div className="flex items-start gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-200 ${
-                    c === 'teal' ? 'bg-teal/20' : 'bg-purple/30'
+                    c === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
                   }`}>
-                    <Icon className={`w-5 h-5 ${c === 'teal' ? 'text-teal' : 'text-violet-300'}`} />
+                    <Icon className={`w-5 h-5 ${c === 'teal' ? 'text-teal' : 'text-purple'}`} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-white text-sm mb-1 leading-snug">{t}</h3>
-                    <p className="text-white/45 text-xs leading-relaxed">{d}</p>
+                    <h3 className="font-semibold text-gray-900 text-sm mb-1 leading-snug">{t}</h3>
+                    <p className="text-gray-500 text-xs leading-relaxed">{d}</p>
                   </div>
                 </div>
               </div>
@@ -1603,14 +1569,7 @@ const INT_ITEMS = [
 function IntCard({ item: { name, Logo } }) {
   return (
     <div
-      className="group flex flex-col items-center gap-3 bg-white rounded-2xl py-8 px-4 cursor-pointer transition-all duration-200 hover:-translate-y-1.5 border border-gray-100"
-      style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03)' }}
-      onMouseEnter={e => {
-        e.currentTarget.style.boxShadow = '0 16px 40px rgba(83,74,183,0.18), 0 0 0 1px rgba(83,74,183,0.12)'
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.03)'
-      }}
+      className="group flex flex-col items-center gap-3 bg-white rounded-2xl py-8 px-4 cursor-pointer transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-purple/10 border border-gray-100 shadow-sm"
     >
       <div className="h-12 flex items-center justify-center"><Logo /></div>
       <span className="text-xs text-gray-500 font-medium text-center leading-tight group-hover:text-gray-800 transition-colors">{name}</span>
@@ -1667,38 +1626,26 @@ function Security({ s }) {
   return (
     <section
       id="security"
-      className="py-24 relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #0d0c26 0%, #0f0e2a 50%, #0d1a14 100%)' }}
+      className="py-24 bg-[#F7F7FB] relative overflow-hidden"
     >
-      {/* Background effects */}
-      <div className="pointer-events-none absolute top-0 left-0 w-96 h-96 rounded-full bg-teal/8 blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-0 right-0 w-80 h-80 rounded-full bg-purple/10 blur-[100px]" />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: 'radial-gradient(circle, rgba(29,158,117,0.06) 1px, transparent 1px)',
-          backgroundSize: '36px 36px',
-        }}
-      />
-
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-teal/15 border border-teal/30">
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-teal/10 border border-teal/20">
             <span className="w-1.5 h-1.5 rounded-full bg-teal" />
             <span className="text-teal text-xs font-semibold tracking-wide uppercase">{s.sec_badge}</span>
           </div>
           <h2
-            className="font-serif text-white mb-4 leading-tight"
+            className="font-serif text-gray-900 mb-4 leading-tight"
             style={{ fontSize: 'clamp(1.875rem, 3.5vw, 2.875rem)' }}
           >
             {s.sec_title}
           </h2>
-          <p className="text-white/50 text-base max-w-2xl mx-auto leading-relaxed mb-6">{s.sec_sub}</p>
+          <p className="text-gray-500 text-base max-w-2xl mx-auto leading-relaxed mb-6">{s.sec_sub}</p>
           <div className="flex flex-wrap gap-2 justify-center">
             {badges.map(b => (
               <span
                 key={b}
-                className="flex items-center gap-1.5 bg-white/5 border border-white/10 text-white/70 text-xs font-medium px-4 py-2 rounded-full"
+                className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-600 text-xs font-medium px-4 py-2 rounded-full"
               >
                 <Check className="w-3 h-3 text-teal shrink-0" />{b}
               </span>
@@ -1711,15 +1658,13 @@ function Security({ s }) {
           {items.map(({ icon: Icon, t, d }) => (
             <div
               key={t}
-              className="group relative overflow-hidden rounded-2xl p-6 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] hover:border-teal/30 transition-all duration-300 hover:-translate-y-1"
+              className="group bg-white rounded-2xl p-6 border border-gray-100 hover:border-teal/20 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
             >
-              {/* Left accent bar */}
-              <div className="absolute left-0 top-4 bottom-4 w-0.5 rounded-full bg-teal/40 group-hover:bg-teal transition-colors duration-300" />
-              <div className="w-12 h-12 rounded-xl bg-teal/15 flex items-center justify-center mb-4 group-hover:bg-teal/25 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-teal/10 group-hover:bg-teal/15 flex items-center justify-center mb-4 transition-colors">
                 <Icon className="w-6 h-6 text-teal" />
               </div>
-              <h3 className="font-semibold text-white mb-2 text-base">{t}</h3>
-              <p className="text-sm text-white/45 leading-relaxed">{d}</p>
+              <h3 className="font-semibold text-gray-900 mb-2 text-base">{t}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{d}</p>
             </div>
           ))}
         </div>
@@ -1754,22 +1699,13 @@ function Support({ s }) {
           ].map(({ icon: Icon, t, d, cta, href, accent }) => (
             <div
               key={t}
-              className="card-spring group relative overflow-hidden p-9 rounded-2xl border transition-all duration-300"
+              className={`card-spring group relative overflow-hidden p-9 rounded-2xl border transition-all duration-300 ${
+                accent === 'teal' ? 'border-teal/15 hover:border-teal/25 hover:shadow-xl' : 'border-purple/15 hover:border-purple/25 hover:shadow-xl'
+              }`}
               style={{
                 background: accent === 'teal'
                   ? 'linear-gradient(145deg, #f0fdf9 0%, #ffffff 100%)'
                   : 'linear-gradient(145deg, #f5f3ff 0%, #ffffff 100%)',
-                borderColor: accent === 'teal' ? 'rgba(29,158,117,0.15)' : 'rgba(83,74,183,0.15)',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.boxShadow = accent === 'teal'
-                  ? '0 20px 50px rgba(29,158,117,0.15), 0 4px 16px rgba(0,0,0,0.06)'
-                  : '0 20px 50px rgba(83,74,183,0.15), 0 4px 16px rgba(0,0,0,0.06)'
-                e.currentTarget.style.borderColor = accent === 'teal' ? 'rgba(29,158,117,0.3)' : 'rgba(83,74,183,0.3)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.boxShadow = ''
-                e.currentTarget.style.borderColor = accent === 'teal' ? 'rgba(29,158,117,0.15)' : 'rgba(83,74,183,0.15)'
               }}
             >
               {/* Top accent strip */}
@@ -1813,23 +1749,9 @@ function ClosingCTA({ s }) {
       className="py-32 overflow-hidden relative"
       style={{ background: 'linear-gradient(135deg, #534AB7 0%, #3730a3 40%, #1D9E75 100%)' }}
     >
-      {/* Decorative circles */}
-      <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full border border-white/10" />
-      <div className="pointer-events-none absolute -bottom-16 -right-16 w-80 h-80 rounded-full border border-white/10" />
+      {/* Blobs */}
       <div className="pointer-events-none absolute top-0 left-1/3 w-[500px] h-[500px] bg-white/5 rounded-full blur-[120px]" />
       <div className="pointer-events-none absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-teal/10 rounded-full blur-[100px]" />
-      {/* Small decorative circles in corners */}
-      <div className="pointer-events-none absolute top-8 right-8 w-32 h-32 rounded-full bg-white/10" />
-      <div className="pointer-events-none absolute bottom-8 left-8 w-24 h-24 rounded-full bg-white/10" />
-
-      {/* Dot grid */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-10"
-        style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-        }}
-      />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Top badge */}
@@ -1849,7 +1771,7 @@ function ClosingCTA({ s }) {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="mailto:hello@birclick.az"
-            className="shimmer-card relative bg-white text-purple font-semibold px-9 py-4 rounded-xl hover:bg-gray-50 hover:-translate-y-1 transition-all duration-200 text-sm"
+            className="relative bg-white text-purple font-semibold px-9 py-4 rounded-xl hover:bg-gray-50 hover:-translate-y-1 transition-all duration-200 text-sm"
             style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.15)' }}
           >
             {s.cta_btn1}
