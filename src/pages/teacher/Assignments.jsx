@@ -347,7 +347,7 @@ export default function TeacherAssignments() {
       .from('submissions')
       .select('*')
       .eq('assignment_id', assignment.id)
-      .order('created_at', { ascending: false })
+      .order('submitted_at', { ascending: false })
 
     if (subErr) console.error('submissions fetch error:', subErr)
 
