@@ -10,13 +10,12 @@ import {
   Users, BookOpen, Calendar, Bell, MessageSquare,
   Clock, ClipboardList, GraduationCap, ChevronRight,
 } from 'lucide-react'
+import { todayFull } from '../../lib/dateUtils'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function todayLabel() {
-  return new Date().toLocaleDateString('az-AZ', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  })
+  return todayFull()
 }
 
 function formatDate(iso) {

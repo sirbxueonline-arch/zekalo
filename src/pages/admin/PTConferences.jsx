@@ -10,6 +10,7 @@ import EmptyState from '../../components/ui/EmptyState'
 import Input from '../../components/ui/Input'
 import { Select } from '../../components/ui/Input'
 import Avatar from '../../components/ui/Avatar'
+import { fmtDate } from '../../lib/dateUtils'
 
 const SLOT_DURATION = 15 // minutes
 const DAY_START = 8 * 60 // 08:00 in minutes
@@ -20,7 +21,7 @@ function formatDate(date) {
 }
 
 function displayDate(dateStr) {
-  return new Date(dateStr + 'T12:00:00').toLocaleDateString('az-AZ', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  return fmtDate(new Date(dateStr + 'T12:00:00'), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 function minutesToTime(min) {

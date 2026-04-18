@@ -8,6 +8,7 @@ import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
 import { Select } from '../../components/ui/Input'
 import { PageSpinner } from '../../components/ui/Spinner'
+import { fmtLong } from '../../lib/dateUtils'
 import EmptyState from '../../components/ui/EmptyState'
 import Badge from '../../components/ui/Badge'
 
@@ -274,9 +275,7 @@ export default function ReportCards() {
     if (!previewData) return
     try {
       setGenerating(true)
-      const generatedDate = new Date().toLocaleDateString('az-AZ', {
-        day: '2-digit', month: 'long', year: 'numeric',
-      })
+      const generatedDate = fmtLong(new Date())
 
       const JsPDF = await tryLoadJsPDF()
 

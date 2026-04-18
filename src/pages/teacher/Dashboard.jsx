@@ -11,6 +11,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { PageSpinner } from '../../components/ui/Spinner'
 import Avatar from '../../components/ui/Avatar'
 import Badge from '../../components/ui/Badge'
+import { todayFull } from '../../lib/dateUtils'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -22,9 +23,7 @@ function greeting(t) {
 }
 
 function todayLabel() {
-  return new Date().toLocaleDateString('az-AZ', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  })
+  return todayFull()
 }
 
 function formatDate(dateStr) {

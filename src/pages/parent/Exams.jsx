@@ -7,10 +7,11 @@ import { Select } from '../../components/ui/Input'
 import Badge from '../../components/ui/Badge'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
+import { fmtLong } from '../../lib/dateUtils'
 
 function formatDate(d) {
   if (!d) return ''
-  return new Date(d).toLocaleDateString('az-AZ', { day: '2-digit', month: 'long', year: 'numeric' })
+  return fmtLong(d)
 }
 
 function getScoreVariant(pct) {

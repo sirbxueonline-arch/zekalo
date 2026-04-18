@@ -10,17 +10,16 @@ import {
   ArrowRight, Bell, TrendingUp, TrendingDown,
   Star, Target,
 } from 'lucide-react'
+import { todayFull, fmtWeekday } from '../../lib/dateUtils'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function todayLabel() {
-  return new Date().toLocaleDateString('az-AZ', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  })
+  return todayFull()
 }
 
 function todayWeekday() {
-  return new Date().toLocaleDateString('az-AZ', { weekday: 'long' })
+  return fmtWeekday(new Date())
 }
 
 function formatDate(iso) {

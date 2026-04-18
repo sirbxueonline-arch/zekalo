@@ -10,6 +10,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { PageSpinner } from '../../components/ui/Spinner'
 import Avatar from '../../components/ui/Avatar'
+import { fmtDate } from '../../lib/dateUtils'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -282,7 +283,7 @@ export default function AdminDashboard() {
             iconBg="bg-purple-light"
             iconColor="text-purple"
             title="Bugünkü Davamiyyət Baxışı"
-            sub={`${att.total} şagird qeydə alınıb · ${new Date().toLocaleDateString('az-AZ', { day: 'numeric', month: 'long' })}`}
+            sub={`${att.total} şagird qeydə alınıb · ${fmtDate(new Date(), { day: 'numeric', month: 'long' })}`}
             action="Ətraflı"
             onAction={() => navigate('/admin/cedvel')}
           />

@@ -10,6 +10,7 @@ import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import Input from '../../components/ui/Input'
 import { Textarea, Select } from '../../components/ui/Input'
+import { fmtDate } from '../../lib/dateUtils'
 
 const ATL_SKILLS = ['Düşüncə', 'Ünsiyyət', 'Sosial', 'Özünüidarəetmə', 'Tədqiqat']
 
@@ -279,7 +280,7 @@ export default function UnitPlanner() {
                     {unit.start_date && (
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {new Date(unit.start_date).toLocaleDateString('az-AZ', { day: 'numeric', month: 'short' })}
+                        {fmtDate(new Date(unit.start_date), { day: 'numeric', month: 'short' })}
                       </span>
                     )}
                     {dur && (

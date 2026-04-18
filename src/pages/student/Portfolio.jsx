@@ -9,6 +9,7 @@ import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import Input from '../../components/ui/Input'
 import { Textarea, Select } from '../../components/ui/Input'
+import { fmtLong } from '../../lib/dateUtils'
 
 const SUBJECTS = [
   'Riyaziyyat', 'Fizika', 'Kimya', 'Biologiya', 'Tarix',
@@ -223,7 +224,7 @@ export default function Portfolio() {
               {item.date && (
                 <div className="flex items-center gap-1 text-xs text-gray-400 mt-auto pt-2 border-t border-border-soft">
                   <Calendar className="w-3 h-3" />
-                  {new Date(item.date).toLocaleDateString('az-AZ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  {fmtLong(item.date)}
                 </div>
               )}
             </Card>
@@ -240,7 +241,7 @@ export default function Portfolio() {
               {viewModal.date && (
                 <span className="text-sm text-gray-500 flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  {new Date(viewModal.date).toLocaleDateString('az-AZ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  {fmtLong(viewModal.date)}
                 </span>
               )}
             </div>

@@ -10,6 +10,7 @@ import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { GradeBadge } from '../../components/ui/Badge'
 import { BookOpen, Plus, Download, Search, ChevronDown, TrendingUp, Award, BarChart3 } from 'lucide-react'
+import { fmtDate } from '../../lib/dateUtils'
 
 const assessmentTypes = [
   { value: 'test',      label: 'Test' },
@@ -367,7 +368,7 @@ export default function TeacherGradebook() {
                     const borderClass = typeHeaderBorder[a.type] || 'border-gray-300'
                     const badgeClass  = typeColors[a.type]      || 'bg-gray-100 text-gray-600 border-gray-300'
                     const label       = typeLabelMap[a.type]    || a.type
-                    const dateStr     = a.date ? new Date(a.date).toLocaleDateString('az-AZ', { day: '2-digit', month: 'short' }) : ''
+                    const dateStr     = a.date ? fmtDate(new Date(a.date), { day: '2-digit', month: 'short' }) : ''
                     return (
                       <th
                         key={a.id}

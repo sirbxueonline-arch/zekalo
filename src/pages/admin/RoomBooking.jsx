@@ -9,6 +9,7 @@ import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import Input from '../../components/ui/Input'
 import { Select, Textarea } from '../../components/ui/Input'
+import { fmtDate } from '../../lib/dateUtils'
 
 const ROOMS = [
   { id: 'r1', name: 'Sinif 101', type: 'classroom' },
@@ -46,7 +47,7 @@ function formatDate(date) {
 }
 
 function displayDate(dateStr) {
-  return new Date(dateStr + 'T12:00:00').toLocaleDateString('az-AZ', { weekday: 'long', day: 'numeric', month: 'long' })
+  return fmtDate(new Date(dateStr + 'T12:00:00'), { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
 function timeToMinutes(t) {
