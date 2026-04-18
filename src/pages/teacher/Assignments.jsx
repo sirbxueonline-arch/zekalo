@@ -341,16 +341,41 @@ export default function TeacherAssignments() {
     setSelectedAssignment(assignment)
     setGradeStatus({})
     setTeacherFeedback({})
-    const { data } = await supabase
+
+    // Step 1: fetch submissions (no join — avoids potential RLS join failure)
+    const { data: subs, error: subErr } = await supabase
       .from('submissions')
-      .select('*, student:profiles(id, full_name)')
+      .select('*')
       .eq('assignment_id', assignment.id)
       .order('created_at', { ascending: false })
 
-    setDetailSubmissions(data || [])
+    if (subErr) console.error('submissions fetch error:', subErr)
+
+    const submissions = subs || []
+
+    // Step 2: fetch student profiles separately
+    let profileMap = {}
+    if (submissions.length > 0) {
+      const studentIds = [...new Set(submissions.map(s => s.student_id).filter(Boolean))]
+      const { data: profileData, error: profErr } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', studentIds)
+      if (profErr) console.error('profiles fetch error:', profErr)
+      ;(profileData || []).forEach(p => { profileMap[p.id] = p })
+    }
+
+    // Merge student info into each submission
+    const merged = submissions.map(s => ({
+      ...s,
+      student: profileMap[s.student_id] || { id: s.student_id, full_name: 'Naməlum' },
+    }))
+
+    setDetailSubmissions(merged)
+
     // Pre-fill teacher feedback state from existing feedback
     const fb = {}
-    ;(data || []).forEach(s => { if (s.feedback) fb[s.id] = s.feedback })
+    merged.forEach(s => { if (s.feedback) fb[s.id] = s.feedback })
     setTeacherFeedback(fb)
     setShowDetailModal(true)
   }
@@ -462,6 +487,7 @@ export default function TeacherAssignments() {
   const formatDate = (d) => {
     if (!d) return ''
     const dt = new Date(d)
+    if (isNaN(dt.getTime())) return ''
     return `${String(dt.getDate()).padStart(2, '0')}.${String(dt.getMonth() + 1).padStart(2, '0')}.${dt.getFullYear()}`
   }
 
