@@ -3,15 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import {
   Users, GraduationCap, CalendarCheck, School,
   UserPlus, Megaphone, AlertTriangle,
-  TrendingUp, TrendingDown, ChevronRight,
-  Activity, BookOpen, Bell,
-  CheckCircle,
+  ChevronRight, Activity, Bell, CheckCircle,
+  TrendingUp, TrendingDown,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { PageSpinner } from '../../components/ui/Spinner'
 import Avatar from '../../components/ui/Avatar'
-import Button from '../../components/ui/Button'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -30,153 +28,77 @@ function todayLabel() {
 
 function timeAgo(dateStr) {
   const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000)
-  if (diff < 60)    return `${diff} san. əvvəl`
-  if (diff < 3600)  return `${Math.floor(diff / 60)} dəq. əvvəl`
-  if (diff < 86400) return `${Math.floor(diff / 3600)} saat əvvəl`
-  return `${Math.floor(diff / 86400)} gün əvvəl`
+  if (diff < 60)    return `${diff} san.`
+  if (diff < 3600)  return `${Math.floor(diff / 60)} dəq.`
+  if (diff < 86400) return `${Math.floor(diff / 3600)} saat`
+  return `${Math.floor(diff / 86400)} gün`
 }
 
 function formatEventDate(dateStr) {
   const d = new Date(dateStr)
   return {
-    dd: String(d.getDate()).padStart(2, '0'),
-    month: d.toLocaleDateString('az-AZ', { month: 'short' }),
+    dd:      String(d.getDate()).padStart(2, '0'),
+    month:   d.toLocaleDateString('az-AZ', { month: 'short' }),
+    weekday: d.toLocaleDateString('az-AZ', { weekday: 'short' }),
   }
-}
-
-// ── Stat card (larger, more prominent) ─────────────────────────────────────
-
-function StatCard({ icon: Icon, label, value, iconBg, iconColor, trendDir, sub }) {
-  return (
-    <div className="bg-white rounded-xl border border-border-soft shadow-sm px-5 py-4 flex items-start gap-4">
-      <span className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
-        <Icon className={`w-5 h-5 ${iconColor}`} />
-      </span>
-      <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider leading-none">{label}</p>
-        <p className="text-3xl font-bold text-gray-900 leading-tight mt-1">{value}</p>
-        {sub && <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>}
-      </div>
-      {trendDir && (
-        <div className={`flex-shrink-0 mt-1 ${trendDir === 'up' ? 'text-teal' : 'text-red-400'}`}>
-          {trendDir === 'up' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-        </div>
-      )}
-    </div>
-  )
 }
 
 // ── Attendance bar ──────────────────────────────────────────────────────────
 
 function AttBar({ pct }) {
-  const color = pct >= 85 ? 'bg-teal' : pct >= 70 ? 'bg-amber-400' : 'bg-red-400'
+  const [color, text] =
+    pct >= 85 ? ['bg-teal',     'text-teal']
+  : pct >= 70 ? ['bg-amber-400','text-amber-500']
+  :             ['bg-red-400',  'text-red-500']
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+    <div className="flex items-center gap-2.5">
+      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+        <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className={`text-xs font-bold w-9 text-right ${
-        pct >= 85 ? 'text-teal' : pct >= 70 ? 'text-amber-600' : 'text-red-600'
-      }`}>{pct}%</span>
+      <span className={`text-xs font-bold w-8 text-right tabular-nums ${text}`}>{pct}%</span>
     </div>
   )
 }
 
-
 // ── Activity dot ────────────────────────────────────────────────────────────
 
-const activityDotColor = {
-  grade:        'bg-purple',
-  attendance:   'bg-teal',
-  discipline:   'bg-red-500',
-  announcement: 'bg-amber-400',
-  message:      'bg-blue-400',
+const DOT_COLORS = {
+  grade: 'bg-purple', attendance: 'bg-teal',
+  discipline: 'bg-red-500', announcement: 'bg-amber-400', message: 'bg-blue-400',
 }
 
-function ActivityDot({ type }) {
-  const cls = activityDotColor[type] || 'bg-gray-300'
-  return <span className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${cls}`} />
+// ── Event type meta ─────────────────────────────────────────────────────────
+
+const EVENT_META = {
+  exam:    { bg: 'bg-red-100',     text: 'text-red-700',    dot: 'bg-red-400' },
+  meeting: { bg: 'bg-purple-light',text: 'text-purple',     dot: 'bg-purple' },
+  holiday: { bg: 'bg-teal-light',  text: 'text-teal',       dot: 'bg-teal' },
+  sport:   { bg: 'bg-amber-50',    text: 'text-amber-700',  dot: 'bg-amber-400' },
+  art:     { bg: 'bg-pink-50',     text: 'text-pink-700',   dot: 'bg-pink-400' },
 }
 
-// ── Event type badge ────────────────────────────────────────────────────────
+// ── Section header ──────────────────────────────────────────────────────────
 
-const eventTypeBg = {
-  exam:     'bg-red-50 text-red-700 border-red-100',
-  meeting:  'bg-purple-light text-purple border-purple/10',
-  holiday:  'bg-teal-light text-teal border-teal/10',
-  sport:    'bg-amber-50 text-amber-700 border-amber-100',
-  art:      'bg-pink-50 text-pink-700 border-pink-100',
-}
-
-// ── Attendance snapshot ─────────────────────────────────────────────────────
-
-function AttendanceSnapshot({ classAttendance }) {
-  const totals = classAttendance.reduce(
-    (acc, c) => ({
-      present: acc.present + c.present,
-      absent:  acc.absent  + c.absent,
-      late:    acc.late    + c.late,
-      total:   acc.total   + c.total,
-    }),
-    { present: 0, absent: 0, late: 0, total: 0 },
-  )
-  if (totals.total === 0) return null
-
-  const pPct = Math.round((totals.present / totals.total) * 100)
-  const aPct = Math.round((totals.absent  / totals.total) * 100)
-  const lPct = Math.round((totals.late    / totals.total) * 100)
-
+function SectionHeader({ icon: Icon, iconBg, iconColor, title, sub, action, onAction }) {
   return (
-    <div className="bg-white rounded-xl border border-border-soft shadow-sm px-5 py-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-          <CalendarCheck className="w-4 h-4 text-purple" />
-          Bugünkü Xülasə
-        </h2>
-        <span className="text-xs text-gray-400">{totals.total} şagird cəmi</span>
-      </div>
-
-      <div className="grid grid-cols-3 gap-4 mb-4">
-        <div className="text-center">
-          <p className="text-3xl font-bold text-teal leading-none">{totals.present}</p>
-          <p className="text-xs text-gray-500 mt-1.5 font-medium">İştirak edir</p>
-          <p className="text-[11px] text-teal/70">{pPct}%</p>
+    <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
+      <div className="flex items-center gap-3">
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBg}`}>
+          <Icon className={`w-4 h-4 ${iconColor}`} />
         </div>
-        <div className="text-center border-x border-border-soft">
-          <p className="text-3xl font-bold text-red-500 leading-none">{totals.absent}</p>
-          <p className="text-xs text-gray-500 mt-1.5 font-medium">Qayıb</p>
-          <p className="text-[11px] text-red-400">{aPct}%</p>
-        </div>
-        <div className="text-center">
-          <p className="text-3xl font-bold text-amber-500 leading-none">{totals.late}</p>
-          <p className="text-xs text-gray-500 mt-1.5 font-medium">Gecikən</p>
-          <p className="text-[11px] text-amber-500/80">{lPct}%</p>
+        <div>
+          <h2 className="text-sm font-bold text-gray-900 leading-none">{title}</h2>
+          {sub && <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>}
         </div>
       </div>
-
-      {/* Stacked progress bar */}
-      <div className="flex h-2 rounded-full overflow-hidden bg-gray-100">
-        {pPct > 0 && (
-          <div className="bg-teal h-full transition-all" style={{ width: `${pPct}%` }} />
-        )}
-        {lPct > 0 && (
-          <div className="bg-amber-400 h-full transition-all" style={{ width: `${lPct}%` }} />
-        )}
-        {aPct > 0 && (
-          <div className="bg-red-400 h-full transition-all" style={{ width: `${aPct}%` }} />
-        )}
-      </div>
-      <div className="flex items-center gap-5 mt-2">
-        <span className="flex items-center gap-1.5 text-[11px] text-gray-500">
-          <span className="w-2 h-2 rounded-full bg-teal inline-block" />{pPct}% iştirak
-        </span>
-        <span className="flex items-center gap-1.5 text-[11px] text-gray-500">
-          <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />{lPct}% gecikən
-        </span>
-        <span className="flex items-center gap-1.5 text-[11px] text-gray-500">
-          <span className="w-2 h-2 rounded-full bg-red-400 inline-block" />{aPct}% qayıb
-        </span>
-      </div>
+      {action && (
+        <button
+          onClick={onAction}
+          className="text-xs text-purple hover:text-purple-dark font-semibold flex items-center gap-0.5 transition-colors"
+        >
+          {action} <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      )}
     </div>
   )
 }
@@ -203,84 +125,50 @@ export default function AdminDashboard() {
     try {
       setLoading(true)
       setError(null)
-
       const todayStr = new Date().toISOString().split('T')[0]
-
       const { data: classData } = await supabase
         .from('classes').select('id, name').eq('school_id', profile.school_id)
       const classIds = (classData || []).map(c => c.id)
 
       const [
-        studentsRes,
-        teachersRes,
-        parentsRes,
-        attendanceRes,
-        attByClassRes,
-        activitiesRes,
-        eventsRes,
-        activeEventsRes,
+        studentsRes, teachersRes, parentsRes,
+        attendanceRes, attByClassRes,
+        activitiesRes, eventsRes, activeEventsRes,
       ] = await Promise.all([
-        supabase.from('profiles')
-          .select('id', { count: 'exact', head: true })
-          .eq('school_id', profile.school_id).eq('role', 'student'),
-        supabase.from('profiles')
-          .select('id', { count: 'exact', head: true })
-          .eq('school_id', profile.school_id).eq('role', 'teacher'),
-        supabase.from('profiles')
-          .select('id', { count: 'exact', head: true })
-          .eq('school_id', profile.school_id).eq('role', 'parent'),
-        classIds.length
-          ? supabase.from('attendance').select('status')
-              .in('class_id', classIds).eq('date', todayStr)
-          : Promise.resolve({ data: [] }),
-        classIds.length
-          ? supabase.from('attendance').select('class_id, status')
-              .in('class_id', classIds).eq('date', todayStr)
-          : Promise.resolve({ data: [] }),
-        supabase.from('notifications').select('*')
-          .or(`school_id.eq.${profile.school_id},user_id.eq.${profile.id}`)
-          .order('created_at', { ascending: false }).limit(10),
-        supabase.from('events').select('*')
-          .eq('school_id', profile.school_id)
-          .gte('start_date', todayStr)
-          .order('start_date').limit(5),
-        supabase.from('events')
-          .select('id', { count: 'exact', head: true })
-          .eq('school_id', profile.school_id)
-          .gte('start_date', todayStr),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('school_id', profile.school_id).eq('role', 'student'),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('school_id', profile.school_id).eq('role', 'teacher'),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('school_id', profile.school_id).eq('role', 'parent'),
+        classIds.length ? supabase.from('attendance').select('status').in('class_id', classIds).eq('date', todayStr) : Promise.resolve({ data: [] }),
+        classIds.length ? supabase.from('attendance').select('class_id, status').in('class_id', classIds).eq('date', todayStr) : Promise.resolve({ data: [] }),
+        supabase.from('notifications').select('*').or(`school_id.eq.${profile.school_id},user_id.eq.${profile.id}`).order('created_at', { ascending: false }).limit(12),
+        supabase.from('events').select('*').eq('school_id', profile.school_id).gte('start_date', todayStr).order('start_date').limit(6),
+        supabase.from('events').select('id', { count: 'exact', head: true }).eq('school_id', profile.school_id).gte('start_date', todayStr),
       ])
 
-      // get_at_risk_students is an optional RPC — isolated so it can't crash the dashboard
       let atRiskData = []
       try {
         const { data } = await supabase.rpc('get_at_risk_students', { p_school_id: profile.school_id })
         atRiskData = data || []
-      } catch { /* RPC not deployed — skip */ }
+      } catch { /* optional RPC */ }
 
       const totalAtt   = attendanceRes.data?.length || 0
       const presentCnt = attendanceRes.data?.filter(a => a.status === 'present').length || 0
       const attPct     = totalAtt > 0 ? Math.round((presentCnt / totalAtt) * 100) : 0
 
       setStats({
-        students:     studentsRes.count  || 0,
-        teachers:     teachersRes.count  || 0,
-        parents:      parentsRes.count   || 0,
-        classes:      classIds.length,
-        attendance:   attPct,
-        activeEvents: activeEventsRes.count || 0,
+        students: studentsRes.count || 0, teachers: teachersRes.count || 0,
+        parents: parentsRes.count || 0, classes: classIds.length,
+        attendance: attPct, activeEvents: activeEventsRes.count || 0,
       })
 
-      const attRows = attByClassRes.data || []
       const classMap = {}
-      ;(classData || []).forEach(c => {
-        classMap[c.id] = { class_id: c.id, name: c.name, present: 0, absent: 0, late: 0, total: 0 }
-      })
-      attRows.forEach(row => {
+      ;(classData || []).forEach(c => { classMap[c.id] = { class_id: c.id, name: c.name, present: 0, absent: 0, late: 0, total: 0 } })
+      ;(attByClassRes.data || []).forEach(row => {
         if (!classMap[row.class_id]) return
         classMap[row.class_id].total++
         if (row.status === 'present') classMap[row.class_id].present++
         else if (row.status === 'absent') classMap[row.class_id].absent++
-        else if (row.status === 'late')   classMap[row.class_id].late++
+        else if (row.status === 'late') classMap[row.class_id].late++
       })
       const classAttList = Object.values(classMap)
         .filter(c => c.total > 0)
@@ -299,158 +187,208 @@ export default function AdminDashboard() {
   }
 
   if (loading) return <PageSpinner />
-
   if (error) {
     return (
       <div className="text-center py-20">
         <p className="text-red-600 text-sm mb-4">{error}</p>
-        <button onClick={fetchData} className="text-sm text-purple underline underline-offset-2">
-          Yenidən cəhd et
-        </button>
+        <button onClick={fetchData} className="text-sm text-purple underline underline-offset-2">Yenidən cəhd et</button>
       </div>
     )
   }
 
   const firstName = profile?.full_name?.split(' ')[0] || ''
 
+  // Attendance totals for snapshot
+  const att = classAttendance.reduce(
+    (a, c) => ({ present: a.present + c.present, absent: a.absent + c.absent, late: a.late + c.late, total: a.total + c.total }),
+    { present: 0, absent: 0, late: 0, total: 0 },
+  )
+  const pPct = att.total > 0 ? Math.round((att.present / att.total) * 100) : 0
+  const aPct = att.total > 0 ? Math.round((att.absent  / att.total) * 100) : 0
+  const lPct = att.total > 0 ? Math.round((att.late    / att.total) * 100) : 0
+
   return (
     <div className="space-y-5">
 
-      {/* ── 1. Welcome header ─────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-border-soft shadow-sm px-6 py-5">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+      {/* ── HERO BANNER ──────────────────────────────────────────────────── */}
+      <div
+        className="rounded-2xl overflow-hidden shadow-lg"
+        style={{ background: 'linear-gradient(135deg, #534AB7 0%, #3D37A4 50%, #2D279F 100%)' }}
+      >
+        {/* Top row */}
+        <div className="px-7 pt-6 pb-5 flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-widest">{todayLabel()}</p>
-            <h1 className="font-serif text-2xl text-gray-900 mt-0.5 leading-tight">
-              {greeting(t)}, <span className="text-purple">{firstName}</span>
+            <p className="text-[11px] font-bold text-white/50 uppercase tracking-widest">{todayLabel()}</p>
+            <h1 className="text-white text-2xl font-extrabold mt-1.5 leading-tight tracking-tight">
+              {greeting(t)}, {firstName} 👋
             </h1>
             {profile?.school?.name && (
-              <p className="text-sm text-gray-500 mt-1 flex items-center gap-1.5">
-                <School className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+              <p className="text-white/60 text-xs mt-1.5 flex items-center gap-1.5 font-medium">
+                <School className="w-3.5 h-3.5" />
                 {profile.school.name}
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <Button
+          <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+            <button
               onClick={() => navigate('/admin/shagirdler')}
-              variant="secondary"
-              className="!px-3 !py-2 flex items-center gap-1.5 text-xs"
+              className="flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/20 text-white rounded-xl px-4 py-2.5 text-sm font-semibold transition-all"
             >
-              <UserPlus className="w-3.5 h-3.5" />
+              <UserPlus className="w-4 h-4" />
               <span className="hidden sm:inline">Şagird Əlavə Et</span>
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={() => navigate('/admin/mesajlar')}
-              className="!px-3 !py-2 flex items-center gap-1.5 text-xs"
+              className="flex items-center gap-2 bg-white text-purple hover:bg-purple-50 rounded-xl px-4 py-2.5 text-sm font-bold transition-all shadow-sm"
             >
-              <Megaphone className="w-3.5 h-3.5" />
+              <Megaphone className="w-4 h-4" />
               <span className="hidden sm:inline">Elan Yayımla</span>
-            </Button>
+            </button>
           </div>
+        </div>
+
+        {/* Stat tiles inside banner */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/10 border-t border-white/10">
+          {[
+            { label: 'Şagirdlər',   value: stats.students,     sub: `${stats.classes} sinif`,       icon: Users },
+            { label: 'Müəllimlər',  value: stats.teachers,     sub: `${stats.parents} valideyn`,    icon: GraduationCap },
+            { label: 'Davamiyyət',  value: `${stats.attendance}%`, sub: 'bu günkü faiz',           icon: CalendarCheck },
+            { label: 'Tədbirlər',   value: stats.activeEvents, sub: 'yaxınlaşan',                  icon: Activity },
+          ].map(s => (
+            <div key={s.label} className="bg-white/5 hover:bg-white/10 transition-colors px-5 py-4 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                <s.icon className="w-4.5 h-4.5 text-white/80" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-white/50 text-[10px] font-bold uppercase tracking-wider">{s.label}</p>
+                <p className="text-white text-2xl font-black leading-none mt-0.5 tabular-nums">{s.value}</p>
+                <p className="text-white/40 text-[10px] mt-0.5 font-medium truncate">{s.sub}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* ── 2. Stats row ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard
-          icon={Users}
-          label={t('students')}
-          value={stats.students}
-          iconBg="bg-purple-light"
-          iconColor="text-purple"
-          sub={`${stats.classes} sinif`}
-        />
-        <StatCard
-          icon={GraduationCap}
-          label={t('teachers')}
-          value={stats.teachers}
-          iconBg="bg-teal-light"
-          iconColor="text-teal"
-          sub={`${stats.parents} valideyn`}
-        />
-        <StatCard
-          icon={CalendarCheck}
-          label={t('today_attendance')}
-          value={`${stats.attendance}%`}
-          iconBg={stats.attendance >= 85 ? 'bg-teal-light' : stats.attendance >= 70 ? 'bg-amber-50' : 'bg-red-50'}
-          iconColor={stats.attendance >= 85 ? 'text-teal' : stats.attendance >= 70 ? 'text-amber-500' : 'text-red-500'}
-          trendDir={stats.attendance >= 75 ? 'up' : 'down'}
-          sub="bugünkü davamiyyət"
-        />
-        <StatCard
-          icon={Activity}
-          label="Yaxın Tədbirlər"
-          value={stats.activeEvents}
-          iconBg="bg-amber-50"
-          iconColor="text-amber-500"
-          sub="planlaşdırılmış"
-        />
-      </div>
+      {/* ── ATTENDANCE OVERVIEW ───────────────────────────────────────────── */}
+      {att.total > 0 && (
+        <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
+          <SectionHeader
+            icon={CalendarCheck}
+            iconBg="bg-purple-light"
+            iconColor="text-purple"
+            title="Bugünkü Davamiyyət Baxışı"
+            sub={`${att.total} şagird qeydə alınıb · ${new Date().toLocaleDateString('az-AZ', { day: 'numeric', month: 'long' })}`}
+            action="Ətraflı"
+            onAction={() => navigate('/admin/cedvel')}
+          />
 
-      {/* ── 3. Attendance snapshot (only shown when data exists) ──────────── */}
-      <AttendanceSnapshot classAttendance={classAttendance} />
+          {/* Big numbers */}
+          <div className="grid grid-cols-3 divide-x divide-border-soft">
+            <div className="px-6 py-6 text-center">
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">İştirak edir</p>
+              <p className="text-5xl font-black text-teal tabular-nums leading-none">{att.present}</p>
+              <span className="inline-flex items-center gap-1 mt-3 text-xs font-bold text-teal bg-teal-light px-3 py-1 rounded-full">
+                <TrendingUp className="w-3 h-3" />{pPct}%
+              </span>
+            </div>
+            <div className="px-6 py-6 text-center">
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Gecikən</p>
+              <p className="text-5xl font-black text-amber-500 tabular-nums leading-none">{att.late}</p>
+              <span className="inline-flex items-center mt-3 text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
+                {lPct}%
+              </span>
+            </div>
+            <div className="px-6 py-6 text-center">
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Qayıb</p>
+              <p className="text-5xl font-black text-red-500 tabular-nums leading-none">{att.absent}</p>
+              <span className="inline-flex items-center gap-1 mt-3 text-xs font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full">
+                <TrendingDown className="w-3 h-3" />{aPct}%
+              </span>
+            </div>
+          </div>
 
-      {/* ── 4. Main 3-col grid ─────────────────────────────────────────── */}
+          {/* Stacked bar */}
+          <div className="px-6 pb-5">
+            <div className="h-3 rounded-full overflow-hidden bg-gray-100 flex">
+              {pPct > 0 && <div className="bg-teal   h-full transition-all" style={{ width: `${pPct}%` }} />}
+              {lPct > 0 && <div className="bg-amber-400 h-full transition-all ml-0.5" style={{ width: `${lPct}%` }} />}
+              {aPct > 0 && <div className="bg-red-400 h-full transition-all ml-0.5" style={{ width: `${aPct}%` }} />}
+            </div>
+            <div className="flex items-center gap-5 mt-2.5">
+              {[
+                { color: 'bg-teal',      label: `${pPct}% iştirak` },
+                { color: 'bg-amber-400', label: `${lPct}% gecikən` },
+                { color: 'bg-red-400',   label: `${aPct}% qayıb` },
+              ].map(item => (
+                <span key={item.label} className="flex items-center gap-1.5 text-[11px] text-gray-500 font-medium">
+                  <span className={`w-2.5 h-2.5 rounded-full ${item.color} flex-shrink-0`} />
+                  {item.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MAIN GRID ─────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-        {/* LEFT (8 cols): Attendance table + At-risk */}
-        <div className="lg:col-span-8 space-y-5">
+        {/* ── LEFT col (7 cols) ─────────────────────────────────────────── */}
+        <div className="lg:col-span-7 space-y-5">
 
-          {/* Bugünkü Davamiyyət — per-class table */}
-          <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
-              <div className="flex items-center gap-2">
-                <CalendarCheck className="w-4 h-4 text-purple" />
-                <h2 className="font-semibold text-gray-900 text-sm">{t('todays_attendance_table')}</h2>
-              </div>
-              <button
-                onClick={() => navigate('/admin/cedvel')}
-                className="text-xs text-purple hover:text-purple-dark flex items-center gap-1 transition-colors"
-              >
-                {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          {/* Class-by-class attendance */}
+          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
+            <SectionHeader
+              icon={CalendarCheck}
+              iconBg="bg-purple-light"
+              iconColor="text-purple"
+              title={t('todays_attendance_table')}
+              action={t('view_all')}
+              onAction={() => navigate('/admin/cedvel')}
+            />
 
             {classAttendance.length === 0 ? (
-              <div className="px-5 py-12 text-center">
-                <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <CalendarCheck className="w-5 h-5 text-gray-300" />
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-14 h-14 bg-surface rounded-2xl flex items-center justify-center mb-4">
+                  <CalendarCheck className="w-7 h-7 text-gray-300" />
                 </div>
-                <p className="text-sm text-gray-400">Bu gün üçün davamiyyət məlumatı yoxdur</p>
+                <p className="text-sm font-semibold text-gray-500">Bu gün üçün davamiyyət qeydə alınmayıb</p>
+                <p className="text-xs text-gray-400 mt-1">Müəllimlər dərs zamanı qeyd etdikdə görünəcək</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full">
                   <thead>
-                    <tr className="bg-surface border-b border-border-soft">
-                      <th className="text-left px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sinif</th>
-                      <th className="text-center px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">İştirak</th>
-                      <th className="text-center px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Qayıb</th>
-                      <th className="text-center px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Gecikən</th>
-                      <th className="px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[120px]">Faiz</th>
+                    <tr className="bg-gray-50/80 border-b border-border-soft">
+                      <th className="text-left px-5 py-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Sinif</th>
+                      <th className="text-center px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-teal">İştirak</th>
+                      <th className="text-center px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-amber-500">Gecikən</th>
+                      <th className="text-center px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-red-400">Qayıb</th>
+                      <th className="px-5 py-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider min-w-[140px]">Faiz</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border-soft">
                     {classAttendance.map(cls => (
-                      <tr key={cls.class_id} className="hover:bg-surface/60 transition-colors">
-                        <td className="px-5 py-3 font-semibold text-gray-900">{cls.name}</td>
-                        <td className="px-3 py-3 text-center">
-                          <span className="inline-flex items-center justify-center w-8 h-6 rounded-md bg-teal-light text-teal text-xs font-bold">
+                      <tr key={cls.class_id} className="hover:bg-purple-light/10 transition-colors group">
+                        <td className="px-5 py-3.5">
+                          <span className="font-bold text-gray-900 text-sm group-hover:text-purple transition-colors">{cls.name}</span>
+                        </td>
+                        <td className="px-4 py-3.5 text-center">
+                          <span className="inline-flex items-center justify-center min-w-[36px] h-7 rounded-lg bg-teal-light text-teal text-sm font-black px-2">
                             {cls.present}
                           </span>
                         </td>
-                        <td className="px-3 py-3 text-center">
-                          <span className="inline-flex items-center justify-center w-8 h-6 rounded-md bg-red-50 text-red-600 text-xs font-bold">
-                            {cls.absent}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3 text-center">
-                          <span className="inline-flex items-center justify-center w-8 h-6 rounded-md bg-amber-50 text-amber-600 text-xs font-bold">
+                        <td className="px-4 py-3.5 text-center">
+                          <span className="inline-flex items-center justify-center min-w-[36px] h-7 rounded-lg bg-amber-50 text-amber-600 text-sm font-black px-2">
                             {cls.late}
                           </span>
                         </td>
-                        <td className="px-5 py-3">
+                        <td className="px-4 py-3.5 text-center">
+                          <span className="inline-flex items-center justify-center min-w-[36px] h-7 rounded-lg bg-red-50 text-red-500 text-sm font-black px-2">
+                            {cls.absent}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">
                           <AttBar pct={cls.pct} />
                         </td>
                       </tr>
@@ -461,120 +399,110 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* Risk Altındakı Şagirdlər */}
-          <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-red-400" />
-                <h2 className="font-semibold text-gray-900 text-sm">{t('at_risk_students')}</h2>
-                {atRisk.length > 0 && (
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-100 text-red-700 text-xs font-bold">
-                    {atRisk.length}
-                  </span>
-                )}
-              </div>
-              {atRisk.length > 0 && (
-                <button
-                  onClick={() => navigate('/admin/shagirdler')}
-                  className="text-xs text-purple hover:text-purple-dark flex items-center gap-1 transition-colors"
-                >
-                  {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-
-            {atRisk.length === 0 ? (
-              <div className="px-5 py-10 text-center">
-                <div className="w-10 h-10 rounded-full bg-teal-light flex items-center justify-center mx-auto mb-3">
+          {/* At-risk students */}
+          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
+            {atRisk.length > 0 ? (
+              <>
+                <SectionHeader
+                  icon={AlertTriangle}
+                  iconBg="bg-red-50"
+                  iconColor="text-red-400"
+                  title={t('at_risk_students')}
+                  sub={`${atRisk.length} şagird diqqət tələb edir`}
+                  action={t('view_all')}
+                  onAction={() => navigate('/admin/shagirdler')}
+                />
+                <div className="divide-y divide-border-soft">
+                  {atRisk.map(s => (
+                    <div
+                      key={s.id}
+                      className="flex items-center gap-3 pl-0 pr-5 py-3.5 hover:bg-red-50/30 transition-colors"
+                      style={{ borderLeft: '4px solid #FCA5A5' }}
+                    >
+                      <div className="pl-4">
+                        <Avatar name={s.full_name} size="sm" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-gray-900 truncate">{s.full_name}</p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {s.class_name}
+                          {s.risk_reason && <span className="ml-2 text-red-400 font-semibold">· {s.risk_reason}</span>}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-4 flex-shrink-0">
+                        {s.avg_grade != null && (
+                          <div className="text-right">
+                            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Ort.</p>
+                            <p className={`text-base font-black mt-0.5 ${s.avg_grade < 5 ? 'text-red-600' : 'text-gray-700'}`}>{s.avg_grade}</p>
+                          </div>
+                        )}
+                        {s.attendance_pct != null && (
+                          <div className="text-right">
+                            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Dev.</p>
+                            <p className={`text-base font-black mt-0.5 ${s.attendance_pct < 75 ? 'text-red-600' : 'text-gray-700'}`}>{s.attendance_pct}%</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-4 px-5 py-5">
+                <div className="w-10 h-10 rounded-xl bg-teal-light flex items-center justify-center flex-shrink-0">
                   <CheckCircle className="w-5 h-5 text-teal" />
                 </div>
-                <p className="text-sm font-medium text-gray-700">Risk altında olan şagird yoxdur</p>
-                <p className="text-xs text-gray-400 mt-1">Bütün şagirdlər yaxşı vəziyyətdədir</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border-soft">
-                {atRisk.map(student => (
-                  <div
-                    key={student.id}
-                    className="flex items-center gap-3 px-5 py-3 border-l-4 border-l-red-400 hover:bg-red-50/30 transition-colors"
-                  >
-                    <Avatar name={student.full_name} size="sm" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{student.full_name}</p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {student.class_name}
-                        {student.risk_reason && (
-                          <span className="ml-2 text-red-400">· {student.risk_reason}</span>
-                        )}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-4 flex-shrink-0">
-                      {student.avg_grade !== undefined && student.avg_grade !== null && (
-                        <div className="text-right">
-                          <p className="text-[10px] text-gray-400 leading-none">Ortalama</p>
-                          <p className={`text-sm font-bold mt-0.5 ${student.avg_grade < 5 ? 'text-red-600' : 'text-gray-700'}`}>
-                            {student.avg_grade}
-                          </p>
-                        </div>
-                      )}
-                      {student.attendance_pct !== undefined && student.attendance_pct !== null && (
-                        <div className="text-right">
-                          <p className="text-[10px] text-gray-400 leading-none">Davamiyyət</p>
-                          <p className={`text-sm font-bold mt-0.5 ${student.attendance_pct < 75 ? 'text-red-600' : 'text-gray-700'}`}>
-                            {student.attendance_pct}%
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                <div>
+                  <p className="text-sm font-bold text-gray-900">{t('at_risk_students')}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Risk altında olan şagird yoxdur · Bütün şagirdlər yaxşı vəziyyətdədir</p>
+                </div>
               </div>
             )}
           </div>
 
         </div>
 
-        {/* RIGHT (4 cols): Events + Activity feed */}
-        <div className="lg:col-span-4 space-y-5">
+        {/* ── RIGHT col (5 cols) ────────────────────────────────────────── */}
+        <div className="lg:col-span-5 space-y-5">
 
-          {/* Yaxın Tədbirlər */}
-          <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-amber-500" />
-                <h2 className="font-semibold text-gray-900 text-sm">{t('upcoming_events')}</h2>
-              </div>
-              <button
-                onClick={() => navigate('/admin/tedbirler')}
-                className="text-xs text-purple hover:text-purple-dark flex items-center gap-1 transition-colors"
-              >
-                {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          {/* Upcoming events */}
+          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
+            <SectionHeader
+              icon={Activity}
+              iconBg="bg-amber-50"
+              iconColor="text-amber-500"
+              title={t('upcoming_events')}
+              action={t('view_all')}
+              onAction={() => navigate('/admin/tedbirler')}
+            />
 
             {events.length === 0 ? (
-              <div className="px-5 py-8 text-center">
-                <Activity className="w-7 h-7 text-gray-200 mx-auto mb-2" />
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Activity className="w-8 h-8 text-gray-200 mb-2" />
                 <p className="text-sm text-gray-400">{t('no_upcoming_events')}</p>
               </div>
             ) : (
               <ul className="divide-y divide-border-soft">
                 {events.map(ev => {
-                  const dt = formatEventDate(ev.start_date)
-                  const typeCls = eventTypeBg[ev.type] || 'bg-surface text-gray-600 border-border-soft'
+                  const dt   = formatEventDate(ev.start_date)
+                  const meta = EVENT_META[ev.type] || { bg: 'bg-surface', text: 'text-gray-600', dot: 'bg-gray-300' }
                   return (
-                    <li key={ev.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-surface/50 transition-colors">
-                      <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-purple-light flex flex-col items-center justify-center">
-                        <span className="text-sm font-bold text-purple leading-none">{dt.dd}</span>
-                        <span className="text-[10px] text-purple/70 leading-none mt-0.5 uppercase">{dt.month}</span>
+                    <li key={ev.id} className="flex items-center gap-4 px-5 py-4 hover:bg-surface/60 transition-colors">
+                      {/* Date badge */}
+                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-purple-light flex flex-col items-center justify-center">
+                        <span className="text-lg font-black text-purple leading-none tabular-nums">{dt.dd}</span>
+                        <span className="text-[9px] font-bold text-purple/60 uppercase tracking-wider mt-0.5">{dt.month}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-gray-900 truncate">{ev.title}</p>
-                        {ev.type && (
-                          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border mt-1 inline-block ${typeCls}`}>
-                            {ev.type}
-                          </span>
-                        )}
+                        <p className="text-sm font-bold text-gray-900 truncate">{ev.title}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[11px] text-gray-400 font-medium capitalize">{dt.weekday}</span>
+                          {ev.type && (
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${meta.bg} ${meta.text}`}>
+                              {ev.type}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </li>
                   )
@@ -583,37 +511,33 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* Bildirişlər / Activity feed */}
-          <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
-              <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-purple" />
-                <h2 className="font-semibold text-gray-900 text-sm">{t('all_notifications')}</h2>
-              </div>
-              <button
-                onClick={() => navigate('/admin/mesajlar')}
-                className="text-xs text-purple hover:text-purple-dark flex items-center gap-1 transition-colors"
-              >
-                {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          {/* Activity / notifications feed */}
+          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
+            <SectionHeader
+              icon={Bell}
+              iconBg="bg-purple-light"
+              iconColor="text-purple"
+              title={t('all_notifications')}
+              action={t('view_all')}
+              onAction={() => navigate('/admin/mesajlar')}
+            />
 
             {activities.length === 0 ? (
-              <div className="px-5 py-8 text-center">
-                <Bell className="w-7 h-7 text-gray-200 mx-auto mb-2" />
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Bell className="w-8 h-8 text-gray-200 mb-2" />
                 <p className="text-sm text-gray-400">{t('no_notifications')}</p>
               </div>
             ) : (
-              <ul className="overflow-y-auto max-h-[320px] divide-y divide-border-soft">
+              <ul className="overflow-y-auto max-h-[340px] divide-y divide-border-soft">
                 {activities.map(a => (
-                  <li key={a.id} className="flex items-start gap-2.5 px-5 py-3 hover:bg-surface/50 transition-colors">
-                    <ActivityDot type={a.type} />
+                  <li key={a.id} className="flex items-start gap-3 px-5 py-3.5 hover:bg-surface/50 transition-colors">
+                    <span className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${DOT_COLORS[a.type] || 'bg-gray-300'}`} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-900 truncate leading-snug">{a.title}</p>
+                      <p className="text-xs font-semibold text-gray-900 leading-snug">{a.title}</p>
                       {a.body && <p className="text-[11px] text-gray-400 mt-0.5 truncate">{a.body}</p>}
                     </div>
-                    <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
-                      {timeAgo(a.created_at)}
+                    <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5 font-medium">
+                      {timeAgo(a.created_at)} əvvəl
                     </span>
                   </li>
                 ))}
@@ -623,7 +547,6 @@ export default function AdminDashboard() {
 
         </div>
       </div>
-
     </div>
   )
 }
