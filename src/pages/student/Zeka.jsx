@@ -30,6 +30,7 @@ export default function StudentZeka() {
       .select('*')
       .eq('user_id', profile.id)
       .order('updated_at', { ascending: false })
+      .limit(50)
       .then(({ data }) => setConversations(data || []))
 
     // Load student's active assignments
@@ -46,6 +47,7 @@ export default function StudentZeka() {
         .select('*, subject:subjects(name)')
         .in('class_id', classIds)
         .order('due_date', { ascending: true })
+        .limit(50)
       setAssignments(data || [])
     }
     loadAssignments()

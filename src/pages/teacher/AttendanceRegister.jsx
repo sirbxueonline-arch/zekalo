@@ -7,6 +7,8 @@ import Button from '../../components/ui/Button'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
+import { fmtNumeric } from '../../lib/dateUtils'
+import { notifyUsers } from '../../lib/notify'
 
 // Day labels Mon–Fri only (indexes 0–4 = Mon–Fri)
 const DAY_LABELS = ['B.e', 'Ç.a', 'Ç', 'C.a', 'C']
@@ -71,6 +73,7 @@ export default function TeacherAttendanceRegister() {
   const [students, setStudents]             = useState([])
   const [attendance, setAttendance]         = useState({})   // { [studentId]: 'present'|'late'|'absent' }
   const [saving, setSaving]                 = useState(false)
+  const [saveError, setSaveError]           = useState(null)
   const [existingRecords, setExistingRecords] = useState(false)
   const [weekDays, setWeekDays]             = useState([])   // [{ date, recorded }]
 
@@ -164,6 +167,7 @@ export default function TeacherAttendanceRegister() {
 
   async function handleSave() {
     setSaving(true)
+    setSaveError(null)
     const records = students
       .filter(s => attendance[s.id])
       .map(s => ({
@@ -184,9 +188,23 @@ export default function TeacherAttendanceRegister() {
       .from('attendance')
       .upsert(records, { onConflict: 'student_id,class_id,date' })
 
-    if (!error) {
+    if (error) {
+      setSaveError(error.message || 'Saxlama zamanı xəta baş verdi.')
+    } else {
       setExistingRecords(true)
       await loadWeekDays()
+
+      // Fire-and-forget: notify absent students
+      const absentIds = records.filter(r => r.status === 'absent').map(r => r.student_id)
+      if (absentIds.length > 0) {
+        notifyUsers(absentIds.map(id => ({
+          profile_id: id,
+          school_id: profile.school_id,
+          title: 'Davamiyyət qeydi',
+          body: `${fmtNumeric(selectedDate)} tarixli dərsdə iştirak etmədiniz.`,
+          type: 'attendance',
+        }))).catch(console.error)
+      }
     }
     setSaving(false)
   }
@@ -284,7 +302,10 @@ export default function TeacherAttendanceRegister() {
           <Select
             label="Sinif"
             value={selectedClass}
-            onChange={e => setSelectedClass(e.target.value)}
+            onChange={e => {
+              setSelectedClass(e.target.value)
+              setAttendance({})
+            }}
           >
             {teacherClasses.map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
@@ -316,7 +337,7 @@ export default function TeacherAttendanceRegister() {
         <Button
           onClick={handleSave}
           loading={saving}
-          disabled={markedCount === 0}
+          disabled={markedCount === 0 || saving}
           className="whitespace-nowrap"
         >
           <Check className="w-4 h-4 mr-2" />
@@ -332,6 +353,14 @@ export default function TeacherAttendanceRegister() {
             <strong className="font-semibold">{selectedClassName}</strong> sinfi üçün bu tarixdə davamiyyət artıq qeyd olunub.
             Saxladıqda mövcud qeydlər yenilənəcək.
           </p>
+        </div>
+      )}
+
+      {/* ══ SAVE ERROR ═══════════════════════════════════════════════════════ */}
+      {saveError && (
+        <div className="flex items-center gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+          <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+          <p className="text-sm text-red-800">{saveError}</p>
         </div>
       )}
 
@@ -452,7 +481,7 @@ export default function TeacherAttendanceRegister() {
           <Button
             onClick={handleSave}
             loading={saving}
-            disabled={markedCount === 0}
+            disabled={markedCount === 0 || saving}
           >
             <Check className="w-4 h-4 mr-2" />
             Saxla ({markedCount} şagird)

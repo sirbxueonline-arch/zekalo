@@ -8,6 +8,7 @@ import Modal from '../../components/ui/Modal'
 import Table from '../../components/ui/Table'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
+import { fmtNumeric } from '../../lib/dateUtils'
 import Input from '../../components/ui/Input'
 import { Select, Textarea } from '../../components/ui/Input'
 
@@ -24,11 +25,6 @@ const statusConfig = {
   closed: { label: 'Bağlandı', className: 'bg-red-50 text-red-700 border border-red-200' },
 }
 
-const DEMO_SURVEYS = [
-  { id: 's1', title: 'Tədris ili məmnuniyyət sorğusu', audience: 'parents', responses_count: 47, created_at: '2026-03-01', status: 'active', description: 'Valideynlərin məktəbdən məmnuniyyəti' },
-  { id: 's2', title: 'Müəllim geri bildiriş forması', audience: 'teachers', responses_count: 12, created_at: '2026-02-15', status: 'closed', description: 'Müəllimlərin iş şəraitindən məmnuniyyəti' },
-  { id: 's3', title: 'Şagird refahı qiymətləndirməsi', audience: 'students', responses_count: 0, created_at: '2026-04-10', status: 'draft', description: 'Şagirdlərin məktəb həyatından razılığı' },
-]
 
 export default function Surveys() {
   const { profile, t } = useAuth()
@@ -56,9 +52,9 @@ export default function Surveys() {
         .order('created_at', { ascending: false })
 
       if (err) throw err
-      setSurveys(data && data.length > 0 ? data : DEMO_SURVEYS)
+      setSurveys(data || [])
     } catch {
-      setSurveys(DEMO_SURVEYS)
+      setSurveys([])
     } finally {
       setLoading(false)
     }
@@ -94,11 +90,14 @@ export default function Surveys() {
 
   async function updateStatus(id, status) {
     try {
+      setSaving(true)
       await supabase.from('surveys').update({ status }).eq('id', id)
       await fetchData()
       if (detailModal?.id === id) setDetailModal(prev => ({ ...prev, status }))
     } catch (err) {
       setError(err.message || t('error'))
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -121,6 +120,7 @@ export default function Surveys() {
     {
       key: 'title',
       label: 'Sorğu başlığı',
+      sortable: true,
       render: (val, row) => (
         <div>
           <p className="font-medium text-gray-900">{val}</p>
@@ -139,6 +139,7 @@ export default function Surveys() {
     {
       key: 'responses_count',
       label: 'Cavablar',
+      sortable: true,
       render: (val) => (
         <div className="flex items-center gap-2">
           <BarChart2 className="w-4 h-4 text-gray-400" />
@@ -149,7 +150,8 @@ export default function Surveys() {
     {
       key: 'created_at',
       label: 'Yaradıldı',
-      render: (val) => val ? new Date(val).toLocaleDateString('az-AZ') : '—',
+      sortable: true,
+      render: (val) => val ? fmtNumeric(val) : '—',
     },
     {
       key: 'status',
@@ -164,10 +166,10 @@ export default function Surveys() {
       label: '',
       render: (_, row) => (
         <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-          <button onClick={() => setDetailModal(row)} className="p-1.5 text-gray-400 hover:text-purple transition-colors">
+          <button onClick={() => setDetailModal(row)} className="p-1.5 text-gray-400 hover:text-purple transition-colors" aria-label="Statistika">
             <BarChart2 className="w-4 h-4" />
           </button>
-          <button onClick={() => setDeleteModal(row)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors">
+          <button onClick={() => setDeleteModal(row)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" aria-label="Sil">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -254,7 +256,7 @@ export default function Surveys() {
                 <p className="text-sm text-gray-500 mt-1">Ümumi cavab</p>
               </div>
               <div className="bg-surface rounded-xl p-5 text-center">
-                <p className="text-4xl font-bold text-gray-900">{detailModal.created_at ? new Date(detailModal.created_at).toLocaleDateString('az-AZ') : '—'}</p>
+                <p className="text-4xl font-bold text-gray-900">{detailModal.created_at ? fmtNumeric(detailModal.created_at) : '—'}</p>
                 <p className="text-sm text-gray-500 mt-1">Yaradılma tarixi</p>
               </div>
             </div>

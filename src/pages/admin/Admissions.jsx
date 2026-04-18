@@ -8,6 +8,7 @@ import Modal from '../../components/ui/Modal'
 import Table from '../../components/ui/Table'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
+import { fmtNumeric } from '../../lib/dateUtils'
 import Avatar from '../../components/ui/Avatar'
 import Input from '../../components/ui/Input'
 import { Select } from '../../components/ui/Input'
@@ -19,12 +20,6 @@ const statusConfig = {
 }
 
 const GRADES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
-
-const DEMO_DATA = [
-  { id: '1', full_name: 'Aynur Quliyeva', email: 'aynur@mail.com', grade_applying: '5', applied_at: '2026-03-10', status: 'pending', parent_name: 'Leyla Quliyeva', parent_phone: '+994 50 123 4567', notes: 'Əvvəlki məktəbdən gəlir.' },
-  { id: '2', full_name: 'Tural Həsənov', email: 'tural@mail.com', grade_applying: '9', applied_at: '2026-03-12', status: 'accepted', parent_name: 'Rauf Həsənov', parent_phone: '+994 55 987 6543', notes: '' },
-  { id: '3', full_name: 'Nigar Məmmədova', email: 'nigar@mail.com', grade_applying: '1', applied_at: '2026-03-15', status: 'rejected', parent_name: 'Samirə Məmmədova', parent_phone: '+994 77 111 2233', notes: 'Yaş uyğun deyil.' },
-]
 
 export default function Admissions() {
   const { profile, t } = useAuth()
@@ -53,9 +48,9 @@ export default function Admissions() {
         .order('applied_at', { ascending: false })
 
       if (err) throw err
-      setApplications(data && data.length > 0 ? data : DEMO_DATA)
+      setApplications(data || [])
     } catch {
-      setApplications(DEMO_DATA)
+      setApplications([])
     } finally {
       setLoading(false)
     }
@@ -126,7 +121,7 @@ export default function Admissions() {
     {
       key: 'applied_at',
       label: 'Müraciət tarixi',
-      render: (val) => val ? new Date(val).toLocaleDateString('az-AZ') : '—',
+      render: (val) => val ? fmtNumeric(val) : '—',
     },
     {
       key: 'status',
@@ -212,7 +207,7 @@ export default function Admissions() {
               </div>
               <div className="bg-surface rounded-lg p-4">
                 <p className="text-xs text-gray-500 mb-1">Müraciət tarixi</p>
-                <p className="font-medium text-gray-900">{selectedApp.applied_at ? new Date(selectedApp.applied_at).toLocaleDateString('az-AZ') : '—'}</p>
+                <p className="font-medium text-gray-900">{selectedApp.applied_at ? fmtNumeric(selectedApp.applied_at) : '—'}</p>
               </div>
               {selectedApp.parent_name && (
                 <div className="bg-surface rounded-lg p-4">

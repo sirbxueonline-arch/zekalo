@@ -10,7 +10,7 @@ import {
   Users, BookOpen, Calendar, Bell, MessageSquare,
   Clock, ClipboardList, GraduationCap, ChevronRight,
 } from 'lucide-react'
-import { todayFull } from '../../lib/dateUtils'
+import { todayFull, fmtNumeric } from '../../lib/dateUtils'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -20,9 +20,7 @@ function todayLabel() {
 
 function formatDate(iso) {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString('az-AZ', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-  })
+  return fmtNumeric(iso)
 }
 
 function formatRelativeTime(iso) {
@@ -392,6 +390,7 @@ export default function ParentDashboard() {
                 ) : (
                   <div className="divide-y divide-border-soft">
                     {(childData.grades || []).map(g => {
+                      if (g.score == null) return null
                       const score = g.max_score > 0
                         ? Math.round((g.score / g.max_score) * 10)
                         : g.score

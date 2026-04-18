@@ -8,6 +8,7 @@ import { Select } from '../../components/ui/Input'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { MessageSquare, Send, Plus } from 'lucide-react'
+import { fmtDayMonth } from '../../lib/dateUtils'
 
 function formatTime(dateStr) {
   if (!dateStr) return ''
@@ -18,9 +19,9 @@ function formatTime(dateStr) {
     d.getMonth() === today.getMonth() &&
     d.getFullYear() === today.getFullYear()
   if (isToday) {
-    return d.toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' })
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
   }
-  return d.toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit' })
+  return fmtDayMonth(d)
 }
 
 function truncate(str, len = 40) {
@@ -237,6 +238,7 @@ export default function ParentConversations() {
   async function startConversation() {
     if (!selectedChild || !selectedTeacher) return
     setStarting(true)
+    try {
 
     // Check for existing conversation
     const { data: existing } = await supabase
@@ -266,7 +268,6 @@ export default function ParentConversations() {
     setSelectedChild('')
     setSelectedTeacher('')
     setChildTeachers([])
-    setStarting(false)
 
     await loadConversations()
 
@@ -283,6 +284,11 @@ export default function ParentConversations() {
       .single()
 
     if (freshConv) openConversation(freshConv)
+    } catch (err) {
+      console.error('startConversation error:', err)
+    } finally {
+      setStarting(false)
+    }
   }
 
   if (loading) return <PageSpinner />

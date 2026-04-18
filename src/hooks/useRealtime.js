@@ -1,11 +1,21 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
-export function useRealtime(table, filter, callback) {
-  useEffect(() => {
-    let channel = supabase.channel(`${table}-changes`)
+// Counter used to generate unique channel name suffixes, preventing collisions
+// when multiple components subscribe to the same table simultaneously.
+let channelCounter = 0
 
-    const subscription = channel
+export function useRealtime(table, filter, callback) {
+  const channelIdRef = useRef(null)
+  if (channelIdRef.current === null) {
+    channelIdRef.current = ++channelCounter
+  }
+
+  useEffect(() => {
+    const channelName = `${table}-changes-${channelIdRef.current}`
+    const channel = supabase.channel(channelName)
+
+    channel
       .on(
         'postgres_changes',
         {
@@ -18,7 +28,11 @@ export function useRealtime(table, filter, callback) {
           callback(payload)
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR') {
+          console.error(`Realtime channel error on "${channelName}"`)
+        }
+      })
 
     return () => {
       supabase.removeChannel(channel)

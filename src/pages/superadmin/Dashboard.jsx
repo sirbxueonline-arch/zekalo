@@ -13,17 +13,17 @@ import Avatar from '../../components/ui/Avatar'
 import Badge from '../../components/ui/Badge'
 import { EditionBadge } from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
+import { fmtNumeric } from '../../lib/dateUtils'
 
 function formatDate(dateStr) {
-  if (!dateStr) return '—'
-  const d = new Date(dateStr)
-  return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`
+  return fmtNumeric(dateStr)
 }
 
 function formatDateTime(dateStr) {
   if (!dateStr) return '—'
   const d = new Date(dateStr)
-  return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  if (isNaN(d)) return '—'
+  return `${fmtNumeric(d)} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
 const ROLE_LABELS = {
@@ -81,10 +81,19 @@ export default function SuperAdminDashboard() {
         supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'teacher'),
         supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'parent'),
         supabase.from('schools').select('id, name, district, edition, created_at').order('created_at', { ascending: false }).limit(10),
-        supabase.from('profiles').select('id, school_id, role'),
+        supabase.from('profiles').select('id, school_id, role').limit(500),
         supabase.from('profiles').select('id, full_name, role, created_at, school_id').order('created_at', { ascending: false }).limit(20),
-        supabase.from('profiles').select('full_name, school_id').eq('role', 'admin'),
+        supabase.from('profiles').select('full_name, school_id').eq('role', 'admin').limit(500),
       ])
+
+      if (schoolsCountRes.error) throw schoolsCountRes.error
+      if (studentsCountRes.error) throw studentsCountRes.error
+      if (teachersCountRes.error) throw teachersCountRes.error
+      if (parentsCountRes.error) throw parentsCountRes.error
+      if (recentSchoolsRes.error) throw recentSchoolsRes.error
+      if (allProfilesRes.error) throw allProfilesRes.error
+      if (recentProfilesRes.error) throw recentProfilesRes.error
+      if (adminProfilesRes.error) throw adminProfilesRes.error
 
       setStats({
         schools: schoolsCountRes.count || 0,

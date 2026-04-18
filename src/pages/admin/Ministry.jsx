@@ -45,7 +45,7 @@ function MinistryContent() {
       const [schoolRes, pendingRes, historyRes] = await Promise.all([
         supabase.from('schools').select('egov_api_key, egov_endpoint').eq('id', profile.school_id).single(),
         supabase.from('ministry_reports').select('*').eq('school_id', profile.school_id).in('status', ['draft', 'submitted']).order('created_at', { ascending: false }),
-        supabase.from('ministry_reports').select('*').eq('school_id', profile.school_id).order('created_at', { ascending: false }),
+        supabase.from('ministry_reports').select('*').eq('school_id', profile.school_id).order('created_at', { ascending: false }).limit(500),
       ])
 
       setConnected(!!(schoolRes.data?.egov_api_key && schoolRes.data?.egov_endpoint))

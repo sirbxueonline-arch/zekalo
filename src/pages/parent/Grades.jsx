@@ -5,6 +5,7 @@ import { GradeBadge } from '../../components/ui/Badge'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { BookOpen, Users, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { fmtNumeric } from '../../lib/dateUtils'
 
 function getRowBorderColor(score) {
   if (score >= 8) return 'border-l-[#1D9E75]'
@@ -326,6 +327,7 @@ export default function ParentGrades() {
                 <tbody>
                   {filtered.map(g => {
                     const normScore =
+                      g.score == null ? null :
                       g.max_score > 0 ? Math.round((g.score / g.max_score) * 10) : g.score
                     const borderColor = getRowBorderColor(normScore)
                     return (
@@ -334,11 +336,7 @@ export default function ParentGrades() {
                         className={`border-b border-border-soft last:border-0 hover:bg-surface transition-colors border-l-4 ${borderColor}`}
                       >
                         <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                          {new Date(g.date).toLocaleDateString('az-AZ', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                          })}
+                          {fmtNumeric(g.date)}
                         </td>
                         <td className="px-6 py-4 text-sm font-medium text-gray-900">
                           {g.subject?.name}

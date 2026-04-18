@@ -11,6 +11,16 @@ import { BookOpen, Download, Users, TrendingUp, Award, BarChart3 } from 'lucide-
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
+function escapeCsvField(val) {
+  if (val == null) return ''
+  const str = String(val)
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return '"' + str.replace(/"/g, '""') + '"'
+  }
+  return str
+}
+
+
 function gradeColor(score, maxScore) {
   const pct = maxScore > 0 ? (score / maxScore) * 100 : score * 10
   if (pct >= 85) return 'bg-teal-light text-teal font-semibold'
@@ -206,7 +216,7 @@ export default function AdminGradebook() {
       return [s.full_name, ...scores, avg != null ? String(avg).replace('.', ',') : '']
     })
 
-    const csv  = [header, ...rows].map(r => r.join(';')).join('\n')
+    const csv  = [header, ...rows].map(r => r.map(escapeCsvField).join(';')).join('\n')
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')

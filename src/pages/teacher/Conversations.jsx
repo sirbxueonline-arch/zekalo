@@ -5,6 +5,7 @@ import Avatar from '../../components/ui/Avatar'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { MessageSquare, Send } from 'lucide-react'
+import { fmtDayMonth } from '../../lib/dateUtils'
 
 function formatTime(dateStr) {
   if (!dateStr) return ''
@@ -15,9 +16,9 @@ function formatTime(dateStr) {
     d.getMonth() === today.getMonth() &&
     d.getFullYear() === today.getFullYear()
   if (isToday) {
-    return d.toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' })
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
   }
-  return d.toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit' })
+  return fmtDayMonth(d)
 }
 
 function truncate(str, len = 40) {
@@ -29,11 +30,13 @@ export default function TeacherConversations() {
   const { profile } = useAuth()
 
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
   const [conversations, setConversations] = useState([])
   const [activeConv, setActiveConv] = useState(null)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState(null)
 
   const messagesEndRef = useRef(null)
   const channelRef = useRef(null)
@@ -90,19 +93,28 @@ export default function TeacherConversations() {
   }, [activeConv?.id])
 
   async function loadConversations() {
-    const { data } = await supabase
-      .from('conversations')
-      .select(`
-        *,
-        parent:profiles!conversations_parent_id_fkey(id, full_name, avatar_color),
-        student:profiles!conversations_student_id_fkey(id, full_name),
-        conversation_messages(id, content, read, sender_id, created_at)
-      `)
-      .eq('teacher_id', profile.id)
-      .order('created_at', { ascending: false })
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select(`
+          *,
+          parent:profiles!conversations_parent_id_fkey(id, full_name, avatar_color),
+          student:profiles!conversations_student_id_fkey(id, full_name),
+          conversation_messages(id, content, read, sender_id, created_at)
+        `)
+        .eq('teacher_id', profile.id)
+        .eq('school_id', profile.school_id)
+        .order('created_at', { ascending: false })
+        .limit(100)
 
-    setConversations(data || [])
-    setLoading(false)
+      if (error) throw error
+      setConversations(data || [])
+      setLoadError(null)
+    } catch (err) {
+      setLoadError(err.message || 'Yazışmaları yükləmək alınmadı')
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function openConversation(conv) {
@@ -141,6 +153,7 @@ export default function TeacherConversations() {
   async function sendMessage() {
     if (!input.trim() || !activeConv || sending) return
     setSending(true)
+    setSendError(null)
 
     const optimistic = {
       id: 'tmp-' + Date.now(),
@@ -150,26 +163,34 @@ export default function TeacherConversations() {
       read: false,
       created_at: new Date().toISOString(),
     }
+    const savedInput = input.trim()
     setMessages(prev => [...prev, optimistic])
     setInput('')
 
-    const { data, error } = await supabase
-      .from('conversation_messages')
-      .insert({
-        conversation_id: activeConv.id,
-        sender_id: profile.id,
-        content: optimistic.content,
-        read: false,
-      })
-      .select()
-      .single()
+    try {
+      const { data, error } = await supabase
+        .from('conversation_messages')
+        .insert({
+          conversation_id: activeConv.id,
+          sender_id: profile.id,
+          content: optimistic.content,
+          read: false,
+        })
+        .select()
+        .single()
 
-    if (!error && data) {
+      if (error) throw error
+
       setMessages(prev => prev.map(m => m.id === optimistic.id ? data : m))
+      loadConversations()
+    } catch (err) {
+      // Rollback optimistic message and restore input
+      setMessages(prev => prev.filter(m => m.id !== optimistic.id))
+      setInput(savedInput)
+      setSendError(err.message || 'Mesaj göndərilmədi')
+    } finally {
+      setSending(false)
     }
-
-    loadConversations()
-    setSending(false)
   }
 
   // Total unread across all conversations
@@ -181,6 +202,10 @@ export default function TeacherConversations() {
   }, 0)
 
   if (loading) return <PageSpinner />
+
+  if (loadError) return (
+    <div className="p-8 text-center text-sm text-red-600 bg-red-50 rounded-xl">{loadError}</div>
+  )
 
   return (
     <div className="flex h-[calc(100vh-4rem)] -m-8 overflow-hidden">
@@ -317,21 +342,26 @@ export default function TeacherConversations() {
             </div>
 
             {/* Input */}
-            <div className="px-6 py-4 border-t border-border-soft flex gap-3 bg-white">
-              <input
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
-                placeholder="Mesaj yazın..."
-                className="flex-1 border border-border-soft rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
-              />
-              <button
-                onClick={sendMessage}
-                disabled={!input.trim() || sending}
-                className="bg-teal text-white rounded-xl px-4 hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center"
-              >
-                <Send className="w-5 h-5" />
-              </button>
+            <div className="border-t border-border-soft bg-white">
+              {sendError && (
+                <p className="px-6 pt-3 text-xs text-red-600">{sendError}</p>
+              )}
+              <div className="px-6 py-4 flex gap-3">
+                <input
+                  value={input}
+                  onChange={e => { setInput(e.target.value); if (sendError) setSendError(null) }}
+                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
+                  placeholder="Mesaj yazın..."
+                  className="flex-1 border border-border-soft rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+                />
+                <button
+                  onClick={sendMessage}
+                  disabled={!input.trim() || sending}
+                  className="bg-teal text-white rounded-xl px-4 hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </>
         )}

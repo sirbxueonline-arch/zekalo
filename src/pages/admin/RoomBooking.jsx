@@ -55,11 +55,6 @@ function timeToMinutes(t) {
   return h * 60 + m
 }
 
-const DEMO_BOOKINGS = [
-  { id: '1', room_id: 'r1', teacher_name: 'Aytən Nəcəfova', date: formatDate(new Date()), time_from: '09:00', time_to: '10:00', purpose: 'Riyaziyyat dərsi' },
-  { id: '2', room_id: 'r3', teacher_name: 'Rauf Əliyev', date: formatDate(new Date()), time_from: '11:00', time_to: '13:00', purpose: 'Kimya eksperimenti' },
-  { id: '3', room_id: 'r5', teacher_name: 'Gülnar İsmayılova', date: formatDate(new Date()), time_from: '14:00', time_to: '15:00', purpose: 'Müəllim toplantısı' },
-]
 
 export default function RoomBooking() {
   const { profile, t } = useAuth()
@@ -86,10 +81,10 @@ export default function RoomBooking() {
 
       if (bookRes.error) throw bookRes.error
       const formatted = (bookRes.data || []).map(b => ({ ...b, teacher_name: b.teacher?.full_name || b.teacher_name || '—' }))
-      setBookings(formatted.length > 0 ? formatted : DEMO_BOOKINGS)
+      setBookings(formatted)
       setTeachers(teacherRes.data || [])
     } catch {
-      setBookings(DEMO_BOOKINGS)
+      setBookings([])
       try {
         const { data } = await supabase.from('profiles').select('id,full_name').eq('school_id', profile.school_id).eq('role', 'teacher')
         setTeachers(data || [])
@@ -107,6 +102,36 @@ export default function RoomBooking() {
     try {
       setSaving(true)
       setError(null)
+
+      // Validate that start time is before end time
+      if (timeToMinutes(form.time_from) >= timeToMinutes(form.time_to)) {
+        setError('Başlama saatı bitmə saatından əvvəl olmalıdır.')
+        setSaving(false)
+        return
+      }
+
+      // Check for overlapping bookings in the same room on the same date
+      const { data: existing, error: overlapErr } = await supabase
+        .from('room_bookings')
+        .select('id, time_from, time_to')
+        .eq('school_id', profile.school_id)
+        .eq('room_id', form.room_id)
+        .eq('date', form.date)
+      if (overlapErr) throw overlapErr
+
+      const newStart = timeToMinutes(form.time_from)
+      const newEnd = timeToMinutes(form.time_to)
+      const hasOverlap = (existing || []).some(b => {
+        const bStart = timeToMinutes(b.time_from)
+        const bEnd = timeToMinutes(b.time_to)
+        return newStart < bEnd && newEnd > bStart
+      })
+      if (hasOverlap) {
+        setError('Bu otaq seçilmiş vaxt aralığında artıq rezerv edilib.')
+        setSaving(false)
+        return
+      }
+
       const teacher = teachers.find(t => t.id === form.teacher_id)
       const { error: err } = await supabase.from('room_bookings').insert({
         room_id: form.room_id,

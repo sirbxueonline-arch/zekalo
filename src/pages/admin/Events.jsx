@@ -83,6 +83,7 @@ function toDateStr(year, month, day) {
 }
 
 function eventFallsOnDay(event, dateStr) {
+  if (!event.start_date || !event.end_date) return false
   return event.start_date <= dateStr && event.end_date >= dateStr
 }
 
@@ -165,6 +166,7 @@ export default function Events() {
         .select('*')
         .eq('school_id', profile.school_id)
         .order('start_date')
+        .limit(500)
       if (err) throw err
       setEvents(data || [])
     } catch (err) {
@@ -492,7 +494,7 @@ export default function Events() {
       )}
 
       {/* ── Add Modal ── */}
-      <Modal open={addModal} onClose={() => setAddModal(false)} title="Tədbir əlavə et" size="lg">
+      <Modal open={addModal} onClose={() => { setAddModal(false); setForm(emptyForm()); setError(null) }} title="Tədbir əlavə et" size="lg">
         <div className="space-y-4">
           <Input
             label="Başlıq *"
@@ -536,14 +538,14 @@ export default function Events() {
           <ColorPicker value={form.color} onChange={v => setField('color', v)} />
           {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => setAddModal(false)}>Ləğv et</Button>
+            <Button variant="ghost" onClick={() => { setAddModal(false); setForm(emptyForm()); setError(null) }}>Ləğv et</Button>
             <Button onClick={handleAdd} loading={saving}>Əlavə et</Button>
           </div>
         </div>
       </Modal>
 
       {/* ── Edit Modal ── */}
-      <Modal open={!!editModal} onClose={() => setEditModal(null)} title="Tədbiri redaktə et" size="lg">
+      <Modal open={!!editModal} onClose={() => { setEditModal(null); setForm(emptyForm()); setError(null) }} title="Tədbiri redaktə et" size="lg">
         <div className="space-y-4">
           <Input
             label="Başlıq *"
@@ -587,7 +589,7 @@ export default function Events() {
           <ColorPicker value={form.color} onChange={v => setField('color', v)} />
           {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => setEditModal(null)}>Ləğv et</Button>
+            <Button variant="ghost" onClick={() => { setEditModal(null); setForm(emptyForm()); setError(null) }}>Ləğv et</Button>
             <Button onClick={handleEdit} loading={saving}>Yadda saxla</Button>
           </div>
         </div>

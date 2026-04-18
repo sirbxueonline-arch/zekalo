@@ -5,6 +5,7 @@ import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { StatusBadge } from '../../components/ui/Badge'
 import { Calendar, CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight, BarChart2, Users } from 'lucide-react'
+import { fmtNumeric } from '../../lib/dateUtils'
 
 const MONTH_NAMES = [
   'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
@@ -272,11 +273,7 @@ export default function ParentAttendance() {
                           className={`border-b border-border-soft last:border-0 hover:bg-surface transition-colors border-l-4 ${borderColor}`}
                         >
                           <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                            {new Date(r.date).toLocaleDateString('az-AZ', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric',
-                            })}
+                            {fmtNumeric(r.date)}
                           </td>
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">
                             {r.class?.name || '—'}

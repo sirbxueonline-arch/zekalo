@@ -20,8 +20,11 @@ export default function Badge({ variant = 'default', children, className = '' })
 }
 
 export function GradeBadge({ score }) {
+  if (score == null || typeof score !== 'number' || isNaN(score)) {
+    return <Badge variant="default">—</Badge>
+  }
   const variant = score >= 8 ? 'excellent' : score >= 6 ? 'good' : 'poor'
-  return <Badge variant={variant}>{typeof score === 'number' ? score.toString().replace('.', ',') : score}</Badge>
+  return <Badge variant={variant}>{score.toString().replace('.', ',')}</Badge>
 }
 
 export function StatusBadge({ status, labels }) {

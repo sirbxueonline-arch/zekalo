@@ -8,6 +8,7 @@ import Modal from '../../components/ui/Modal'
 import Table from '../../components/ui/Table'
 import Badge from '../../components/ui/Badge'
 import { PageSpinner } from '../../components/ui/Spinner'
+import { fmtNumeric } from '../../lib/dateUtils'
 import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
 import Input from '../../components/ui/Input'
@@ -115,10 +116,16 @@ export default function CAS() {
     try {
       setSaving(true)
       setError(null)
+      const hours = parseFloat(form.hours)
+      if (isNaN(hours) || hours <= 0) {
+        setError('Saat sayı müsbət rəqəm olmalıdır')
+        setSaving(false)
+        return
+      }
       const { error: err } = await supabase.from('cas_entries').insert({
         student_id: form.student_id,
         type: form.type,
-        hours: parseFloat(form.hours),
+        hours,
         description: form.description,
         date: form.date,
         school_id: profile.school_id,
@@ -201,7 +208,7 @@ export default function CAS() {
     {
       key: 'date',
       label: 'Tarix',
-      render: (val) => val ? new Date(val).toLocaleDateString('az-AZ') : '—',
+      render: (val) => val ? fmtNumeric(val) : '—',
     },
     {
       key: 'type',

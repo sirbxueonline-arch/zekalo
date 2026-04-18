@@ -59,8 +59,8 @@ export default function UnitPlanner() {
     try {
       setLoading(true)
       const [unitsRes, classesRes] = await Promise.all([
-        supabase.from('unit_plans').select('*, class:classes(id,name)').eq('school_id', profile.school_id).eq('teacher_id', profile.id).order('created_at', { ascending: false }),
-        supabase.from('classes').select('id,name').eq('school_id', profile.school_id).order('name'),
+        supabase.from('unit_plans').select('*, class:classes(id,name)').eq('school_id', profile.school_id).eq('teacher_id', profile.id).order('created_at', { ascending: false }).limit(200),
+        supabase.from('classes').select('id,name').eq('school_id', profile.school_id).order('name').limit(100),
       ])
       setUnits(unitsRes.data || [])
       setClasses(classesRes.data || [])
@@ -68,7 +68,7 @@ export default function UnitPlanner() {
       // unit_plans table may not exist — show empty state
       setUnits([])
       try {
-        const { data } = await supabase.from('classes').select('id,name').eq('school_id', profile.school_id).order('name')
+        const { data } = await supabase.from('classes').select('id,name').eq('school_id', profile.school_id).order('name').limit(100)
         setClasses(data || [])
       } catch {}
     } finally {
@@ -90,6 +90,10 @@ export default function UnitPlanner() {
   }
 
   async function handleAdd() {
+    if (form.start_date && form.end_date && form.end_date <= form.start_date) {
+      setError('Bitmə tarixi başlama tarixindən sonra olmalıdır')
+      return
+    }
     try {
       setSaving(true)
       setError(null)
@@ -117,6 +121,10 @@ export default function UnitPlanner() {
   }
 
   async function handleEdit() {
+    if (form.start_date && form.end_date && form.end_date <= form.start_date) {
+      setError('Bitmə tarixi başlama tarixindən sonra olmalıdır')
+      return
+    }
     try {
       setSaving(true)
       setError(null)
@@ -302,24 +310,24 @@ export default function UnitPlanner() {
         </div>
       )}
 
-      <Modal open={addModal} onClose={() => { setAddModal(false); setError(null) }} title="Yeni Vahid" size="lg">
+      <Modal open={addModal} onClose={() => { setAddModal(false); setError(null); resetForm() }} title="Yeni Vahid" size="lg">
         <div className="space-y-4">
           <UnitFormFields />
           {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
-            <Button onClick={handleAdd} loading={saving} disabled={!form.title}>{t('add')}</Button>
+            <Button variant="ghost" onClick={() => { setAddModal(false); setError(null); resetForm() }}>{t('cancel')}</Button>
+            <Button onClick={handleAdd} loading={saving} disabled={!form.title || saving}>{t('add')}</Button>
           </div>
         </div>
       </Modal>
 
-      <Modal open={!!editModal} onClose={() => { setEditModal(null); setError(null) }} title="Vahidi Düzənlə" size="lg">
+      <Modal open={!!editModal} onClose={() => { setEditModal(null); setError(null); resetForm() }} title="Vahidi Düzənlə" size="lg">
         <div className="space-y-4">
           <UnitFormFields />
           {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="ghost" onClick={() => { setEditModal(null); setError(null) }}>{t('cancel')}</Button>
-            <Button onClick={handleEdit} loading={saving} disabled={!form.title}>{t('save')}</Button>
+            <Button variant="ghost" onClick={() => { setEditModal(null); setError(null); resetForm() }}>{t('cancel')}</Button>
+            <Button onClick={handleEdit} loading={saving} disabled={!form.title || saving}>{t('save')}</Button>
           </div>
         </div>
       </Modal>

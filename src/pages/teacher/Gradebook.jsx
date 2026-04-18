@@ -11,6 +11,7 @@ import EmptyState from '../../components/ui/EmptyState'
 import { GradeBadge } from '../../components/ui/Badge'
 import { BookOpen, Plus, Download, Search, ChevronDown, TrendingUp, Award, BarChart3 } from 'lucide-react'
 import { fmtDate } from '../../lib/dateUtils'
+import { notifyUsers } from '../../lib/notify'
 
 const assessmentTypes = [
   { value: 'test',      label: 'Test' },
@@ -144,11 +145,16 @@ export default function TeacherGradebook() {
     const key = `${studentId}_${assessmentId || criterion || 'score'}`
     const existing = grades[key]
 
+    let savedGradeId = existing?.id || null
+
     if (existing) {
       await supabase.from('grades').update({ score }).eq('id', existing.id)
     } else {
       const { data } = await supabase.from('grades').insert(gradeData).select().single()
-      if (data) setGrades(prev => ({ ...prev, [key]: data }))
+      if (data) {
+        savedGradeId = data.id
+        setGrades(prev => ({ ...prev, [key]: data }))
+      }
     }
 
     setGrades(prev => ({
@@ -156,9 +162,57 @@ export default function TeacherGradebook() {
       [key]: { ...prev[key], ...gradeData, score },
     }))
     setEditingCell(null)
+
+    // Fire-and-forget notifications — notify student (and parent if linked)
+    ;(async () => {
+      try {
+        const assessment = assessmentId ? assessments.find(a => a.id === assessmentId) : null
+        const subjectName = assessment?.title
+          ?? (criterion ? `Kriteriya ${criterion}` : 'Qiymət')
+        const maxScore = assessment?.max_score ?? (criterion ? 8 : null)
+        const bodyText = maxScore != null
+          ? `${subjectName}: ${score}/${maxScore}`
+          : `${subjectName}: ${score}`
+
+        const toNotify = [
+          {
+            profile_id: studentId,
+            school_id: profile.school_id,
+            title: 'Yeni qiymət',
+            body: bodyText,
+            type: 'grade',
+            reference_id: savedGradeId,
+          },
+        ]
+
+        // Look up parent(s) via parent_children and notify them too
+        const { data: parentLinks } = await supabase
+          .from('parent_children')
+          .select('parent_id')
+          .eq('student_id', studentId)
+
+        ;(parentLinks || []).forEach(link => {
+          toNotify.push({
+            profile_id: link.parent_id,
+            school_id: profile.school_id,
+            title: 'Yeni qiymət',
+            body: bodyText,
+            type: 'grade',
+            reference_id: savedGradeId,
+          })
+        })
+
+        await notifyUsers(toNotify)
+      } catch (err) {
+        console.error('Grade notification error:', err)
+      }
+    })()
   }
 
   async function handleAddAssessment() {
+    const maxScoreNum = Number(newAssessment.max_score)
+    if (!newAssessment.title.trim()) { setSaving(false); return }
+    if (isNaN(maxScoreNum) || maxScoreNum <= 0) { setSaving(false); return }
     setSaving(true)
     const { data, error } = await supabase.from('assessments').insert({
       title:      newAssessment.title.trim(),

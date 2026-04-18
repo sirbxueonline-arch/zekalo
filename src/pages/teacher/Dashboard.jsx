@@ -159,12 +159,25 @@ export default function TeacherDashboard() {
 
       const classIds = (classesRes.data || []).map(c => c.class_id)
 
-      const submissionsRes = await supabase.from('submissions')
-        .select('*, assignment:assignments(title, teacher_id, subject:subjects(name)), student:profiles(full_name)')
+      // Fetch recent submissions — trust RLS (submissions_teacher_select) to limit to this teacher's assignments
+      const { data: rawSubs } = await supabase.from('submissions')
+        .select('*, assignment:assignments(id, title, subject:subjects(name))')
         .eq('status', 'submitted')
-        .eq('assignments.teacher_id', profile.id)
         .order('submitted_at', { ascending: false })
-        .limit(6)
+        .limit(20)
+
+      // Fetch student profiles separately to avoid join RLS failures
+      const subStudentIds = [...new Set((rawSubs || []).map(s => s.student_id).filter(Boolean))]
+      const { data: subProfiles } = subStudentIds.length
+        ? await supabase.from('profiles').select('id, full_name').in('id', subStudentIds)
+        : { data: [] }
+      const subProfileMap = {}
+      ;(subProfiles || []).forEach(p => { subProfileMap[p.id] = p })
+      const submissionsRes = {
+        data: (rawSubs || [])
+          .map(s => ({ ...s, student: subProfileMap[s.student_id] || { full_name: 'Naməlum' } }))
+          .slice(0, 6)
+      }
 
       const slotClassIds = [...new Set((timetableRes.data || []).map(s => s.class_id))]
       const attTodayRes = slotClassIds.length
@@ -211,7 +224,7 @@ export default function TeacherDashboard() {
       setTodaySlots(timetableRes.data || [])
       setAttendanceTaken(attendanceMap)
       setAssignments(assignmentsRes.data || [])
-      setSubmissions((submissionsRes.data || []).filter(s => s.assignment?.teacher_id === profile.id))
+      setSubmissions(submissionsRes.data || [])
       setStudentCount(totalStudents)
       setWeekAttendance(weekAtt)
       setNotifications(notifsRes.data || [])

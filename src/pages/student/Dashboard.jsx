@@ -168,6 +168,7 @@ export default function StudentDashboard() {
               .eq('student_id', profile.id)
               .gte('date', thirtyDaysAgo)
               .lte('date', todayStr)
+              .limit(200)
           : Promise.resolve({ data: [] }),
       ]
 
@@ -446,7 +447,7 @@ export default function StudentDashboard() {
                       <p className="text-sm font-semibold text-gray-900 truncate">{g.subject?.name || 'Fənn'}</p>
                       {g.assessment?.title && <p className="text-xs text-gray-400 truncate">{g.assessment.title}</p>}
                     </div>
-                    <GradeBadge score={Number(g.score)} />
+                    <GradeBadge score={g.score == null ? null : Number(g.score)} />
                     <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">{formatDate(g.created_at)}</span>
                   </div>
                 ))}

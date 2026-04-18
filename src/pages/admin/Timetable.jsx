@@ -41,6 +41,7 @@ export default function Timetable() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [publishing, setPublishing] = useState(false)
+  const [publishConfirm, setPublishConfirm] = useState(false)
   const [error, setError] = useState(null)
   const [conflicts, setConflicts] = useState([])
   const [form, setForm] = useState({ class_id: '', subject_id: '', teacher_id: '', room: '' })
@@ -159,7 +160,7 @@ export default function Timetable() {
         subject_id: form.subject_id || null,
         teacher_id: form.teacher_id || null,
         room: form.room || null,
-        published: false,
+        published: assignModal.existing ? assignModal.existing.published : false,
       }
 
       if (assignModal.existing) {
@@ -222,7 +223,7 @@ export default function Timetable() {
           {draftCount > 0 && (
             <span className="text-xs text-gray-500">{draftCount} dəyişiklik dərc edilməyib</span>
           )}
-          <Button onClick={handlePublish} loading={publishing} variant="teal">
+          <Button onClick={() => setPublishConfirm(true)} loading={publishing} variant="teal">
             <span className="flex items-center gap-2"><Check className="w-4 h-4" /> {t('publish')}</span>
           </Button>
         </div>
@@ -365,6 +366,32 @@ export default function Timetable() {
           })}
         </div>
       )}
+
+      {/* Publish confirmation modal */}
+      <Modal
+        open={publishConfirm}
+        onClose={() => setPublishConfirm(false)}
+        title="Cədvəli dərc et"
+      >
+        <div className="space-y-6">
+          <p className="text-sm text-gray-600">
+            Cədvəli bütün məktəb üçün dərc etmək istədiyinizə əminsiniz?
+          </p>
+          <div className="flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => setPublishConfirm(false)}>{t('cancel')}</Button>
+            <Button
+              variant="teal"
+              loading={publishing}
+              onClick={async () => {
+                setPublishConfirm(false)
+                await handlePublish()
+              }}
+            >
+              <span className="flex items-center gap-2"><Check className="w-4 h-4" /> {t('publish')}</span>
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Assign / Edit modal */}
       <Modal

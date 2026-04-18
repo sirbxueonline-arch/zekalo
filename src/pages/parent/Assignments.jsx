@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { ClipboardList, Users, Calendar, CheckCircle, AlertCircle, Award } from 'lucide-react'
+import { fmtNumeric } from '../../lib/dateUtils'
 
 function subjectColor(name = '') {
   const palette = ['#534AB7', '#1D9E75', '#E67E22', '#3498DB', '#E74C3C', '#9B59B6', '#27AE60', '#F39C12']
@@ -31,7 +32,7 @@ function DueDateChip({ dueDate }) {
     label = `${diff} gün qalıb`
     cls = 'bg-amber-100 text-amber-700'
   } else {
-    label = new Date(dueDate).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    label = fmtNumeric(dueDate)
     cls = 'bg-gray-100 text-gray-500'
   }
 
@@ -121,8 +122,8 @@ export default function ParentAssignments() {
     return (
       <EmptyState
         icon={Users}
-        title={t('error')}
-        description={t('error')}
+        title="Uşaq tapılmadı"
+        description="Hesabınıza bağlı uşaq profili yoxdur."
       />
     )
   }

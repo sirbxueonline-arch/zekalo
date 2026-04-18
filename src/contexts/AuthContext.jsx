@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useLang } from './LanguageContext'
+import { Sentry } from '../lib/sentry'
 
 const AuthContext = createContext({})
 
@@ -10,8 +11,11 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [profileError, setProfileError] = useState(false)
+  const fetchingRef = useRef(false)
 
   async function fetchProfile(userId) {
+    if (fetchingRef.current) return
+    fetchingRef.current = true
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -19,17 +23,29 @@ export function AuthProvider({ children }) {
         .eq('id', userId)
         .single()
       if (error) {
-        console.error('Profile fetch error:', error)
+        if (error.code !== 'PGRST116') {
+          console.error('Profile fetch failed:', error)
+        }
         setProfileError(true)
         return null
       }
       setProfile(data)
       setProfileError(false)
+      if (data && Sentry?.setUser) {
+        Sentry.setUser({
+          id: data.id,
+          role: data.role,
+          school_id: data.school_id,
+          // NO email or name — privacy
+        })
+      }
       return data
     } catch (err) {
       console.error('Profile fetch exception:', err)
       setProfileError(true)
       return null
+    } finally {
+      fetchingRef.current = false
     }
   }
 
@@ -43,17 +59,35 @@ export function AuthProvider({ children }) {
       }
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id).finally(() => setLoading(false))
-      } else {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || (!session && event !== 'INITIAL_SESSION')) {
+        setUser(null)
         setProfile(null)
+        setLoading(false)
+      } else if (event === 'TOKEN_REFRESHED') {
+        setUser(session.user)
+      } else if (session?.user) {
+        setUser(session.user)
+        await fetchProfile(session.user.id)
         setLoading(false)
       }
     })
 
     return () => subscription.unsubscribe()
+  }, [])
+
+  // Check session validity whenever the tab regains focus so that an expired
+  // token is caught quickly without waiting for the next API call.
+  useEffect(() => {
+    async function handleFocus() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        setUser(null)
+        setProfile(null)
+      }
+    }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
   }, [])
 
   async function signIn(email, password) {
@@ -98,6 +132,7 @@ export function AuthProvider({ children }) {
     if (error) throw error
     setUser(null)
     setProfile(null)
+    if (Sentry?.setUser) Sentry.setUser(null)
   }
 
   async function updateProfile(updates) {

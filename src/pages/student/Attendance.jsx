@@ -5,6 +5,7 @@ import { StatusBadge } from '../../components/ui/Badge'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { Calendar, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
+import { fmtNumeric } from '../../lib/dateUtils'
 
 const MONTH_NAMES = [
   'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
@@ -31,6 +32,7 @@ export default function StudentAttendance() {
   const { profile, t } = useAuth()
   const [loading, setLoading] = useState(true)
   const [records, setRecords] = useState([])
+  const [fetchError, setFetchError] = useState(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
 
   useEffect(() => {
@@ -40,13 +42,26 @@ export default function StudentAttendance() {
       .select('*, class:classes(name)')
       .eq('student_id', profile.id)
       .order('date', { ascending: false })
-      .then(({ data }) => {
+      .limit(500)
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Attendance fetch error:', error)
+          setFetchError('Davamiyyət məlumatları yüklənmədi. Səhifəni yeniləyin.')
+        }
         setRecords(data || [])
         setLoading(false)
       })
   }, [profile])
 
   if (loading) return <PageSpinner />
+  if (fetchError)
+    return (
+      <EmptyState
+        icon={Calendar}
+        title="Xəta baş verdi"
+        description={fetchError}
+      />
+    )
   if (records.length === 0)
     return (
       <EmptyState
@@ -235,11 +250,7 @@ export default function StudentAttendance() {
                       className={`border-b border-border-soft last:border-0 hover:bg-surface transition-colors border-l-4 ${borderColor}`}
                     >
                       <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                        {new Date(r.date).toLocaleDateString('az-AZ', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                        })}
+                        {fmtNumeric(r.date)}
                       </td>
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">
                         {r.class?.name || '—'}

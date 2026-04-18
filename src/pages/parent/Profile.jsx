@@ -21,7 +21,10 @@ export default function ParentProfile() {
   const [saving, setSaving] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordSaving, setPasswordSaving] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
   const [children, setChildren] = useState([])
 
   useEffect(() => {
@@ -64,10 +67,26 @@ export default function ParentProfile() {
   }
 
   async function handlePasswordChange() {
-    if (!newPassword || newPassword.length < 6) return
+    setPasswordError('')
+    setPasswordSuccess('')
+    if (!newPassword || newPassword.length < 6) {
+      setPasswordError('Şifrə minimum 6 simvol olmalıdır')
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Şifrələr uyğun gəlmir')
+      return
+    }
     setPasswordSaving(true)
-    await supabase.auth.updateUser({ password: newPassword })
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    if (error) {
+      setPasswordError(error.message || 'Şifrə dəyişdirilmədi')
+      setPasswordSaving(false)
+      return
+    }
+    setPasswordSuccess('Şifrə uğurla dəyişdirildi')
     setNewPassword('')
+    setConfirmPassword('')
     setShowPassword(false)
     setPasswordSaving(false)
   }
@@ -186,6 +205,19 @@ export default function ParentProfile() {
               onChange={e => setNewPassword(e.target.value)}
               placeholder="Minimum 6 simvol"
             />
+            <Input
+              label={t('confirm_password') || 'Şifrəni təsdiqlə'}
+              type="password"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              placeholder="Şifrəni təkrar daxil edin"
+            />
+            {passwordError && (
+              <p className="text-sm text-red-600">{passwordError}</p>
+            )}
+            {passwordSuccess && (
+              <p className="text-sm text-green-600">{passwordSuccess}</p>
+            )}
             <Button onClick={handlePasswordChange} loading={passwordSaving} disabled={newPassword.length < 6}>
               {t('update_password')}
             </Button>

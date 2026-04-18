@@ -15,21 +15,14 @@ export default function ResetPassword() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (password !== confirm) {
-      setError(t('passwords_dont_match'))
-      return
-    }
+    if (password !== confirm) { setError('Şifrələr uyğun gəlmir'); return }
+    if (password.length < 6) { setError('Şifrə ən az 6 simvol olmalıdır'); return }
     setError('')
     setLoading(true)
-    try {
-      const { error } = await supabase.auth.updateUser({ password })
-      if (error) throw error
-      navigate('/daxil-ol')
-    } catch {
-      setError(t('error'))
-    } finally {
-      setLoading(false)
-    }
+    const { error: err } = await supabase.auth.updateUser({ password })
+    setLoading(false)
+    if (err) { setError(err.message); return }
+    navigate('/daxil-ol?reset=1')
   }
 
   return (

@@ -15,6 +15,16 @@ import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
 import BulkAddModal from '../../components/ui/BulkAddModal'
 
+
+function escapeCsvField(val) {
+  if (val == null) return ''
+  const str = String(val)
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return '"' + str.replace(/"/g, '""') + '"'
+  }
+  return str
+}
+
 export default function Students() {
   const { profile, t } = useAuth()
   const [loading, setLoading] = useState(true)
@@ -39,7 +49,7 @@ export default function Students() {
     try {
       setLoading(true)
       const [studentsRes, classesRes] = await Promise.all([
-        supabase.from('profiles').select('*').eq('school_id', profile.school_id).eq('role', 'student'),
+        supabase.from('profiles').select('*').eq('school_id', profile.school_id).eq('role', 'student').limit(200),
         supabase.from('classes').select('id, name').eq('school_id', profile.school_id).order('name'),
       ])
       if (studentsRes.error) throw studentsRes.error
@@ -76,6 +86,7 @@ export default function Students() {
   }
 
   async function createUser(email, password, full_name) {
+    if (!profile.school_id) throw new Error('Məktəb məlumatı tapılmadı. Zəhmət olmasa yenidən daxil olun.')
     // Use an isolated client so the admin's session is never touched
     const tempClient = createClient(
       import.meta.env.VITE_SUPABASE_URL,
@@ -117,10 +128,11 @@ export default function Students() {
       const userId = await createUser(form.email.trim(), form.password, form.full_name.trim())
 
       if (form.class_id) {
-        await supabase.from('class_members').insert({
+        const { error: cmError } = await supabase.from('class_members').insert({
           class_id: form.class_id,
           student_id: userId,
         })
+        if (cmError) throw new Error(cmError.message)
       }
 
       setAddModal(false)
@@ -206,8 +218,9 @@ export default function Students() {
       s.attendance_pct ?? '',
       s.avg_grade ?? '',
     ])
-    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
+    const csv = [headers.map(escapeCsvField).join(','), ...rows.map(r => r.map(escapeCsvField).join(','))].join('\n')
+    const BOM = '\uFEFF'
+    const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -216,30 +229,38 @@ export default function Students() {
     URL.revokeObjectURL(url)
   }
 
+  function generateTempPassword() {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
+    return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  }
+
   // Bulk import handler — called per-row by BulkAddModal
   async function handleBulkImport(row) {
     const email    = row.email?.trim()
     const name     = row.full_name?.trim()
-    const password = row.password?.trim() || 'Zirva2025!'
+    const tempPassword = generateTempPassword()
+    const password = row.password?.trim() || tempPassword
 
     if (!email || !name) throw new Error('Ad və e-poçt tələb olunur')
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Yanlış e-poçt formatı: ' + email)
 
     const userId = await createUser(email, password, name)
 
     // class_id is the actual UUID from the select
     const classId = row.class_id?.trim()
     if (classId) {
-      await supabase.from('class_members').insert({
+      const { error: cmError } = await supabase.from('class_members').insert({
         class_id: classId,
         student_id: userId,
       })
+      if (cmError) throw new Error(cmError.message)
     }
   }
 
   const bulkColumns = [
     { key: 'full_name', label: 'Ad Soyad',  required: true, placeholder: 'Əli Əliyev' },
     { key: 'email',     label: 'E-poçt',    required: true, type: 'email', placeholder: 'sagird@mekteb.az' },
-    { key: 'password',  label: 'Şifrə',     placeholder: 'Zirva2025! (boş buraxsanız default)' },
+    { key: 'password',  label: 'Şifrə',     placeholder: 'Boş buraxsanız təsadüfi şifrə yaradılır' },
     {
       key:  'class_id',
       label: 'Sinif',
@@ -260,11 +281,8 @@ export default function Students() {
   const columns = [
     {
       key: 'full_name',
-      label: (
-        <button onClick={() => handleSort('full_name')} className="flex items-center gap-1">
-          {t('full_name')} {sortKey === 'full_name' && (sortDir === 'asc' ? '↑' : '↓')}
-        </button>
-      ),
+      label: t('full_name'),
+      sortable: true,
       render: (val, row) => (
         <div className="flex items-center gap-3">
           <Avatar name={val} size="sm" />
@@ -272,24 +290,18 @@ export default function Students() {
         </div>
       ),
     },
-    { key: 'class', label: t('class_name'), render: (val) => val?.name || '—' },
+    { key: 'class', label: t('class_name'), sortable: true, render: (val) => val?.name || '—' },
     { key: 'email', label: t('email') },
     {
       key: 'attendance_pct',
-      label: (
-        <button onClick={() => handleSort('attendance_pct')} className="flex items-center gap-1">
-          Davamiyyət {sortKey === 'attendance_pct' && (sortDir === 'asc' ? '↑' : '↓')}
-        </button>
-      ),
+      label: 'Davamiyyət',
+      sortable: true,
       render: (val) => val != null ? `${val}%` : '—',
     },
     {
       key: 'avg_grade',
-      label: (
-        <button onClick={() => handleSort('avg_grade')} className="flex items-center gap-1">
-          Ortalama {sortKey === 'avg_grade' && (sortDir === 'asc' ? '↑' : '↓')}
-        </button>
-      ),
+      label: 'Ortalama',
+      sortable: true,
       render: (val) => val != null ? <GradeBadge score={val} /> : '—',
     },
     {
@@ -297,10 +309,10 @@ export default function Students() {
       label: '',
       render: (_, row) => (
         <div className="flex items-center gap-2">
-          <button onClick={(e) => { e.stopPropagation(); openEditModal(row) }} className="p-1.5 text-gray-400 hover:text-purple transition-colors">
+          <button onClick={(e) => { e.stopPropagation(); openEditModal(row) }} className="p-1.5 text-gray-400 hover:text-purple transition-colors" aria-label="Redaktə et">
             <Edit2 className="w-4 h-4" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); setDeleteModal(row) }} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors">
+          <button onClick={(e) => { e.stopPropagation(); setDeleteModal(row) }} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" aria-label="Sil">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -350,7 +362,7 @@ export default function Students() {
 
       {/* Single Add Modal */}
       <Modal open={addModal} onClose={() => { setAddModal(false); setError(null) }} title={t('add_student')}>
-        <div className="space-y-4">
+        <div className="space-y-4" onKeyDown={e => { if (e.key === 'Enter' && !saving) handleAdd() }}>
           <Input label={t('full_name')} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} placeholder="Şagirdin adı soyadı" />
           <Input label={t('email')} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="sagird@mekteb.az" />
           <Input label="Şifrə" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Minimum 6 simvol" />
@@ -367,7 +379,7 @@ export default function Students() {
       </Modal>
 
       {/* Edit Modal */}
-      <Modal open={!!editModal} onClose={() => { setEditModal(null); setError(null) }} title={t('edit')}>
+      <Modal open={!!editModal} onClose={() => { setEditModal(null); resetForm(); setError(null) }} title={t('edit')}>
         <div className="space-y-4">
           <Input label={t('full_name')} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
           <Input label={t('email')} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -377,7 +389,7 @@ export default function Students() {
           </Select>
           {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="ghost" onClick={() => { setEditModal(null); setError(null) }}>{t('cancel')}</Button>
+            <Button variant="ghost" onClick={() => { setEditModal(null); resetForm(); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleEdit} loading={saving} disabled={!form.full_name || !form.email}>{t('save')}</Button>
           </div>
         </div>

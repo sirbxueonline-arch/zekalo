@@ -92,7 +92,8 @@ export default function AdminDiscipline() {
           .from('discipline_records')
           .select('*, student:profiles!discipline_records_student_id_fkey(id, full_name), recorder:profiles!discipline_records_recorded_by_fkey(id, full_name)')
           .eq('school_id', profile.school_id)
-          .order('date', { ascending: false }),
+          .order('date', { ascending: false })
+          .limit(200),
         supabase
           .from('profiles')
           .select('id, full_name')

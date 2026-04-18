@@ -5,6 +5,7 @@ import Card from '../../components/ui/Card'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { Bell, BookOpen, Calendar, MessageSquare, ClipboardList } from 'lucide-react'
+import { fmtNumeric } from '../../lib/dateUtils'
 
 export default function ParentNotifications() {
   const { profile, updateProfile, t } = useAuth()
@@ -98,9 +99,12 @@ export default function ParentNotifications() {
                       </div>
                       {n.body && <p className="text-xs text-gray-500 mt-0.5">{n.body}</p>}
                       <p className="text-xs text-gray-300 mt-1">
-                        {new Date(n.created_at).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                        {' '}
-                        {new Date(n.created_at).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' })}
+                        {fmtNumeric(n.created_at)}
+                        {n.created_at && (() => {
+                          const d = new Date(n.created_at)
+                          if (isNaN(d)) return ''
+                          return ` ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+                        })()}
                       </p>
                     </div>
                   </div>

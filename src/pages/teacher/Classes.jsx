@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
+import { fmtNumeric } from '../../lib/dateUtils'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
@@ -411,7 +412,7 @@ export default function TeacherClasses() {
                             <p className="text-sm font-medium text-gray-900 truncate">{a.title}</p>
                             <p className={`text-xs mt-0.5 font-medium ${urgent ? 'text-red-500' : 'text-gray-400'}`}>
                               {urgent ? '⚡ ' : ''}
-                              {due.toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                              {fmtNumeric(due)}
                             </p>
                           </div>
                           <span className={`text-xs font-medium px-2 py-1 rounded-full ${urgent ? 'bg-red-50 text-red-600' : 'bg-surface text-gray-500'}`}>

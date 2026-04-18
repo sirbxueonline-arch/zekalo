@@ -75,16 +75,18 @@ export default function Topbar({ title, onMenuClick }) {
   }
 
   const allNotifsPath =
-    profile?.role === 'parent'  ? '/valideyn/bildirisler'
-    : profile?.role === 'student' ? '/profil'
-    : profile?.role === 'teacher' ? '/muellim/profil'
-    : '/admin/mesajlar'
+    profile?.role === 'parent'     ? '/valideyn/bildirisler'
+    : profile?.role === 'student'  ? '/profil'
+    : profile?.role === 'teacher'  ? '/muellim/profil'
+    : profile?.role === 'admin'    ? '/admin/mesajlar'
+    : '/superadmin/dashboard'
 
   const profilePath =
-    profile?.role === 'parent'  ? '/valideyn/profil'
-    : profile?.role === 'student' ? '/profil'
-    : profile?.role === 'teacher' ? '/muellim/profil'
-    : '/admin/parametrler'
+    profile?.role === 'parent'     ? '/valideyn/profil'
+    : profile?.role === 'student'  ? '/profil'
+    : profile?.role === 'teacher'  ? '/muellim/profil'
+    : profile?.role === 'admin'    ? '/admin/parametrler'
+    : '/superadmin/dashboard'
 
   const roleLabel = {
     student:     'Şagird',

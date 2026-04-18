@@ -6,6 +6,7 @@ import EmptyState from '../../components/ui/EmptyState'
 import Modal from '../../components/ui/Modal'
 import Button from '../../components/ui/Button'
 import { Textarea } from '../../components/ui/Input'
+import { fmtNumeric } from '../../lib/dateUtils'
 import {
   ClipboardList,
   Clock,
@@ -64,11 +65,7 @@ function daysDiff(isoDate) {
 
 function formatDate(iso) {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString('az-AZ', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
+  return fmtNumeric(iso)
 }
 
 // ─── Due-date countdown chip ─────────────────────────────────────────────────
@@ -235,10 +232,30 @@ function formatFileSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
+function validateFile(file) {
+  const MAX_SIZE = 50 * 1024 * 1024 // 50MB
+  const ALLOWED_TYPES = [
+    'application/pdf',
+    'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'text/plain',
+    'application/zip',
+  ]
+  if (file.size > MAX_SIZE) return 'Fayl həcmi 50MB-dan çox ola bilməz'
+  if (!ALLOWED_TYPES.includes(file.type)) return 'Bu fayl növü dəstəklənmir'
+  return null
+}
+
 function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error }) {
   const [content, setContent] = useState('')
   const [file, setFile] = useState(null)
   const [dragOver, setDragOver] = useState(false)
+  const [fileError, setFileError] = useState(null)
   const fileInputRef = useRef(null)
   const isLate = assignment?.due_date && new Date(assignment.due_date) < new Date()
 
@@ -248,14 +265,28 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
       setContent('')
       setFile(null)
       setDragOver(false)
+      setFileError(null)
     }
   }, [open, assignment?.id])
+
+  function handleFileChange(e) {
+    const picked = e.target.files[0]
+    if (!picked) return
+    const err = validateFile(picked)
+    if (err) { setFileError(err); e.target.value = ''; return }
+    setFile(picked)
+    setFileError(null)
+  }
 
   function handleDrop(e) {
     e.preventDefault()
     setDragOver(false)
     const dropped = e.dataTransfer.files[0]
-    if (dropped) setFile(dropped)
+    if (!dropped) return
+    const err = validateFile(dropped)
+    if (err) { setFileError(err); return }
+    setFile(dropped)
+    setFileError(null)
   }
 
   const canSubmit = (content.trim().length > 0 || file !== null) && !submitting
@@ -340,7 +371,7 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
               ref={fileInputRef}
               type="file"
               className="hidden"
-              onChange={e => setFile(e.target.files[0] || null)}
+              onChange={handleFileChange}
             />
 
             {file ? (
@@ -356,6 +387,7 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
                   type="button"
                   onClick={e => { e.stopPropagation(); setFile(null) }}
                   className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                  aria-label="Bağla"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -366,12 +398,20 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
                   <Upload className="w-5 h-5 text-gray-400" />
                 </div>
                 <p className="text-sm font-medium text-gray-700">Faylı sürükləyin və ya seçin</p>
-                <p className="text-xs text-gray-400 mt-1">İstənilən fayl növü qəbul edilir</p>
+                <p className="text-xs text-gray-400 mt-1">PDF, Word, Excel, şəkil, mətn — maks. 50MB</p>
               </div>
             )}
           </div>
 
-          {/* Error message */}
+          {/* File validation error */}
+          {fileError && (
+            <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-red-700 font-medium">{fileError}</p>
+            </div>
+          )}
+
+          {/* Submit error message */}
           {error && (
             <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
               <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
@@ -506,6 +546,7 @@ export default function StudentAssignments() {
   const [loading, setLoading] = useState(true)
   const [assignments, setAssignments] = useState([])
   const [submissions, setSubmissions] = useState([])
+  const [fetchError, setFetchError] = useState(null)
   const [activeTab, setActiveTab] = useState('all')
   const [selectedAssignment, setSelectedAssignment] = useState(null)
   const [submitting, setSubmitting] = useState(false)
@@ -535,12 +576,19 @@ export default function StudentAssignments() {
         .from('assignments')
         .select('*, subject:subjects(name)')
         .in('class_id', classIds)
-        .order('due_date', { ascending: true }),
+        .order('due_date', { ascending: true })
+        .limit(200),
       supabase
         .from('submissions')
         .select('*')
-        .eq('student_id', profile.id),
+        .eq('student_id', profile.id)
+        .limit(200),
     ])
+
+    if (assignRes.error || subRes.error) {
+      console.error('Assignments fetch error:', assignRes.error || subRes.error)
+      setFetchError('Tapşırıqlar yüklənmədi. Səhifəni yeniləyin.')
+    }
 
     setAssignments(assignRes.data || [])
     setSubmissions(subRes.data || [])
@@ -635,6 +683,16 @@ export default function StudentAssignments() {
   // ── Loading / empty states ──────────────────────────────────────────────────
 
   if (loading) return <PageSpinner />
+
+  if (fetchError) {
+    return (
+      <EmptyState
+        icon={ClipboardList}
+        title="Xəta baş verdi"
+        description={fetchError}
+      />
+    )
+  }
 
   if (assignments.length === 0) {
     return (

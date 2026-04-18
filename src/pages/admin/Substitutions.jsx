@@ -98,15 +98,18 @@ export default function Substitutions() {
         supabase
           .from('timetable_slots')
           .select('*, class:classes(name), subject:subjects(name), teacher:profiles(id, full_name)')
-          .eq('school_id', profile.school_id),
+          .eq('school_id', profile.school_id)
+          .limit(500),
         supabase
           .from('profiles')
           .select('id, full_name')
           .eq('school_id', profile.school_id)
           .eq('role', 'teacher')
-          .order('full_name'),
+          .order('full_name')
+          .limit(200),
       ])
       if (slotsRes.error) throw slotsRes.error
+      if (teachersRes.error) throw teachersRes.error
       setSlots(slotsRes.data || [])
       setTeachers(teachersRes.data || [])
     } catch (err) {

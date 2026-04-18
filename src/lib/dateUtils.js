@@ -118,5 +118,6 @@ export function fmtDayMonth(date) {
 /** "Çərşənbə" (just weekday) */
 export function fmtWeekday(date) {
   const d = date instanceof Date ? date : new Date(date)
+  if (isNaN(d)) return '—'
   return AZ_WEEKDAYS_LONG[d.getDay()]
 }

@@ -934,7 +934,7 @@ const translations = {
 }
 
 export function t(key, lang = 'az') {
-  return translations[lang]?.[key] || translations.az[key] || key
+  return translations[lang]?.[key] ?? translations['az']?.[key] ?? key
 }
 
 export default translations

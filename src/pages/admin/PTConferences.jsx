@@ -48,23 +48,6 @@ const TEACHER_COLORS = [
   { bg: 'bg-pink-500', text: 'text-white', light: 'bg-pink-50', lightText: 'text-pink-700' },
 ]
 
-const DEMO_TEACHERS = [
-  { id: 't1', full_name: 'Aytən Nəcəfova' },
-  { id: 't2', full_name: 'Rauf Əliyev' },
-  { id: 't3', full_name: 'Gülnar İsmayılova' },
-]
-
-const DEMO_SLOTS = [
-  { id: 's1', teacher_id: 't1', teacher_name: 'Aytən Nəcəfova', date: formatDate(new Date()), time: '09:00', booked: true, parent_name: 'Leyla Quliyeva', student_name: 'Aynur Q.' },
-  { id: 's2', teacher_id: 't1', teacher_name: 'Aytən Nəcəfova', date: formatDate(new Date()), time: '09:15', booked: false },
-  { id: 's3', teacher_id: 't1', teacher_name: 'Aytən Nəcəfova', date: formatDate(new Date()), time: '09:30', booked: false },
-  { id: 's4', teacher_id: 't2', teacher_name: 'Rauf Əliyev', date: formatDate(new Date()), time: '10:00', booked: true, parent_name: 'Rauf Həsənov', student_name: 'Tural H.' },
-  { id: 's5', teacher_id: 't2', teacher_name: 'Rauf Əliyev', date: formatDate(new Date()), time: '10:15', booked: false },
-  { id: 's6', teacher_id: 't3', teacher_name: 'Gülnar İsmayılova', date: formatDate(new Date()), time: '11:00', booked: true, parent_name: 'Samirə Məmmədova', student_name: 'Nigar M.' },
-  { id: 's7', teacher_id: 't3', teacher_name: 'Gülnar İsmayılova', date: formatDate(new Date()), time: '11:15', booked: false },
-  { id: 's8', teacher_id: 't3', teacher_name: 'Gülnar İsmayılova', date: formatDate(new Date()), time: '11:30', booked: false },
-]
-
 export default function PTConferences() {
   const { profile, t } = useAuth()
   const [loading, setLoading] = useState(true)
@@ -90,11 +73,11 @@ export default function PTConferences() {
         supabase.from('profiles').select('id,full_name').eq('school_id', profile.school_id).eq('role', 'teacher'),
       ])
       if (slotRes.error) throw slotRes.error
-      setSlots(slotRes.data && slotRes.data.length > 0 ? slotRes.data : DEMO_SLOTS)
-      setTeachers(teacherRes.data && teacherRes.data.length > 0 ? teacherRes.data : DEMO_TEACHERS)
+      setSlots(slotRes.data || [])
+      setTeachers(teacherRes.data || [])
     } catch {
-      setSlots(DEMO_SLOTS)
-      setTeachers(DEMO_TEACHERS)
+      setSlots([])
+      setTeachers([])
     } finally {
       setLoading(false)
     }
@@ -108,6 +91,7 @@ export default function PTConferences() {
       const newSlots = []
       let [h, m] = slotForm.time_start.split(':').map(Number)
       for (let i = 0; i < slotForm.slots_count; i++) {
+        if (h >= 24) break
         newSlots.push({
           teacher_id: slotForm.teacher_id,
           teacher_name: teacher?.full_name || '',
@@ -138,7 +122,7 @@ export default function PTConferences() {
         booked: true,
         parent_name: bookForm.parent_name,
         student_name: bookForm.student_name,
-      }).eq('id', bookModal.id)
+      }).eq('id', bookModal.id).eq('booked', false)
       if (err) throw err
       setBookModal(null)
       setBookForm({ parent_name: '', student_name: '' })

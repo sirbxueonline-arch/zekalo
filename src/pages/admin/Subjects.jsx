@@ -13,12 +13,23 @@ export default function AdminSubjects() {
   const [loading, setLoading]     = useState(true)
   const [subjects, setSubjects]   = useState([])
   const [search, setSearch]       = useState('')
+  const [sortKey, setSortKey]     = useState('name')
+  const [sortDir, setSortDir]     = useState('asc')
   const [addModal, setAddModal]   = useState(false)
   const [editModal, setEditModal] = useState(null)  // subject object
   const [deleteModal, setDeleteModal] = useState(null)
   const [form, setForm]           = useState({ name: '', name_az: '' })
   const [saving, setSaving]       = useState(false)
   const [error, setError]         = useState(null)
+
+  function handleSort(key) {
+    if (sortKey === key) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
 
   useEffect(() => {
     if (profile?.school_id) fetchSubjects()
@@ -75,16 +86,25 @@ export default function AdminSubjects() {
 
   async function handleDelete() {
     setSaving(true)
-    await supabase.from('subjects').delete().eq('id', deleteModal.id)
+    setError(null)
+    const { error: err } = await supabase.from('subjects').delete().eq('id', deleteModal.id).eq('school_id', profile.school_id)
     setSaving(false)
+    if (err) { setError(err.message); return }
     setDeleteModal(null)
     fetchSubjects()
   }
 
-  const filtered = subjects.filter(s =>
-    s.name?.toLowerCase().includes(search.toLowerCase()) ||
-    s.name_az?.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = subjects
+    .filter(s =>
+      s.name?.toLowerCase().includes(search.toLowerCase()) ||
+      s.name_az?.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      const av = a[sortKey] ?? ''
+      const bv = b[sortKey] ?? ''
+      const cmp = String(av).localeCompare(String(bv), 'az')
+      return sortDir === 'asc' ? cmp : -cmp
+    })
 
   if (loading) return <PageSpinner />
 
@@ -127,8 +147,28 @@ export default function AdminSubjects() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-surface border-b border-border-soft">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fənn adı</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Azərbaycan adı</th>
+                <th
+                  className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-surface"
+                  onClick={() => handleSort('name')}
+                >
+                  <span className="flex items-center gap-1">
+                    Fənn adı
+                    <span className="text-gray-400 text-xs">
+                      {sortKey === 'name' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
+                    </span>
+                  </span>
+                </th>
+                <th
+                  className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell cursor-pointer select-none hover:bg-surface"
+                  onClick={() => handleSort('name_az')}
+                >
+                  <span className="flex items-center gap-1">
+                    Azərbaycan adı
+                    <span className="text-gray-400 text-xs">
+                      {sortKey === 'name_az' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
+                    </span>
+                  </span>
+                </th>
                 <th className="w-20" />
               </tr>
             </thead>
@@ -151,12 +191,14 @@ export default function AdminSubjects() {
                       <button
                         onClick={() => openEdit(sub)}
                         className="p-1.5 text-gray-400 hover:text-purple transition-colors rounded-lg hover:bg-purple-light"
+                        aria-label="Redaktə et"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => setDeleteModal(sub)}
                         className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
+                        aria-label="Sil"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -171,7 +213,7 @@ export default function AdminSubjects() {
 
       {/* Add Modal */}
       <Modal open={addModal} onClose={() => setAddModal(false)} title="Fənn əlavə et">
-        <div className="space-y-4">
+        <div className="space-y-4" onKeyDown={e => { if (e.key === 'Enter' && !saving) handleAdd() }}>
           <Input
             label="Fənn adı *"
             value={form.name}

@@ -115,6 +115,10 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
 
   async function handleImport() {
     if (!validRows.length) return
+    if (validRows.length > 200) {
+      alert('Maksimum 200 şagird idxal edilə bilər')
+      return
+    }
     setImporting(true)
     setProgress(0)
     setResults(null)
@@ -134,7 +138,7 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
           msg: err?.message || 'Naməlum xəta',
         })
       }
-      setProgress(Math.round(((i + 1) / validRows.length) * 100))
+      setProgress(i + 1)
     }
 
     setImporting(false)
@@ -201,15 +205,15 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
         <div className="py-10 space-y-4">
           <div className="flex items-center justify-center gap-3">
             <Loader2 className="w-5 h-5 animate-spin text-purple" />
-            <span className="text-sm text-gray-700">İdxal edilir... {progress}%</span>
+            <span className="text-sm text-gray-700">İdxal edilir... {progress} / {validRows.length}</span>
           </div>
           <div className="w-full bg-border-soft rounded-full h-2">
             <div
               className="bg-purple h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${Math.round((progress / validRows.length) * 100)}%` }}
             />
           </div>
-          <p className="text-xs text-center text-gray-400">{validRows.length} qeyd idxal edilir</p>
+          <p className="text-xs text-center text-gray-400">{progress} / {validRows.length} idxal edildi...</p>
         </div>
       )}
 
@@ -285,6 +289,7 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
                       <button
                         onClick={() => removeRow(ri)}
                         className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                        aria-label="Sil"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

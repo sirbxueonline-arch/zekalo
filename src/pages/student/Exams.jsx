@@ -32,6 +32,7 @@ export default function StudentExams() {
   const [loading, setLoading] = useState(true)
   const [upcoming, setUpcoming] = useState([])
   const [results, setResults] = useState([])
+  const [fetchError, setFetchError] = useState(null)
 
   useEffect(() => {
     if (!profile) return
@@ -57,31 +58,49 @@ export default function StudentExams() {
       }
 
       // Fetch upcoming published exams
-      const { data: upcomingData } = await supabase
+      const { data: upcomingData, error: upcomingErr } = await supabase
         .from('exams')
         .select('*, class:classes(id, name), subject:subjects(id, name)')
         .in('class_id', classIds)
         .eq('published', true)
         .gte('exam_date', today)
         .order('exam_date', { ascending: true })
+        .limit(50)
 
       // Fetch past exam results for this student
-      const { data: resultsData } = await supabase
+      const { data: resultsData, error: resultsErr } = await supabase
         .from('exam_results')
         .select('*, exam:exams(*, class:classes(id, name), subject:subjects(id, name))')
         .eq('student_id', profile.id)
         .order('created_at', { ascending: false })
+        .limit(100)
+
+      if (upcomingErr || resultsErr) {
+        console.error('Exams fetch error:', upcomingErr || resultsErr)
+        setFetchError('İmtahan məlumatları yüklənmədi. Səhifəni yeniləyin.')
+      }
 
       setUpcoming(upcomingData || [])
       setResults((resultsData || []).filter(r => r.exam))
     } catch (err) {
       console.error(err)
+      setFetchError('İmtahan məlumatları yüklənmədi. Səhifəni yeniləyin.')
     } finally {
       setLoading(false)
     }
   }
 
   if (loading) return <PageSpinner />
+
+  if (fetchError) {
+    return (
+      <EmptyState
+        icon={ClipboardList}
+        title="Xəta baş verdi"
+        description={fetchError}
+      />
+    )
+  }
 
   return (
     <div className="space-y-8">
@@ -171,7 +190,7 @@ export default function StudentExams() {
                 </thead>
                 <tbody className="divide-y divide-border-soft">
                   {results.map(r => {
-                    const pct = r.exam.max_score > 0
+                    const pct = r.score != null && r.exam.max_score > 0
                       ? Math.round((r.score / r.exam.max_score) * 100)
                       : 0
                     return (

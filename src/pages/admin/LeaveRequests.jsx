@@ -8,6 +8,7 @@ import Modal from '../../components/ui/Modal'
 import Table from '../../components/ui/Table'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
+import { fmtNumeric } from '../../lib/dateUtils'
 import Avatar from '../../components/ui/Avatar'
 import Input from '../../components/ui/Input'
 import { Select, Textarea } from '../../components/ui/Input'
@@ -31,12 +32,6 @@ function daysBetween(start, end) {
   return Math.round((new Date(end) - new Date(start)) / 86400000) + 1
 }
 
-const DEMO = [
-  { id: '1', teacher_name: 'Aytən Nəcəfova', leave_type: 'sick', start_date: '2026-04-14', end_date: '2026-04-16', status: 'pending', reason: 'Qrip', admin_note: '' },
-  { id: '2', teacher_name: 'Rauf Əliyev', leave_type: 'professional', start_date: '2026-04-20', end_date: '2026-04-22', status: 'approved', reason: 'IB seminarı', admin_note: 'Uğurlar!' },
-  { id: '3', teacher_name: 'Gülnar İsmayılova', leave_type: 'personal', start_date: '2026-04-18', end_date: '2026-04-18', status: 'rejected', reason: 'Ailə məsələsi', admin_note: 'Həmin gün imtahan var.' },
-]
-
 export default function LeaveRequests() {
   const { profile, t } = useAuth()
   const [loading, setLoading] = useState(true)
@@ -59,7 +54,7 @@ export default function LeaveRequests() {
     try {
       setLoading(true)
       const [reqRes, teacherRes] = await Promise.all([
-        supabase.from('leave_requests').select('*, teacher:profiles(id,full_name)').eq('school_id', profile.school_id).order('created_at', { ascending: false }),
+        supabase.from('leave_requests').select('*, teacher:profiles(id,full_name)').eq('school_id', profile.school_id).order('created_at', { ascending: false }).limit(200),
         supabase.from('profiles').select('id,full_name').eq('school_id', profile.school_id).eq('role', 'teacher'),
       ])
 
@@ -70,10 +65,10 @@ export default function LeaveRequests() {
         teacher_name: r.teacher?.full_name || r.teacher_name || '—',
       }))
 
-      setRequests(formatted.length > 0 ? formatted : DEMO)
+      setRequests(formatted)
       setTeachers(teacherRes.data || [])
     } catch {
-      setRequests(DEMO)
+      setRequests([])
       try {
         const { data } = await supabase.from('profiles').select('id,full_name').eq('school_id', profile.school_id).eq('role', 'teacher')
         setTeachers(data || [])
@@ -156,7 +151,7 @@ export default function LeaveRequests() {
       label: 'Tarix aralığı',
       render: (val, row) => (
         <span className="text-sm text-gray-700">
-          {val ? new Date(val).toLocaleDateString('az-AZ') : '—'} – {row.end_date ? new Date(row.end_date).toLocaleDateString('az-AZ') : '—'}
+          {val ? fmtNumeric(val) : '—'} – {row.end_date ? fmtNumeric(row.end_date) : '—'}
         </span>
       ),
     },
@@ -246,11 +241,11 @@ export default function LeaveRequests() {
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-surface rounded-lg p-4">
                 <p className="text-xs text-gray-500 mb-1">Başlama</p>
-                <p className="font-medium">{selectedReq.start_date ? new Date(selectedReq.start_date).toLocaleDateString('az-AZ') : '—'}</p>
+                <p className="font-medium">{selectedReq.start_date ? fmtNumeric(selectedReq.start_date) : '—'}</p>
               </div>
               <div className="bg-surface rounded-lg p-4">
                 <p className="text-xs text-gray-500 mb-1">Bitmə</p>
-                <p className="font-medium">{selectedReq.end_date ? new Date(selectedReq.end_date).toLocaleDateString('az-AZ') : '—'}</p>
+                <p className="font-medium">{selectedReq.end_date ? fmtNumeric(selectedReq.end_date) : '—'}</p>
               </div>
               <div className="bg-surface rounded-lg p-4">
                 <p className="text-xs text-gray-500 mb-1">Gün sayı</p>

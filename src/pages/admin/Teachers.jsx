@@ -41,7 +41,8 @@ export default function Teachers() {
           .from('profiles')
           .select('*, teacher_classes(id, class:classes(id, name), subject:subjects(id, name))')
           .eq('school_id', profile.school_id)
-          .eq('role', 'teacher'),
+          .eq('role', 'teacher')
+          .limit(200),
         supabase.from('classes').select('id, name').eq('school_id', profile.school_id).order('name'),
         supabase.from('subjects').select('id, name').eq('school_id', profile.school_id).order('name'),
       ])
@@ -76,6 +77,7 @@ export default function Teachers() {
   }
 
   async function createUser(email, password, full_name) {
+    if (!profile.school_id) throw new Error('Məktəb məlumatı tapılmadı. Zəhmət olmasa yenidən daxil olun.')
     const tempClient = createClient(
       import.meta.env.VITE_SUPABASE_URL,
       import.meta.env.VITE_SUPABASE_ANON_KEY,
@@ -214,6 +216,7 @@ export default function Teachers() {
     {
       key: 'full_name',
       label: t('full_name'),
+      sortable: true,
       render: (val) => (
         <div className="flex items-center gap-3">
           <Avatar name={val} size="sm" />
@@ -247,10 +250,10 @@ export default function Teachers() {
       label: '',
       render: (_, row) => (
         <div className="flex items-center gap-2">
-          <button onClick={(e) => { e.stopPropagation(); openEditModal(row) }} className="p-1.5 text-gray-400 hover:text-purple transition-colors">
+          <button onClick={(e) => { e.stopPropagation(); openEditModal(row) }} className="p-1.5 text-gray-400 hover:text-purple transition-colors" aria-label="Redaktə et">
             <Edit2 className="w-4 h-4" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); setDeleteModal(row) }} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors">
+          <button onClick={(e) => { e.stopPropagation(); setDeleteModal(row) }} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" aria-label="Sil">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -341,7 +344,7 @@ export default function Teachers() {
       </Modal>
 
       {/* Edit Modal */}
-      <Modal open={!!editModal} onClose={() => { setEditModal(null); setError(null) }} title={t('edit')}>
+      <Modal open={!!editModal} onClose={() => { setEditModal(null); resetForm(); setError(null) }} title={t('edit')}>
         <div className="space-y-4">
           <Input label={t('full_name')} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
           <Input label={t('email')} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -352,7 +355,7 @@ export default function Teachers() {
           )}
           {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="ghost" onClick={() => { setEditModal(null); setError(null) }}>{t('cancel')}</Button>
+            <Button variant="ghost" onClick={() => { setEditModal(null); resetForm(); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleEdit} loading={saving} disabled={!form.full_name || !form.email}>{t('save')}</Button>
           </div>
         </div>

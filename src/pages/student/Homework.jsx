@@ -10,6 +10,7 @@ import { Select } from '../../components/ui/Input'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { BookOpen, Plus, Trash2, CheckSquare, Square, AlertCircle, Clock } from 'lucide-react'
+import { fmtNumeric } from '../../lib/dateUtils'
 
 const COMMON_SUBJECTS = [
   'Riyaziyyat', 'Azərbaycan dili', 'İngilis dili', 'Rus dili', 'Fizika',
@@ -45,7 +46,7 @@ function isOverdue(item) {
 
 function formatDate(dateStr) {
   if (!dateStr) return ''
-  return new Date(dateStr).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return fmtNumeric(dateStr)
 }
 
 function sortItems(items) {
@@ -73,6 +74,7 @@ export default function StudentHomework() {
 
   const [loading, setLoading] = useState(true)
   const [items, setItems] = useState([])
+  const [fetchError, setFetchError] = useState(null)
   const [activeTab, setActiveTab] = useState('all')
   const [showAdd, setShowAdd] = useState(false)
   const [adding, setAdding] = useState(false)
@@ -87,11 +89,16 @@ export default function StudentHomework() {
 
   async function loadItems() {
     setLoading(true)
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('homework_items')
       .select('*')
       .eq('student_id', profile.id)
       .order('created_at', { ascending: false })
+      .limit(200)
+    if (error) {
+      console.error('Homework fetch error:', error)
+      setFetchError('Ev tapşırıqları yüklənmədi. Səhifəni yeniləyin.')
+    }
     setItems(data || [])
     setLoading(false)
   }
@@ -157,6 +164,16 @@ export default function StudentHomework() {
   }
 
   if (loading) return <PageSpinner />
+
+  if (fetchError) {
+    return (
+      <EmptyState
+        icon={BookOpen}
+        title="Xəta baş verdi"
+        description={fetchError}
+      />
+    )
+  }
 
   return (
     <div className="space-y-6">

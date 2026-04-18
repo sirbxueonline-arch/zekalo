@@ -160,7 +160,7 @@ export default function Classes() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <button onClick={() => setSelectedClass(null)} className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+          <button onClick={() => setSelectedClass(null)} className="p-2 text-gray-400 hover:text-gray-600 transition-colors" aria-label="Geri">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="font-serif text-3xl text-gray-900">{selectedClass.name}</h1>
@@ -202,7 +202,7 @@ export default function Classes() {
                 return (
                   <span key={id} className="inline-flex items-center gap-1.5 bg-purple-light text-purple-dark rounded-full text-xs font-medium px-3 py-1">
                     {student?.full_name}
-                    <button onClick={() => setAddStudentIds(prev => prev.filter(i => i !== id))} className="hover:text-purple">
+                    <button onClick={() => setAddStudentIds(prev => prev.filter(i => i !== id))} className="hover:text-purple" aria-label="Sil">
                       <X className="w-3 h-3" />
                     </button>
                   </span>
@@ -233,7 +233,7 @@ export default function Classes() {
                   <button
                     onClick={() => removeStudentFromClass(row.id)}
                     className="p-1.5 text-gray-400 hover:text-red-600 transition-colors"
-                    title="Sinfden çıxar"
+                    aria-label="Sil"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -283,8 +283,8 @@ export default function Classes() {
         </div>
       )}
 
-      <Modal open={addModal} onClose={() => setAddModal(false)} title={t('add')}>
-        <div className="space-y-4">
+      <Modal open={addModal} onClose={() => { setAddModal(false); setForm({ name: '', grade_level: '', teacher_id: '' }) }} title={t('add')}>
+        <div className="space-y-4" onKeyDown={e => { if (e.key === 'Enter' && !saving) handleAddClass() }}>
           <Input
             label={t('class_name')}
             value={form.name}
@@ -309,7 +309,7 @@ export default function Classes() {
             ))}
           </Select>
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="ghost" onClick={() => setAddModal(false)}>{t('cancel')}</Button>
+            <Button variant="ghost" onClick={() => { setAddModal(false); setForm({ name: '', grade_level: '', teacher_id: '' }) }}>{t('cancel')}</Button>
             <Button onClick={handleAddClass} loading={saving} disabled={!form.name.trim()}>{t('add')}</Button>
           </div>
         </div>

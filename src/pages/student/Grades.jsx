@@ -5,6 +5,7 @@ import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { fmtNumeric } from '../../lib/dateUtils'
 
 // ─── Subject accent color ────────────────────────────────────────────────────
 const SUBJ_COLORS = [
@@ -61,6 +62,7 @@ function rowBorderColor(norm) {
 
 // ─── Normalize score to /10 ──────────────────────────────────────────────────
 function normalize(score, maxScore) {
+  if (score == null) return null
   if (maxScore > 0) return (score / maxScore) * 10
   return score
 }
@@ -73,7 +75,8 @@ function computeSubjectStats(grades) {
     const id = g.subject.id
     if (!map[id]) map[id] = { subject: g.subject, normed: [] }
     if (g.score != null) {
-      map[id].normed.push(normalize(g.score, g.max_score))
+      const n = normalize(g.score, g.max_score)
+      if (n != null) map[id].normed.push(n)
     }
   })
 
@@ -119,6 +122,7 @@ export default function StudentGrades() {
   const { profile } = useAuth()
   const [loading, setLoading]               = useState(true)
   const [grades, setGrades]                 = useState([])
+  const [error, setError]                   = useState(null)
   const [selectedSubject, setSelectedSubject] = useState(null)
 
   useEffect(() => {
@@ -128,13 +132,28 @@ export default function StudentGrades() {
       .select('*, subject:subjects(id, name)')
       .eq('student_id', profile.id)
       .order('date', { ascending: false })
-      .then(({ data }) => {
+      .limit(500)
+      .then(({ data, error: err }) => {
+        if (err) {
+          console.error('Grades fetch error:', err)
+          setError('Qiymətlər yüklənmədi. Səhifəni yeniləyin.')
+        }
         setGrades(data || [])
         setLoading(false)
       })
   }, [profile])
 
   if (loading) return <PageSpinner />
+
+  if (error) {
+    return (
+      <EmptyState
+        icon={BookOpen}
+        title="Xəta baş verdi"
+        description={error}
+      />
+    )
+  }
 
   if (grades.length === 0) {
     return (
@@ -152,6 +171,7 @@ export default function StudentGrades() {
   const allNormed = grades
     .filter(g => g.score != null)
     .map(g => normalize(g.score, g.max_score))
+    .filter(n => n != null)
   const overallAvg =
     allNormed.length > 0
       ? Math.round((allNormed.reduce((a, b) => a + b, 0) / allNormed.length) * 10) / 10
@@ -317,10 +337,8 @@ export default function StudentGrades() {
             </thead>
             <tbody>
               {filtered.map(g => {
-                const norm =
-                  g.score != null
-                    ? Math.round(normalize(g.score, g.max_score) * 10) / 10
-                    : null
+                const _n = g.score != null ? normalize(g.score, g.max_score) : null
+                const norm = _n != null ? Math.round(_n * 10) / 10 : null
                 const borderClass =
                   norm != null ? rowBorderColor(norm) : 'border-l-gray-200'
                 return (
@@ -330,11 +348,7 @@ export default function StudentGrades() {
                   >
                     {/* Tarix */}
                     <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                      {new Date(g.date).toLocaleDateString('az-AZ', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                      })}
+                      {fmtNumeric(g.date)}
                     </td>
 
                     {/* Fənn */}

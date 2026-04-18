@@ -12,6 +12,16 @@ import StatCard from '../../components/ui/StatCard'
 import { PageSpinner } from '../../components/ui/Spinner'
 import Badge from '../../components/ui/Badge'
 
+
+function escapeCsvField(val) {
+  if (val == null) return ''
+  const str = String(val)
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return '"' + str.replace(/"/g, '""') + '"'
+  }
+  return str
+}
+
 export default function IBPanel() {
   const { profile, t } = useAuth()
 
@@ -96,7 +106,7 @@ function IBPanelContent() {
       }
 
       if (essayModal?.id) {
-        const { error: err } = await supabase.from('ib_extended_essays').update(payload).eq('id', essayModal.id)
+        const { error: err } = await supabase.from('ib_extended_essays').update(payload).eq('id', essayModal.id).eq('school_id', profile.school_id)
         if (err) throw err
       } else {
         const { error: err } = await supabase.from('ib_extended_essays').insert(payload)
@@ -122,8 +132,8 @@ function IBPanelContent() {
       e.status || '',
       e.submitted_date || '',
     ])
-    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
+    const csv = [headers.map(escapeCsvField).join(','), ...rows.map(r => r.map(escapeCsvField).join(','))].join('\n')
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -141,8 +151,8 @@ function IBPanelContent() {
       e.status || '',
       e.submitted_date || '',
     ])
-    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
+    const csv = [headers.map(escapeCsvField).join(','), ...rows.map(r => r.map(escapeCsvField).join(','))].join('\n')
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -158,12 +168,14 @@ function IBPanelContent() {
   }
 
   const statusLabels = {
+    not_started: 'Başlanmayıb',
     draft: 'Qaralama',
     in_progress: 'Davam edir',
-    submitted: 'Teslim edildi',
-    graded: 'Qiymetlendirildi',
+    submitted: 'Təslim edildi',
+    graded: 'Qiymətləndirilib',
   }
   const statusVariants = {
+    not_started: 'absent',
     draft: 'late',
     in_progress: 'default',
     submitted: 'present',
@@ -223,7 +235,7 @@ function IBPanelContent() {
         <Table columns={columns} data={essays} emptyMessage={t('no_data')} />
       </Card>
 
-      <Modal open={!!essayModal} onClose={() => setEssayModal(null)} title={essayModal?.id ? t('edit') : t('add')}>
+      <Modal open={!!essayModal} onClose={() => { setEssayModal(null); resetForm(); setError(null) }} title={essayModal?.id ? t('edit') : t('add')}>
         <div className="space-y-4">
           <Select label={t('students')} value={form.student_id} onChange={(e) => setForm({ ...form, student_id: e.target.value })}>
             <option value="">{t('students')}</option>
@@ -235,14 +247,16 @@ function IBPanelContent() {
             {teachers.map(tc => <option key={tc.id} value={tc.id}>{tc.full_name}</option>)}
           </Select>
           <Select label="Status" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+            <option value="not_started">Başlanmayıb</option>
             <option value="draft">Qaralama</option>
             <option value="in_progress">Davam edir</option>
-            <option value="submitted">Teslim edildi</option>
-            <option value="graded">Qiymetlendirildi</option>
+            <option value="submitted">Təslim edildi</option>
+            <option value="graded">Qiymətləndirilib</option>
           </Select>
           <Input label={t('date')} type="date" value={form.submitted_date} onChange={(e) => setForm({ ...form, submitted_date: e.target.value })} />
+          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="ghost" onClick={() => setEssayModal(null)}>{t('cancel')}</Button>
+            <Button variant="ghost" onClick={() => { setEssayModal(null); resetForm(); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleSaveEssay} loading={saving}>{t('save')}</Button>
           </div>
         </div>

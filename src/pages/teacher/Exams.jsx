@@ -10,6 +10,7 @@ import Modal from '../../components/ui/Modal'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import Badge from '../../components/ui/Badge'
+import { fmtNumeric } from '../../lib/dateUtils'
 
 const emptyForm = {
   title: '',
@@ -23,7 +24,7 @@ const emptyForm = {
 
 function formatDate(d) {
   if (!d) return ''
-  return new Date(d).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return fmtNumeric(d)
 }
 
 export default function TeacherExams() {
@@ -71,13 +72,20 @@ export default function TeacherExams() {
   async function loadExams(tc) {
     const classIds = [...new Set((tc || teacherClasses).map(t => t.class_id))]
     if (!classIds.length) return
-    const { data } = await supabase
-      .from('exams')
-      .select('*, class:classes(id, name), subject:subjects(id, name)')
-      .in('class_id', classIds)
-      .eq('created_by', profile.id)
-      .order('exam_date', { ascending: false })
-    setExams(data || [])
+    try {
+      const { data, error } = await supabase
+        .from('exams')
+        .select('*, class:classes(id, name), subject:subjects(id, name)')
+        .in('class_id', classIds)
+        .eq('created_by', profile.id)
+        .order('exam_date', { ascending: false })
+        .limit(200)
+      if (error) throw error
+      setExams(data || [])
+    } catch (err) {
+      console.error(err)
+      setError('İmtahanları yükləmək alınmadı')
+    }
   }
 
   async function openResults(exam) {
@@ -398,12 +406,14 @@ export default function TeacherExams() {
                 <button
                   onClick={() => openEdit(exam)}
                   className="p-2 text-gray-400 hover:text-purple transition-colors rounded-md hover:bg-purple-light"
+                  aria-label="Redaktə et"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setDeleteModal(exam)}
                   className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-md hover:bg-red-50"
+                  aria-label="Sil"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -416,7 +426,7 @@ export default function TeacherExams() {
       {/* Add / Edit Modal */}
       <Modal
         open={addModal || !!editModal}
-        onClose={() => { setAddModal(false); setEditModal(null); setError(null) }}
+        onClose={() => { setAddModal(false); setEditModal(null); setError(null); setForm(emptyForm) }}
         title={editModal ? 'İmtahanı redaktə et' : 'İmtahan planla'}
         size="md"
       >
@@ -478,10 +488,10 @@ export default function TeacherExams() {
             <span className="text-sm text-gray-700">Şagirdlərə dərc et</span>
           </label>
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => { setAddModal(false); setEditModal(null); setError(null) }}>
+            <Button variant="ghost" onClick={() => { setAddModal(false); setEditModal(null); setError(null); setForm(emptyForm) }}>
               Ləğv et
             </Button>
-            <Button onClick={handleSave} loading={saving}>
+            <Button onClick={handleSave} loading={saving} disabled={saving}>
               {editModal ? 'Yenilə' : 'Planla'}
             </Button>
           </div>

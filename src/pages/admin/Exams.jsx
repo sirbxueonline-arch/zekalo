@@ -10,6 +10,7 @@ import Modal from '../../components/ui/Modal'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import Badge from '../../components/ui/Badge'
+import { fmtNumeric } from '../../lib/dateUtils'
 
 const emptyForm = {
   title: '',
@@ -24,7 +25,7 @@ const emptyForm = {
 function formatDate(d) {
   if (!d) return ''
   const date = new Date(d)
-  return date.toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return fmtNumeric(date)
 }
 
 export default function AdminExams() {
@@ -35,6 +36,17 @@ export default function AdminExams() {
   const [subjects, setSubjects] = useState([])
   const [filterClass, setFilterClass] = useState('')
   const [filterSubject, setFilterSubject] = useState('')
+  const [sortKey, setSortKey] = useState('exam_date')
+  const [sortDir, setSortDir] = useState('desc')
+
+  function handleSort(key) {
+    if (sortKey === key) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
   const [addModal, setAddModal] = useState(false)
   const [editModal, setEditModal] = useState(null)
   const [deleteModal, setDeleteModal] = useState(null)
@@ -63,7 +75,8 @@ export default function AdminExams() {
           .from('exams')
           .select('*, class:classes(id, name), subject:subjects(id, name)')
           .eq('school_id', profile.school_id)
-          .order('exam_date', { ascending: false }),
+          .order('exam_date', { ascending: false })
+          .limit(200),
         supabase.from('classes').select('id, name').eq('school_id', profile.school_id).order('name'),
         supabase.from('subjects').select('id, name').eq('school_id', profile.school_id).order('name'),
       ])
@@ -86,8 +99,9 @@ export default function AdminExams() {
         supabase
           .from('class_members')
           .select('student:profiles(id, full_name)')
-          .eq('class_id', exam.class_id),
-        supabase.from('exam_results').select('*').eq('exam_id', exam.id),
+          .eq('class_id', exam.class_id)
+          .limit(500),
+        supabase.from('exam_results').select('*').eq('exam_id', exam.id).limit(500),
       ])
       const studentList = (membersRes.data || []).map(m => m.student).filter(Boolean)
       studentList.sort((a, b) => a.full_name.localeCompare(b.full_name))
@@ -182,6 +196,7 @@ export default function AdminExams() {
       await fetchData()
     } catch (err) {
       console.error(err)
+      setError('Silmə uğursuz oldu. Yenidən cəhd edin.')
     } finally {
       setSaving(false)
     }
@@ -313,11 +328,18 @@ export default function AdminExams() {
     )
   }
 
-  const filtered = exams.filter(e => {
-    if (filterClass && e.class_id !== filterClass) return false
-    if (filterSubject && e.subject_id !== filterSubject) return false
-    return true
-  })
+  const filtered = exams
+    .filter(e => {
+      if (filterClass && e.class_id !== filterClass) return false
+      if (filterSubject && e.subject_id !== filterSubject) return false
+      return true
+    })
+    .sort((a, b) => {
+      const av = a[sortKey] ?? ''
+      const bv = b[sortKey] ?? ''
+      const cmp = String(av).localeCompare(String(bv), 'az')
+      return sortDir === 'asc' ? cmp : -cmp
+    })
 
   return (
     <div className="space-y-6">
@@ -340,7 +362,7 @@ export default function AdminExams() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3 items-center">
         <div className="w-48">
           <Select value={filterClass} onChange={e => setFilterClass(e.target.value)}>
             <option value="">Bütün siniflər</option>
@@ -356,6 +378,18 @@ export default function AdminExams() {
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </Select>
+        </div>
+        <div className="flex gap-2 ml-auto">
+          {[['title', 'Başlıq'], ['exam_date', 'Tarix']].map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => handleSort(key)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center gap-1 ${sortKey === key ? 'bg-purple text-white' : 'bg-surface text-gray-600 hover:text-purple'}`}
+            >
+              {label}
+              {sortKey === key && <span>{sortDir === 'asc' ? '▲' : '▼'}</span>}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -411,12 +445,14 @@ export default function AdminExams() {
                 <button
                   onClick={() => openEdit(exam)}
                   className="p-2 text-gray-400 hover:text-purple transition-colors rounded-md hover:bg-purple-light"
+                  aria-label="Redaktə et"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setDeleteModal(exam)}
                   className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-md hover:bg-red-50"
+                  aria-label="Sil"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

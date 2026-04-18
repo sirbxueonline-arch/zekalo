@@ -8,20 +8,9 @@ import Modal from '../../components/ui/Modal'
 import Table from '../../components/ui/Table'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
+import { fmtNumeric } from '../../lib/dateUtils'
 import Input from '../../components/ui/Input'
 
-const DEMO_BOOKS = [
-  { id: 'b1', title: 'Riyaziyyat 10', author: 'Ə. Quliyev', isbn: '978-9952-0-0001-1', copies_total: 30, copies_available: 12 },
-  { id: 'b2', title: 'Fizika 11', author: 'R. Hüseynov', isbn: '978-9952-0-0002-8', copies_total: 25, copies_available: 25 },
-  { id: 'b3', title: 'Dünya Tarixi', author: 'M. Nəcəfov', isbn: '978-9952-0-0003-5', copies_total: 20, copies_available: 3 },
-  { id: 'b4', title: 'İngilis dili B1', author: 'Cambridge', isbn: '978-0-521-17866-6', copies_total: 40, copies_available: 18 },
-]
-
-const DEMO_CHECKOUTS = [
-  { id: 'c1', student_name: 'Aynur Quliyeva', book_title: 'Riyaziyyat 10', checked_out_at: '2026-04-01', due_date: '2026-04-15', returned: false },
-  { id: 'c2', student_name: 'Tural Həsənov', book_title: 'Dünya Tarixi', checked_out_at: '2026-04-05', due_date: '2026-04-19', returned: false },
-  { id: 'c3', student_name: 'Nigar Məmmədova', book_title: 'İngilis dili B1', checked_out_at: '2026-03-20', due_date: '2026-04-03', returned: false },
-]
 
 function isOverdue(dueDate) {
   return new Date(dueDate) < new Date()
@@ -54,13 +43,14 @@ export default function Library() {
       ])
 
       if (booksRes.error) throw booksRes.error
-      setBooks(booksRes.data && booksRes.data.length > 0 ? booksRes.data : DEMO_BOOKS)
+      if (checkoutsRes.error) throw checkoutsRes.error
+      setBooks(booksRes.data || [])
 
       const co = (checkoutsRes.data || []).map(c => ({ ...c, book_title: c.book?.title || c.book_title }))
-      setCheckouts(co.length > 0 ? co : DEMO_CHECKOUTS)
+      setCheckouts(co)
     } catch {
-      setBooks(DEMO_BOOKS)
-      setCheckouts(DEMO_CHECKOUTS)
+      setBooks([])
+      setCheckouts([])
     } finally {
       setLoading(false)
     }
@@ -202,13 +192,13 @@ export default function Library() {
       ),
     },
     { key: 'book_title', label: 'Kitab', render: (val) => <span className="text-gray-700">{val}</span> },
-    { key: 'checked_out_at', label: 'Verildi', render: (val) => val ? new Date(val).toLocaleDateString('az-AZ') : '—' },
+    { key: 'checked_out_at', label: 'Verildi', render: (val) => val ? fmtNumeric(val) : '—' },
     {
       key: 'due_date',
       label: 'Son tarix',
       render: (val, row) => (
         <span className={isOverdue(val) ? 'text-red-600 font-medium' : 'text-gray-700'}>
-          {val ? new Date(val).toLocaleDateString('az-AZ') : '—'}
+          {val ? fmtNumeric(val) : '—'}
           {isOverdue(val) && ' (gecikmiş)'}
         </span>
       ),

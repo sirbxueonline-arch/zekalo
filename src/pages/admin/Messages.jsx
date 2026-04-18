@@ -49,6 +49,10 @@ export default function Messages() {
 
   async function handleSend() {
     if (!form.title.trim() || !form.body.trim()) return
+    if (form.audience === 'class' && !form.class_id) {
+      setError('Sinif seçilməlidir')
+      return
+    }
     try {
       setSending(true)
       setError(null)

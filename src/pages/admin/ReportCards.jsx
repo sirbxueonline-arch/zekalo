@@ -12,6 +12,11 @@ import { fmtLong } from '../../lib/dateUtils'
 import EmptyState from '../../components/ui/EmptyState'
 import Badge from '../../components/ui/Badge'
 
+
+function escapeHtml(str) {
+  return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
 // Grade label based on 0-100 score
 function gradeLabel(score) {
   if (score == null) return '—'
@@ -66,9 +71,9 @@ function printFallback({ schoolName, student, cls, period, gradeRows, attendance
   const rows = gradeRows
     .map(
       r => `<tr>
-        <td style="padding:8px 12px;border:1px solid #ddd;">${r.subject}</td>
+        <td style="padding:8px 12px;border:1px solid #ddd;">${escapeHtml(r.subject)}</td>
         <td style="padding:8px 12px;border:1px solid #ddd;text-align:center;">${r.score != null ? r.score.toFixed(1) : '—'}</td>
-        <td style="padding:8px 12px;border:1px solid #ddd;text-align:center;">${gradeLabel(r.score)}</td>
+        <td style="padding:8px 12px;border:1px solid #ddd;text-align:center;">${escapeHtml(gradeLabel(r.score))}</td>
       </tr>`
     )
     .join('')
@@ -97,14 +102,14 @@ function printFallback({ schoolName, student, cls, period, gradeRows, attendance
 </head>
 <body>
 <div class="header">
-  <h1>${schoolName}</h1>
+  <h1>${escapeHtml(schoolName)}</h1>
   <p>Şagird Şəhadətnaməsi</p>
 </div>
 
 <div class="info-grid">
-  <div class="info-box"><div class="label">Şagird</div><div class="value">${student.full_name}</div></div>
-  <div class="info-box"><div class="label">Sinif</div><div class="value">${cls || '—'}</div></div>
-  <div class="info-box"><div class="label">Dövr</div><div class="value">${period}</div></div>
+  <div class="info-box"><div class="label">Şagird</div><div class="value">${escapeHtml(student.full_name)}</div></div>
+  <div class="info-box"><div class="label">Sinif</div><div class="value">${escapeHtml(cls || '—')}</div></div>
+  <div class="info-box"><div class="label">Dövr</div><div class="value">${escapeHtml(period)}</div></div>
 </div>
 
 <table>
@@ -119,10 +124,10 @@ function printFallback({ schoolName, student, cls, period, gradeRows, attendance
 </table>
 
 <div class="attendance-box">
-  <strong>Davamiyyət:</strong> ${attendancePct}%
+  <strong>Davamiyyət:</strong> ${escapeHtml(String(attendancePct))}%
 </div>
 
-<div class="footer">Yaradılma tarixi: ${generatedDate}</div>
+<div class="footer">Yaradılma tarixi: ${escapeHtml(generatedDate)}</div>
 </body>
 </html>`
 
@@ -165,7 +170,8 @@ export default function ReportCards() {
           .select('id, full_name')
           .eq('school_id', profile.school_id)
           .eq('role', 'student')
-          .order('full_name'),
+          .order('full_name')
+          .limit(500),
         supabase.from('classes').select('id, name').eq('school_id', profile.school_id).order('name'),
         supabase.from('schools').select('name').eq('id', profile.school_id).single(),
         supabase
@@ -178,8 +184,10 @@ export default function ReportCards() {
                 .from('classes')
                 .select('id')
                 .eq('school_id', profile.school_id)
+                .limit(50)
             ).data?.map(c => c.id) || []
-          ),
+          )
+          .limit(500),
       ])
 
       setStudents(studentsRes.data || [])
@@ -216,13 +224,15 @@ export default function ReportCards() {
           .select('score, max_score, subject:subjects(id, name), date')
           .eq('student_id', selectedStudent)
           .gte('date', from)
-          .lte('date', to),
+          .lte('date', to)
+          .limit(1000),
         supabase
           .from('attendance')
           .select('status')
           .eq('student_id', selectedStudent)
           .gte('date', from)
-          .lte('date', to),
+          .lte('date', to)
+          .limit(1000),
       ])
 
       const gradesRaw = gradesRes.data || []
@@ -413,7 +423,7 @@ export default function ReportCards() {
       doc.setTextColor(156, 163, 175)
       doc.setFontSize(8)
       doc.setFont('helvetica', 'normal')
-      doc.text(`Yaradılma tarixi: ${generatedDate}`, margin, footerY)
+      doc.text(`Yaradılma tarixi: ${escapeHtml(generatedDate)}`, margin, footerY)
       doc.text(profile?.school?.name || 'Zirva Məktəb İdarəetmə Sistemi', pageW - margin, footerY, { align: 'right' })
 
       const safeName = (previewData.student?.full_name || 'sagird').replace(/\s+/g, '_')
@@ -576,9 +586,7 @@ export default function ReportCards() {
               {/* Footer */}
               <div className="border-t border-border-soft pt-4 flex items-center justify-between">
                 <p className="text-xs text-gray-400">
-                  Yaradılma tarixi: {new Date().toLocaleDateString('az-AZ', {
-                    day: '2-digit', month: 'long', year: 'numeric',
-                  })}
+                  Yaradılma tarixi: {fmtLong(new Date())}
                 </p>
                 <p className="text-xs text-gray-400">Zirva Məktəb İdarəetmə Sistemi</p>
               </div>

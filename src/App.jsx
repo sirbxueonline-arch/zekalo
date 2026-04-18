@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
 import { PageSpinner } from './components/ui/Spinner'
 import AppLayout from './components/layout/AppLayout'
+import ErrorBoundary from './components/ui/ErrorBoundary'
 
 // Landing page
 import Landing from './pages/Landing'
@@ -119,7 +120,7 @@ function PublicOnlyRoute({ children }) {
 function PrivateRoute({ children }) {
   const { user, profile, loading, profileError } = useAuth()
   if (loading) return <PageSpinner />
-  if (!user) return <Navigate to="/daxil-ol" replace />
+  if (!user) return <Navigate to="/daxil-ol?expired=1" replace />
   if (!profile && !profileError) return <PageSpinner />
   if (!profile && profileError) return <Navigate to="/daxil-ol" replace />
   return children
@@ -130,7 +131,8 @@ function RoleRoute({ role, children }) {
   if (loading) return <PageSpinner />
   if (!profile && !profileError) return <PageSpinner />
   if (!profile && profileError) return <Navigate to="/daxil-ol" replace />
-  if (profile.role !== role) {
+  const allowed = Array.isArray(role) ? role : [role]
+  if (!allowed.includes(profile.role)) {
     const paths = { student: '/dashboard', teacher: '/muellim/dashboard', parent: '/valideyn/dashboard', admin: '/admin/dashboard', super_admin: '/superadmin/dashboard' }
     return <Navigate to={paths[profile.role] || '/daxil-ol'} replace />
   }
@@ -140,12 +142,14 @@ function RoleRoute({ role, children }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <ErrorBoundary>
       <Routes>
         {/* Public routes */}
         <Route path="/daxil-ol" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
         <Route path="/qeydiyyat" element={<PublicOnlyRoute><SignUp /></PublicOnlyRoute>} />
         <Route path="/sifremi-unutdum" element={<PublicOnlyRoute><ForgotPassword /></PublicOnlyRoute>} />
         <Route path="/sifre-yenile" element={<PublicOnlyRoute><ResetPassword /></PublicOnlyRoute>} />
+        <Route path="/sifre-sifirla" element={<ResetPassword />} />
         <Route path="/dogrulama" element={<PublicOnlyRoute><Verify /></PublicOnlyRoute>} />
 
         {/* Student routes */}
@@ -200,7 +204,7 @@ export default function App() {
         </Route>
 
         {/* Admin routes */}
-        <Route element={<PrivateRoute><RoleRoute role="admin"><AppLayout /></RoleRoute></PrivateRoute>}>
+        <Route element={<PrivateRoute><RoleRoute role={['admin', 'super_admin']}><AppLayout /></RoleRoute></PrivateRoute>}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/shagirdler" element={<AdminStudents />} />
           <Route path="/admin/muelimler" element={<AdminTeachers />} />
@@ -274,6 +278,7 @@ export default function App() {
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </ErrorBoundary>
     </BrowserRouter>
   )
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { notifyUsers } from '../../lib/notify'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { Select, Textarea } from '../../components/ui/Input'
@@ -143,7 +144,7 @@ function AssignmentCard({ assignment, onClick, onDelete }) {
             <button
               onClick={e => { e.stopPropagation(); onDelete(assignment) }}
               className="p-1 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
-              title="Sil"
+              aria-label="Sil"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -316,7 +317,7 @@ export default function TeacherAssignments() {
     setSaving(true)
     setSaveError(null)
     const { notify, ...rest } = newAssignment
-    const { error } = await supabase.from('assignments').insert({
+    const { data: inserted, error } = await supabase.from('assignments').insert({
       title:      rest.title.trim(),
       description: rest.description.trim() || null,
       class_id:   rest.class_id,
@@ -324,18 +325,44 @@ export default function TeacherAssignments() {
       due_date:   rest.due_date || null,   // empty string → null (Postgres rejects '')
       max_score:  Number(rest.max_score),
       teacher_id: profile.id,
-    })
+    }).select().single()
 
     if (error) {
       setSaveError(error.message)
     } else {
       setShowNewModal(false)
       setSaveError(null)
+      const savedClassId  = rest.class_id
+      const savedTitle    = rest.title.trim()
+      const savedDueDate  = rest.due_date || null
+      const newAssignmentId = inserted?.id || null
       setNewAssignment({
         title: '', description: '', class_id: '', subject_id: '',
         due_date: '', max_score: 10, notify: false,
       })
       loadData()
+
+      // Fire-and-forget: notify all students in the class
+      ;(async () => {
+        try {
+          const { data: members } = await supabase
+            .from('class_members')
+            .select('student_id')
+            .eq('class_id', savedClassId)
+
+          const notifications = (members || []).map(m => ({
+            profile_id: m.student_id,
+            school_id: profile.school_id,
+            title: 'Yeni tapşırıq',
+            body: `${savedTitle} — son tarix: ${savedDueDate || '—'}`,
+            type: 'assignment',
+            reference_id: newAssignmentId,
+          }))
+          await notifyUsers(notifications)
+        } catch (err) {
+          console.error('Assignment notification error:', err)
+        }
+      })()
     }
     setSaving(false)
   }
@@ -404,8 +431,10 @@ export default function TeacherAssignments() {
   // ── Grade submission ────────────────────────────────────────────────────────
 
   async function gradeSubmission(submissionId, score) {
+    if (gradeStatus[submissionId] === 'saving') return  // prevent double-submit
     const val = parseFloat(score)
-    if (isNaN(val) || val < 0) return
+    const maxScore = selectedAssignment?.max_score ?? Infinity
+    if (isNaN(val) || val < 0 || val > maxScore) return
     setGradeStatus(prev => ({ ...prev, [submissionId]: 'saving' }))
     const { error } = await supabase
       .from('submissions')

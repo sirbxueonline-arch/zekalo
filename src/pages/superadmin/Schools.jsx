@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import {
   Search, School, Users, GraduationCap, Heart,
   Eye, ShieldOff, ShieldCheck, Calendar, ChevronDown,
-  RefreshCw, BookOpen, Bell
+  RefreshCw, BookOpen, Bell, AlertTriangle
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -18,20 +18,20 @@ import { EditionBadge } from '../../components/ui/Badge'
 import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
 import { useNavigate } from 'react-router-dom'
+import { fmtNumeric } from '../../lib/dateUtils'
 
 // NOTE: The `blocked` field assumed to exist on schools as: blocked boolean DEFAULT false
 // Run: ALTER TABLE schools ADD COLUMN IF NOT EXISTS blocked boolean DEFAULT false;
 
 function formatDate(dateStr) {
-  if (!dateStr) return '—'
-  const d = new Date(dateStr)
-  return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`
+  return fmtNumeric(dateStr)
 }
 
 function formatDateTime(dateStr) {
   if (!dateStr) return '—'
   const d = new Date(dateStr)
-  return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  if (isNaN(d)) return '—'
+  return `${fmtNumeric(d)} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
 const EDITION_LABELS = { ib: 'IB', government: 'Dövlət' }
@@ -65,6 +65,7 @@ export default function SuperAdminSchools() {
   const [detailNotifications, setDetailNotifications] = useState([])
   const [blockLoading, setBlockLoading] = useState(false)
   const [blockError, setBlockError] = useState(null)
+  const [blockConfirmSchool, setBlockConfirmSchool] = useState(null)
 
   useEffect(() => {
     if (profile && profile.role !== 'super_admin') {
@@ -80,13 +81,16 @@ export default function SuperAdminSchools() {
       setError(null)
 
       const [schoolsRes, allProfilesRes, classesRes, adminProfilesRes] = await Promise.all([
-        supabase.from('schools').select('id, name, district, edition, default_language, created_at, blocked').order('created_at', { ascending: false }),
-        supabase.from('profiles').select('id, school_id, role'),
-        supabase.from('classes').select('id, school_id'),
-        supabase.from('profiles').select('id, full_name, email, school_id').eq('role', 'admin'),
+        supabase.from('schools').select('id, name, district, edition, default_language, created_at, blocked').order('created_at', { ascending: false }).limit(200),
+        supabase.from('profiles').select('id, school_id, role').limit(200),
+        supabase.from('classes').select('id, school_id').limit(200),
+        supabase.from('profiles').select('id, full_name, email, school_id').eq('role', 'admin').limit(200),
       ])
 
       if (schoolsRes.error) throw schoolsRes.error
+      if (allProfilesRes.error) throw allProfilesRes.error
+      if (classesRes.error) throw classesRes.error
+      if (adminProfilesRes.error) throw adminProfilesRes.error
 
       // Build counts by school
       const counts = {}
@@ -152,8 +156,17 @@ export default function SuperAdminSchools() {
     }
   }
 
+  function closeDetail() {
+    setDetailSchool(null)
+    setDetailStats(null)
+    setDetailNotifications([])
+    setBlockError(null)
+    setBlockConfirmSchool(null)
+  }
+
   async function toggleBlock(school) {
     setBlockLoading(true)
+    setBlockConfirmSchool(null)
     try {
       const newVal = !school.blocked
       const { error } = await supabase
@@ -349,10 +362,41 @@ export default function SuperAdminSchools() {
         )}
       </Card>
 
+      {/* Block / Unblock confirmation modal */}
+      <Modal
+        open={!!blockConfirmSchool}
+        onClose={() => setBlockConfirmSchool(null)}
+        title={blockConfirmSchool?.blocked ? 'Məktəbi aktivləşdir' : 'Məktəbi blok et'}
+        size="sm"
+      >
+        {blockConfirmSchool && (
+          <div className="space-y-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+              <p className="text-sm text-gray-700">
+                {blockConfirmSchool.blocked
+                  ? `"${blockConfirmSchool.name}" məktəbini aktivləşdirmək istədiyinizə əminsiniz?`
+                  : `"${blockConfirmSchool.name}" məktəbini blok etmək istədiyinizə əminsiniz?`}
+              </p>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="ghost" onClick={() => setBlockConfirmSchool(null)}>Ləğv et</Button>
+              <Button
+                variant={blockConfirmSchool.blocked ? 'teal' : 'danger'}
+                loading={blockLoading}
+                onClick={() => toggleBlock(blockConfirmSchool)}
+              >
+                {blockConfirmSchool.blocked ? 'Aktivləşdir' : 'Blok et'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
       {/* School detail modal */}
       <Modal
         open={!!detailSchool}
-        onClose={() => setDetailSchool(null)}
+        onClose={closeDetail}
         title={detailSchool?.name || 'Məktəb detalları'}
         size="xl"
       >
@@ -462,7 +506,7 @@ export default function SuperAdminSchools() {
               <Button
                 variant={detailSchool.blocked ? 'teal' : 'danger'}
                 loading={blockLoading}
-                onClick={() => { setBlockError(null); toggleBlock(detailSchool) }}
+                onClick={() => { setBlockError(null); setBlockConfirmSchool(detailSchool) }}
                 className="!px-5 !py-2 text-sm"
               >
                 <span className="flex items-center gap-2">

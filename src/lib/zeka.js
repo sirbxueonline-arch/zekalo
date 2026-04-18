@@ -1,26 +1,19 @@
+import { supabase } from './supabase'
+
 export async function streamZekaResponse({ messages, systemPrompt, onChunk }) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': import.meta.env.VITE_ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: systemPrompt,
-      stream: true,
+  const { data, error } = await supabase.functions.invoke('zeka-chat', {
+    body: {
       messages: messages.map(m => ({ role: m.role, content: m.content })),
-    }),
+      system: systemPrompt,
+    },
+    responseType: 'stream',
   })
 
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status}`)
+  if (error) {
+    throw new Error(`Edge Function error: ${error.message}`)
   }
 
-  const reader = response.body.getReader()
+  const reader = data.getReader()
   const decoder = new TextDecoder()
   let fullContent = ''
   let displayContent = ''
@@ -28,7 +21,7 @@ export async function streamZekaResponse({ messages, systemPrompt, onChunk }) {
   let charQueue = []
   let typing = true
 
-  // Typewriter effect: drain queue char by char at ~30ms per char
+  // Typewriter effect: drain queue char by char at ~20ms per char
   const typewriter = setInterval(() => {
     if (charQueue.length > 0) {
       // Drain faster if queue is large (catch up)
@@ -89,7 +82,7 @@ export function buildStudentSystemPrompt(profile, subject, language, assignments
   let assignmentContext = ''
   if (assignments.length > 0) {
     assignmentContext = `\n\nŞagirdin aktiv tapşırıqları:\n${assignments.map(a =>
-      `- "${a.title}" (Fənn: ${a.subject?.name || 'N/A'}, Son tarix: ${a.due_date ? new Date(a.due_date).toLocaleDateString('az-AZ') : 'yoxdur'}, Təsvir: ${a.description || 'yoxdur'}, Maks bal: ${a.max_score || 'N/A'})`
+      `- "${a.title}" (Fənn: ${a.subject?.name || 'N/A'}, Son tarix: ${a.due_date ? a.due_date : 'yoxdur'}, Təsvir: ${a.description || 'yoxdur'}, Maks bal: ${a.max_score || 'N/A'})`
     ).join('\n')}
 
 Əgər şagird tapşırıq adını və ya mövzusunu qeyd edərsə, yuxarıdakı siyahıdan uyğun tapşırığı tap və ona kömək et. Tapşırığın təsvirini, fənnini və tələblərini nəzərə al. Cavabı birbaşa verməmək — şagirdi düşünməyə və özü yazmağa yönəlt. Addım-addım izah et, nümunələr göstər, amma hazır cavab vermə.`

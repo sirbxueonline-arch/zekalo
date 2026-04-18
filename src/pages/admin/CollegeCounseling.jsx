@@ -8,6 +8,7 @@ import Modal from '../../components/ui/Modal'
 import Table from '../../components/ui/Table'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
+import { fmtNumeric } from '../../lib/dateUtils'
 import Avatar from '../../components/ui/Avatar'
 import Input from '../../components/ui/Input'
 import { Select, Textarea } from '../../components/ui/Input'
@@ -20,30 +21,6 @@ const appStatusConfig = {
   rejected: { label: 'Rədd edildi', className: 'bg-red-50 text-red-700 border border-red-200' },
   waitlisted: { label: 'Gözleme siyahısı', className: 'bg-blue-50 text-blue-700 border border-blue-200' },
 }
-
-const DEMO_DATA = [
-  {
-    id: 'cc1',
-    student_name: 'Aynur Quliyeva',
-    universities: [
-      { name: 'UCL', status: 'submitted' },
-      { name: 'KCL', status: 'accepted' },
-      { name: 'Edinburgh', status: 'drafting' },
-    ],
-    deadline: '2027-01-15',
-    counselor_notes: 'Güclü şəxsi bəyanatı var.',
-  },
-  {
-    id: 'cc2',
-    student_name: 'Tural Həsənov',
-    universities: [
-      { name: 'TU Delft', status: 'submitted' },
-      { name: 'ETH Zürich', status: 'researching' },
-    ],
-    deadline: '2027-02-01',
-    counselor_notes: 'Müsahibəyə hazırlıq lazımdır.',
-  },
-]
 
 export default function CollegeCounseling() {
   const { profile, t } = useAuth()
@@ -72,10 +49,10 @@ export default function CollegeCounseling() {
       ])
       if (appRes.error) throw appRes.error
       const formatted = (appRes.data || []).map(a => ({ ...a, student_name: a.student?.full_name || a.student_name }))
-      setApplications(formatted.length > 0 ? formatted : DEMO_DATA)
+      setApplications(formatted)
       setStudents(studentRes.data || [])
     } catch {
-      setApplications(DEMO_DATA)
+      setApplications([])
       try {
         const { data } = await supabase.from('profiles').select('id,full_name').eq('school_id', profile.school_id).eq('role', 'student')
         setStudents(data || [])
@@ -239,7 +216,7 @@ export default function CollegeCounseling() {
     {
       key: 'deadline',
       label: 'Son müraciət tarixi',
-      render: (val) => val ? new Date(val).toLocaleDateString('az-AZ') : '—',
+      render: (val) => val ? fmtNumeric(val) : '—',
     },
     {
       key: 'actions',

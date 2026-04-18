@@ -17,17 +17,17 @@ ALTER TABLE submissions ADD COLUMN IF NOT EXISTS graded_at    timestamptz;
 -- 2.  STORAGE — submissions bucket + upload policies
 -- ════════════════════════════════════════════════════════════
 
--- Create bucket (public = anyone can read via URL)
+-- Create bucket (private — only authenticated users may read)
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES (
   'submissions',
   'submissions',
-  true,
+  false,
   52428800,   -- 50 MB limit
   null        -- allow all file types
 )
 ON CONFLICT (id) DO UPDATE
-  SET public = true,
+  SET public = false,
       file_size_limit = 52428800;
 
 -- Allow authenticated users to UPLOAD
@@ -48,11 +48,10 @@ CREATE POLICY "auth users delete submissions"
   ON storage.objects FOR DELETE
   USING (bucket_id = 'submissions' AND auth.uid()::text = (storage.foldername(name))[1]);
 
--- Allow public SELECT (for viewing/downloading links)
+-- Allow authenticated users SELECT (for viewing/downloading links)
 DROP POLICY IF EXISTS "public read submissions bucket" ON storage.objects;
-CREATE POLICY "public read submissions bucket"
-  ON storage.objects FOR SELECT
-  USING (bucket_id = 'submissions');
+CREATE POLICY "auth users read submissions" ON storage.objects FOR SELECT
+  USING (bucket_id = 'submissions' AND auth.role() = 'authenticated');
 
 
 -- ════════════════════════════════════════════════════════════
@@ -223,7 +222,13 @@ CREATE POLICY "students read own class_members" ON class_members FOR SELECT
   USING (student_id = auth.uid());
 
 DROP POLICY IF EXISTS "school members read teacher_classes" ON teacher_classes;
-CREATE POLICY "school members read teacher_classes" ON teacher_classes FOR SELECT USING (TRUE);
+CREATE POLICY "school members read teacher_classes" ON teacher_classes FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM profiles p
+    JOIN classes c ON c.id = teacher_classes.class_id
+    WHERE p.id = auth.uid() AND p.school_id = c.school_id
+  )
+);
 
 DROP POLICY IF EXISTS "admin manages teacher_classes" ON teacher_classes;
 CREATE POLICY "admin manages teacher_classes" ON teacher_classes FOR ALL USING (
@@ -363,6 +368,39 @@ ALTER TABLE ib_extended_essays ADD CONSTRAINT ib_extended_essays_status_check
 -- classes: optional teacher_id + subject columns
 ALTER TABLE classes ADD COLUMN IF NOT EXISTS teacher_id uuid REFERENCES profiles ON DELETE SET NULL;
 ALTER TABLE classes ADD COLUMN IF NOT EXISTS subject    text;
+
+
+-- ════════════════════════════════════════════════════════════
+-- 16. UNIQUE CONSTRAINTS — required for upsert to work correctly
+-- ════════════════════════════════════════════════════════════
+
+-- submissions: allows upsert with onConflict: 'assignment_id,student_id'
+ALTER TABLE submissions
+  ADD CONSTRAINT submissions_unique_assignment_student
+  UNIQUE (assignment_id, student_id);
+
+-- attendance: allows upsert with onConflict: 'student_id,class_id,date'
+ALTER TABLE attendance
+  ADD CONSTRAINT attendance_unique_student_class_date
+  UNIQUE (student_id, class_id, date);
+
+
+-- ════════════════════════════════════════════════════════════
+-- 17.  PARENT_CHILDREN — RLS
+-- ════════════════════════════════════════════════════════════
+
+ALTER TABLE parent_children ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "parents read own children" ON parent_children;
+CREATE POLICY "parents read own children" ON parent_children FOR SELECT
+  USING (parent_id = auth.uid());
+
+DROP POLICY IF EXISTS "admin manages parent_children" ON parent_children;
+CREATE POLICY "admin manages parent_children" ON parent_children FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
+) WITH CHECK (
+  EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
+);
 
 
 -- ════════════════════════════════════════════════════════════

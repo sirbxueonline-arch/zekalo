@@ -27,11 +27,17 @@ export default function StudentMessages() {
   }, [threadMessages])
 
   async function loadThreads() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('messages')
       .select('*')
       .or(`sender_id.eq.${profile.id},recipient_id.eq.${profile.id}`)
       .order('created_at', { ascending: false })
+      .limit(500)
+    if (error) {
+      console.error('Messages fetch error:', error)
+      setLoading(false)
+      return
+    }
 
     const threadMap = {}
     ;(data || []).forEach(msg => {
