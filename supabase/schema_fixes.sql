@@ -251,6 +251,9 @@ CREATE POLICY "teachers manage own attendance" ON attendance FOR ALL
 DROP POLICY IF EXISTS "students read own attendance" ON attendance;
 CREATE POLICY "students read own attendance" ON attendance FOR SELECT USING (student_id = auth.uid());
 
+-- ─── submissions: add file_url (student file uploads) ────────────────
+ALTER TABLE submissions ADD COLUMN IF NOT EXISTS file_url text;
+
 -- ─── homework_items: make subject nullable (UI treats it as optional) ──
 ALTER TABLE homework_items ALTER COLUMN subject DROP NOT NULL;
 
