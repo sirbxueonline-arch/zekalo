@@ -45,6 +45,8 @@ export default function TeacherExams() {
   const [scores, setScores] = useState({})
   const [savingResults, setSavingResults] = useState(false)
   const [resultsLoading, setResultsLoading] = useState(false)
+  const [resultsSaved, setResultsSaved] = useState(false)
+  const [resultsError, setResultsError] = useState(null)
 
   useEffect(() => {
     if (!profile) return
@@ -122,10 +124,12 @@ export default function TeacherExams() {
           .upsert(rows, { onConflict: 'exam_id,student_id' })
         if (err) throw err
       }
-      alert('Nəticələr saxlandı')
+      setResultsSaved(true)
+      setResultsError(null)
+      setTimeout(() => setResultsSaved(false), 3000)
     } catch (err) {
       console.error(err)
-      alert('Xəta baş verdi')
+      setResultsError('Nəticələri saxlayarkən xəta baş verdi')
     } finally {
       setSavingResults(false)
     }
@@ -245,10 +249,22 @@ export default function TeacherExams() {
           <Card hover={false}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-serif text-xl text-gray-900">İmtahan nəticələri</h2>
-              <Button onClick={saveResults} loading={savingResults}>
-                <Save className="w-4 h-4 mr-2 inline" />
-                Saxla
-              </Button>
+              <div className="flex items-center gap-3">
+                {resultsSaved && (
+                  <span className="text-sm text-teal-700 bg-teal-50 border border-teal-200 rounded-md px-3 py-1.5">
+                    ✓ Nəticələr saxlandı
+                  </span>
+                )}
+                {resultsError && (
+                  <span className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-1.5">
+                    {resultsError}
+                  </span>
+                )}
+                <Button onClick={saveResults} loading={savingResults}>
+                  <Save className="w-4 h-4 mr-2 inline" />
+                  Saxla
+                </Button>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">

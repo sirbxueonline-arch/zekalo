@@ -144,6 +144,10 @@ export default function Timetable() {
   }
 
   async function handleAssign() {
+    if (!form.class_id && !form.teacher_id && !form.subject_id) {
+      setError('Ən azı sinif, müəllim və ya fənn seçilməlidir')
+      return
+    }
     try {
       setSaving(true)
       setError(null)

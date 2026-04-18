@@ -148,6 +148,7 @@ export default function ReportCards() {
   const [previewData, setPreviewData] = useState(null)
   const [previewing, setPreviewing] = useState(false)
   const [generating, setGenerating] = useState(false)
+  const [pdfError, setPdfError] = useState(null)
   const [schoolName, setSchoolName] = useState('')
 
   useEffect(() => {
@@ -420,7 +421,7 @@ export default function ReportCards() {
       doc.save(`${safeName}_sehadetname.pdf`)
     } catch (err) {
       console.error('PDF generation error:', err)
-      alert('PDF yaradılarkən xəta baş verdi.')
+      setPdfError('PDF yaradılarkən xəta baş verdi.')
     } finally {
       setGenerating(false)
     }
@@ -431,16 +432,23 @@ export default function ReportCards() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="font-serif text-3xl text-gray-900">Şəhadətnamələr</h1>
           <p className="text-sm text-gray-500 mt-1">Şagird şəhadətnamələrini hazırlayın və PDF kimi yükləyin</p>
         </div>
         {previewData && (
-          <Button onClick={downloadPDF} loading={generating}>
-            <Download className="w-4 h-4 mr-2 inline" />
-            PDF yüklə
-          </Button>
+          <div className="flex items-center gap-3">
+            {pdfError && (
+              <span className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-1.5">
+                {pdfError}
+              </span>
+            )}
+            <Button onClick={() => { setPdfError(null); downloadPDF() }} loading={generating}>
+              <Download className="w-4 h-4 mr-2 inline" />
+              PDF yüklə
+            </Button>
+          </div>
         )}
       </div>
 
@@ -579,8 +587,13 @@ export default function ReportCards() {
           </Card>
 
           {/* Download button below preview on mobile */}
-          <div className="flex justify-end mt-4">
-            <Button onClick={downloadPDF} loading={generating}>
+          <div className="flex flex-col items-end gap-2 mt-4">
+            {pdfError && (
+              <span className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-1.5">
+                {pdfError}
+              </span>
+            )}
+            <Button onClick={() => { setPdfError(null); downloadPDF() }} loading={generating}>
               <Download className="w-4 h-4 mr-2 inline" />
               PDF yüklə
             </Button>

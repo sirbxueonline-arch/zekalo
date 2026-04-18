@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { PageSpinner } from '../../components/ui/Spinner'
@@ -14,6 +14,8 @@ import {
   Send,
   Upload,
   FileText,
+  X,
+  Paperclip,
 } from 'lucide-react'
 
 // ─── Subject color helpers ────────────────────────────────────────────────────
@@ -216,19 +218,41 @@ function FeedbackPanel({ feedback, aiReview }) {
 
 // ─── Submit modal ─────────────────────────────────────────────────────────────
 
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 function SubmitModal({ assignment, open, onClose, onSubmit, submitting }) {
   const [content, setContent] = useState('')
+  const [file, setFile] = useState(null)
+  const [dragOver, setDragOver] = useState(false)
+  const fileInputRef = useRef(null)
   const isLate = assignment?.due_date && new Date(assignment.due_date) < new Date()
 
-  // Reset textarea whenever modal opens for a new assignment
+  // Reset state whenever modal opens for a new assignment
   useEffect(() => {
-    if (open) setContent('')
+    if (open) {
+      setContent('')
+      setFile(null)
+      setDragOver(false)
+    }
   }, [open, assignment?.id])
+
+  function handleDrop(e) {
+    e.preventDefault()
+    setDragOver(false)
+    const dropped = e.dataTransfer.files[0]
+    if (dropped) setFile(dropped)
+  }
+
+  const canSubmit = (content.trim().length > 0 || file !== null) && !submitting
 
   return (
     <Modal open={open} onClose={onClose} title="Tapşırığı Təhvil Ver" size="lg">
       {assignment && (
-        <div className="space-y-5">
+        <div className="space-y-4">
           {/* Assignment header */}
           <div className="flex items-start gap-3 p-4 bg-surface rounded-xl border border-border-soft">
             <div
@@ -267,16 +291,73 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting }) {
           {/* Answer textarea */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Cavabınız
+              Mətn cavabı
+              <span className="ml-1 text-xs text-gray-400 font-normal">(istəyə görə)</span>
             </label>
             <textarea
               className="w-full border border-border-soft rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent resize-none"
-              rows={7}
+              rows={4}
               placeholder="Cavabınızı buraya yazın..."
               value={content}
               onChange={e => setContent(e.target.value)}
             />
             <p className="text-xs text-gray-400 mt-1 text-right">{content.length} simvol</p>
+          </div>
+
+          {/* OR divider */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-border-soft" />
+            <span className="text-xs font-medium text-gray-400">və ya fayl yükləyin</span>
+            <div className="flex-1 h-px bg-border-soft" />
+          </div>
+
+          {/* File drop zone */}
+          <div
+            className={`relative border-2 border-dashed rounded-xl transition-colors ${
+              dragOver
+                ? 'border-purple bg-purple-light/50'
+                : file
+                ? 'border-teal bg-teal-light/30'
+                : 'border-border-soft hover:border-purple/50 hover:bg-surface cursor-pointer'
+            }`}
+            onDrop={handleDrop}
+            onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+            onDragLeave={() => setDragOver(false)}
+            onClick={() => !file && fileInputRef.current?.click()}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              onChange={e => setFile(e.target.files[0] || null)}
+            />
+
+            {file ? (
+              <div className="flex items-center gap-3 px-5 py-4">
+                <div className="w-10 h-10 rounded-lg bg-teal-light flex items-center justify-center flex-shrink-0">
+                  <Paperclip className="w-5 h-5 text-teal" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{file.name}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{formatFileSize(file.size)}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={e => { e.stopPropagation(); setFile(null) }}
+                  className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="px-5 py-8 text-center">
+                <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center mx-auto mb-3">
+                  <Upload className="w-5 h-5 text-gray-400" />
+                </div>
+                <p className="text-sm font-medium text-gray-700">Faylı sürükləyin və ya seçin</p>
+                <p className="text-xs text-gray-400 mt-1">İstənilən fayl növü qəbul edilir</p>
+              </div>
+            )}
           </div>
 
           {/* Actions */}
@@ -285,9 +366,9 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting }) {
               Ləğv et
             </Button>
             <Button
-              onClick={() => onSubmit(content)}
+              onClick={() => onSubmit(content, file)}
               loading={submitting}
-              disabled={!content.trim() || submitting}
+              disabled={!canSubmit}
             >
               <span className="flex items-center gap-2">
                 <Send className="w-4 h-4" />
@@ -460,18 +541,42 @@ export default function StudentAssignments() {
     return submissions.find(s => s.assignment_id === assignment.id) || null
   }
 
-  async function handleSubmit(content) {
+  async function handleSubmit(content, file) {
     if (!selectedAssignment) return
     setSubmitting(true)
     try {
       const isLate =
         selectedAssignment.due_date && new Date(selectedAssignment.due_date) < new Date()
-      await supabase.from('submissions').insert({
+
+      // Upload file to Supabase Storage if provided
+      let file_url = null
+      if (file) {
+        const ext = file.name.includes('.') ? file.name.split('.').pop() : 'bin'
+        const path = `${profile.id}/${selectedAssignment.id}/${Date.now()}.${ext}`
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('submissions')
+          .upload(path, file, { upsert: true })
+        if (!uploadError && uploadData) {
+          const { data: urlData } = supabase.storage
+            .from('submissions')
+            .getPublicUrl(uploadData.path)
+          file_url = urlData?.publicUrl || null
+        }
+      }
+
+      // Insert submission — try with file_url, fall back without if column missing
+      const payload = {
         assignment_id: selectedAssignment.id,
         student_id: profile.id,
-        content,
+        content: content.trim() || null,
         status: isLate ? 'late' : 'submitted',
-      })
+      }
+      const { error: insertError } = await supabase.from('submissions').insert({ ...payload, file_url })
+      if (insertError) {
+        // file_url column may not exist yet — retry without it
+        await supabase.from('submissions').insert(payload)
+      }
+
       setSelectedAssignment(null)
       await loadData()
     } catch (err) {

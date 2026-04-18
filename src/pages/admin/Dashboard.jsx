@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Users, GraduationCap, CalendarCheck, School,
-  UserPlus, Megaphone, AlertTriangle, Clock,
+  UserPlus, Megaphone, AlertTriangle,
   TrendingUp, TrendingDown, ChevronRight,
-  Activity, BookOpen, BarChart2, Bell,
-  CheckCircle, XCircle, MinusCircle,
-  FileText, MessageSquare, Star,
+  Activity, BookOpen, Bell,
+  CheckCircle,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -45,22 +44,22 @@ function formatEventDate(dateStr) {
   }
 }
 
-// ── Mini stat card ──────────────────────────────────────────────────────────
+// ── Stat card (larger, more prominent) ─────────────────────────────────────
 
-function StatPill({ icon: Icon, label, value, iconBg, iconColor, trend, trendDir }) {
+function StatCard({ icon: Icon, label, value, iconBg, iconColor, trendDir, sub }) {
   return (
-    <div className="bg-white rounded-xl border border-border-soft shadow-sm px-4 py-3.5 flex items-center gap-3">
-      <span className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBg}`}>
-        <Icon className={`w-4 h-4 ${iconColor}`} />
+    <div className="bg-white rounded-xl border border-border-soft shadow-sm px-5 py-4 flex items-start gap-4">
+      <span className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
+        <Icon className={`w-5 h-5 ${iconColor}`} />
       </span>
-      <div className="min-w-0 flex-1">
-        <p className="text-[11px] text-gray-400 leading-none font-medium">{label}</p>
-        <p className="text-xl font-bold text-gray-900 leading-tight mt-0.5">{value}</p>
+      <div className="flex-1 min-w-0">
+        <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider leading-none">{label}</p>
+        <p className="text-3xl font-bold text-gray-900 leading-tight mt-1">{value}</p>
+        {sub && <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>}
       </div>
-      {trend !== undefined && (
-        <div className={`flex items-center gap-0.5 flex-shrink-0 ${trendDir === 'up' ? 'text-teal' : trendDir === 'down' ? 'text-red-400' : 'text-gray-400'}`}>
-          {trendDir === 'up' && <TrendingUp className="w-3.5 h-3.5" />}
-          {trendDir === 'down' && <TrendingDown className="w-3.5 h-3.5" />}
+      {trendDir && (
+        <div className={`flex-shrink-0 mt-1 ${trendDir === 'up' ? 'text-teal' : 'text-red-400'}`}>
+          {trendDir === 'up' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
         </div>
       )}
     </div>
@@ -83,13 +82,6 @@ function AttBar({ pct }) {
   )
 }
 
-// ── Attendance status icon ──────────────────────────────────────────────────
-
-function AttStatusIcon({ status }) {
-  if (status === 'present') return <CheckCircle className="w-3.5 h-3.5 text-teal" />
-  if (status === 'absent')  return <XCircle className="w-3.5 h-3.5 text-red-400" />
-  return <MinusCircle className="w-3.5 h-3.5 text-amber-400" />
-}
 
 // ── Activity dot ────────────────────────────────────────────────────────────
 
@@ -116,26 +108,76 @@ const eventTypeBg = {
   art:      'bg-pink-50 text-pink-700 border-pink-100',
 }
 
-// ── Quick action button ─────────────────────────────────────────────────────
+// ── Attendance snapshot ─────────────────────────────────────────────────────
 
-function QuickAction({ icon: Icon, label, sub, onClick, color = 'purple' }) {
-  const bg   = color === 'teal' ? 'bg-teal-light'  : color === 'amber' ? 'bg-amber-50'   : 'bg-purple-light'
-  const ic   = color === 'teal' ? 'text-teal'       : color === 'amber' ? 'text-amber-600' : 'text-purple'
-  const ring = color === 'teal' ? 'hover:ring-teal/20' : color === 'amber' ? 'hover:ring-amber-200' : 'hover:ring-purple/20'
+function AttendanceSnapshot({ classAttendance }) {
+  const totals = classAttendance.reduce(
+    (acc, c) => ({
+      present: acc.present + c.present,
+      absent:  acc.absent  + c.absent,
+      late:    acc.late    + c.late,
+      total:   acc.total   + c.total,
+    }),
+    { present: 0, absent: 0, late: 0, total: 0 },
+  )
+  if (totals.total === 0) return null
+
+  const pPct = Math.round((totals.present / totals.total) * 100)
+  const aPct = Math.round((totals.absent  / totals.total) * 100)
+  const lPct = Math.round((totals.late    / totals.total) * 100)
+
   return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-border-soft bg-white hover:shadow-sm hover:ring-1 ${ring} transition-all text-left w-full`}
-    >
-      <span className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${bg}`}>
-        <Icon className={`w-4 h-4 ${ic}`} />
-      </span>
-      <div className="min-w-0">
-        <p className="text-sm font-semibold text-gray-900 leading-tight">{label}</p>
-        {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+    <div className="bg-white rounded-xl border border-border-soft shadow-sm px-5 py-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+          <CalendarCheck className="w-4 h-4 text-purple" />
+          Bugünkü Xülasə
+        </h2>
+        <span className="text-xs text-gray-400">{totals.total} şagird cəmi</span>
       </div>
-      <ChevronRight className="w-4 h-4 text-gray-300 ml-auto flex-shrink-0" />
-    </button>
+
+      <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="text-center">
+          <p className="text-3xl font-bold text-teal leading-none">{totals.present}</p>
+          <p className="text-xs text-gray-500 mt-1.5 font-medium">İştirak edir</p>
+          <p className="text-[11px] text-teal/70">{pPct}%</p>
+        </div>
+        <div className="text-center border-x border-border-soft">
+          <p className="text-3xl font-bold text-red-500 leading-none">{totals.absent}</p>
+          <p className="text-xs text-gray-500 mt-1.5 font-medium">Qayıb</p>
+          <p className="text-[11px] text-red-400">{aPct}%</p>
+        </div>
+        <div className="text-center">
+          <p className="text-3xl font-bold text-amber-500 leading-none">{totals.late}</p>
+          <p className="text-xs text-gray-500 mt-1.5 font-medium">Gecikən</p>
+          <p className="text-[11px] text-amber-500/80">{lPct}%</p>
+        </div>
+      </div>
+
+      {/* Stacked progress bar */}
+      <div className="flex h-2 rounded-full overflow-hidden bg-gray-100">
+        {pPct > 0 && (
+          <div className="bg-teal h-full transition-all" style={{ width: `${pPct}%` }} />
+        )}
+        {lPct > 0 && (
+          <div className="bg-amber-400 h-full transition-all" style={{ width: `${lPct}%` }} />
+        )}
+        {aPct > 0 && (
+          <div className="bg-red-400 h-full transition-all" style={{ width: `${aPct}%` }} />
+        )}
+      </div>
+      <div className="flex items-center gap-5 mt-2">
+        <span className="flex items-center gap-1.5 text-[11px] text-gray-500">
+          <span className="w-2 h-2 rounded-full bg-teal inline-block" />{pPct}% iştirak
+        </span>
+        <span className="flex items-center gap-1.5 text-[11px] text-gray-500">
+          <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />{lPct}% gecikən
+        </span>
+        <span className="flex items-center gap-1.5 text-[11px] text-gray-500">
+          <span className="w-2 h-2 rounded-full bg-red-400 inline-block" />{aPct}% qayıb
+        </span>
+      </div>
+    </div>
   )
 }
 
@@ -275,67 +317,84 @@ export default function AdminDashboard() {
     <div className="space-y-5">
 
       {/* ── 1. Welcome header ─────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">{todayLabel()}</p>
-          <h1 className="font-serif text-3xl text-gray-900 mt-0.5 leading-tight">
-            {greeting(t)}, {firstName}
-          </h1>
-          {profile?.school?.name && (
-            <p className="text-sm text-gray-500 mt-1 flex items-center gap-1.5">
-              <School className="w-3.5 h-3.5 flex-shrink-0" />
-              {profile.school.name}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Button
-            onClick={() => navigate('/admin/shagirdler')}
-            variant="secondary"
-            className="!px-3 !py-2 flex items-center gap-1.5 text-xs"
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Şagird Əlavə Et</span>
-          </Button>
-          <Button
-            onClick={() => navigate('/admin/mesajlar')}
-            className="!px-3 !py-2 flex items-center gap-1.5 text-xs"
-          >
-            <Megaphone className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Elan Yayımla</span>
-          </Button>
+      <div className="bg-white rounded-xl border border-border-soft shadow-sm px-6 py-5">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-widest">{todayLabel()}</p>
+            <h1 className="font-serif text-2xl text-gray-900 mt-0.5 leading-tight">
+              {greeting(t)}, <span className="text-purple">{firstName}</span>
+            </h1>
+            {profile?.school?.name && (
+              <p className="text-sm text-gray-500 mt-1 flex items-center gap-1.5">
+                <School className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+                {profile.school.name}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button
+              onClick={() => navigate('/admin/shagirdler')}
+              variant="secondary"
+              className="!px-3 !py-2 flex items-center gap-1.5 text-xs"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Şagird Əlavə Et</span>
+            </Button>
+            <Button
+              onClick={() => navigate('/admin/mesajlar')}
+              className="!px-3 !py-2 flex items-center gap-1.5 text-xs"
+            >
+              <Megaphone className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Elan Yayımla</span>
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* ── 2. Stats row ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <StatPill icon={Users}        label={t('students')}        value={stats.students}   iconBg="bg-purple-light" iconColor="text-purple" />
-        <StatPill icon={GraduationCap} label={t('teachers')}       value={stats.teachers}   iconBg="bg-teal-light"   iconColor="text-teal" />
-        <StatPill icon={Users}        label={t('parents')}         value={stats.parents}    iconBg="bg-blue-50"      iconColor="text-blue-500" />
-        <StatPill icon={BookOpen}     label={t('classes')}         value={stats.classes}    iconBg="bg-indigo-50"    iconColor="text-indigo-500" />
-        <StatPill
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard
+          icon={Users}
+          label={t('students')}
+          value={stats.students}
+          iconBg="bg-purple-light"
+          iconColor="text-purple"
+          sub={`${stats.classes} sinif`}
+        />
+        <StatCard
+          icon={GraduationCap}
+          label={t('teachers')}
+          value={stats.teachers}
+          iconBg="bg-teal-light"
+          iconColor="text-teal"
+          sub={`${stats.parents} valideyn`}
+        />
+        <StatCard
           icon={CalendarCheck}
           label={t('today_attendance')}
           value={`${stats.attendance}%`}
-          iconBg={stats.attendance >= 85 ? 'bg-teal-light' : 'bg-red-50'}
-          iconColor={stats.attendance >= 85 ? 'text-teal' : 'text-red-500'}
-          trendDir={stats.attendance >= 85 ? 'up' : 'down'}
+          iconBg={stats.attendance >= 85 ? 'bg-teal-light' : stats.attendance >= 70 ? 'bg-amber-50' : 'bg-red-50'}
+          iconColor={stats.attendance >= 85 ? 'text-teal' : stats.attendance >= 70 ? 'text-amber-500' : 'text-red-500'}
+          trendDir={stats.attendance >= 75 ? 'up' : 'down'}
+          sub="bugünkü davamiyyət"
         />
-        <StatPill icon={Activity}     label="Aktiv Tədbirlər"      value={stats.activeEvents} iconBg="bg-amber-50"  iconColor="text-amber-500" />
+        <StatCard
+          icon={Activity}
+          label="Yaxın Tədbirlər"
+          value={stats.activeEvents}
+          iconBg="bg-amber-50"
+          iconColor="text-amber-500"
+          sub="planlaşdırılmış"
+        />
       </div>
 
-      {/* ── 3. Quick actions ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <QuickAction icon={Users}        label="Şagirdlər"    sub={`${stats.students} aktiv`}  onClick={() => navigate('/admin/shagirdler')} color="purple" />
-        <QuickAction icon={BookOpen}     label="Jurnal"       sub="Qiymət daxil et"           onClick={() => navigate('/admin/jurnal')} color="teal" />
-        <QuickAction icon={CalendarCheck} label="Davamiyyət"  sub="Bugünkü hesabat"           onClick={() => navigate('/admin/cedvel')} color="amber" />
-        <QuickAction icon={FileText}     label="Hesabatlar"   sub="Yüklə & paylaş"            onClick={() => navigate('/admin/hesabatlar')} color="purple" />
-      </div>
+      {/* ── 3. Attendance snapshot (only shown when data exists) ──────────── */}
+      <AttendanceSnapshot classAttendance={classAttendance} />
 
-      {/* ── 4. Main 2-col grid ─────────────────────────────────────────── */}
+      {/* ── 4. Main 3-col grid ─────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-        {/* LEFT (8 cols) */}
+        {/* LEFT (8 cols): Attendance table + At-risk */}
         <div className="lg:col-span-8 space-y-5">
 
           {/* Bugünkü Davamiyyət — per-class table */}
@@ -345,9 +404,12 @@ export default function AdminDashboard() {
                 <CalendarCheck className="w-4 h-4 text-purple" />
                 <h2 className="font-semibold text-gray-900 text-sm">{t('todays_attendance_table')}</h2>
               </div>
-              <span className="text-xs text-gray-400 font-medium">
-                {new Date().toLocaleDateString('az-AZ', { day: 'numeric', month: 'short' })}
-              </span>
+              <button
+                onClick={() => navigate('/admin/cedvel')}
+                className="text-xs text-purple hover:text-purple-dark flex items-center gap-1 transition-colors"
+              >
+                {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
+              </button>
             </div>
 
             {classAttendance.length === 0 ? (
@@ -422,7 +484,7 @@ export default function AdminDashboard() {
             </div>
 
             {atRisk.length === 0 ? (
-              <div className="px-5 py-12 text-center">
+              <div className="px-5 py-10 text-center">
                 <div className="w-10 h-10 rounded-full bg-teal-light flex items-center justify-center mx-auto mb-3">
                   <CheckCircle className="w-5 h-5 text-teal" />
                 </div>
@@ -472,14 +534,14 @@ export default function AdminDashboard() {
 
         </div>
 
-        {/* RIGHT (4 cols) */}
+        {/* RIGHT (4 cols): Events + Activity feed */}
         <div className="lg:col-span-4 space-y-5">
 
           {/* Yaxın Tədbirlər */}
           <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
               <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-teal" />
+                <Activity className="w-4 h-4 text-amber-500" />
                 <h2 className="font-semibold text-gray-900 text-sm">{t('upcoming_events')}</h2>
               </div>
               <button
@@ -501,10 +563,10 @@ export default function AdminDashboard() {
                   const dt = formatEventDate(ev.start_date)
                   const typeCls = eventTypeBg[ev.type] || 'bg-surface text-gray-600 border-border-soft'
                   return (
-                    <li key={ev.id} className="flex items-center gap-3 px-5 py-3 hover:bg-surface/50 transition-colors">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-light flex flex-col items-center justify-center">
-                        <span className="text-xs font-bold text-purple leading-none">{dt.dd}</span>
-                        <span className="text-[10px] text-purple/70 leading-none mt-0.5">{dt.month}</span>
+                    <li key={ev.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-surface/50 transition-colors">
+                      <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-purple-light flex flex-col items-center justify-center">
+                        <span className="text-sm font-bold text-purple leading-none">{dt.dd}</span>
+                        <span className="text-[10px] text-purple/70 leading-none mt-0.5 uppercase">{dt.month}</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-gray-900 truncate">{ev.title}</p>
@@ -522,8 +584,8 @@ export default function AdminDashboard() {
           </div>
 
           {/* Bildirişlər / Activity feed */}
-          <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft flex-shrink-0">
+          <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
               <div className="flex items-center gap-2">
                 <Bell className="w-4 h-4 text-purple" />
                 <h2 className="font-semibold text-gray-900 text-sm">{t('all_notifications')}</h2>
@@ -542,7 +604,7 @@ export default function AdminDashboard() {
                 <p className="text-sm text-gray-400">{t('no_notifications')}</p>
               </div>
             ) : (
-              <ul className="overflow-y-auto max-h-[300px] divide-y divide-border-soft scrollbar-thin">
+              <ul className="overflow-y-auto max-h-[320px] divide-y divide-border-soft">
                 {activities.map(a => (
                   <li key={a.id} className="flex items-start gap-2.5 px-5 py-3 hover:bg-surface/50 transition-colors">
                     <ActivityDot type={a.type} />

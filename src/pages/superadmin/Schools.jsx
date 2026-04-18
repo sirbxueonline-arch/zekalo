@@ -64,6 +64,7 @@ export default function SuperAdminSchools() {
   const [detailStats, setDetailStats] = useState(null)
   const [detailNotifications, setDetailNotifications] = useState([])
   const [blockLoading, setBlockLoading] = useState(false)
+  const [blockError, setBlockError] = useState(null)
 
   useEffect(() => {
     if (profile && profile.role !== 'super_admin') {
@@ -164,7 +165,7 @@ export default function SuperAdminSchools() {
       setDetailSchool(prev => prev ? { ...prev, blocked: newVal } : prev)
     } catch (err) {
       console.error('toggleBlock error:', err)
-      alert('Blok statusu dəyişdirilə bilmədi.')
+      setBlockError('Blok statusu dəyişdirilə bilmədi.')
     } finally {
       setBlockLoading(false)
     }
@@ -445,7 +446,11 @@ export default function SuperAdminSchools() {
             </div>
 
             {/* Block / Unblock action */}
-            <div className="flex items-center justify-between pt-2 border-t border-border-soft">
+            <div className="pt-2 border-t border-border-soft space-y-3">
+              {blockError && (
+                <p className="text-sm text-red-600 bg-red-50 rounded-md px-3 py-2">{blockError}</p>
+              )}
+              <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-900">Məktəb statusu</p>
                 <p className="text-xs text-gray-500 mt-0.5">
@@ -457,7 +462,7 @@ export default function SuperAdminSchools() {
               <Button
                 variant={detailSchool.blocked ? 'teal' : 'danger'}
                 loading={blockLoading}
-                onClick={() => toggleBlock(detailSchool)}
+                onClick={() => { setBlockError(null); toggleBlock(detailSchool) }}
                 className="!px-5 !py-2 text-sm"
               >
                 <span className="flex items-center gap-2">
@@ -467,6 +472,7 @@ export default function SuperAdminSchools() {
                   }
                 </span>
               </Button>
+              </div>
             </div>
           </div>
         )}
