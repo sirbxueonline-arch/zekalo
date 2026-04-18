@@ -24,6 +24,7 @@ import {
   Check,
   AlertCircle,
   Save,
+  Trash2,
 } from 'lucide-react'
 
 // ── Subject colour palette ────────────────────────────────────────────────────
@@ -114,11 +115,10 @@ function SubStatusBadge({ status }) {
 
 // ── Assignment card ───────────────────────────────────────────────────────────
 
-function AssignmentCard({ assignment, onClick }) {
+function AssignmentCard({ assignment, onClick, onDelete }) {
   const subjectName = assignment.subject?.name || ''
   const className   = assignment.class?.name   || ''
   const topColor    = subjectTopColor(subjectName)
-
   const ungradedCount = assignment.ungradedCount || 0
 
   return (
@@ -132,18 +132,21 @@ function AssignmentCard({ assignment, onClick }) {
       {/* Card body */}
       <div className="p-5 flex flex-col flex-1">
 
-        {/* Top row: badges + due date */}
+        {/* Top row: badges + due date + delete */}
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-wrap">
-            {subjectName && (
-              <Badge variant="default">{subjectName}</Badge>
-            )}
-            {className && (
-              <Badge variant="national">{className}</Badge>
-            )}
+            {subjectName && <Badge variant="default">{subjectName}</Badge>}
+            {className   && <Badge variant="national">{className}</Badge>}
           </div>
-          <div className="flex-shrink-0">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             <DueDateChip dueDate={assignment.due_date} />
+            <button
+              onClick={e => { e.stopPropagation(); onDelete(assignment) }}
+              className="p-1 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+              title="Sil"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
 
@@ -229,6 +232,8 @@ export default function TeacherAssignments() {
   const [gradeStatus, setGradeStatus]         = useState({}) // { [submissionId]: 'saving'|'saved'|'error' }
   const [teacherFeedback, setTeacherFeedback] = useState({}) // { [submissionId]: string }
   const [feedbackSaving, setFeedbackSaving]   = useState(null)
+  const [deleteTarget, setDeleteTarget]       = useState(null) // assignment to confirm delete
+  const [deleting, setDeleting]               = useState(false)
 
   const [newAssignment, setNewAssignment] = useState({
     title: '',
@@ -333,6 +338,22 @@ export default function TeacherAssignments() {
       loadData()
     }
     setSaving(false)
+  }
+
+  // ── Delete assignment ───────────────────────────────────────────────────────
+
+  async function confirmDelete() {
+    if (!deleteTarget) return
+    setDeleting(true)
+    const { error } = await supabase
+      .from('assignments')
+      .delete()
+      .eq('id', deleteTarget.id)
+    if (!error) {
+      setAssignments(prev => prev.filter(a => a.id !== deleteTarget.id))
+    }
+    setDeleteTarget(null)
+    setDeleting(false)
   }
 
   // ── Open detail panel ───────────────────────────────────────────────────────
@@ -665,7 +686,7 @@ export default function TeacherAssignments() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredAssignments.map(a => (
-            <AssignmentCard key={a.id} assignment={a} onClick={openDetail} />
+            <AssignmentCard key={a.id} assignment={a} onClick={openDetail} onDelete={setDeleteTarget} />
           ))}
         </div>
       )}
@@ -973,6 +994,41 @@ export default function TeacherAssignments() {
               </div>
             )}
 
+          </div>
+        )}
+      </Modal>
+
+      {/* ── Delete confirm modal ─────────────────────────────────────────── */}
+      <Modal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Tapşırığı sil"
+        size="sm"
+      >
+        {deleteTarget && (
+          <div className="space-y-4">
+            <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <Trash2 className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{deleteTarget.title}</p>
+                <p className="text-xs text-red-700 mt-1">
+                  Bu tapşırıq və bütün təhvil edilmiş cavablar birdəfəlik silinəcək.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="ghost" onClick={() => setDeleteTarget(null)} disabled={deleting}>
+                Ləğv et
+              </Button>
+              <Button
+                className="bg-red-500 hover:bg-red-600 text-white border-red-500"
+                onClick={confirmDelete}
+                loading={deleting}
+              >
+                <Trash2 className="w-4 h-4 mr-1.5" />
+                Sil
+              </Button>
+            </div>
           </div>
         )}
       </Modal>
