@@ -26,7 +26,7 @@ const STR = {
     dash_math: 'Riyaziyyat', dash_physics: 'Fizika', dash_english: 'İngilis dili',
     dash_ev1: 'Qiymət daxil edildi', dash_ev2: 'Davamiyyət qeyd edildi', dash_ev3: 'Yeni mesaj',
 
-    trust_title: 'Aparıcı beynəlxalq məktəblərin etibarı',
+    trust_title: 'İnteqrasiyalar & Tərəfdaşlar',
 
     sol_badge: 'Həllər', sol_title: 'Hər Kurikulum Üçün Zirva+',
     sol_sub: 'IB dünya məktəblərindən Azərbaycan dövlət məktəblərinə — hər kurikulum çərçivəsi dəstəklənir.',
@@ -117,7 +117,7 @@ const STR = {
     dash_math: 'Mathematics', dash_physics: 'Physics', dash_english: 'English Language',
     dash_ev1: 'Grade submitted', dash_ev2: 'Attendance recorded', dash_ev3: 'New message',
 
-    trust_title: 'Trusted by leading international schools',
+    trust_title: 'Integrations & Partners',
 
     sol_badge: 'Solutions', sol_title: 'Zirva+ for Your Curriculum',
     sol_sub: 'Discover a flexible multi-curricula teaching and learning platform where curriculum management, lesson planning, assessment, communication, reporting and much more flow together effortlessly.',
@@ -562,16 +562,16 @@ function Hero({ s }) {
             </Link>
           </div>
 
-          {/* Three floating stat pills */}
+          {/* Feature highlight pills */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-14">
             {[
-              { label: '5+ Məktəb', icon: Building2, bg: 'bg-purple/30 border-purple/40', iconBg: 'bg-purple/40', iconColor: 'text-violet-300' },
-              { label: '2,000+ İstifadəçi', icon: Users, bg: 'bg-teal/20 border-teal/40', iconBg: 'bg-teal/30', iconColor: 'text-teal' },
-              { label: '3 Dil Dəstəyi', icon: Globe, bg: 'bg-blue-500/20 border-blue-400/30', iconBg: 'bg-blue-500/30', iconColor: 'text-blue-300' },
+              { label: 'IB + Milli Kurikulum', icon: GraduationCap, bg: 'bg-purple/30 border-purple/40', iconBg: 'bg-purple/40', iconColor: 'text-violet-300' },
+              { label: 'Claude AI ilə gücləndirilmiş', icon: Sparkles, bg: 'bg-teal/20 border-teal/40', iconBg: 'bg-teal/30', iconColor: 'text-teal' },
+              { label: 'Az · En · Ru', icon: Globe, bg: 'bg-blue-500/20 border-blue-400/30', iconBg: 'bg-blue-500/30', iconColor: 'text-blue-300' },
             ].map(({ label, icon: Icon, bg, iconBg, iconColor }) => (
               <div
                 key={label}
-                className={`stat-pill flex items-center gap-3 px-5 py-3 rounded-full border backdrop-blur-sm ${bg}`}
+                className={`flex items-center gap-3 px-5 py-3 rounded-full border backdrop-blur-sm ${bg}`}
               >
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center ${iconBg}`}>
                   <Icon className={`w-3.5 h-3.5 ${iconColor}`} />
@@ -670,35 +670,31 @@ function TrustStrip({ s }) {
   )
 }
 
-/* ─── Stats section (bold horizontal strip) ─── */
+/* ─── Capabilities strip ─── */
 function Stats() {
   const items = [
     {
-      value: '5+',
-      label: 'Pilot Məktəb',
-      sub: 'Schools',
-      icon: Building2,
+      icon: GraduationCap,
+      label: 'IB + Milli Kurikulum',
+      desc: 'Diploma, MYP, CP, PYP və Azərbaycan milli kurikulumu',
       color: 'purple',
     },
     {
-      value: '2,000+',
-      label: 'Aktiv İstifadəçi',
-      sub: 'Users',
-      icon: Users,
+      icon: Sparkles,
+      label: 'Zəka AI',
+      desc: 'Claude AI ilə gücləndirilmiş daxili AI müəllim köməkçisi',
       color: 'teal',
     },
     {
-      value: '99.9%',
-      label: 'Sistem Sabitliyi',
-      sub: 'Uptime',
-      icon: Shield,
+      icon: Globe,
+      label: 'Az · En · Ru',
+      desc: 'Tam üçdilli interfeys — hər istifadəçi öz dilini seçir',
       color: 'purple',
     },
     {
-      value: '4s→20dq',
-      label: 'Zəka AI Qənaəti',
-      sub: 'Time saved',
-      icon: Clock,
+      icon: Shield,
+      label: 'Yerli Hosting',
+      desc: 'Bütün məlumatlar Azərbaycan serverləri üzərindədir',
       color: 'teal',
     },
   ]
@@ -706,32 +702,21 @@ function Stats() {
     <section className="bg-white py-14">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl border border-gray-100 shadow-lg shadow-gray-100/60 overflow-hidden">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-gray-100">
-            {items.map(({ value, label, icon: Icon, color }, idx) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
+            {items.map(({ icon: Icon, label, desc, color }) => (
               <div
                 key={label}
-                className="flex flex-col items-center py-10 px-6 gap-3 group hover:bg-gray-50/50 transition-colors duration-200"
+                className="flex flex-col items-center text-center py-10 px-6 gap-3 group hover:bg-gray-50/50 transition-colors duration-200"
               >
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-1 ${
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-1 ${
                   color === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
                 }`}>
-                  <Icon className={`w-5 h-5 ${color === 'teal' ? 'text-teal' : 'text-purple'}`} />
+                  <Icon className={`w-6 h-6 ${color === 'teal' ? 'text-teal' : 'text-purple'}`} />
                 </div>
-                <span
-                  className="font-serif font-bold leading-none"
-                  style={{
-                    fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)',
-                    background: idx % 2 === 0
-                      ? 'linear-gradient(135deg, #534AB7, #7c6ff7)'
-                      : 'linear-gradient(135deg, #0d9488, #2dd4bf)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
-                  {value}
+                <span className={`font-serif font-bold text-lg ${color === 'teal' ? 'text-teal' : 'text-purple'}`}>
+                  {label}
                 </span>
-                <span className="text-gray-800 text-sm font-semibold text-center leading-tight">{label}</span>
+                <span className="text-gray-500 text-sm leading-relaxed">{desc}</span>
               </div>
             ))}
           </div>
@@ -1205,73 +1190,74 @@ function ZekaAI({ s }) {
   )
 }
 
-/* ─── Testimonials ─── */
+/* ─── Pilot Program Invite ─── */
 function Testimonials({ s }) {
-  const testimonials = [
-    { q: s.t1q, name: s.t1n, role: s.t1r, border: 'border-purple' },
-    { q: s.t2q, name: s.t2n, role: s.t2r, border: 'border-teal' },
-    { q: s.t3q, name: s.t3n, role: s.t3r, border: 'border-purple' },
-  ]
+  const lang = s.nav_signin === 'Daxil ol' ? 'az' : 'en'
+  const isAz = lang === 'az'
 
-  const avatarColors = [
-    { bg: 'bg-purple', text: 'text-white' },
-    { bg: 'bg-teal',   text: 'text-white' },
-    { bg: 'bg-indigo-500', text: 'text-white' },
-  ]
+  const perks = isAz
+    ? [
+        { icon: Zap,          label: 'Tam giriş',      desc: 'Bütün funksiyalar pilot mərhələsində açıqdır' },
+        { icon: HeartHandshake, label: 'Birgə inkişaf', desc: 'Rəyiniz platformanı formalaşdırır' },
+        { icon: Award,        label: 'Prioritet dəstək', desc: 'Birbaşa komandamızla əlaqə imkanı' },
+      ]
+    : [
+        { icon: Zap,          label: 'Full access',       desc: 'All features open during the pilot phase' },
+        { icon: HeartHandshake, label: 'Shape the product', desc: 'Your feedback directly influences development' },
+        { icon: Award,        label: 'Priority support',   desc: 'Direct line to our team throughout the pilot' },
+      ]
 
   return (
     <section className="py-24 bg-[#F7F7FB]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            <span className="text-amber-700 text-xs font-semibold tracking-wide uppercase">{s.test_badge}</span>
-          </div>
-          <h2
-            className="font-serif text-gray-900 mb-3 leading-tight"
-            style={{ fontSize: 'clamp(1.875rem, 3.5vw, 2.875rem)' }}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-3xl overflow-hidden border border-purple/20 shadow-xl shadow-purple/8">
+          {/* Top gradient band */}
+          <div
+            className="px-8 pt-12 pb-10 text-center"
+            style={{ background: 'linear-gradient(135deg, #0a0820 0%, #1a1350 50%, #2d1b7d 100%)' }}
           >
-            {s.test_title}
-          </h2>
-          <p className="text-gray-500 text-base max-w-xl mx-auto">{s.test_sub}</p>
-        </div>
+            <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-teal/40 bg-teal/10 backdrop-blur-sm">
+              <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
+              <span className="text-teal text-sm font-semibold">
+                {isAz ? 'Pilot Proqram — Məhdud Yer' : 'Pilot Programme — Limited Spots'}
+              </span>
+            </div>
+            <h2
+              className="font-serif font-bold text-white mb-4 leading-tight"
+              style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)' }}
+            >
+              {isAz
+                ? 'Məktəbinizi pilot proqrama dəvət edirik'
+                : 'We\'re inviting schools to our pilot programme'}
+            </h2>
+            <p className="text-white/65 text-base max-w-xl mx-auto leading-relaxed">
+              {isAz
+                ? 'Texnologiya hazırdır. Azərbaycanda rəqəmsal məktəbin əsasını qurmaq istəyən öncü məktəbləri axtarırıq.'
+                : 'The platform is ready. We\'re looking for forward-thinking schools to help shape the future of school management in Azerbaijan.'}
+            </p>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 mt-8 bg-white text-purple font-semibold px-7 py-3.5 rounded-full shadow-lg shadow-black/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 text-sm"
+            >
+              {isAz ? 'Müraciət et' : 'Apply now'}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {testimonials.map(({ q, name, role, border }, idx) => {
-            const av = avatarColors[idx % avatarColors.length]
-            const initial = name.charAt(0)
-            return (
-              <div
-                key={name}
-                className={`bg-white rounded-2xl border border-border-soft shadow-sm p-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col border-l-4 ${border}`}
-              >
-                {/* Stars */}
-                <div className="flex gap-0.5 mb-5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  ))}
+          {/* Perks row */}
+          <div className="bg-white grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
+            {perks.map(({ icon: Icon, label, desc }) => (
+              <div key={label} className="flex items-start gap-4 px-8 py-8">
+                <div className="w-10 h-10 rounded-xl bg-purple/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <Icon className="w-5 h-5 text-purple" />
                 </div>
-
-                {/* Quote */}
-                <blockquote className="text-lg font-medium text-gray-800 leading-relaxed mb-6 flex-1">
-                  {q}
-                </blockquote>
-
-                {/* Author */}
-                <div className="flex items-center gap-3 pt-5 border-t border-gray-100">
-                  <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${av.bg} ${av.text}`}>
-                    {initial}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-sm leading-tight">{name}</p>
-                    <p className="text-gray-400 text-xs mt-0.5">{role}</p>
-                  </div>
+                <div>
+                  <p className="font-semibold text-gray-900 text-sm mb-1">{label}</p>
+                  <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
                 </div>
               </div>
-            )
-          })}
+            ))}
+          </div>
         </div>
       </div>
     </section>
