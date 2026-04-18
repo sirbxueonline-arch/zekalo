@@ -20,10 +20,15 @@ function greeting(t) {
   return t('good_evening')
 }
 
+// Hardcoded because az-AZ locale isn't supported in all environments
+const AZ_MONTHS_LONG  = ['Yanvar','Fevral','Mart','Aprel','May','İyun','İyul','Avqust','Sentyabr','Oktyabr','Noyabr','Dekabr']
+const AZ_MONTHS_SHORT = ['Yan','Fev','Mar','Apr','May','İyn','İyl','Avq','Sen','Okt','Noy','Dek']
+const AZ_DAYS_LONG    = ['Bazar','Bazar ertəsi','Çərşənbə axşamı','Çərşənbə','Cümə axşamı','Cümə','Şənbə']
+const AZ_DAYS_SHORT   = ['Baz','B.er','Çər.ax','Çər','C.ax','Cüm','Şən']
+
 function todayLabel() {
-  return new Date().toLocaleDateString('az-AZ', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  })
+  const d = new Date()
+  return `${AZ_DAYS_LONG[d.getDay()]}, ${d.getDate()} ${AZ_MONTHS_LONG[d.getMonth()]} ${d.getFullYear()}`
 }
 
 function timeAgo(dateStr) {
@@ -38,8 +43,8 @@ function formatEventDate(dateStr) {
   const d = new Date(dateStr)
   return {
     dd:      String(d.getDate()).padStart(2, '0'),
-    month:   d.toLocaleDateString('az-AZ', { month: 'short' }),
-    weekday: d.toLocaleDateString('az-AZ', { weekday: 'short' }),
+    month:   AZ_MONTHS_SHORT[d.getMonth()],
+    weekday: AZ_DAYS_SHORT[d.getDay()],
   }
 }
 

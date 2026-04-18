@@ -19,6 +19,11 @@ import {
   BarChart2,
   Clock,
   CheckSquare,
+  Paperclip,
+  Download,
+  Check,
+  AlertCircle,
+  Save,
 } from 'lucide-react'
 
 // ── Subject colour palette ────────────────────────────────────────────────────
@@ -221,6 +226,9 @@ export default function TeacherAssignments() {
   const [saveError, setSaveError]             = useState(null)
   const [aiLoading, setAiLoading]             = useState(null)
   const [activeFilter, setActiveFilter]       = useState('all')
+  const [gradeStatus, setGradeStatus]         = useState({}) // { [submissionId]: 'saving'|'saved'|'error' }
+  const [teacherFeedback, setTeacherFeedback] = useState({}) // { [submissionId]: string }
+  const [feedbackSaving, setFeedbackSaving]   = useState(null)
 
   const [newAssignment, setNewAssignment] = useState({
     title: '',
@@ -331,6 +339,8 @@ export default function TeacherAssignments() {
 
   async function openDetail(assignment) {
     setSelectedAssignment(assignment)
+    setGradeStatus({})
+    setTeacherFeedback({})
     const { data } = await supabase
       .from('submissions')
       .select('*, student:profiles(id, full_name)')
@@ -338,6 +348,10 @@ export default function TeacherAssignments() {
       .order('created_at', { ascending: false })
 
     setDetailSubmissions(data || [])
+    // Pre-fill teacher feedback state from existing feedback
+    const fb = {}
+    ;(data || []).forEach(s => { if (s.feedback) fb[s.id] = s.feedback })
+    setTeacherFeedback(fb)
     setShowDetailModal(true)
   }
 
@@ -345,14 +359,39 @@ export default function TeacherAssignments() {
 
   async function gradeSubmission(submissionId, score) {
     const val = parseFloat(score)
-    if (isNaN(val)) return
-    await supabase
+    if (isNaN(val) || val < 0) return
+    setGradeStatus(prev => ({ ...prev, [submissionId]: 'saving' }))
+    const { error } = await supabase
       .from('submissions')
-      .update({ score: val, status: 'graded' })
+      .update({ score: val, status: 'graded', graded_at: new Date().toISOString() })
       .eq('id', submissionId)
+    if (error) {
+      setGradeStatus(prev => ({ ...prev, [submissionId]: 'error' }))
+      console.error('Grade save error:', error)
+      return
+    }
+    setGradeStatus(prev => ({ ...prev, [submissionId]: 'saved' }))
     setDetailSubmissions(prev =>
       prev.map(s => s.id === submissionId ? { ...s, score: val, status: 'graded' } : s)
     )
+    setTimeout(() => setGradeStatus(prev => ({ ...prev, [submissionId]: null })), 2500)
+  }
+
+  // ── Save teacher feedback ───────────────────────────────────────────────────
+
+  async function saveTeacherFeedback(submissionId) {
+    const text = teacherFeedback[submissionId] || ''
+    setFeedbackSaving(submissionId)
+    const { error } = await supabase
+      .from('submissions')
+      .update({ feedback: text || null })
+      .eq('id', submissionId)
+    if (!error) {
+      setDetailSubmissions(prev =>
+        prev.map(s => s.id === submissionId ? { ...s, feedback: text } : s)
+      )
+    }
+    setFeedbackSaving(null)
   }
 
   // ── AI feedback ─────────────────────────────────────────────────────────────
@@ -755,74 +794,138 @@ export default function TeacherAssignments() {
               </p>
             ) : (
               <div className="space-y-4">
-                {detailSubmissions.map(sub => (
-                  <div
-                    key={sub.id}
-                    className="border border-border-soft rounded-xl p-4 space-y-3"
-                  >
-                    {/* Student row */}
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <Avatar name={sub.student?.full_name || '?'} size="sm" />
-                        <span className="text-sm font-semibold text-gray-900">
-                          {sub.student?.full_name}
-                        </span>
-                        <SubStatusBadge status={sub.status} />
+                {detailSubmissions.map(sub => {
+                  const status = gradeStatus[sub.id]
+                  return (
+                    <div
+                      key={sub.id}
+                      className="border border-border-soft rounded-xl overflow-hidden"
+                    >
+                      {/* Student header row */}
+                      <div className="flex items-center justify-between gap-3 px-4 py-3 bg-surface/60">
+                        <div className="flex items-center gap-3">
+                          <Avatar name={sub.student?.full_name || '?'} size="sm" />
+                          <span className="text-sm font-semibold text-gray-900">
+                            {sub.student?.full_name}
+                          </span>
+                          <SubStatusBadge status={sub.status} />
+                        </div>
+
+                        {/* Score input + feedback */}
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {status === 'saved' && (
+                            <span className="flex items-center gap-1 text-xs text-teal font-medium">
+                              <Check className="w-3.5 h-3.5" /> Saxlandı
+                            </span>
+                          )}
+                          {status === 'error' && (
+                            <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
+                              <AlertCircle className="w-3.5 h-3.5" /> Xəta
+                            </span>
+                          )}
+                          <input
+                            type="number"
+                            min={0}
+                            max={selectedAssignment?.max_score || 10}
+                            defaultValue={sub.score ?? ''}
+                            placeholder="—"
+                            className={`w-16 border rounded-md px-2 py-1.5 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple transition-colors ${
+                              status === 'saving' ? 'border-purple bg-purple-light/30' :
+                              status === 'saved'  ? 'border-teal bg-teal-light'        :
+                              status === 'error'  ? 'border-red-300 bg-red-50'         :
+                              'border-border-soft'
+                            }`}
+                            onBlur={e => gradeSubmission(sub.id, e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+                          />
+                          <span className="text-xs text-gray-400 font-medium">
+                            / {selectedAssignment?.max_score}
+                          </span>
+                        </div>
                       </div>
 
-                      {/* Score input */}
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <input
-                          type="number"
-                          min={0}
-                          max={selectedAssignment?.max_score || 10}
-                          defaultValue={sub.score ?? ''}
-                          placeholder="—"
-                          className="w-16 border border-border-soft rounded-md px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple"
-                          onBlur={e => gradeSubmission(sub.id, e.target.value)}
-                          onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-                        />
-                        <span className="text-xs text-gray-400">
-                          / {selectedAssignment?.max_score}
-                        </span>
+                      <div className="px-4 py-3 space-y-3">
+                        {/* Uploaded file link */}
+                        {sub.file_url && (
+                          <a
+                            href={sub.file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                          >
+                            <Paperclip className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate max-w-[240px]">
+                              {sub.file_url.split('/').pop()?.split('?')[0] || 'Fayl'}
+                            </span>
+                            <Download className="w-3.5 h-3.5 flex-shrink-0 ml-auto" />
+                          </a>
+                        )}
+
+                        {/* Submission text content */}
+                        {sub.content && (
+                          <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 leading-relaxed whitespace-pre-wrap">
+                            {sub.content}
+                          </p>
+                        )}
+
+                        {/* No content and no file */}
+                        {!sub.content && !sub.file_url && (
+                          <p className="text-xs text-gray-400 italic">Cavab məzmunu yoxdur</p>
+                        )}
+
+                        {/* Teacher feedback textarea */}
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-500 mb-1.5">
+                            Müəllim rəyi
+                          </label>
+                          <textarea
+                            rows={2}
+                            placeholder="Şagirdə rəy yazın..."
+                            value={teacherFeedback[sub.id] ?? (sub.feedback && !sub.feedback.startsWith('AI') ? sub.feedback : '')}
+                            onChange={e => setTeacherFeedback(prev => ({ ...prev, [sub.id]: e.target.value }))}
+                            className="w-full border border-border-soft rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple resize-none"
+                          />
+                          <div className="flex justify-end mt-1.5 gap-2">
+                            <Button
+                              variant="ghost"
+                              className="text-xs px-2.5 py-1"
+                              onClick={() => generateAIFeedback(sub)}
+                              disabled={aiLoading === sub.id || (!sub.content && !sub.file_url)}
+                            >
+                              {aiLoading === sub.id
+                                ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                                : <Sparkles className="w-3.5 h-3.5 mr-1" />
+                              }
+                              AI rəyi
+                            </Button>
+                            <Button
+                              className="text-xs px-2.5 py-1"
+                              onClick={() => saveTeacherFeedback(sub.id)}
+                              loading={feedbackSaving === sub.id}
+                              disabled={feedbackSaving === sub.id}
+                            >
+                              <Save className="w-3.5 h-3.5 mr-1" />
+                              Rəyi saxla
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* AI feedback display (read-only, shown when AI generated) */}
+                        {sub.feedback && (
+                          <div className="bg-purple-light rounded-lg p-3">
+                            <p className="text-xs text-purple-dark font-semibold mb-1.5 flex items-center gap-1">
+                              <Sparkles className="w-3.5 h-3.5" />
+                              Mövcud rəy
+                            </p>
+                            <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                              {sub.feedback}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
-
-                    {/* Submission content */}
-                    {sub.content && (
-                      <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 leading-relaxed">
-                        {sub.content}
-                      </p>
-                    )}
-
-                    {/* AI feedback */}
-                    {sub.feedback ? (
-                      <div className="bg-purple-light rounded-lg p-3">
-                        <p className="text-xs text-purple-dark font-semibold mb-1.5 flex items-center gap-1">
-                          <Sparkles className="w-3.5 h-3.5" />
-                          Zəka rəyi
-                        </p>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-                          {sub.feedback}
-                        </p>
-                      </div>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        className="text-xs px-3 py-1.5"
-                        onClick={() => generateAIFeedback(sub)}
-                        disabled={aiLoading === sub.id || !sub.content}
-                      >
-                        {aiLoading === sub.id ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
-                        ) : (
-                          <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-                        )}
-                        AI rəyi yarat
-                      </Button>
-                    )}
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
 
