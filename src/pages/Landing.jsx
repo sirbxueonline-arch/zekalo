@@ -258,7 +258,7 @@ function Nav({ s, lang, setLang }) {
   return (
     <>
       <style>{globalStyles}</style>
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-gray-100/80 shadow-sm shadow-gray-100/50">
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/85 border-b border-gray-100/80 shadow-sm shadow-gray-100/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
@@ -271,7 +271,7 @@ function Nav({ s, lang, setLang }) {
             {[
               { label: s.nav_solutions, href: '#solutions' },
               { label: s.nav_features,  href: '#features' },
-              { label: s.nav_zeka,      href: '#features' },
+              { label: s.nav_zeka,      href: '#zeka' },
               { label: s.nav_resources, href: '#integrations' },
               { label: s.nav_pricing,   href: '#solutions' },
             ].map(({ label, href }) => (
@@ -287,7 +287,6 @@ function Nav({ s, lang, setLang }) {
 
           {/* Right actions */}
           <div className="hidden lg:flex items-center gap-2">
-            {/* Lang switcher */}
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5 mr-1">
               {['az', 'en'].map(l => (
                 <button
@@ -305,13 +304,13 @@ function Nav({ s, lang, setLang }) {
             </div>
             <Link
               to="/daxil-ol"
-              className="text-sm text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+              className="text-sm text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200"
             >
               {s.nav_signin}
             </Link>
             <Link
               to="/contact"
-              className="relative overflow-hidden bg-purple text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-md shadow-purple/25 hover:shadow-lg hover:shadow-purple/30 hover:-translate-y-0.5 transition-all duration-200"
+              className="relative overflow-hidden bg-purple text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-md shadow-purple/25 hover:shadow-lg hover:shadow-purple/35 hover:-translate-y-0.5 transition-all duration-200"
             >
               {s.nav_demo}
             </Link>
@@ -334,7 +333,7 @@ function Nav({ s, lang, setLang }) {
               {[
                 { label: s.nav_solutions, href: '#solutions' },
                 { label: s.nav_features,  href: '#features' },
-                { label: s.nav_zeka,      href: '#features' },
+                { label: s.nav_zeka,      href: '#zeka' },
                 { label: s.nav_resources, href: '#integrations' },
                 { label: s.nav_pricing,   href: '#solutions' },
               ].map(({ label, href }) => (
@@ -503,19 +502,19 @@ function Hero({ s }) {
   return (
     <section
       className="relative overflow-hidden px-6 pt-20 pb-0"
-      style={{ background: 'linear-gradient(135deg, #0f0e2a 0%, #1a1350 40%, #2d1b7d 70%, #534AB7 100%)' }}
+      style={{ background: 'linear-gradient(135deg, #0a0820 0%, #1a1350 45%, #2d1b7d 75%, #534AB7 100%)' }}
     >
       {/* Decorative blobs */}
-      <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-purple/20 blur-[100px]" />
-      <div className="pointer-events-none absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-teal/10 blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-1/3 left-1/4 w-64 h-64 rounded-full bg-indigo-400/15 blur-[80px]" />
+      <div className="pointer-events-none absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-purple/20 blur-[120px]" />
+      <div className="pointer-events-none absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-teal/8 blur-[140px]" />
+      <div className="pointer-events-none absolute bottom-1/3 left-1/4 w-80 h-80 rounded-full bg-indigo-400/15 blur-[90px]" />
 
       <div className="relative max-w-6xl mx-auto z-10">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
           {/* Badge pill */}
           <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full border border-teal/40 bg-teal/10 backdrop-blur-sm">
-            <span className="text-sm">🚀</span>
-            <span className="text-teal text-sm font-medium">Azərbaycanın #1 Məktəb İdarəetmə Sistemi</span>
+            <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
+            <span className="text-teal text-sm font-semibold">Azərbaycanın #1 Məktəb İdarəetmə Platforması</span>
           </div>
 
           {/* Headline */}
@@ -563,15 +562,16 @@ function Hero({ s }) {
             </Link>
           </div>
 
-          {/* Stat pills */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-16">
+          {/* Three floating stat pills */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-14">
             {[
-              { label: '50+ İnteqrasiya', icon: Zap, bg: 'bg-purple/30 border-purple/40', iconBg: 'bg-purple/40', iconColor: 'text-violet-300' },
-              { label: '3 Dil', icon: Globe, bg: 'bg-blue-500/20 border-blue-400/30', iconBg: 'bg-blue-500/30', iconColor: 'text-blue-300' },
+              { label: '5+ Məktəb', icon: Building2, bg: 'bg-purple/30 border-purple/40', iconBg: 'bg-purple/40', iconColor: 'text-violet-300' },
+              { label: '2,000+ İstifadəçi', icon: Users, bg: 'bg-teal/20 border-teal/40', iconBg: 'bg-teal/30', iconColor: 'text-teal' },
+              { label: '3 Dil Dəstəyi', icon: Globe, bg: 'bg-blue-500/20 border-blue-400/30', iconBg: 'bg-blue-500/30', iconColor: 'text-blue-300' },
             ].map(({ label, icon: Icon, bg, iconBg, iconColor }) => (
               <div
                 key={label}
-                className={`flex items-center gap-3 px-5 py-3 rounded-full border backdrop-blur-sm ${bg}`}
+                className={`stat-pill flex items-center gap-3 px-5 py-3 rounded-full border backdrop-blur-sm ${bg}`}
               >
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center ${iconBg}`}>
                   <Icon className={`w-3.5 h-3.5 ${iconColor}`} />
@@ -582,8 +582,44 @@ function Hero({ s }) {
           </div>
         </div>
 
-        {/* Dashboard mockup with perspective */}
-        <div style={{ perspective: '1400px' }}>
+        {/* Dashboard mockup with perspective + floating badges */}
+        <div className="relative" style={{ perspective: '1400px' }}>
+          {/* Floating badge left */}
+          <div
+            className="hero-float absolute -left-4 sm:left-4 top-12 z-20 bg-white rounded-2xl px-4 py-3 shadow-2xl shadow-black/30 border border-gray-100/50"
+            style={{ maxWidth: 200 }}
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-purple/10 flex items-center justify-center shrink-0">
+                <Sparkles className="w-4 h-4 text-purple" />
+              </div>
+              <div>
+                <p className="text-[11px] font-bold text-gray-900">Zəka AI aktiv</p>
+                <p className="text-[10px] text-teal font-medium flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal inline-block" /> Hazır
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Floating badge right */}
+          <div
+            className="hero-float-2 absolute -right-4 sm:right-4 top-16 z-20 bg-white rounded-2xl px-4 py-3 shadow-2xl shadow-black/30 border border-gray-100/50"
+            style={{ maxWidth: 210 }}
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-teal/10 flex items-center justify-center shrink-0">
+                <GraduationCap className="w-4 h-4 text-teal" />
+              </div>
+              <div>
+                <p className="text-[11px] font-bold text-gray-900">IB + Dövlət məktəbi</p>
+                <p className="text-[10px] text-purple font-medium flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Tam dəstək
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div
             className="max-w-5xl mx-auto"
             style={{ transform: 'rotateX(5deg)', transformOrigin: 'top center' }}
@@ -598,22 +634,24 @@ function Hero({ s }) {
 
 /* ─── Trust / Marquee Strip ─── */
 function TrustStrip({ s }) {
-  const items = ['IBO Certified', 'E-Gov.az', 'ASAN Xidmət', 'Google Workspace', 'Microsoft 365', 'Claude AI', 'Turnitin', 'ISO 27001', 'GDPR', 'CIS Standards']
+  const items = [
+    'IBO Certified', 'E-Gov.az', 'Microsoft 365', 'Google Workspace',
+    'Claude AI', 'ISO 27001', 'GDPR', 'Turnitin', 'ASAN Xidmət',
+    'CIS Standards',
+  ]
   return (
     <div className="bg-white py-8 overflow-hidden relative border-b border-gray-100 shadow-sm">
-      {/* Title */}
-      <p className="text-center text-xs text-gray-400 font-semibold uppercase tracking-widest mb-5">{s.trust_title}</p>
+      <p className="text-center text-[11px] text-gray-400 font-semibold uppercase tracking-widest mb-5">{s.trust_title}</p>
 
       {/* Fade edges */}
-      <div className="absolute left-0 top-8 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-8 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+      <div className="absolute left-0 top-8 bottom-0 w-28 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-8 bottom-0 w-28 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
-      {/* Marquee */}
       <div
         style={{
           display: 'flex',
           gap: '2.5rem',
-          animation: 'marquee 30s linear infinite',
+          animation: 'marquee 35s linear infinite',
           width: 'max-content',
         }}
       >
@@ -632,41 +670,71 @@ function TrustStrip({ s }) {
   )
 }
 
-/* ─── Stats section ─── */
+/* ─── Stats section (bold horizontal strip) ─── */
 function Stats() {
   const items = [
-    { value: '99.9%', label: 'Sistem Sabitliyi', icon: Shield, color: 'text-teal' },
-    { value: '3', label: 'Dil Dəstəyi', icon: Globe, color: 'text-purple' },
-    { value: '24/7', label: 'Texniki Dəstək', icon: HeartHandshake, color: 'text-teal' },
+    {
+      value: '5+',
+      label: 'Pilot Məktəb',
+      sub: 'Schools',
+      icon: Building2,
+      color: 'purple',
+    },
+    {
+      value: '2,000+',
+      label: 'Aktiv İstifadəçi',
+      sub: 'Users',
+      icon: Users,
+      color: 'teal',
+    },
+    {
+      value: '99.9%',
+      label: 'Sistem Sabitliyi',
+      sub: 'Uptime',
+      icon: Shield,
+      color: 'purple',
+    },
+    {
+      value: '4s→20dq',
+      label: 'Zəka AI Qənaəti',
+      sub: 'Time saved',
+      icon: Clock,
+      color: 'teal',
+    },
   ]
   return (
-    <section className="bg-white py-16">
+    <section className="bg-white py-14">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
-          {items.map(({ value, label, icon: Icon, color }, idx) => (
-            <div key={label} className="flex flex-col items-center py-10 px-6 gap-3 group">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-1 ${
-                color === 'text-teal' ? 'bg-teal/10' : 'bg-purple/10'
-              }`}>
-                <Icon className={`w-6 h-6 ${color}`} />
-              </div>
-              <span
-                className="font-serif font-bold"
-                style={{
-                  fontSize: 'clamp(2rem, 4vw, 3rem)',
-                  background: idx % 2 === 0
-                    ? 'linear-gradient(135deg, #534AB7, #7c6ff7)'
-                    : 'linear-gradient(135deg, #0d9488, #2dd4bf)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
+        <div className="rounded-3xl border border-gray-100 shadow-lg shadow-gray-100/60 overflow-hidden">
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-gray-100">
+            {items.map(({ value, label, icon: Icon, color }, idx) => (
+              <div
+                key={label}
+                className="flex flex-col items-center py-10 px-6 gap-3 group hover:bg-gray-50/50 transition-colors duration-200"
               >
-                {value}
-              </span>
-              <span className="text-gray-500 text-sm font-medium text-center">{label}</span>
-            </div>
-          ))}
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-1 ${
+                  color === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
+                }`}>
+                  <Icon className={`w-5 h-5 ${color === 'teal' ? 'text-teal' : 'text-purple'}`} />
+                </div>
+                <span
+                  className="font-serif font-bold leading-none"
+                  style={{
+                    fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)',
+                    background: idx % 2 === 0
+                      ? 'linear-gradient(135deg, #534AB7, #7c6ff7)'
+                      : 'linear-gradient(135deg, #0d9488, #2dd4bf)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
+                  {value}
+                </span>
+                <span className="text-gray-800 text-sm font-semibold text-center leading-tight">{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -686,10 +754,8 @@ function Solutions({ s }) {
   return (
     <section id="solutions" className="py-24 bg-[#F7F7FB]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Left/right header */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-14">
           <div className="max-w-xl">
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-purple/10 border border-purple/20">
               <span className="w-1.5 h-1.5 rounded-full bg-purple" />
               <span className="text-purple text-xs font-semibold tracking-wide uppercase">{s.sol_badge}</span>
@@ -704,22 +770,19 @@ function Solutions({ s }) {
           </div>
         </div>
 
-        {/* Cards grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {items.map(({ icon: Icon, t, d, c }) => (
             <a
               href="#features"
               key={t}
-              className="group relative p-7 rounded-2xl bg-white border border-gray-100 hover:border-purple/20 hover:shadow-2xl hover:shadow-purple/8 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden block"
+              className="group relative p-7 rounded-2xl bg-white border border-border-soft hover:border-purple/20 hover:shadow-2xl hover:shadow-purple/8 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden block"
             >
-              {/* Top accent bar */}
+              {/* Color-coded top border */}
               <div
-                className={`absolute top-0 left-6 right-6 h-0.5 rounded-b-full transition-all duration-300 ${
-                  c === 'teal' ? 'bg-teal' : 'bg-purple'
-                } opacity-0 group-hover:opacity-100`}
+                className={`absolute top-0 left-0 right-0 h-1 ${c === 'teal' ? 'bg-teal' : 'bg-purple'} rounded-t-2xl`}
               />
-              {/* Icon */}
-              <div className="mb-5">
+              {/* Icon in colored circle */}
+              <div className="mb-5 mt-2">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                   c === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
                 }`}>
@@ -728,7 +791,7 @@ function Solutions({ s }) {
               </div>
               <h3 className="font-semibold text-gray-900 mb-2 text-base leading-snug">{t}</h3>
               <p className="text-sm text-gray-500 leading-relaxed">{d}</p>
-              {/* Hover arrow */}
+              {/* Arrow on hover */}
               <div
                 className={`mt-5 flex items-center gap-1.5 text-xs font-semibold translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ${
                   c === 'teal' ? 'text-teal' : 'text-purple'
@@ -862,6 +925,7 @@ function FeatureVisual({ idx, s }) {
 /* ─── Features ─── */
 function Features({ s }) {
   const [active, setActive] = useState(0)
+  const tabColors = ['purple', 'teal', 'purple', 'teal', 'purple', 'purple', 'teal']
   const tabs = [
     { label: s.tab_curriculum,  icon: BookOpen,      bullets: [s.c1,  s.c2,  s.c3,  s.c4]  },
     { label: s.tab_teaching,    icon: PenLine,        bullets: [s.t1,  s.t2,  s.t3,  s.t4]  },
@@ -872,6 +936,7 @@ function Features({ s }) {
     { label: s.tab_comms,       icon: MessageSquare,  bullets: [s.co1, s.co2, s.co3, s.co4] },
   ]
   const cur = tabs[active]
+  const curColor = tabColors[active]
 
   return (
     <section id="features" className="py-24 bg-white">
@@ -901,40 +966,52 @@ function Features({ s }) {
           <p className="text-gray-500 text-lg max-w-2xl mx-auto">{s.feat_sub}</p>
         </div>
 
-        {/* Tab + content layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-5 max-w-6xl mx-auto">
-          {/* Vertical tab buttons */}
-          <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
-            {tabs.map(({ label, icon: Icon }, i) => (
+        {/* Scrollable tab pills row */}
+        <div className="flex gap-2 overflow-x-auto pb-3 mb-8 scrollbar-none justify-start lg:justify-center">
+          {tabs.map(({ label, icon: Icon }, i) => {
+            const isActive = active === i
+            const tc = tabColors[i]
+            return (
               <button
                 key={label}
                 onClick={() => setActive(i)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left whitespace-nowrap lg:whitespace-normal transition-all duration-200 shrink-0 w-full ${
-                  active === i
-                    ? 'bg-purple text-white shadow-lg shadow-purple/25'
-                    : 'bg-[#F7F7FB] text-gray-500 hover:text-gray-900 border border-transparent hover:border-purple/20'
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 shrink-0 ${
+                  isActive
+                    ? tc === 'teal'
+                      ? 'bg-teal text-white shadow-lg shadow-teal/30'
+                      : 'bg-purple text-white shadow-lg shadow-purple/25'
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800'
                 }`}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${active === i ? 'text-white/80' : 'text-purple'}`} />
+                <span className={`w-2 h-2 rounded-full shrink-0 ${
+                  isActive ? 'bg-white/60' : tc === 'teal' ? 'bg-teal/60' : 'bg-purple/60'
+                }`} />
+                <Icon className="w-3.5 h-3.5 shrink-0" />
                 {label}
               </button>
-            ))}
-          </div>
+            )
+          })}
+        </div>
 
-          {/* Content card */}
-          <div className="bg-[#F7F7FB] rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+        {/* Content area */}
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-[#F7F7FB] rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              {/* Bullets panel */}
+              {/* Left: bullets */}
               <div className="p-8 lg:p-10 bg-white">
-                <div className="w-12 h-12 rounded-xl bg-purple/10 flex items-center justify-center mb-6">
-                  <cur.icon className="w-6 h-6 text-purple" />
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${
+                  curColor === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
+                }`}>
+                  <cur.icon className={`w-6 h-6 ${curColor === 'teal' ? 'text-teal' : 'text-purple'}`} />
                 </div>
                 <h3 className="font-serif text-2xl text-gray-900 mb-6">{cur.label}</h3>
                 <ul className="space-y-4">
                   {cur.bullets.map(b => (
                     <li key={b} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-teal/15 flex items-center justify-center shrink-0 mt-0.5">
-                        <Check className="w-3 h-3 text-teal" />
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                        curColor === 'teal' ? 'bg-teal/15' : 'bg-purple/10'
+                      }`}>
+                        <Check className={`w-3 h-3 ${curColor === 'teal' ? 'text-teal' : 'text-purple'}`} />
                       </div>
                       <span className="text-gray-600 text-sm leading-relaxed">{b}</span>
                     </li>
@@ -942,16 +1019,183 @@ function Features({ s }) {
                 </ul>
                 <Link
                   to="/contact"
-                  className="inline-flex items-center gap-2 mt-8 text-purple text-sm font-semibold hover:gap-3 transition-all duration-200 group"
+                  className={`inline-flex items-center gap-2 mt-8 text-sm font-semibold hover:gap-3 transition-all duration-200 group ${
+                    curColor === 'teal' ? 'text-teal' : 'text-purple'
+                  }`}
                 >
                   {s.feat_cta}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
 
-              {/* Visual panel */}
+              {/* Right: visual mockup card */}
               <div className="bg-[#F7F7FB] border-t lg:border-t-0 lg:border-l border-gray-100 p-8 lg:p-10 flex flex-col justify-center">
                 <FeatureVisual idx={active} s={s} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Zeka AI section ─── */
+function ZekaAI({ s }) {
+  return (
+    <section id="zeka" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #f5f3ff 0%, #ffffff 50%, #f0fdf8 100%)' }}>
+      {/* Subtle blobs */}
+      <div className="pointer-events-none absolute top-0 left-0 w-80 h-80 rounded-full bg-purple/8 blur-[100px]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 w-96 h-96 rounded-full bg-teal/8 blur-[100px]" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          {/* Left: copy */}
+          <div>
+            <div className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full bg-purple/10 border border-purple/20">
+              <Sparkles className="w-3.5 h-3.5 text-purple" />
+              <span className="text-purple text-xs font-semibold tracking-wide uppercase">Zəka AI</span>
+            </div>
+            <h2
+              className="font-serif text-gray-900 mb-5 leading-tight"
+              style={{ fontSize: 'clamp(1.875rem, 3.5vw, 2.875rem)' }}
+            >
+              Zəka AI —{' '}
+              <span
+                style={{
+                  background: 'linear-gradient(90deg, #534AB7, #1D9E75)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                Məktəbinizin AI Müəllimi
+              </span>
+            </h2>
+            <p className="text-gray-500 text-base leading-relaxed mb-8 max-w-lg">
+              {s.z1}. {s.z2}. Hesabatlar yazmaqdan vaxt qazanın, tədrisə daha çox vaxt ayırın.
+            </p>
+
+            <ul className="space-y-4 mb-10">
+              {[s.z1, s.z2, s.z3].map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-purple/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3.5 h-3.5 text-purple" />
+                  </div>
+                  <span className="text-gray-700 text-sm leading-relaxed">{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 bg-purple text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg shadow-purple/25 hover:shadow-xl hover:shadow-purple/35 hover:-translate-y-0.5 transition-all duration-200 text-sm"
+            >
+              Zəka AI ilə tanış ol <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Right: AI chat mockup */}
+          <div className="relative">
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl shadow-purple/10 overflow-hidden">
+              {/* Chat header */}
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-purple/5 to-teal/5">
+                <div className="w-9 h-9 rounded-xl bg-purple flex items-center justify-center shadow-md shadow-purple/30">
+                  <Sparkles className="w-4.5 h-4.5 text-white" style={{ width: 18, height: 18 }} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">Zəka AI</p>
+                  <p className="text-[11px] text-teal font-medium flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal inline-block" /> Online
+                  </p>
+                </div>
+                <div className="ml-auto">
+                  <span className="text-[10px] bg-purple/10 text-purple px-2.5 py-1 rounded-full font-semibold">Powered by Claude AI</span>
+                </div>
+              </div>
+
+              {/* Chat messages */}
+              <div className="p-5 space-y-4 bg-gray-50/50" style={{ minHeight: 300 }}>
+                {/* User message */}
+                <div className="flex justify-end">
+                  <div className="bg-purple text-white text-sm px-4 py-3 rounded-2xl rounded-tr-sm max-w-xs leading-relaxed shadow-sm">
+                    IB MYP kriteriyaları üzrə hesabat yaz
+                  </div>
+                </div>
+
+                {/* AI response */}
+                <div className="flex justify-start gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-purple flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="bg-white border border-gray-100 text-sm px-4 py-3 rounded-2xl rounded-tl-sm max-w-xs leading-relaxed shadow-sm">
+                    <p className="text-gray-800 font-medium mb-2">Əlbəttə! Hesabat hazırlanır...</p>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded bg-purple/10 flex items-center justify-center">
+                          <Check className="w-2.5 h-2.5 text-purple" />
+                        </div>
+                        <span className="text-gray-600 text-xs">A kriteriyas: <strong className="text-purple">6/8</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded bg-teal/10 flex items-center justify-center">
+                          <Check className="w-2.5 h-2.5 text-teal" />
+                        </div>
+                        <span className="text-gray-600 text-xs">B kriteriyas: <strong className="text-teal">7/8</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded bg-purple/10 flex items-center justify-center">
+                          <Check className="w-2.5 h-2.5 text-purple" />
+                        </div>
+                        <span className="text-gray-600 text-xs">C kriteriyas: <strong className="text-purple">5/8</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Second user message */}
+                <div className="flex justify-end">
+                  <div className="bg-purple text-white text-sm px-4 py-3 rounded-2xl rounded-tr-sm max-w-xs leading-relaxed shadow-sm">
+                    Valideyn üçün qısa xülasə yaz
+                  </div>
+                </div>
+
+                {/* Second AI response */}
+                <div className="flex justify-start gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-purple flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="bg-white border border-gray-100 text-sm px-4 py-3 rounded-2xl rounded-tl-sm max-w-xs leading-relaxed shadow-sm">
+                    <p className="text-gray-700 text-xs leading-relaxed">Şagirdiniz bu rüb əla nəticələr göstərdi. Xüsusilə B kriteriyasında yüksək bal aldı. Riyaziyyat üzrə daha çox çalışmasını tövsiyə edirik.</p>
+                    <div className="mt-2 pt-2 border-t border-gray-50 flex items-center gap-1.5">
+                      <span className="text-[9px] text-gray-400">Powered by</span>
+                      <span className="text-[9px] font-bold text-purple">Claude AI</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Input bar */}
+              <div className="px-4 py-3 border-t border-gray-100 bg-white flex items-center gap-3">
+                <div className="flex-1 bg-gray-50 rounded-xl px-4 py-2.5 text-[11px] text-gray-400 border border-gray-100">
+                  Zəka AI ilə yazın...
+                </div>
+                <div className="w-8 h-8 rounded-xl bg-purple flex items-center justify-center shrink-0 cursor-pointer">
+                  <ArrowRight className="w-4 h-4 text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Floating time-saved badge */}
+            <div className="hero-float-3 absolute -right-4 -bottom-4 bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-teal/10 flex items-center justify-center">
+                  <Clock className="w-4.5 h-4.5 text-teal" style={{ width: 18, height: 18 }} />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-gray-900">4 saat → 20 dəq</p>
+                  <p className="text-[10px] text-gray-400">Hesabat vaxtı azaldıldı</p>
+                </div>
               </div>
             </div>
           </div>
@@ -964,12 +1208,11 @@ function Features({ s }) {
 /* ─── Testimonials ─── */
 function Testimonials({ s }) {
   const testimonials = [
-    { q: s.t1q, name: s.t1n, role: s.t1r },
-    { q: s.t2q, name: s.t2n, role: s.t2r },
-    { q: s.t3q, name: s.t3n, role: s.t3r },
+    { q: s.t1q, name: s.t1n, role: s.t1r, border: 'border-purple' },
+    { q: s.t2q, name: s.t2n, role: s.t2r, border: 'border-teal' },
+    { q: s.t3q, name: s.t3n, role: s.t3r, border: 'border-purple' },
   ]
 
-  // Deterministic color from name
   const avatarColors = [
     { bg: 'bg-purple', text: 'text-white' },
     { bg: 'bg-teal',   text: 'text-white' },
@@ -996,13 +1239,13 @@ function Testimonials({ s }) {
 
         {/* Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {testimonials.map(({ q, name, role }, idx) => {
+          {testimonials.map(({ q, name, role, border }, idx) => {
             const av = avatarColors[idx % avatarColors.length]
             const initial = name.charAt(0)
             return (
               <div
                 key={name}
-                className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                className={`bg-white rounded-2xl border border-border-soft shadow-sm p-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col border-l-4 ${border}`}
               >
                 {/* Stars */}
                 <div className="flex gap-0.5 mb-5">
@@ -1012,13 +1255,13 @@ function Testimonials({ s }) {
                 </div>
 
                 {/* Quote */}
-                <blockquote className="italic text-gray-700 text-base leading-relaxed mb-6 flex-1">
+                <blockquote className="text-lg font-medium text-gray-800 leading-relaxed mb-6 flex-1">
                   {q}
                 </blockquote>
 
                 {/* Author */}
-                <div className="flex items-center gap-3 pt-5 border-t border-gray-50">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${av.bg} ${av.text}`}>
+                <div className="flex items-center gap-3 pt-5 border-t border-gray-100">
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${av.bg} ${av.text}`}>
                     {initial}
                   </div>
                   <div>
@@ -1049,7 +1292,6 @@ function Benefits({ s }) {
   ]
   return (
     <section id="benefits" className="py-24 bg-[#0f0e2a] relative overflow-hidden">
-      {/* Subtle blobs */}
       <div className="pointer-events-none absolute top-0 right-0 w-96 h-96 rounded-full bg-purple/10 blur-[100px]" />
       <div className="pointer-events-none absolute bottom-0 left-0 w-80 h-80 rounded-full bg-teal/8 blur-[100px]" />
 
@@ -1146,7 +1388,6 @@ function Integrations({ s }) {
   return (
     <section id="integrations" className="py-24 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-purple/10 border border-purple/20">
             <span className="w-1.5 h-1.5 rounded-full bg-purple" />
@@ -1161,7 +1402,6 @@ function Integrations({ s }) {
           <p className="text-gray-500 text-base max-w-xl mx-auto leading-relaxed">{s.int_sub}</p>
         </div>
 
-        {/* Hub badge */}
         <div className="flex justify-center mb-10">
           <div className="flex items-center gap-3 bg-purple/8 border border-purple/15 rounded-2xl px-6 py-3">
             <div className="w-9 h-9 bg-purple rounded-xl flex items-center justify-center shadow-md shadow-purple/30">
@@ -1172,7 +1412,6 @@ function Integrations({ s }) {
           </div>
         </div>
 
-        {/* Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {INT_ITEMS.map(item => <IntCard key={item.name} item={item} />)}
         </div>
@@ -1185,66 +1424,56 @@ function Integrations({ s }) {
 function Security({ s }) {
   const items = [
     { icon: Globe,  t: s.s1t, d: s.s1d, c: 'teal'   },
-    { icon: Shield, t: s.s2t, d: s.s2d, c: 'purple' },
+    { icon: Shield, t: s.s2t, d: s.s2d, c: 'teal'   },
     { icon: Lock,   t: s.s3t, d: s.s3d, c: 'teal'   },
-    { icon: Bell,   t: s.s4t, d: s.s4d, c: 'purple' },
+    { icon: Bell,   t: s.s4t, d: s.s4d, c: 'teal'   },
   ]
   const badges = ['ISO 27001', 'GDPR', 'E-Gov.az', 'SOC 2']
 
   return (
     <section
       id="security"
-      className="py-24 relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #0f0e2a 0%, #1a1350 55%, #0f0e2a 100%)' }}
+      className="py-24 bg-[#F7F7FB]"
     >
-      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-purple/10 blur-[100px]" />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Left */}
-          <div>
-            <div className="inline-flex items-center gap-2 mb-5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-teal" />
-              <span className="text-white/60 text-xs font-semibold tracking-wide uppercase">{s.sec_badge}</span>
-            </div>
-            <h2
-              className="font-serif text-white mb-5 leading-tight"
-              style={{ fontSize: 'clamp(1.75rem, 3vw, 2.75rem)', lineHeight: 1.2 }}
-            >
-              {s.sec_title}
-            </h2>
-            <p className="text-white/50 text-sm leading-relaxed mb-8 max-w-md">{s.sec_sub}</p>
-
-            {/* Compliance badges */}
-            <div className="flex flex-wrap gap-2">
-              {badges.map(b => (
-                <span
-                  key={b}
-                  className="flex items-center gap-1.5 bg-white/5 border border-white/10 text-white/70 text-xs font-medium px-4 py-2 rounded-full hover:bg-white/10 hover:border-white/20 transition-colors"
-                >
-                  <Check className="w-3 h-3 text-teal shrink-0" />{b}
-                </span>
-              ))}
-            </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-teal/10 border border-teal/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal" />
+            <span className="text-teal text-xs font-semibold tracking-wide uppercase">{s.sec_badge}</span>
           </div>
-
-          {/* Right cards */}
-          <div className="grid grid-cols-2 gap-4">
-            {items.map(({ icon: Icon, t, d, c }) => (
-              <div
-                key={t}
-                className="group p-5 rounded-2xl bg-white/[0.05] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/[0.18] transition-all duration-200"
+          <h2
+            className="font-serif text-gray-900 mb-4 leading-tight"
+            style={{ fontSize: 'clamp(1.875rem, 3.5vw, 2.875rem)' }}
+          >
+            {s.sec_title}
+          </h2>
+          <p className="text-gray-500 text-base max-w-2xl mx-auto leading-relaxed mb-6">{s.sec_sub}</p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {badges.map(b => (
+              <span
+                key={b}
+                className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-600 text-xs font-medium px-4 py-2 rounded-full"
               >
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-200 ${
-                  c === 'teal' ? 'bg-teal/20' : 'bg-purple/30'
-                }`}>
-                  <Icon className={`w-5 h-5 ${c === 'teal' ? 'text-teal' : 'text-violet-300'}`} />
-                </div>
-                <h3 className="font-semibold text-white mb-1.5 text-sm leading-snug">{t}</h3>
-                <p className="text-xs text-white/40 leading-relaxed">{d}</p>
-              </div>
+                <Check className="w-3 h-3 text-teal shrink-0" />{b}
+              </span>
             ))}
           </div>
+        </div>
+
+        {/* 2x2 grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-4xl mx-auto">
+          {items.map(({ icon: Icon, t, d }) => (
+            <div
+              key={t}
+              className="group bg-white rounded-2xl p-6 border border-border-soft hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-teal/10 flex items-center justify-center mb-4 group-hover:bg-teal/15 transition-colors">
+                <Shield className="w-6 h-6 text-teal" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2 text-base">{t}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{d}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -1279,13 +1508,11 @@ function Support({ s }) {
               key={t}
               className="group relative overflow-hidden p-9 rounded-2xl bg-white border border-gray-100 hover:shadow-2xl hover:shadow-purple/8 hover:-translate-y-1.5 transition-all duration-300"
             >
-              {/* Top gradient bar */}
               <div className={`absolute top-0 left-0 right-0 h-1 ${
                 accent === 'teal'
                   ? 'bg-gradient-to-r from-teal to-teal/30'
                   : 'bg-gradient-to-r from-purple to-purple/30'
               }`} />
-              {/* Icon */}
               <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${
                 accent === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
               }`}>
@@ -1315,12 +1542,16 @@ function ClosingCTA({ s }) {
   return (
     <section
       className="py-32 overflow-hidden relative"
-      style={{ background: 'linear-gradient(135deg, #534AB7 0%, #3730a3 50%, #1a1040 100%)' }}
+      style={{ background: 'linear-gradient(135deg, #534AB7 0%, #3730a3 40%, #1D9E75 100%)' }}
     >
-      {/* Decorative blur orbs */}
-      <div className="pointer-events-none absolute top-0 left-1/3 w-[500px] h-[500px] bg-teal/15 rounded-full blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-white/5 rounded-full blur-[100px]" />
-      <div className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-0 w-64 h-64 bg-indigo-400/10 rounded-full blur-[80px]" />
+      {/* Decorative circles */}
+      <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full border border-white/10" />
+      <div className="pointer-events-none absolute -bottom-16 -right-16 w-80 h-80 rounded-full border border-white/10" />
+      <div className="pointer-events-none absolute top-0 left-1/3 w-[500px] h-[500px] bg-white/5 rounded-full blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-teal/10 rounded-full blur-[100px]" />
+      {/* Small decorative circles in corners */}
+      <div className="pointer-events-none absolute top-8 right-8 w-32 h-32 rounded-full bg-white/10" />
+      <div className="pointer-events-none absolute bottom-8 left-8 w-24 h-24 rounded-full bg-white/10" />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2
@@ -1329,18 +1560,18 @@ function ClosingCTA({ s }) {
         >
           {s.cta_title}
         </h2>
-        <p className="text-white/60 text-xl mb-12 leading-relaxed max-w-2xl mx-auto">{s.cta_sub}</p>
+        <p className="text-white/80 text-xl mb-12 leading-relaxed max-w-2xl mx-auto">{s.cta_sub}</p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="mailto:hello@birclick.az"
-            className="border-2 border-white/30 text-white font-semibold px-9 py-4 rounded-xl hover:bg-white/10 hover:border-white/50 transition-all duration-200 text-sm"
+            className="bg-white text-purple font-semibold px-9 py-4 rounded-xl hover:bg-gray-50 hover:-translate-y-0.5 transition-all duration-200 text-sm shadow-2xl shadow-black/20"
           >
             {s.cta_btn1}
           </a>
           <Link
             to="/contact"
-            className="bg-white text-purple font-semibold px-9 py-4 rounded-xl hover:bg-purple-light hover:-translate-y-0.5 transition-all duration-200 text-sm shadow-2xl shadow-black/30"
+            className="border-2 border-white/40 text-white font-semibold px-9 py-4 rounded-xl hover:bg-white/10 hover:border-white/60 transition-all duration-200 text-sm"
           >
             {s.cta_btn2}
           </Link>
@@ -1354,7 +1585,6 @@ function ClosingCTA({ s }) {
 function Footer({ s }) {
   return (
     <footer className="bg-[#0f0e2a] text-white/60 text-sm">
-      {/* Thin teal accent line */}
       <div className="h-px bg-gradient-to-r from-transparent via-teal/50 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -1458,6 +1688,10 @@ function Footer({ s }) {
 
         {/* Bottom bar */}
         <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <ZirvaLogo size={20} invert />
+            <span className="text-xs text-white/30">© 2026 Zirva LLC</span>
+          </div>
           <div className="flex items-center gap-4">
             <Link to="/privacy" className="text-xs hover:text-white transition-colors">{s.foot_privacy}</Link>
             <Link to="/terms" className="text-xs hover:text-white transition-colors">{s.foot_terms}</Link>
@@ -1481,6 +1715,7 @@ export default function Landing() {
       <Stats />
       <Solutions s={s} />
       <Features s={s} />
+      <ZekaAI s={s} />
       <Testimonials s={s} />
       <Benefits s={s} />
       <Integrations s={s} />
