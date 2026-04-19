@@ -1076,64 +1076,6 @@ function Solutions({ s }) {
           <p className="text-gray-500 text-base leading-relaxed font-medium max-w-sm">{s.sol_sub}</p>
         </div>
 
-        {/* ── Featured: Multi-Curricula ── */}
-        <div className="rounded-3xl p-10 sm:p-14 mb-4 relative overflow-hidden"
-          style={{ background:'radial-gradient(ellipse at 20% 0%, #2a1f8c 0%, #1a1570 30%, #0f0c4a 70%, #0a0836 100%)' }}>
-
-          {/* Aurora glow */}
-          <div style={{ position:'absolute', top:'-40%', left:'30%', width:520, height:520, background:'radial-gradient(circle, rgba(167,139,250,0.28) 0%, rgba(124,58,237,0.10) 40%, transparent 65%)', borderRadius:'50%', pointerEvents:'none', filter:'blur(10px)' }}/>
-          <div style={{ position:'absolute', bottom:'-35%', right:'-10%', width:460, height:460, background:'radial-gradient(circle, rgba(99,102,241,0.22) 0%, transparent 65%)', borderRadius:'50%', pointerEvents:'none' }}/>
-          {/* Subtle dot pattern */}
-          <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize:'28px 28px', WebkitMaskImage:'radial-gradient(ellipse 80% 100% at 50% 30%, black 20%, transparent 85%)', maskImage:'radial-gradient(ellipse 80% 100% at 50% 30%, black 20%, transparent 85%)', pointerEvents:'none' }}/>
-          {/* Top edge shine */}
-          <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:'linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.18) 50%, transparent 90%)', pointerEvents:'none' }}/>
-
-          <div className="relative z-10">
-            {/* Eyebrow badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-7"
-              style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', backdropFilter:'blur(10px)' }}>
-              <Layers style={{ width:13, height:13, color:'#c4b5fd' }}/>
-              <span style={{ fontSize:10.5, fontWeight:700, color:'rgba(255,255,255,0.8)', letterSpacing:'0.14em', textTransform:'uppercase' }}>
-                {isAz ? '5 Çərçivə · Tək Platforma' : '5 Frameworks · 1 Platform'}
-              </span>
-            </div>
-
-            <h3 style={{ fontSize:'clamp(1.75rem,3.4vw,2.5rem)', fontWeight:800, letterSpacing:'-0.03em', lineHeight:1.05, marginBottom:16 }}>
-              <span style={{ background:'linear-gradient(135deg, #fff 0%, #e9d5ff 70%, #c4b5fd 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
-                {s.sol_multi_t}
-              </span>
-            </h3>
-            <p style={{ color:'rgba(255,255,255,0.62)', fontSize:15.5, lineHeight:1.7, maxWidth:560, marginBottom:32 }}>
-              {s.sol_multi_d}
-            </p>
-
-            {/* Stats strip */}
-            <div className="flex flex-wrap gap-8 pt-7" style={{ borderTop:'1px solid rgba(255,255,255,0.08)' }}>
-              <div>
-                <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-0.03em', lineHeight:1, background:'linear-gradient(135deg, #fff 0%, #c4b5fd 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>600+</div>
-                <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.42)', marginTop:6, letterSpacing:'0.05em' }}>
-                  {isAz ? 'Standart' : 'Standards'}
-                </div>
-              </div>
-              <div style={{ width:1, background:'linear-gradient(180deg, transparent, rgba(255,255,255,0.15), transparent)' }}/>
-              <div>
-                <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-0.03em', lineHeight:1, background:'linear-gradient(135deg, #fff 0%, #c4b5fd 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>4</div>
-                <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.42)', marginTop:6, letterSpacing:'0.05em' }}>
-                  {isAz ? 'IB Proqramı' : 'IB Programmes'}
-                </div>
-              </div>
-              <div style={{ width:1, background:'linear-gradient(180deg, transparent, rgba(255,255,255,0.15), transparent)' }}/>
-              <div>
-                <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-0.03em', lineHeight:1, background:'linear-gradient(135deg, #fff 0%, #c4b5fd 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>3–19</div>
-                <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.42)', marginTop:6, letterSpacing:'0.05em' }}>
-                  {isAz ? 'Yaş aralığı' : 'Age range'}
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
         {/* ── IB + Government programmes ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {ibCards.map(({ logo, icon:Icon, title, desc, age, accent, accent2, to, isGov }) => (
