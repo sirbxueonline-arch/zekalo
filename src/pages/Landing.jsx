@@ -725,7 +725,7 @@ function Hero({ s }) {
         <h1 style={{
           textAlign:'center',
           fontWeight:800,
-          fontSize:'clamp(2.9rem, 9vw, 7.5rem)',
+          fontSize:'clamp(2.2rem, 6.5vw, 5.5rem)',
           lineHeight:1.0,
           letterSpacing:'-0.038em',
           color:'#ffffff',
