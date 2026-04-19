@@ -1009,10 +1009,10 @@ function Solutions({ s }) {
   const isAz = s.nav_signin === 'Daxil ol'
 
   const ibCards = [
-    { icon:Star,          title:s.sol_pyp_t, desc:s.sol_pyp_d  },
-    { icon:BookOpen,      title:s.sol_myp_t, desc:s.sol_myp_d  },
-    { icon:GraduationCap, title:s.sol_dp_t,  desc:s.sol_dp_d   },
-    { icon:Users,         title:s.sol_cp_t,  desc:s.sol_cp_d   },
+    { logo:'/pyp.png', title:s.sol_pyp_t, desc:s.sol_pyp_d },
+    { logo:'/myp.png', title:s.sol_myp_t, desc:s.sol_myp_d },
+    { logo:'/dp.png',  title:s.sol_dp_t,  desc:s.sol_dp_d  },
+    { logo:'/cp.png',  title:s.sol_cp_t,  desc:s.sol_cp_d  },
   ]
 
   return (
@@ -1090,9 +1090,9 @@ function Solutions({ s }) {
 
         {/* ── IB sub-programmes ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {ibCards.map(({ icon:Icon, title, desc }) => (
+          {ibCards.map(({ logo, title, desc }) => (
             <div key={title} className="card-lift rounded-2xl p-7 border border-gray-100 bg-gray-50 cursor-default">
-              <Icon className="w-7 h-7 mb-4" style={{ color:'#534AB7' }}/>
+              <img src={logo} alt={title} className="h-10 w-auto object-contain mb-5"/>
               <h3 className="font-bold text-gray-900 text-base mb-2 leading-snug" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
               <p className="text-gray-500 text-sm leading-relaxed font-medium">{desc}</p>
             </div>
