@@ -110,13 +110,13 @@ const PAGES = {
   'careers': {
     title: 'Careers at Zirva',
     subtitle: 'Help us build the future of education in Azerbaijan',
-    body: `We're looking for engineers, designers, and education specialists who are passionate about transforming schools. We offer competitive salaries, flexible working, and the chance to build technology used by thousands of students every day.\n\nTo apply or enquire about open roles, send your CV to hello@birclick.az with the subject line "Careers".`,
+    body: `We're looking for engineers, designers, and education specialists who are passionate about transforming schools. We offer competitive salaries, flexible working, and the chance to build technology used by thousands of students every day.\n\nTo apply or enquire about open roles, send your CV to hello@tryzirva.com with the subject line "Careers".`,
     color: 'teal',
   },
   'partners': {
     title: 'Partners',
     subtitle: 'Work with us to reach more schools',
-    body: `Zirva partners with education consultancies, IB authorisation advisors, government bodies, and technology resellers across Azerbaijan and the region. If your organisation works with schools and you see value in introducing Zirva, we'd love to explore a partnership.\n\nGet in touch at hello@birclick.az.`,
+    body: `Zirva partners with education consultancies, IB authorisation advisors, government bodies, and technology resellers across Azerbaijan and the region. If your organisation works with schools and you see value in introducing Zirva, we'd love to explore a partnership.\n\nGet in touch at hello@tryzirva.com.`,
     color: 'purple',
   },
   'contact': {
@@ -155,7 +155,7 @@ Student and staff records are retained for the duration of the school's subscrip
 
 6. Your Rights
 
-You have the right to access, correct, and request deletion of your personal data. You also have the right to data portability and to object to certain processing activities. To exercise these rights, contact us at privacy@birclick.az. We will respond within 30 days.
+You have the right to access, correct, and request deletion of your personal data. You also have the right to data portability and to object to certain processing activities. To exercise these rights, contact us at privacy@tryzirva.com. We will respond within 30 days.
 
 7. Cookies
 
@@ -171,7 +171,7 @@ We may update this policy periodically. Schools will be notified of material cha
 
 10. Contact
 
-For any privacy-related questions or requests, contact our Data Protection Officer at privacy@birclick.az or write to Zirva, Baku, Azerbaijan.`,
+For any privacy-related questions or requests, contact our Data Protection Officer at privacy@tryzirva.com or write to Zirva, Baku, Azerbaijan.`,
     color: 'purple',
   },
   'terms': {
@@ -227,7 +227,7 @@ We may update these Terms from time to time. Schools will be notified of materia
 
 12. Contact
 
-For questions about these Terms, contact us at hello@birclick.az or write to Zirva, Baku, Azerbaijan.`,
+For questions about these Terms, contact us at hello@tryzirva.com or write to Zirva, Baku, Azerbaijan.`,
     color: 'teal',
   },
 }
@@ -263,7 +263,7 @@ function ContactPage() {
           school:       form.school,
           role:         form.role,
           message:      form.message,
-          to_email:     'kaan.guluzada@gmail.com',
+          to_email:     'hello@tryzirva.com',
         },
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
       )
@@ -380,13 +380,13 @@ function ContactPage() {
             {/* Direct contact */}
             <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'28px 28px' }}>
               <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:20 }}>Direct contact</p>
-              <a href="mailto:hello@birclick.az" style={{ display:'flex', alignItems:'center', gap:14, textDecoration:'none', marginBottom:16 }}>
+              <a href="mailto:hello@tryzirva.com" style={{ display:'flex', alignItems:'center', gap:14, textDecoration:'none', marginBottom:16 }}>
                 <div style={{ width:42, height:42, borderRadius:12, background:'rgba(167,139,250,0.12)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                   <Mail style={{ width:18, height:18, color:'#a78bfa' }}/>
                 </div>
                 <div>
                   <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:600, marginBottom:2 }}>Email</p>
-                  <p style={{ color:'#fff', fontSize:14, fontWeight:700 }}>hello@birclick.az</p>
+                  <p style={{ color:'#fff', fontSize:14, fontWeight:700 }}>hello@tryzirva.com</p>
                 </div>
               </a>
               <a href="tel:+994502411442" style={{ display:'flex', alignItems:'center', gap:14, textDecoration:'none' }}>
@@ -494,14 +494,14 @@ export default function InfoPage({ type: typeProp }) {
 
           {page.isContact ? (
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <a href="mailto:hello@birclick.az"
+              <a href="mailto:hello@tryzirva.com"
                 className="flex items-center gap-3 p-4 rounded-xl bg-purple-light border border-purple/10 hover:border-purple/30 transition-colors group">
                 <div className="w-10 h-10 rounded-xl bg-purple flex items-center justify-center shrink-0">
                   <Mail className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 mb-0.5">Email</p>
-                  <p className="text-sm font-semibold text-purple">hello@birclick.az</p>
+                  <p className="text-sm font-semibold text-purple">hello@tryzirva.com</p>
                 </div>
               </a>
               <a href="tel:+994502411442"
@@ -521,9 +521,9 @@ export default function InfoPage({ type: typeProp }) {
                 className="bg-purple text-white font-semibold px-6 py-3 rounded-xl hover:bg-purple-dark transition-colors text-sm shadow-lg shadow-purple/20">
                 Bizimlə Əlaqə
               </Link>
-              <a href="mailto:hello@birclick.az"
+              <a href="mailto:hello@tryzirva.com"
                 className={`${accentText} text-sm font-semibold hover:underline`}>
-                hello@birclick.az
+                hello@tryzirva.com
               </a>
             </div>
           )}

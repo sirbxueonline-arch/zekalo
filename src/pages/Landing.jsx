@@ -1492,8 +1492,8 @@ function Footer({ s }) {
               <span className="text-lg font-bold text-white">Zirva</span>
             </div>
             <p className="text-xs leading-relaxed mb-5" style={{ color:'rgba(255,255,255,0.35)' }}>{s.foot_tagline}</p>
-            <a href="mailto:hello@birclick.az" className="flex items-center gap-2 text-xs mb-2 hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>
-              <Mail className="w-3.5 h-3.5 text-teal shrink-0"/>hello@birclick.az
+            <a href="mailto:hello@tryzirva.com" className="flex items-center gap-2 text-xs mb-2 hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>
+              <Mail className="w-3.5 h-3.5 text-teal shrink-0"/>hello@tryzirva.com
             </a>
             <a href="tel:+994502411442" className="flex items-center gap-2 text-xs hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>
               <Phone className="w-3.5 h-3.5 text-teal shrink-0"/>+994 50 241 14 42
