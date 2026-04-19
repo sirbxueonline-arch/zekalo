@@ -1,5 +1,5 @@
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Mail, Phone, ArrowRight, MapPin, Clock, Sparkles } from 'lucide-react'
+import { ArrowLeft, Mail, Phone, ArrowRight, MapPin, Clock, Sparkles, Calendar, Rocket, Tag, Users, Shield, Database, Building2 } from 'lucide-react'
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import emailjs from '@emailjs/browser'
@@ -235,16 +235,39 @@ For questions about these Terms, contact us at hello@tryzirva.com or write to Zi
 /* ─── CONTACT PAGE ─── */
 function ContactPage() {
   const [form, setForm] = useState({ name:'', school:'', role:'', email:'', message:'' })
+  const [topic, setTopic] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const roles = ['School Director / Principal', 'IB Coordinator', 'IT Manager', 'Teacher', 'Other']
 
+  const topics = [
+    { key:'demo',        label:'Book a demo',     icon:Calendar, color:'#a78bfa',
+      prefill:"I'd like to see Zirva in action — could we schedule a live demo for our school?" },
+    { key:'pilot',       label:'Start a pilot',   icon:Rocket,   color:'#34d399',
+      prefill:"We're interested in starting a pilot program with Zirva. Here's a bit about our school:" },
+    { key:'pricing',     label:'Pricing',         icon:Tag,      color:'#60a5fa',
+      prefill:"Could you share pricing details for a school of our size? We have roughly [n] students." },
+    { key:'partnership', label:'Partnership',     icon:Users,    color:'#f59e0b',
+      prefill:"We'd like to explore a partnership with Zirva. A bit about our organisation:" },
+  ]
+
+  function selectTopic(t) {
+    setTopic(t.key)
+    // Only pre-fill if message is empty or is one of the other templates
+    const isPrefill = topics.some(x => form.message === x.prefill)
+    if (!form.message.trim() || isPrefill) {
+      setForm(f => ({ ...f, message: t.prefill }))
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
     setError(null)
+
+    const topicLabel = topics.find(t => t.key === topic)?.label || 'General enquiry'
 
     // 1. Save to Supabase
     await supabase.from('contact_submissions').insert([{
@@ -261,7 +284,7 @@ function ContactPage() {
           from_name:    form.name,
           from_email:   form.email,
           name:         form.name,
-          message:      `Email: ${form.email}\nSchool: ${form.school}\nRole: ${form.role}\n\n${form.message}`,
+          message:      `Topic: ${topicLabel}\nEmail: ${form.email}\nSchool: ${form.school}\nRole: ${form.role}\n\n${form.message}`,
         },
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
       )
@@ -307,12 +330,24 @@ function ContactPage() {
       <div style={{ position:'relative', zIndex:10, maxWidth:1100, margin:'0 auto', padding:'72px 24px 96px' }}>
 
         {/* Header */}
-        <div style={{ textAlign:'center', marginBottom:72 }}>
+        <div style={{ textAlign:'center', marginBottom:64 }}>
+          {/* Availability pulse */}
+          <div style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'7px 16px 7px 12px', borderRadius:999, background:'rgba(34,197,94,0.06)', border:'1px solid rgba(34,197,94,0.18)', marginBottom:32 }}>
+            <span style={{ position:'relative', display:'inline-flex', width:8, height:8 }}>
+              <span style={{ position:'absolute', inset:0, borderRadius:'50%', background:'#22c55e', opacity:0.55, animation:'zirvaPulse 2s ease-out infinite' }}/>
+              <span style={{ position:'relative', borderRadius:'50%', width:8, height:8, background:'#22c55e', boxShadow:'0 0 10px rgba(34,197,94,0.6)' }}/>
+            </span>
+            <span style={{ color:'rgba(255,255,255,0.75)', fontSize:12.5, fontWeight:600, letterSpacing:'0.01em' }}>
+              Online now · Typically replies within an hour
+            </span>
+          </div>
+          <style>{`@keyframes zirvaPulse { 0% { transform: scale(1); opacity: .6 } 80% { transform: scale(2.4); opacity: 0 } 100% { opacity: 0 } }`}</style>
+
           <h1 style={{ fontSize:'clamp(2.4rem,6vw,4.5rem)', fontWeight:800, color:'#fff', letterSpacing:'-0.03em', lineHeight:1.05, marginBottom:20 }}>
             Let's talk about<br/><span style={{ background:'linear-gradient(128deg,#c4b5fd 0%,#a78bfa 40%,#8b5cf6 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>your school</span>
           </h1>
-          <p style={{ color:'rgba(255,255,255,0.4)', fontSize:16.5, lineHeight:1.75, maxWidth:460, margin:'0 auto', fontWeight:500 }}>
-            Whether you're exploring a pilot, want a demo, or just have a question — we're ready.
+          <p style={{ color:'rgba(255,255,255,0.4)', fontSize:16.5, lineHeight:1.75, maxWidth:500, margin:'0 auto', fontWeight:500 }}>
+            Real humans read every message. No chatbots, no automated funnels — just a direct line to the team building Zirva.
           </p>
         </div>
 
@@ -322,17 +357,60 @@ function ContactPage() {
           {/* LEFT — Form */}
           <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:24, padding:'40px 36px' }}>
             {sent ? (
-              <div style={{ textAlign:'center', padding:'40px 0' }}>
-                <div style={{ width:64, height:64, borderRadius:'50%', background:'rgba(34,197,94,0.12)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 24px' }}>
-                  <span style={{ fontSize:28 }}>✓</span>
+              <div style={{ textAlign:'center', padding:'32px 0' }}>
+                <style>{`@keyframes zirvaCheckPop { 0% { transform: scale(0); opacity: 0 } 60% { transform: scale(1.15); opacity: 1 } 100% { transform: scale(1); opacity: 1 } } @keyframes zirvaRingFade { 0% { transform: scale(0.6); opacity: .7 } 100% { transform: scale(1.6); opacity: 0 } }`}</style>
+                <div style={{ position:'relative', width:80, height:80, margin:'0 auto 28px' }}>
+                  <span style={{ position:'absolute', inset:0, borderRadius:'50%', background:'rgba(34,197,94,0.28)', animation:'zirvaRingFade 1.6s ease-out infinite' }}/>
+                  <div style={{ position:'relative', width:80, height:80, borderRadius:'50%', background:'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05))', border:'1px solid rgba(34,197,94,0.35)', display:'flex', alignItems:'center', justifyContent:'center', animation:'zirvaCheckPop .5s cubic-bezier(.34,1.56,.64,1)' }}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
                 </div>
-                <h3 style={{ color:'#fff', fontWeight:800, fontSize:22, marginBottom:12 }}>Message sent!</h3>
-                <p style={{ color:'rgba(255,255,255,0.4)', fontSize:14, lineHeight:1.7 }}>We'll get back to you within a few hours.</p>
-                <Link to="/" style={{ display:'inline-flex', alignItems:'center', gap:8, marginTop:32, padding:'12px 28px', borderRadius:999, background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.7)', textDecoration:'none', fontSize:14, fontWeight:600 }}>← Back to home</Link>
+                <h3 style={{ color:'#fff', fontWeight:800, fontSize:24, marginBottom:10, letterSpacing:'-0.01em' }}>Message received</h3>
+                <p style={{ color:'rgba(255,255,255,0.5)', fontSize:14, lineHeight:1.7, maxWidth:320, margin:'0 auto' }}>Thanks, {form.name.split(' ')[0] || 'there'}. A real person from our team will reply to <strong style={{ color:'rgba(255,255,255,0.75)', fontWeight:700 }}>{form.email}</strong> within the hour.</p>
+                <div style={{ display:'flex', gap:10, justifyContent:'center', marginTop:32 }}>
+                  <Link to="/" style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'11px 22px', borderRadius:999, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.75)', textDecoration:'none', fontSize:13, fontWeight:600 }}>
+                    ← Back home
+                  </Link>
+                  <a href="mailto:hello@tryzirva.com" style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'11px 22px', borderRadius:999, background:'#fff', color:'#09090f', textDecoration:'none', fontSize:13, fontWeight:700 }}>
+                    Email us directly <ArrowRight style={{ width:13, height:13 }}/>
+                  </a>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:20 }}>
-                <h2 style={{ color:'#fff', fontWeight:800, fontSize:20, marginBottom:4, letterSpacing:'-0.01em' }}>Send us a message</h2>
+                <div>
+                  <h2 style={{ color:'#fff', fontWeight:800, fontSize:20, marginBottom:4, letterSpacing:'-0.01em' }}>Send us a message</h2>
+                  <p style={{ color:'rgba(255,255,255,0.35)', fontSize:12.5, fontWeight:500 }}>Pick what you're here for — or just write.</p>
+                </div>
+
+                {/* Topic chips */}
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                  {topics.map(t => {
+                    const active = topic === t.key
+                    const Icon = t.icon
+                    return (
+                      <button key={t.key} type="button" onClick={() => selectTopic(t)}
+                        style={{
+                          display:'flex', alignItems:'center', gap:9, padding:'10px 14px', borderRadius:12,
+                          background: active ? `${t.color}18` : 'rgba(255,255,255,0.03)',
+                          border: active ? `1px solid ${t.color}55` : '1px solid rgba(255,255,255,0.08)',
+                          color: active ? '#fff' : 'rgba(255,255,255,0.7)',
+                          fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .15s', fontFamily:'inherit', textAlign:'left',
+                          boxShadow: active ? `0 0 0 3px ${t.color}12` : 'none',
+                        }}>
+                        <span style={{ width:24, height:24, borderRadius:7, background:`${t.color}22`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                          <Icon style={{ width:12, height:12, color:t.color }}/>
+                        </span>
+                        {t.label}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <div style={{ height:1, background:'rgba(255,255,255,0.06)', margin:'4px 0' }}/>
+
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
                   <div>
                     <label style={labelStyle}>Your name</label>
@@ -398,28 +476,41 @@ function ContactPage() {
               </a>
             </div>
 
-            {/* What to expect */}
+            {/* What happens next — numbered steps */}
             <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'28px', overflow:'hidden', position:'relative' }}>
-              {/* subtle gradient accent */}
-              <div style={{ position:'absolute', top:0, right:0, width:160, height:160, background:'radial-gradient(circle at 100% 0%, rgba(167,139,250,0.08) 0%, transparent 65%)', pointerEvents:'none' }}/>
+              <div style={{ position:'absolute', top:0, right:0, width:200, height:200, background:'radial-gradient(circle at 100% 0%, rgba(167,139,250,0.08) 0%, transparent 65%)', pointerEvents:'none' }}/>
 
-              <p style={{ color:'rgba(255,255,255,0.28)', fontSize:10.5, fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:22 }}>What to expect</p>
+              <p style={{ color:'rgba(255,255,255,0.28)', fontSize:10.5, fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:22 }}>What happens next</p>
 
               {[
-                { icon:Clock,    label:'Fast reply',   text:'We get back within a few hours on business days', color:'#a78bfa' },
-                { icon:Sparkles, label:'Live demo',    text:'A personalised walkthrough built around your school', color:'#34d399' },
-                { icon:MapPin,   label:'Meet in Baku', text:'We\'re local — happy to come to you in person', color:'#60a5fa' },
-              ].map(({ icon:Icon, label, text, color }, i) => (
-                <div key={label} style={{ display:'flex', gap:14, paddingTop: i > 0 ? 18 : 0, marginTop: i > 0 ? 18 : 0, borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-                  <div style={{ width:38, height:38, borderRadius:10, background:`${color}14`, border:`1px solid ${color}22`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:2 }}>
-                    <Icon style={{ width:15, height:15, color }}/>
+                { n:'01', label:'We reply personally',   text:'Usually within the hour. From a real person on our team, not a templated auto-response.' },
+                { n:'02', label:'We schedule a demo',    text:'Live walkthrough tailored to your school — IB, national, or both.' },
+                { n:'03', label:'We build you a pilot', text:'If it\'s a fit, we onboard your school in 2–4 weeks with full support.' },
+              ].map(({ n, label, text }, i) => (
+                <div key={n} style={{ display:'flex', gap:16, paddingTop: i > 0 ? 20 : 0, marginTop: i > 0 ? 20 : 0, borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                  <div style={{ position:'relative', flexShrink:0 }}>
+                    <span style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:36, height:36, borderRadius:10, background:'linear-gradient(135deg, rgba(167,139,250,0.18), rgba(99,75,215,0.08))', border:'1px solid rgba(167,139,250,0.22)', color:'#c4b5fd', fontSize:12, fontWeight:800, letterSpacing:'0.02em', fontVariantNumeric:'tabular-nums' }}>
+                      {n}
+                    </span>
                   </div>
-                  <div>
-                    <p style={{ color:'#fff', fontSize:13.5, fontWeight:700, marginBottom:3 }}>{label}</p>
-                    <p style={{ color:'rgba(255,255,255,0.38)', fontSize:12.5, lineHeight:1.6, fontWeight:500 }}>{text}</p>
+                  <div style={{ paddingTop:1 }}>
+                    <p style={{ color:'#fff', fontSize:13.5, fontWeight:700, marginBottom:4 }}>{label}</p>
+                    <p style={{ color:'rgba(255,255,255,0.4)', fontSize:12.5, lineHeight:1.65, fontWeight:500 }}>{text}</p>
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Location */}
+            <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'24px 28px', display:'flex', alignItems:'center', gap:16 }}>
+              <div style={{ width:48, height:48, borderRadius:12, background:'rgba(96,165,250,0.12)', border:'1px solid rgba(96,165,250,0.22)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <Building2 style={{ width:20, height:20, color:'#60a5fa' }}/>
+              </div>
+              <div style={{ flex:1 }}>
+                <p style={{ color:'rgba(255,255,255,0.35)', fontSize:10.5, fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:4 }}>Our office</p>
+                <p style={{ color:'#fff', fontSize:14, fontWeight:700, marginBottom:2 }}>Baku, Azerbaijan</p>
+                <p style={{ color:'rgba(255,255,255,0.4)', fontSize:12.5, fontWeight:500 }}>Open Mon–Fri · 09:00–18:00 AZT</p>
+              </div>
             </div>
 
             {/* Already have an account */}
@@ -430,6 +521,29 @@ function ContactPage() {
               </Link>
             </div>
 
+          </div>
+        </div>
+
+        {/* Trust band */}
+        <div style={{ marginTop:80, paddingTop:48, borderTop:'1px solid rgba(255,255,255,0.06)' }}>
+          <p style={{ textAlign:'center', color:'rgba(255,255,255,0.35)', fontSize:11.5, fontWeight:700, letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:28 }}>
+            Built for Azerbaijan's most demanding schools
+          </p>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:12, maxWidth:860, margin:'0 auto' }}>
+            {[
+              { icon:Shield,   label:'IBO Authorized',   sub:'All 4 IB programmes' },
+              { icon:Building2,label:'E-Gov.az Ready',   sub:'Ministry integration' },
+              { icon:Database, label:'Data in AZ',        sub:'Local servers, GDPR' },
+              { icon:Sparkles, label:'ISO 27001',         sub:'Security certified' },
+            ].map(({ icon:Icon, label, sub }) => (
+              <div key={label} style={{ background:'rgba(255,255,255,0.025)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:14, padding:'18px 16px', textAlign:'left' }}>
+                <div style={{ width:28, height:28, borderRadius:8, background:'rgba(255,255,255,0.05)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:10 }}>
+                  <Icon style={{ width:13, height:13, color:'rgba(255,255,255,0.55)' }}/>
+                </div>
+                <p style={{ color:'#fff', fontSize:12.5, fontWeight:700, marginBottom:2 }}>{label}</p>
+                <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:500 }}>{sub}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
