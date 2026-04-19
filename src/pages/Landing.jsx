@@ -1425,13 +1425,15 @@ function PilotCTA({ s }) {
               </span>
             </div>
             <h2 className="font-extrabold text-white leading-tight mb-5"
-              style={{ fontSize:'clamp(1.8rem,4vw,2.8rem)', letterSpacing:'-0.02em' }}>
-              {isAz ? 'Məktəbinizi pilot proqrama dəvət edirik' : "We're inviting your school to join our pilot"}
-            </h2>
-            <p className="text-white/55 text-base max-w-xl mx-auto leading-relaxed mb-10 font-medium">
+              style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.025em' }}>
               {isAz
-                ? 'Texnologiya hazırdır. Azərbaycanda rəqəmsal məktəbin əsasını qurmaq istəyən öncü məktəbləri axtarırıq.'
-                : "The platform is ready. We're looking for forward-thinking schools to help shape the future of school management in Azerbaijan."}
+                ? <>Məktəbiniz<br/><span style={{ color:'#86efac' }}>gələcəyi formalaşdırsın</span></>
+                : <>Your school could<br/><span style={{ color:'#86efac' }}>shape what's next</span></>}
+            </h2>
+            <p className="text-white/55 text-base max-w-lg mx-auto leading-relaxed mb-10 font-medium">
+              {isAz
+                ? 'Zirva+ hazırdır. Azərbaycanda rəqəmsal məktəbin əsasını birlikdə qurmaq üçün öncü məktəbləri dəvət edirik.'
+                : 'Zirva+ is live. We\'re partnering with a select group of schools to define what great school management looks like in Azerbaijan.'}
             </p>
             <Link to="/contact"
               className="inline-flex items-center gap-2.5 bg-white text-purple font-bold px-9 py-4 rounded-xl shadow-xl shadow-black/12 hover:-translate-y-0.5 hover:shadow-2xl transition-all text-sm">
