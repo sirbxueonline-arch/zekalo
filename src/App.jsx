@@ -1,5 +1,11 @@
-import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return null
+}
 import { useAuth } from './contexts/AuthContext'
 import { PageSpinner } from './components/ui/Spinner'
 import AppLayout from './components/layout/AppLayout'
@@ -142,6 +148,7 @@ function RoleRoute({ role, children }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <ErrorBoundary>
       <Routes>
         {/* Public routes */}
