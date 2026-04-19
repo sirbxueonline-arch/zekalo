@@ -84,7 +84,7 @@ const STR = {
     foot_col1: 'Zirva+ öyrənmə', foot_col2: 'Resurslar', foot_col3: 'Dəstək Mərkəzi', foot_col4: 'Şirkət',
     foot_rights: 'Bütün hüquqlar qorunur.',
     foot_privacy: 'Məxfilik', foot_terms: 'Şərtlər',
-    fl1:'IB Diploma', fl2:'IB Karyera (CP)', fl3:'IB Orta İllər (MYP)', fl4:'IB İlk İllər (PYP)', fl5:'Dövlət Məktəbləri', fl6:'Mobil Tətbiq', fl7:'Onlayn İmtahanlar',
+    fl1:'IB İlk İllər (PYP)', fl2:'IB Orta İllər (MYP)', fl3:'IB Diploma (DP)', fl4:'IB Karyera (CP)', fl5:'Dövlət Məktəbləri', fl6:'Mobil Tətbiq', fl7:'Onlayn İmtahanlar',
     fr1:'CEO Məktubu', fr2:'Resurs Kitabxanası', fr3:'Tədbirlər & Vebinarlar', fr4:'Blog', fr5:'Məhsul Portalı', fr6:'Müştəri Rəyləri', fr7:'Tez-Tez Soruşulan Suallar',
     fs1:'Premium Dəstək', fs2:'Yardım & Dəstək',
     fc1:'Haqqımızda', fc2:'Karyera', fc3:'Partnyorlar', fc4:'Əlaqə',
@@ -162,7 +162,7 @@ const STR = {
     foot_col1: 'Zirva+ for Learning', foot_col2: 'Resources', foot_col3: 'Support Centre', foot_col4: 'Company',
     foot_rights: 'All Rights Reserved.',
     foot_privacy: 'Privacy', foot_terms: 'Terms',
-    fl1:'IB Diploma', fl2:'IB Career-Related', fl3:'IB Middle Years', fl4:'IB Primary Years', fl5:'Government Schools', fl6:'Mobile App', fl7:'Online Exams',
+    fl1:'IB Primary Years (PYP)', fl2:'IB Middle Years (MYP)', fl3:'IB Diploma (DP)', fl4:'IB Career-Related (CP)', fl5:'Government Schools', fl6:'Mobile App', fl7:'Online Exams',
     fr1:'CEO Letter', fr2:'Resource Library', fr3:'Events & Webinars', fr4:'Blog', fr5:'Product Portal', fr6:'Customer Reviews', fr7:'FAQs',
     fs1:'Premium Support', fs2:'Help & Support',
     fc1:'About', fc2:'Careers', fc3:'Partners', fc4:'Contact',
@@ -907,8 +907,8 @@ function WhatWeDo({ s }) {
       eyebrow: isAz ? 'Kurikulum' : 'Curriculum',
       title: isAz ? 'Tədris & Kurikulum' : 'Teaching & Curriculum',
       body: isAz
-        ? 'IB DP, MYP, CP, PYP və Azərbaycan milli kurikulumu — birgə planlaşdırma, 600+ standart, IBIS inteqrasiyası.'
-        : 'IB DP, MYP, CP, PYP and national curriculum — collaborative planning, 600+ standards, IBIS integration.',
+        ? 'IB PYP, MYP, DP, CP və Azərbaycan milli kurikulumu — birgə planlaşdırma, 600+ standart, IBIS inteqrasiyası.'
+        : 'IB PYP, MYP, DP, CP and national curriculum — collaborative planning, 600+ standards, IBIS integration.',
       pts: isAz
         ? ['Birgə kurikulum planlaması','600+ daxili standart','IBIS & E-Gov.az inteqrasiyası']
         : ['Collaborative curriculum planning','600+ built-in standards','IBIS & E-Gov.az integration'],
@@ -988,14 +988,79 @@ function Solutions({ s }) {
   const isAz = s.nav_signin === 'Daxil ol'
 
   const ibCards = [
-    { logo:'/pyp.png', title:s.sol_pyp_t, desc:s.sol_pyp_d },
-    { logo:'/myp.png', title:s.sol_myp_t, desc:s.sol_myp_d },
-    { logo:'/dp.png',  title:s.sol_dp_t,  desc:s.sol_dp_d  },
-    { logo:'/cp.png',  title:s.sol_cp_t,  desc:s.sol_cp_d  },
+    { logo:'/pyp.png', title:s.sol_pyp_t, desc:s.sol_pyp_d, age:'3–12',  accent:'#f59e0b', accent2:'#fbbf24', code:'PYP', to:'/ib-pyp' },
+    { logo:'/myp.png', title:s.sol_myp_t, desc:s.sol_myp_d, age:'11–16', accent:'#ef4444', accent2:'#f87171', code:'MYP', to:'/ib-myp' },
+    { logo:'/dp.png',  title:s.sol_dp_t,  desc:s.sol_dp_d,  age:'16–19', accent:'#3b82f6', accent2:'#60a5fa', code:'DP',  to:'/ib-diploma' },
+    { logo:'/cp.png',  title:s.sol_cp_t,  desc:s.sol_cp_d,  age:'16–19', accent:'#a855f7', accent2:'#c084fc', code:'CP',  to:'/ib-career' },
+    { logo:null, icon:Building2, title:s.sol_gov_t, desc:s.sol_gov_d, age:'6–18',  accent:'#1D9E75', accent2:'#34d399', code:'GOV', to:'/government-schools', isGov:true },
+  ]
+
+  const curriculumPills = [
+    { logo:'/pyp.png',  alt:'IB Primary Years',  color:'#f59e0b', to:'/ib-pyp' },
+    { logo:'/myp.png',  alt:'IB Middle Years',   color:'#ef4444', to:'/ib-myp' },
+    { logo:'/dp.png',   alt:'IB Diploma',        color:'#3b82f6', to:'/ib-diploma' },
+    { logo:'/cp.png',   alt:'IB Career-Related', color:'#a855f7', to:'/ib-career' },
+    { logo:'/egov.png', alt:isAz?'Milli Kurikulum':'National Curriculum', color:'#1D9E75', to:'/government-schools' },
   ]
 
   return (
     <section id="solutions" className="py-28 bg-white">
+      {/* SVG filter: remove white background from images */}
+      <svg width="0" height="0" style={{ position:'absolute' }} aria-hidden="true">
+        <defs>
+          <filter id="zirvaRemoveWhite" colorInterpolationFilters="sRGB">
+            {/* alpha = 1 - min(R,G,B) — white → transparent, colors preserved */}
+            <feColorMatrix type="matrix" values="
+              1 0 0 0 0
+              0 1 0 0 0
+              0 0 1 0 0
+              -1 0 0 0 1" result="stepA"/>
+            <feColorMatrix in="SourceGraphic" type="matrix" values="
+              1 0 0 0 0
+              0 1 0 0 0
+              0 0 1 0 0
+              0 -1 0 0 1" result="stepB"/>
+            <feColorMatrix in="SourceGraphic" type="matrix" values="
+              1 0 0 0 0
+              0 1 0 0 0
+              0 0 1 0 0
+              0 0 -1 0 1" result="stepC"/>
+            {/* intersect the three channel-alphas by taking darkest (min) */}
+            <feBlend in="stepA" in2="stepB" mode="darken" result="ab"/>
+            <feBlend in="ab"    in2="stepC" mode="darken"/>
+          </filter>
+        </defs>
+      </svg>
+      <style>{`
+        @keyframes solFloat { 0%,100% { transform:translate(0,0) } 50% { transform:translate(2%,-1%) } }
+        @keyframes solPulse { 0%,100% { opacity:.25 } 50% { opacity:.5 } }
+        @keyframes solShine {
+          0% { transform: translateX(-120%) skewX(-20deg) }
+          100% { transform: translateX(260%) skewX(-20deg) }
+        }
+        .sol-pill { transition: all .25s cubic-bezier(.22,1,.36,1); }
+        .sol-pill:hover { transform: translateX(-4px); }
+        .sol-cpill { transition: all .3s cubic-bezier(.22,1,.36,1); position: relative; overflow: hidden; }
+        .sol-cpill:hover { transform: translateY(-3px); box-shadow: 0 14px 28px -12px var(--cpill-glow, rgba(255,255,255,0.15)); border-color: var(--cpill-border-hover, rgba(255,255,255,0.2)) !important; }
+        .sol-cpill:hover .sol-cpill-glow { opacity: 1 !important; }
+        .sol-cpill:hover .sol-cpill-shine { animation: solShine 1s cubic-bezier(.22,1,.36,1); }
+        .sol-cpill:hover .sol-cpill-arrow { opacity: 1; transform: translateX(2px); }
+        .sol-cpill-glow { transition: opacity .3s ease; }
+        .sol-cpill-arrow { transition: all .3s ease; opacity: 0; }
+        .sol-cpill-shine {
+          position:absolute; top:-30%; left:0; width:35%; height:160%;
+          background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          pointer-events:none;
+        }
+        .sol-ib-card { transition: all .35s cubic-bezier(.22,1,.36,1); position:relative; }
+        .sol-ib-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -20px var(--accent-shadow, rgba(15,15,26,0.2)) !important; }
+        .sol-ib-card:hover .sol-ib-accent { opacity: 1 !important; transform: scale(1.04); }
+        .sol-ib-card:hover .sol-ib-arrow { transform: translateX(3px); opacity:1 !important; }
+        .sol-ib-card .sol-ib-accent { transition: all .35s cubic-bezier(.22,1,.36,1); }
+        .sol-ib-card .sol-ib-arrow { transition: all .3s ease; }
+        .sol-gov-card { transition: all .3s cubic-bezier(.22,1,.36,1); }
+        .sol-gov-card:hover { transform: translateY(-2px); box-shadow: 0 15px 35px -15px rgba(29,158,117,0.25); }
+      `}</style>
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
 
         {/* ── Header ── */}
@@ -1012,65 +1077,105 @@ function Solutions({ s }) {
         </div>
 
         {/* ── Featured: Multi-Curricula ── */}
-        <div className="rounded-3xl p-10 mb-4 relative overflow-hidden"
-          style={{ background:'linear-gradient(130deg,#12104a 0%,#1e1880 40%,#534AB7 80%,#6d28d9 100%)' }}>
-          {/* decorative orbs */}
-          <div style={{ position:'absolute', top:'-30%', right:'-5%', width:380, height:380, background:'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 65%)', borderRadius:'50%', pointerEvents:'none' }}/>
-          <div style={{ position:'absolute', bottom:'-20%', left:'35%', width:260, height:260, background:'radial-gradient(circle, rgba(29,158,117,0.18) 0%, transparent 65%)', borderRadius:'50%', pointerEvents:'none' }}/>
+        <div className="rounded-3xl p-10 sm:p-14 mb-4 relative overflow-hidden"
+          style={{ background:'radial-gradient(ellipse at 20% 0%, #2a1f8c 0%, #1a1570 30%, #0f0c4a 70%, #0a0836 100%)' }}>
 
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-10">
-            <div className="flex-1">
-              <Layers className="w-10 h-10 mb-5" style={{ color:'rgba(255,255,255,0.65)' }}/>
-              <h3 style={{ fontSize:'clamp(1.4rem,3vw,2rem)', fontWeight:800, color:'#fff', letterSpacing:'-0.02em', lineHeight:1.15, marginBottom:12 }}>
+          {/* Aurora glow */}
+          <div style={{ position:'absolute', top:'-40%', left:'30%', width:520, height:520, background:'radial-gradient(circle, rgba(167,139,250,0.28) 0%, rgba(124,58,237,0.10) 40%, transparent 65%)', borderRadius:'50%', pointerEvents:'none', filter:'blur(10px)' }}/>
+          <div style={{ position:'absolute', bottom:'-35%', right:'-10%', width:460, height:460, background:'radial-gradient(circle, rgba(99,102,241,0.22) 0%, transparent 65%)', borderRadius:'50%', pointerEvents:'none' }}/>
+          {/* Subtle dot pattern */}
+          <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize:'28px 28px', WebkitMaskImage:'radial-gradient(ellipse 80% 100% at 50% 30%, black 20%, transparent 85%)', maskImage:'radial-gradient(ellipse 80% 100% at 50% 30%, black 20%, transparent 85%)', pointerEvents:'none' }}/>
+          {/* Top edge shine */}
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:'linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.18) 50%, transparent 90%)', pointerEvents:'none' }}/>
+
+          <div className="relative z-10">
+            {/* Eyebrow badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-7"
+              style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', backdropFilter:'blur(10px)' }}>
+              <Layers style={{ width:13, height:13, color:'#c4b5fd' }}/>
+              <span style={{ fontSize:10.5, fontWeight:700, color:'rgba(255,255,255,0.8)', letterSpacing:'0.14em', textTransform:'uppercase' }}>
+                {isAz ? '5 Çərçivə · Tək Platforma' : '5 Frameworks · 1 Platform'}
+              </span>
+            </div>
+
+            <h3 style={{ fontSize:'clamp(1.75rem,3.4vw,2.5rem)', fontWeight:800, letterSpacing:'-0.03em', lineHeight:1.05, marginBottom:16 }}>
+              <span style={{ background:'linear-gradient(135deg, #fff 0%, #e9d5ff 70%, #c4b5fd 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
                 {s.sol_multi_t}
-              </h3>
-              <p style={{ color:'rgba(255,255,255,0.5)', fontSize:15, lineHeight:1.75, maxWidth:420 }}>
-                {s.sol_multi_d}
-              </p>
-            </div>
+              </span>
+            </h3>
+            <p style={{ color:'rgba(255,255,255,0.62)', fontSize:15.5, lineHeight:1.7, maxWidth:560, marginBottom:32 }}>
+              {s.sol_multi_d}
+            </p>
 
-            {/* Inline credential pills */}
-            <div className="flex flex-col gap-3 shrink-0">
-              {['IB DP','IB MYP','IB CP','IB PYP', isAz?'Milli Kurikulum':'National Curriculum'].map(label => (
-                <div key={label} className="flex items-center gap-3 px-5 py-3 rounded-xl"
-                  style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.10)' }}>
-                  <Check style={{ width:14, height:14, color:'#4ade80', flexShrink:0 }}/>
-                  <span style={{ color:'rgba(255,255,255,0.75)', fontSize:13, fontWeight:600 }}>{label}</span>
+            {/* Stats strip */}
+            <div className="flex flex-wrap gap-8 pt-7" style={{ borderTop:'1px solid rgba(255,255,255,0.08)' }}>
+              <div>
+                <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-0.03em', lineHeight:1, background:'linear-gradient(135deg, #fff 0%, #c4b5fd 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>600+</div>
+                <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.42)', marginTop:6, letterSpacing:'0.05em' }}>
+                  {isAz ? 'Standart' : 'Standards'}
                 </div>
-              ))}
+              </div>
+              <div style={{ width:1, background:'linear-gradient(180deg, transparent, rgba(255,255,255,0.15), transparent)' }}/>
+              <div>
+                <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-0.03em', lineHeight:1, background:'linear-gradient(135deg, #fff 0%, #c4b5fd 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>4</div>
+                <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.42)', marginTop:6, letterSpacing:'0.05em' }}>
+                  {isAz ? 'IB Proqramı' : 'IB Programmes'}
+                </div>
+              </div>
+              <div style={{ width:1, background:'linear-gradient(180deg, transparent, rgba(255,255,255,0.15), transparent)' }}/>
+              <div>
+                <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-0.03em', lineHeight:1, background:'linear-gradient(135deg, #fff 0%, #c4b5fd 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>3–19</div>
+                <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.42)', marginTop:6, letterSpacing:'0.05em' }}>
+                  {isAz ? 'Yaş aralığı' : 'Age range'}
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
 
-        {/* ── National Curriculum card ── */}
-        <div className="rounded-3xl p-8 mb-4 flex flex-col sm:flex-row sm:items-center gap-8 border border-gray-100 bg-gray-50">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
-            style={{ background:'rgba(29,158,117,0.10)' }}>
-            <Building2 className="w-7 h-7" style={{ color:'#1D9E75' }}/>
-          </div>
-          <div className="flex-1">
-            <span className="inline-block text-xs font-bold px-3 py-1 rounded-full mb-2"
-              style={{ background:'rgba(29,158,117,0.10)', color:'#1D9E75' }}>
-              {isAz ? 'Dövlət Məktəbləri' : 'State Schools'}
-            </span>
-            <h3 className="font-bold text-gray-900 text-xl mb-1.5" style={{ letterSpacing:'-0.015em' }}>{s.sol_gov_t}</h3>
-            <p className="text-gray-500 text-sm leading-relaxed font-medium max-w-xl">{s.sol_gov_d}</p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0 px-4 py-2 rounded-xl"
-            style={{ background:'rgba(29,158,117,0.08)', border:'1px solid rgba(29,158,117,0.15)' }}>
-            <Check style={{ width:14, height:14, color:'#1D9E75' }}/>
-            <span style={{ color:'#1D9E75', fontSize:12, fontWeight:700 }}>E-Gov.az</span>
-          </div>
-        </div>
+        {/* ── IB + Government programmes ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {ibCards.map(({ logo, icon:Icon, title, desc, age, accent, accent2, to, isGov }) => (
+            <Link key={title} to={to} className="sol-ib-card rounded-2xl p-7 relative overflow-hidden flex no-underline"
+              style={{
+                background:'#fff',
+                border:'1px solid rgba(15,15,26,0.06)',
+                boxShadow:'0 1px 0 rgba(15,15,26,0.02)',
+                '--accent-shadow': `${accent}40`,
+                textDecoration:'none',
+              }}>
+              {/* Top accent bar */}
+              <div className="sol-ib-accent" style={{ position:'absolute', top:0, left:0, right:0, height:3, background:`linear-gradient(90deg, ${accent}, ${accent2})`, opacity:.6 }}/>
+              {/* Corner glow */}
+              <div className="sol-ib-accent" style={{ position:'absolute', top:-40, right:-40, width:140, height:140, background:`radial-gradient(circle, ${accent}18 0%, transparent 65%)`, borderRadius:'50%', opacity:.4, pointerEvents:'none' }}/>
 
-        {/* ── IB sub-programmes ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {ibCards.map(({ logo, title, desc }) => (
-            <div key={title} className="card-lift rounded-2xl p-7 border border-gray-100 bg-gray-50 cursor-default">
-              <img src={logo} alt={title} className="h-14 w-auto object-contain mb-5" style={{ mixBlendMode:'multiply' }}/>
-              <h3 className="font-bold text-gray-900 text-base mb-2 leading-snug" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed font-medium">{desc}</p>
-            </div>
+              <div className="relative flex flex-col h-full">
+                {/* Top row: logo/icon */}
+                <div className="mb-5">
+                  {logo ? (
+                    <div className="rounded-xl p-2 inline-flex" style={{ background:`${accent}08` }}>
+                      <img src={logo} alt={title} className="h-10 w-auto object-contain" style={{ mixBlendMode:'multiply' }}/>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl flex items-center justify-center" style={{ width:52, height:52, background:`linear-gradient(135deg, ${accent}18, ${accent2}08)`, border:`1px solid ${accent}22` }}>
+                      <Icon style={{ width:22, height:22, color:accent }}/>
+                    </div>
+                  )}
+                </div>
+
+                <h3 className="font-bold text-gray-900 text-base mb-2 leading-snug" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed font-medium mb-0 flex-1">{desc}</p>
+
+                {/* Footer */}
+                <div className="flex items-center justify-between pt-4 mt-auto" style={{ borderTop:'1px solid rgba(15,15,26,0.05)' }}>
+                  <span style={{ fontSize:10.5, fontWeight:700, color:accent, letterSpacing:'0.12em', textTransform:'uppercase' }}>
+                    {isGov ? (isAz ? 'Dövlət' : 'National') : (isAz ? 'Ətraflı' : 'Learn more')}
+                  </span>
+                  <ArrowRight className="sol-ib-arrow w-3.5 h-3.5" style={{ color:accent, opacity:.55 }}/>
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
 
@@ -1146,41 +1251,46 @@ function ProductShowcase({ s }) {
     { icon:Clock,     text:s.at1 },
   ]
   return (
-    <section className="py-28" style={{ background:'#F6F6FC' }}>
+    <section className="py-24" style={{ background:'#F7F7FB' }}>
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+
+          {/* Left */}
           <div>
-            <p className="text-teal text-xs font-bold uppercase tracking-widest mb-4">
-              {isAz ? 'Canlı nümayiş' : 'Live demo'}
-            </p>
-            <h2 className="font-extrabold text-gray-900 leading-tight mb-5"
-              style={{ fontSize:'clamp(1.8rem,3.8vw,2.8rem)', letterSpacing:'-0.02em' }}>
-              {isAz ? <>Hər şey bir yerdə<br/><span style={{ color:'#1D9E75' }}>real vaxtda</span></> : <>Everything together<br/><span style={{ color:'#1D9E75' }}>in real time</span></>}
+            <h2 className="font-extrabold text-gray-900 leading-none mb-5"
+              style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.03em' }}>
+              {isAz
+                ? <>Hər şey<br/>bir yerdə,<br/><span style={{ color:'#1D9E75' }}>real vaxtda.</span></>
+                : <>Everything<br/>together,<br/><span style={{ color:'#1D9E75' }}>in real time.</span></>}
             </h2>
-            <p className="text-gray-500 text-base leading-relaxed mb-10 font-medium">{s.feat_sub}</p>
-            <ul className="space-y-4 mb-10">
+            <p className="text-gray-400 text-base leading-relaxed mb-10" style={{ maxWidth:380 }}>{s.feat_sub}</p>
+            <ul className="space-y-4 mb-12">
               {bullets.map(({ icon:Icon, text }) => (
-                <li key={text} className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background:'rgba(83,74,183,0.1)' }}>
-                    <Icon className="w-5 h-5 text-purple"/>
-                  </div>
-                  <span className="text-gray-600 text-sm leading-relaxed font-semibold">{text}</span>
+                <li key={text} className="flex items-center gap-3">
+                  <Check className="w-4 h-4 shrink-0" style={{ color:'#1D9E75' }}/>
+                  <span className="text-gray-600 text-sm font-medium">{text}</span>
                 </li>
               ))}
             </ul>
             <Link to="/contact"
-              className="inline-flex items-center gap-2 bg-purple text-white font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg shadow-purple/20 hover:shadow-xl hover:shadow-purple/30 hover:-translate-y-0.5 transition-all">
+              className="inline-flex items-center gap-2 font-bold text-sm px-6 py-3 rounded-lg text-white transition-all hover:opacity-90"
+              style={{ background:'#1D9E75' }}>
               {s.feat_cta} <ArrowRight className="w-4 h-4"/>
             </Link>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-7 shadow-sm">
-            <div className="flex items-center justify-between mb-5">
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{s.tab_assessment}</p>
-              <span className="text-[11px] font-bold px-3 py-1.5 rounded-full" style={{ background:'rgba(29,158,117,0.1)', color:'#1D9E75' }}>IB MYP · 9A</span>
+          {/* Right */}
+          <div className="bg-white rounded-3xl overflow-hidden"
+            style={{ border:'1px solid rgba(0,0,0,0.06)', boxShadow:'0 2px 40px rgba(0,0,0,0.06)' }}>
+            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom:'1px solid rgba(0,0,0,0.05)' }}>
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{s.tab_assessment}</span>
+              <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background:'rgba(29,158,117,0.1)', color:'#1D9E75' }}>IB MYP · 9A</span>
             </div>
-            <FeatureVisual idx={2} s={s}/>
+            <div className="p-6">
+              <FeatureVisual idx={2} s={s}/>
+            </div>
           </div>
+
         </div>
       </div>
     </section>
@@ -1191,144 +1301,125 @@ function ProductShowcase({ s }) {
 function ZekaAI({ s }) {
   const isAz = s.nav_signin === 'Daxil ol'
   return (
-    <section id="zeka" className="py-28 bg-white">
+    <section id="zeka" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
           {/* Left */}
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{ background:'rgba(83,74,183,0.1)' }}>
-              <Sparkles className="w-3.5 h-3.5 text-purple"/>
-              <span className="text-purple text-xs font-bold uppercase tracking-widest">Zəka AI</span>
-            </div>
-            <h2 className="font-extrabold text-gray-900 leading-tight mb-5"
-              style={{ fontSize:'clamp(1.8rem,3.8vw,2.8rem)', letterSpacing:'-0.02em' }}>
-              {isAz ? <>Müəllimin<br/><span style={{ color:'#534AB7' }}>ən güclü köməkçisi</span></> : <>The teacher's<br/><span style={{ color:'#534AB7' }}>most powerful tool</span></>}
+            <h2 className="font-extrabold text-gray-900 leading-none mb-5"
+              style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.03em' }}>
+              {isAz
+                ? <>Müəllimin<br/><span style={{ color:'#534AB7' }}>ən güclü köməkçisi</span></>
+                : <>The teacher's<br/><span style={{ color:'#534AB7' }}>most powerful tool</span></>}
             </h2>
 
-            {/* Pull quote */}
-            <div className="border-l-[3px] border-purple/25 pl-5 mb-7">
-              <p className="text-gray-600 text-lg italic leading-relaxed font-medium">
-                {isAz ? '"4 saatlıq hesabat işini 20 dəqiqəyə endirdik."' : '"We cut 4-hour reporting work down to 20 minutes."'}
-              </p>
-            </div>
-
-            <p className="text-gray-500 text-base leading-relaxed mb-8 font-medium">
+            <p className="text-gray-400 text-base leading-relaxed mb-10" style={{ maxWidth:380 }}>
               {isAz
                 ? 'Claude AI ilə gücləndirilmiş Zəka AI hesabat yazır, qiymətlər analiz edir, valideyn xülasələri hazırlayır — Azərbaycan, ingilis və rus dillərində.'
                 : 'Powered by Claude AI, Zeka AI writes reports, analyses grades, and prepares parent summaries — in Azerbaijani, English, and Russian.'}
             </p>
 
-            <ul className="space-y-3 mb-10">
+            <ul className="space-y-4 mb-12">
               {[s.z3, s.z2, s.z4, s.z1].map(item => (
                 <li key={item} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background:'rgba(83,74,183,0.1)' }}>
-                    <Check className="w-3 h-3 text-purple"/>
-                  </div>
-                  <span className="text-gray-600 text-sm font-semibold">{item}</span>
+                  <Check className="w-4 h-4 shrink-0 text-purple"/>
+                  <span className="text-gray-600 text-sm font-medium">{item}</span>
                 </li>
               ))}
             </ul>
 
             <Link to="/contact"
-              className="inline-flex items-center gap-2 bg-purple text-white font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg shadow-purple/20 hover:shadow-xl hover:shadow-purple/30 hover:-translate-y-0.5 transition-all">
+              className="inline-flex items-center gap-2 font-bold text-sm px-6 py-3 rounded-lg text-white transition-all hover:opacity-90"
+              style={{ background:'#534AB7' }}>
               {isAz ? 'Zəka AI ilə tanış ol' : 'Meet Zeka AI'} <ArrowRight className="w-4 h-4"/>
             </Link>
           </div>
 
           {/* Right: chat card */}
-          <div className="relative">
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
-              style={{ boxShadow:'0 24px 80px rgba(83,74,183,0.12),0 4px 20px rgba(0,0,0,0.05)' }}>
+          <div className="rounded-3xl overflow-hidden"
+            style={{ background:'#F7F7FB', border:'1px solid rgba(83,74,183,0.10)', boxShadow:'0 2px 40px rgba(83,74,183,0.08)' }}>
 
-              {/* Header */}
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-gray-50/70">
-                <div className="w-9 h-9 rounded-xl bg-purple flex items-center justify-center shadow-md shadow-purple/30">
-                  <Sparkles className="w-4 h-4 text-white"/>
+            {/* Header */}
+            <div className="flex items-center gap-3 px-5 py-4 bg-white" style={{ borderBottom:'1px solid rgba(83,74,183,0.08)' }}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-purple">
+                <Sparkles className="w-4 h-4 text-white"/>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-gray-900">Zəka AI</p>
+                <p className="text-[11px] font-medium flex items-center gap-1.5 text-teal">
+                  <span className="w-1.5 h-1.5 rounded-full inline-block bg-teal"/>
+                  Online
+                </p>
+              </div>
+              <div className="ml-auto">
+                <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                  style={{ background:'rgba(83,74,183,0.08)', color:'#534AB7' }}>
+                  Claude AI
+                </span>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="p-5 space-y-4" style={{ minHeight:300 }}>
+              <div className="flex justify-end">
+                <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm bg-purple" style={{ maxWidth:240 }}>
+                  IB MYP kriteriyaları üzrə hesabat yaz
                 </div>
-                <div>
-                  <p className="text-sm font-bold text-gray-900">Zəka AI</p>
-                  <p className="text-[11px] text-teal font-semibold flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-teal inline-block"/>Online
+              </div>
+
+              <div className="flex gap-3">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 bg-purple">
+                  <Sparkles className="w-3.5 h-3.5 text-white"/>
+                </div>
+                <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3"
+                  style={{ border:'1px solid rgba(83,74,183,0.10)', maxWidth:260 }}>
+                  <p className="text-sm font-semibold text-gray-800 mb-2">Hesabat hazırlanır...</p>
+                  <div className="space-y-1.5">
+                    {[
+                      { label:'A kriteriyas:', val:'6/8', c:'#534AB7' },
+                      { label:'B kriteriyas:', val:'7/8', c:'#1D9E75' },
+                      { label:'C kriteriyas:', val:'5/8', c:'#534AB7' },
+                    ].map(({ label, val, c }) => (
+                      <div key={label} className="flex items-center gap-2">
+                        <Check className="w-3 h-3 shrink-0" style={{ color:c }}/>
+                        <span className="text-xs text-gray-500">{label} <strong style={{ color:c }}>{val}</strong></span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm bg-purple" style={{ maxWidth:240 }}>
+                  Valideyn üçün qısa xülasə yaz
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 bg-purple">
+                  <Sparkles className="w-3.5 h-3.5 text-white"/>
+                </div>
+                <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3"
+                  style={{ border:'1px solid rgba(83,74,183,0.10)', maxWidth:260 }}>
+                  <p className="text-xs leading-relaxed text-gray-600">
+                    Şagirdiniz bu rüb əla nəticələr göstərdi. Xüsusilə B kriteriyasında yüksək bal aldı.
                   </p>
-                </div>
-                <div className="ml-auto">
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ background:'rgba(83,74,183,0.1)', color:'#534AB7' }}>Powered by Claude AI</span>
-                </div>
-              </div>
-
-              {/* Messages */}
-              <div className="p-5 space-y-4 bg-gray-50/40" style={{ minHeight:280 }}>
-                <div className="flex justify-end">
-                  <div className="bg-purple text-white text-sm px-4 py-3 rounded-2xl rounded-tr-sm max-w-xs leading-relaxed shadow-sm">
-                    IB MYP kriteriyaları üzrə hesabat yaz
-                  </div>
-                </div>
-                <div className="flex gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-purple flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                    <Sparkles className="w-4 h-4 text-white"/>
-                  </div>
-                  <div className="bg-white border border-gray-100 text-sm px-4 py-3 rounded-2xl rounded-tl-sm max-w-xs leading-relaxed shadow-sm">
-                    <p className="text-gray-800 font-semibold mb-2">Hesabat hazırlanır...</p>
-                    <div className="space-y-1.5">
-                      {[
-                        { label:'A kriteriyas:', val:'6/8', c:'#534AB7' },
-                        { label:'B kriteriyas:', val:'7/8', c:'#1D9E75' },
-                        { label:'C kriteriyas:', val:'5/8', c:'#534AB7' },
-                      ].map(({ label, val, c }) => (
-                        <div key={label} className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded flex items-center justify-center" style={{ background:`${c}16` }}>
-                            <Check className="w-2.5 h-2.5" style={{ color:c }}/>
-                          </div>
-                          <span className="text-gray-600 text-xs">{label} <strong style={{ color:c }}>{val}</strong></span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                  <div className="bg-purple text-white text-sm px-4 py-3 rounded-2xl rounded-tr-sm max-w-xs leading-relaxed shadow-sm">
-                    Valideyn üçün qısa xülasə yaz
-                  </div>
-                </div>
-                <div className="flex gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-purple flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                    <Sparkles className="w-4 h-4 text-white"/>
-                  </div>
-                  <div className="bg-white border border-gray-100 text-sm px-4 py-3 rounded-2xl rounded-tl-sm max-w-xs leading-relaxed shadow-sm">
-                    <p className="text-gray-700 text-xs leading-relaxed">Şagirdiniz bu rüb əla nəticələr göstərdi. Xüsusilə B kriteriyasında yüksək bal aldı.</p>
-                    <div className="mt-2 pt-2 border-t border-gray-50 flex items-center gap-1.5">
-                      <span className="text-[9px] text-gray-400">Powered by</span>
-                      <span className="text-[9px] font-bold text-purple">Claude AI</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Input */}
-              <div className="px-4 py-3 border-t border-gray-100 bg-white flex items-center gap-3">
-                <div className="flex-1 bg-gray-50 rounded-xl px-4 py-2.5 text-[11px] text-gray-400 font-medium border border-gray-100">
-                  Zəka AI ilə yazın...
-                </div>
-                <div className="w-8 h-8 rounded-xl bg-purple flex items-center justify-center shrink-0 shadow-md shadow-purple/20">
-                  <ArrowRight className="w-4 h-4 text-white"/>
                 </div>
               </div>
             </div>
 
-            {/* Floating badge */}
-            <div className="float-c absolute -right-4 -bottom-5 bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background:'rgba(29,158,117,0.1)' }}>
-                  <Clock className="w-4 h-4 text-teal"/>
-                </div>
-                <div>
-                  <p className="text-[12px] font-bold text-gray-900">4 saat → 20 dəq</p>
-                  <p className="text-[10px] text-gray-400 font-medium">Hesabat vaxtı azaldıldı</p>
-                </div>
+            {/* Input */}
+            <div className="px-4 py-3 bg-white flex items-center gap-3" style={{ borderTop:'1px solid rgba(83,74,183,0.08)' }}>
+              <div className="flex-1 rounded-lg px-4 py-2.5 text-xs" style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.25)' }}>
+                Zəka AI ilə yazın...
+              </div>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background:'#534AB7' }}>
+                <ArrowRight className="w-4 h-4 text-white"/>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </section>

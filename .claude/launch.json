@@ -3,9 +3,10 @@
   "configurations": [
     {
       "name": "zirva",
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["-e", "setInterval(()=>{},1e9)"],
-      "port": 5173
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173,
+      "cwd": "/Users/kaanguluzada/Desktop/zekalo"
     }
   ]
 }

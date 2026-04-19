@@ -3,6 +3,144 @@ import { ArrowLeft, Mail, Phone, ArrowRight, MapPin, Clock, Sparkles, Calendar, 
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import emailjs from '@emailjs/browser'
+import { useLang } from '../contexts/LanguageContext'
+
+/* ─── Translations for programme pages and UI labels ─── */
+const T = {
+  en: {
+    // UI labels
+    ui_contact_us:       'Contact us',
+    ui_whats_included:   "What's included",
+    ui_quick_facts:      'Quick facts',
+    ui_programme:        'Programme',
+    ui_age_range:        'Age range',
+    ui_ib_code:          'IB Code',
+    ui_related:          'Related programmes',
+    ui_questions:        'Questions?',
+    ui_questions_body:   'Talk to a human. We usually reply within the hour.',
+    ui_book_demo:        'Book a demo',
+    ui_learn_more:       'Learn more',
+    ui_ages:             'Ages',
+    ui_years:            'years',
+    ui_ib_programme:     'IB Programme',
+    ui_state_schools:    'State Schools',
+    ui_page_not_found:   'Page not found',
+    ui_back_home:        '← Back to home',
+    // Programme titles & subtitles & bodies
+    'ib-diploma_title':  'IB Diploma (DP)',
+    'ib-diploma_subtitle': 'Full support for the IB Diploma Programme',
+    'ib-diploma_body':   `The IB Diploma Programme (DP) is a rigorous pre-university course for students aged 16–19. Zirva provides complete DP management including subject selection, assessment criteria tracking (A–D scale), CAS management, Theory of Knowledge documentation, and Extended Essay workflow. Our platform integrates directly with IBIS for exam registration and e-coursework submission.`,
+    'ib-career_title':   'IB Career-Related (CP)',
+    'ib-career_subtitle':'Dedicated tools for the IB Career-related Programme',
+    'ib-career_body':    `The IB Career-related Programme (CP) combines the rigour of the IB with a career-related study. Zirva supports CP schools with personalised learning records, reflective project management, service learning tracking, and language development documentation — all within a single platform.`,
+    'ib-myp_title':      'IB Middle Years (MYP)',
+    'ib-myp_subtitle':   'Collaborative Programme of Inquiry planning',
+    'ib-myp_body':       `The IB Middle Years Programme (MYP) provides a framework of academic challenge for students aged 11–16. Zirva's MYP tools include unit planner collaboration, interdisciplinary learning tracking, criterion-referenced assessment (A–D), MYP eAssessment preparation, and personal project management.`,
+    'ib-pyp_title':      'IB Primary Years (PYP)',
+    'ib-pyp_subtitle':   'The same powerful support for younger students',
+    'ib-pyp_body':       `The IB Primary Years Programme (PYP) nurtures and develops young students as caring, active participants in a lifelong journey of learning. Zirva supports PYP schools with exhibition planning, transdisciplinary theme tracking, portfolio management, and learner profile documentation.`,
+    'government-schools_title':    'Government Schools',
+    'government-schools_subtitle': 'Dedicated mode for Azerbaijani public schools',
+    'government-schools_body':     `Zirva's Government School edition is built specifically for Azerbaijani state schools. It includes full integration with the Ministry of Education reporting system, E-Gov.az export, ASAN Xidmət compatibility, national 10-point grading, and automatic compliance reports. All data is hosted on Azerbaijani servers in full compliance with local legislation.`,
+    // Highlights
+    'ib-pyp_hl':     ['Transdisciplinary themes','Exhibition planning','Portfolio management','Learner profile tracking'],
+    'ib-myp_hl':     ['Unit planner collaboration','Interdisciplinary tracking','A–D criterion assessment','Personal project management'],
+    'ib-diploma_hl': ['Subject selection & scheduling','A–D assessment tracking','CAS & TOK management','Extended Essay workflow','IBIS integration'],
+    'ib-career_hl':  ['Personalised learning records','Reflective project tracking','Service learning documentation','Language development'],
+    'government-schools_hl': ['Ministry of Education integration','E-Gov.az & ASAN Xidmət export','National 10-point grading','Automated compliance reports','Local Azerbaijani data hosting'],
+    // Related full names
+    rel_pyp: 'IB Primary Years',
+    rel_myp: 'IB Middle Years',
+    rel_dp:  'IB Diploma',
+    rel_cp:  'IB Career-Related',
+  },
+  az: {
+    ui_contact_us:       'Bizimlə Əlaqə',
+    ui_whats_included:   'Daxildir',
+    ui_quick_facts:      'Qısa məlumat',
+    ui_programme:        'Proqram',
+    ui_age_range:        'Yaş aralığı',
+    ui_ib_code:          'IB Kodu',
+    ui_related:          'Əlaqəli proqramlar',
+    ui_questions:        'Sualınız var?',
+    ui_questions_body:   'Real insanla danışın. Adətən bir saat içində cavab veririk.',
+    ui_book_demo:        'Demo təyin et',
+    ui_learn_more:       'Ətraflı',
+    ui_ages:             'Yaş',
+    ui_years:            'yaş',
+    ui_ib_programme:     'IB Proqramı',
+    ui_state_schools:    'Dövlət Məktəbləri',
+    ui_page_not_found:   'Səhifə tapılmadı',
+    ui_back_home:        '← Ana səhifəyə qayıt',
+    'ib-diploma_title':  'IB Diploma (DP)',
+    'ib-diploma_subtitle': 'IB Diploma Proqramı üçün tam dəstək',
+    'ib-diploma_body':   `IB Diploma Proqramı (DP) 16–19 yaş arası şagirdlər üçün ali təhsilə hazırlıq mərhələsini əhatə edən ciddi bir kursdur. Zirva DP-nin bütün idarəetməsini təmin edir — fənn seçimi, qiymətləndirmə meyarlarının izlənməsi (A–D şkalası), CAS idarəetməsi, Theory of Knowledge sənədləşdirilməsi və Extended Essay iş axını daxil olmaqla. Platformamız imtahan qeydiyyatı və e-coursework təqdimatı üçün IBIS ilə birbaşa inteqrasiya edir.`,
+    'ib-career_title':   'IB Karyera (CP)',
+    'ib-career_subtitle':'IB Karyera əlaqədar proqramı üçün xüsusi alətlər',
+    'ib-career_body':    `IB Karyera əlaqədar proqramı (CP) IB-nin ciddiliyini karyera əlaqəli tədqiqatla birləşdirir. Zirva CP məktəblərini fərdiləşdirilmiş tədris qeydləri, refleksiv layihə idarəetməsi, xidmət öyrənmənin izlənməsi və dil inkişafı sənədləşdirilməsi ilə dəstəkləyir — hamısı vahid platformada.`,
+    'ib-myp_title':      'IB Orta İllər (MYP)',
+    'ib-myp_subtitle':   'Tədqiqat proqramının birgə planlaşdırılması',
+    'ib-myp_body':       `IB Orta İllər Proqramı (MYP) 11–16 yaş arası şagirdlər üçün akademik çağırış çərçivəsini təqdim edir. Zirva-nın MYP alətləri birgə vahid planlama, fənlərarası öyrənmə izləməsi, meyar əsaslı qiymətləndirmə (A–D), MYP eAssessment hazırlığı və şəxsi layihə idarəetməsini əhatə edir.`,
+    'ib-pyp_title':      'IB İlk İllər (PYP)',
+    'ib-pyp_subtitle':   'Kiçik yaşlı şagirdlər üçün eyni güclü dəstək',
+    'ib-pyp_body':       `IB İlk İllər Proqramı (PYP) kiçik yaşlı şagirdləri ömürlük öyrənmə yolunda qayğıkeş və fəal iştirakçılar kimi inkişaf etdirir. Zirva PYP məktəblərini sərgi planlaması, transdisiplinar mövzu izləməsi, portfel idarəetməsi və öyrənmə profili sənədləşdirməsi ilə dəstəkləyir.`,
+    'government-schools_title':    'Dövlət Məktəbləri',
+    'government-schools_subtitle': 'Azərbaycan dövlət məktəbləri üçün xüsusi rejim',
+    'government-schools_body':     `Zirva-nın Dövlət Məktəbi nəşri xüsusilə Azərbaycan dövlət məktəbləri üçün qurulub. Təhsil Nazirliyi hesabat sistemi ilə tam inteqrasiya, E-Gov.az ixracı, ASAN Xidmət uyğunluğu, milli 10 ballıq qiymətləndirmə və avtomatik uyğunluq hesabatlarını əhatə edir. Bütün məlumatlar yerli qanunvericiliyə tam uyğun şəkildə Azərbaycan serverlərində saxlanılır.`,
+    'ib-pyp_hl':     ['Transdisiplinar mövzular','Sərgi planlaması','Portfel idarəetməsi','Öyrənmə profili izləməsi'],
+    'ib-myp_hl':     ['Vahid planın birgə hazırlanması','Fənlərarası izləmə','A–D meyar qiymətləndirməsi','Şəxsi layihə idarəetməsi'],
+    'ib-diploma_hl': ['Fənn seçimi və cədvəl','A–D qiymətləndirmə izləməsi','CAS və TOK idarəetməsi','Extended Essay iş axını','IBIS inteqrasiyası'],
+    'ib-career_hl':  ['Fərdiləşdirilmiş tədris qeydləri','Refleksiv layihə izləməsi','Xidmət öyrənmə sənədləşdirməsi','Dil inkişafı'],
+    'government-schools_hl': ['Təhsil Nazirliyi inteqrasiyası','E-Gov.az və ASAN Xidmət ixracı','Milli 10 ballıq qiymətləndirmə','Avtomatik uyğunluq hesabatları','Yerli Azərbaycan serverlərində saxlama'],
+    rel_pyp: 'IB İlk İllər',
+    rel_myp: 'IB Orta İllər',
+    rel_dp:  'IB Diploma',
+    rel_cp:  'IB Karyera',
+  },
+  ru: {
+    ui_contact_us:       'Связаться',
+    ui_whats_included:   'Что входит',
+    ui_quick_facts:      'Кратко',
+    ui_programme:        'Программа',
+    ui_age_range:        'Возраст',
+    ui_ib_code:          'Код IB',
+    ui_related:          'Похожие программы',
+    ui_questions:        'Вопросы?',
+    ui_questions_body:   'Напишите нам — отвечаем в течение часа.',
+    ui_book_demo:        'Заказать демо',
+    ui_learn_more:       'Подробнее',
+    ui_ages:             'Возраст',
+    ui_years:            'лет',
+    ui_ib_programme:     'Программа IB',
+    ui_state_schools:    'Государственные школы',
+    ui_page_not_found:   'Страница не найдена',
+    ui_back_home:        '← На главную',
+    'ib-diploma_title':  'IB Diploma (DP)',
+    'ib-diploma_subtitle': 'Полная поддержка программы IB Diploma',
+    'ib-diploma_body':   `Программа IB Diploma (DP) — это строгий предуниверситетский курс для учащихся 16–19 лет. Zirva обеспечивает полное управление DP: выбор предметов, отслеживание критериев оценивания (шкала A–D), управление CAS, документацию Theory of Knowledge и рабочий процесс Extended Essay. Платформа напрямую интегрируется с IBIS для регистрации на экзамены и электронной подачи работ.`,
+    'ib-career_title':   'IB Career-Related (CP)',
+    'ib-career_subtitle':'Инструменты для программы, связанной с карьерой',
+    'ib-career_body':    `Программа IB Career-related (CP) сочетает строгость IB с профориентационным обучением. Zirva поддерживает школы CP персонализированными учебными записями, управлением рефлексивными проектами, документацией сервисного обучения и развитием языковых навыков — всё в одной платформе.`,
+    'ib-myp_title':      'IB Middle Years (MYP)',
+    'ib-myp_subtitle':   'Совместное планирование программы исследования',
+    'ib-myp_body':       `Программа IB Middle Years (MYP) предоставляет рамки академического вызова для учащихся 11–16 лет. Инструменты Zirva для MYP включают совместное планирование модулей, междисциплинарное обучение, критериальное оценивание (A–D), подготовку к MYP eAssessment и управление персональными проектами.`,
+    'ib-pyp_title':      'IB Primary Years (PYP)',
+    'ib-pyp_subtitle':   'Та же мощная поддержка для младших учащихся',
+    'ib-pyp_body':       `Программа IB Primary Years (PYP) воспитывает и развивает младших учащихся как заботливых и активных участников пожизненного обучения. Zirva поддерживает школы PYP планированием выставок, отслеживанием трансдисциплинарных тем, управлением портфолио и документацией профиля учащегося.`,
+    'government-schools_title':    'Государственные школы',
+    'government-schools_subtitle': 'Режим для государственных школ Азербайджана',
+    'government-schools_body':     `Редакция Zirva для государственных школ создана специально для школ Азербайджана. Она включает интеграцию с системой отчетности Министерства образования, экспорт E-Gov.az, совместимость с ASAN Xidmət, национальную 10-балльную систему оценивания и автоматические отчеты. Все данные хранятся на серверах в Азербайджане в полном соответствии с местным законодательством.`,
+    'ib-pyp_hl':     ['Трансдисциплинарные темы','Планирование выставок','Управление портфолио','Отслеживание профиля учащегося'],
+    'ib-myp_hl':     ['Совместное планирование модулей','Междисциплинарное отслеживание','Критериальное оценивание A–D','Управление персональным проектом'],
+    'ib-diploma_hl': ['Выбор предметов и расписание','Отслеживание оценок A–D','Управление CAS и TOK','Рабочий процесс Extended Essay','Интеграция с IBIS'],
+    'ib-career_hl':  ['Персонализированные учебные записи','Отслеживание рефлексивных проектов','Документация сервисного обучения','Развитие языковых навыков'],
+    'government-schools_hl': ['Интеграция с Министерством образования','Экспорт E-Gov.az и ASAN Xidmət','Национальная 10-балльная шкала','Автоматические отчёты','Хранение данных в Азербайджане'],
+    rel_pyp: 'IB Primary Years',
+    rel_myp: 'IB Middle Years',
+    rel_dp:  'IB Diploma',
+    rel_cp:  'IB Career-Related',
+  },
+}
 
 const PAGES = {
   'ib-diploma': {
@@ -234,316 +372,507 @@ For questions about these Terms, contact us at hello@tryzirva.com or write to Zi
 
 /* ─── CONTACT PAGE ─── */
 function ContactPage() {
-  const [form, setForm] = useState({ name:'', school:'', role:'', email:'', message:'' })
-  const [topic, setTopic] = useState('')
+  const [form, setForm] = useState({ name:'', school:'', email:'', phone:'', message:'' })
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const roles = ['School Director / Principal', 'IB Coordinator', 'IT Manager', 'Teacher', 'Other']
-
-  const topics = [
-    { key:'demo',        label:'Book a demo',     icon:Calendar, color:'#a78bfa',
-      prefill:"I'd like to see Zirva in action — could we schedule a live demo for our school?" },
-    { key:'pilot',       label:'Start a pilot',   icon:Rocket,   color:'#34d399',
-      prefill:"We're interested in starting a pilot program with Zirva. Here's a bit about our school:" },
-    { key:'pricing',     label:'Pricing',         icon:Tag,      color:'#60a5fa',
-      prefill:"Could you share pricing details for a school of our size? We have roughly [n] students." },
-    { key:'partnership', label:'Partnership',     icon:Users,    color:'#f59e0b',
-      prefill:"We'd like to explore a partnership with Zirva. A bit about our organisation:" },
-  ]
-
-  function selectTopic(t) {
-    setTopic(t.key)
-    // Only pre-fill if message is empty or is one of the other templates
-    const isPrefill = topics.some(x => form.message === x.prefill)
-    if (!form.message.trim() || isPrefill) {
-      setForm(f => ({ ...f, message: t.prefill }))
-    }
-  }
 
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
-    setError(null)
 
-    const topicLabel = topics.find(t => t.key === topic)?.label || 'General enquiry'
-
-    // 1. Save to Supabase
     await supabase.from('contact_submissions').insert([{
       name: form.name, email: form.email,
-      school: form.school, role: form.role, message: form.message,
+      school: form.school, phone: form.phone, message: form.message,
     }])
 
-    // 2. Send email via EmailJS
     try {
       await emailjs.send(
         import.meta.env.VITE_EMAILJS_SERVICE_ID,
         import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
         {
-          from_name:    form.name,
-          from_email:   form.email,
-          name:         form.name,
-          message:      `Topic: ${topicLabel}\nEmail: ${form.email}\nSchool: ${form.school}\nRole: ${form.role}\n\n${form.message}`,
+          from_name:  form.name,
+          from_email: form.email,
+          name:       form.name,
+          message:    `Email: ${form.email}\nPhone: ${form.phone}\nSchool: ${form.school}\n\n${form.message}`,
         },
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
       )
     } catch (err) {
       console.error('EmailJS error:', err)
-      // Still show success — submission saved to Supabase
     }
 
     setLoading(false)
     setSent(true)
   }
 
-  const inputStyle = {
-    width:'100%', padding:'12px 16px', borderRadius:12,
-    background:'rgba(255,255,255,0.05)',
-    border:'1px solid rgba(255,255,255,0.10)',
-    color:'#fff', fontSize:14, fontWeight:500,
-    outline:'none', transition:'border-color .15s',
-    fontFamily:'inherit',
+  const focus = e => {
+    e.target.style.borderColor = 'rgba(167,139,250,0.55)'
+    e.target.style.background  = 'linear-gradient(180deg, rgba(167,139,250,0.06) 0%, rgba(255,255,255,0.04) 100%)'
+    e.target.style.boxShadow   = '0 0 0 4px rgba(167,139,250,0.10), inset 0 1px 0 rgba(255,255,255,0.04)'
   }
-  const labelStyle = { display:'block', fontSize:12, fontWeight:700, color:'rgba(255,255,255,0.45)', letterSpacing:'0.06em', textTransform:'uppercase', marginBottom:8 }
+  const blur = e => {
+    e.target.style.borderColor = 'rgba(255,255,255,0.08)'
+    e.target.style.background  = 'rgba(255,255,255,0.025)'
+    e.target.style.boxShadow   = 'inset 0 1px 0 rgba(255,255,255,0.02)'
+  }
+
+  const inp = {
+    width:'100%', padding:'14px 16px', borderRadius:13,
+    background:'rgba(255,255,255,0.025)',
+    border:'1px solid rgba(255,255,255,0.08)',
+    color:'#fff', fontSize:14, fontWeight:500,
+    outline:'none', transition:'all .22s cubic-bezier(.22,1,.36,1)',
+    fontFamily:'inherit',
+    boxShadow:'inset 0 1px 0 rgba(255,255,255,0.02)',
+  }
+  const lbl = {
+    display:'block', fontSize:11, fontWeight:700,
+    color:'rgba(255,255,255,0.36)', letterSpacing:'0.1em',
+    textTransform:'uppercase', marginBottom:9,
+  }
 
   return (
-    <div style={{ minHeight:'100vh', background:'#060614', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif' }}>
+    <div style={{ minHeight:'100vh', background:'#04040d', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif', position:'relative', overflow:'hidden' }}>
+      <style>{`
+        @keyframes zirvaPulse { 0% { transform:scale(1); opacity:.6 } 80% { transform:scale(2.4); opacity:0 } 100% { opacity:0 } }
+        @keyframes zirvaCheckPop { 0% { transform:scale(0); opacity:0 } 60% { transform:scale(1.15); opacity:1 } 100% { transform:scale(1); opacity:1 } }
+        @keyframes zirvaFadeUp { 0% { opacity:0; transform:translateY(14px) } 100% { opacity:1; transform:translateY(0) } }
+        @keyframes zirvaFadeIn { 0% { opacity:0 } 100% { opacity:1 } }
+        @keyframes zirvaFloat1 { 0%,100% { transform:translate(0,0) scale(1) } 50% { transform:translate(3%,2%) scale(1.05) } }
+        @keyframes zirvaFloat2 { 0%,100% { transform:translate(0,0) scale(1) } 50% { transform:translate(-2%,-3%) scale(1.04) } }
+        @keyframes zirvaGradient { 0%,100% { background-position:0% 50% } 50% { background-position:100% 50% } }
+        @keyframes zirvaShine {
+          0% { transform: translateX(-120%) skewX(-20deg) }
+          100% { transform: translateX(220%) skewX(-20deg) }
+        }
+        @keyframes zirvaBorderGlow {
+          0%,100% { opacity:.5 }
+          50% { opacity:.85 }
+        }
+        .zirva-card { animation: zirvaFadeUp .7s cubic-bezier(.22,1,.36,1) both; animation-delay:.1s; }
+        .zirva-header { animation: zirvaFadeUp .6s cubic-bezier(.22,1,.36,1) both; }
+        .zirva-footer { animation: zirvaFadeIn .9s ease both; animation-delay:.4s; }
+        .zirva-orb1 { animation: zirvaFloat1 16s ease-in-out infinite; }
+        .zirva-orb2 { animation: zirvaFloat2 22s ease-in-out infinite; }
+        .zirva-card-border { animation: zirvaBorderGlow 6s ease-in-out infinite; }
+        .zirva-submit {
+          position: relative; overflow: hidden;
+          background-size: 200% 200%;
+          animation: zirvaGradient 7s ease infinite;
+          transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s ease;
+        }
+        .zirva-submit:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 18px 44px -12px rgba(139,92,246,0.65), inset 0 1px 0 rgba(255,255,255,0.22);
+        }
+        .zirva-submit:hover:not(:disabled) .zirva-shine { animation: zirvaShine 1.1s cubic-bezier(.22,1,.36,1); }
+        .zirva-submit:active:not(:disabled) { transform: translateY(0); }
+        .zirva-shine {
+          position:absolute; top:-20%; left:0; width:40%; height:140%;
+          background:linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+          pointer-events:none;
+        }
+        .zirva-footer-link { position: relative; }
+        .zirva-footer-link:hover { color:#fff !important; }
+        .zirva-footer-link:hover svg { color:#a78bfa !important; }
+        .zirva-nav-link:hover { color:#fff !important; }
+        .zirva-back-btn:hover { background:rgba(255,255,255,0.09) !important; color:#fff !important; transform:translateY(-1px); }
+        .zirva-back-btn { transition: all .2s ease; }
+        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.22); font-weight: 500; }
+        input:hover:not(:focus), textarea:hover:not(:focus) { border-color: rgba(255,255,255,0.14) !important; }
+        textarea { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
+      `}</style>
 
-      {/* Background */}
+      {/* Background — layered orbs + subtle grid */}
       <div style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:0 }}>
-        <div style={{ position:'absolute', top:'-20%', left:'-10%', width:'60%', height:'70%', background:'radial-gradient(ellipse at 40% 40%, rgba(99,75,215,0.18) 0%, transparent 65%)' }}/>
-        <div style={{ position:'absolute', top:'-10%', right:'-15%', width:'50%', height:'60%', background:'radial-gradient(ellipse at 60% 35%, rgba(65,50,190,0.12) 0%, transparent 62%)' }}/>
-        <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.045) 1px, transparent 1px)', backgroundSize:'44px 44px', WebkitMaskImage:'radial-gradient(ellipse 80% 60% at 50% 20%, black 0%, transparent 75%)', maskImage:'radial-gradient(ellipse 80% 60% at 50% 20%, black 0%, transparent 75%)' }}/>
+        <div className="zirva-orb1" style={{ position:'absolute', top:'-28%', left:'-18%', width:'78%', height:'85%', background:'radial-gradient(ellipse at 40% 40%, rgba(139,92,246,0.28) 0%, rgba(124,90,240,0.08) 40%, transparent 65%)', filter:'blur(40px)' }}/>
+        <div className="zirva-orb2" style={{ position:'absolute', top:'-12%', right:'-22%', width:'68%', height:'78%', background:'radial-gradient(ellipse at 60% 35%, rgba(99,102,241,0.20) 0%, rgba(76,55,200,0.06) 45%, transparent 65%)', filter:'blur(40px)' }}/>
+        <div style={{ position:'absolute', bottom:'-30%', left:'10%', width:'65%', height:'65%', background:'radial-gradient(ellipse at 50% 50%, rgba(167,139,250,0.12) 0%, transparent 60%)', filter:'blur(50px)' }}/>
+        {/* Dot grid */}
+        <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize:'32px 32px', WebkitMaskImage:'radial-gradient(ellipse 75% 60% at 50% 20%, black 0%, transparent 85%)', maskImage:'radial-gradient(ellipse 75% 60% at 50% 20%, black 0%, transparent 85%)' }}/>
+        {/* Top vignette */}
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:'40%', background:'linear-gradient(180deg, rgba(139,92,246,0.04) 0%, transparent 100%)' }}/>
       </div>
 
       {/* Nav */}
-      <nav style={{ position:'relative', zIndex:10, padding:'20px 40px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
-        <Link to="/" style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none', color:'rgba(255,255,255,0.5)', fontSize:14, fontWeight:600, transition:'color .15s' }}
-          onMouseEnter={e=>e.currentTarget.style.color='#fff'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.5)'}>
-          <ArrowLeft style={{ width:16, height:16 }}/> Zirva
+      <nav style={{ position:'relative', zIndex:10, padding:'22px 40px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <Link to="/" className="zirva-nav-link" style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none', color:'rgba(255,255,255,0.45)', fontSize:14, fontWeight:600, transition:'color .15s' }}>
+          <ArrowLeft style={{ width:15, height:15 }}/> Zirva
         </Link>
-        <img src="/logo.png" alt="Zirva" style={{ height:28, opacity:.85 }}/>
+        <img src="/logo.png" alt="Zirva" style={{ height:26, opacity:.8 }}/>
       </nav>
 
       {/* Main */}
-      <div style={{ position:'relative', zIndex:10, maxWidth:1100, margin:'0 auto', padding:'72px 24px 96px' }}>
+      <div style={{ position:'relative', zIndex:10, maxWidth:560, margin:'0 auto', padding:'72px 24px 100px' }}>
 
         {/* Header */}
-        <div style={{ textAlign:'center', marginBottom:64 }}>
-          {/* Availability pulse */}
-          <div style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'7px 16px 7px 12px', borderRadius:999, background:'rgba(34,197,94,0.06)', border:'1px solid rgba(34,197,94,0.18)', marginBottom:32 }}>
-            <span style={{ position:'relative', display:'inline-flex', width:8, height:8 }}>
-              <span style={{ position:'absolute', inset:0, borderRadius:'50%', background:'#22c55e', opacity:0.55, animation:'zirvaPulse 2s ease-out infinite' }}/>
-              <span style={{ position:'relative', borderRadius:'50%', width:8, height:8, background:'#22c55e', boxShadow:'0 0 10px rgba(34,197,94,0.6)' }}/>
-            </span>
-            <span style={{ color:'rgba(255,255,255,0.75)', fontSize:12.5, fontWeight:600, letterSpacing:'0.01em' }}>
-              Online now · Typically replies within an hour
-            </span>
+        <div className="zirva-header" style={{ marginBottom:44, textAlign:'center' }}>
+          {/* Eyebrow with dot */}
+          <div style={{ display:'inline-flex', alignItems:'center', gap:10, marginBottom:20 }}>
+            <span style={{ width:20, height:1, background:'linear-gradient(90deg, transparent, rgba(167,139,250,0.8))' }}/>
+            <span style={{ fontSize:10.5, fontWeight:700, letterSpacing:'0.3em', textTransform:'uppercase', color:'#a78bfa' }}>Contact</span>
+            <span style={{ width:20, height:1, background:'linear-gradient(90deg, rgba(167,139,250,0.8), transparent)' }}/>
           </div>
-          <style>{`@keyframes zirvaPulse { 0% { transform: scale(1); opacity: .6 } 80% { transform: scale(2.4); opacity: 0 } 100% { opacity: 0 } }`}</style>
-
-          <h1 style={{ fontSize:'clamp(2.4rem,6vw,4.5rem)', fontWeight:800, color:'#fff', letterSpacing:'-0.03em', lineHeight:1.05, marginBottom:20 }}>
-            Let's talk about<br/><span style={{ background:'linear-gradient(128deg,#c4b5fd 0%,#a78bfa 40%,#8b5cf6 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>your school</span>
+          <h1 style={{ fontSize:'clamp(2.5rem,6vw,3.75rem)', fontWeight:800, letterSpacing:'-0.04em', lineHeight:1.02, marginBottom:20 }}>
+            <span style={{ color:'#fff' }}>Let's </span>
+            <span style={{ background:'linear-gradient(120deg,#ede9fe 0%,#c4b5fd 30%,#a78bfa 55%,#7c5af0 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', display:'inline-block', position:'relative' }}>
+              talk.
+            </span>
           </h1>
-          <p style={{ color:'rgba(255,255,255,0.4)', fontSize:16.5, lineHeight:1.75, maxWidth:500, margin:'0 auto', fontWeight:500 }}>
-            Real humans read every message. No chatbots, no automated funnels — just a direct line to the team building Zirva.
+          <p style={{ color:'rgba(255,255,255,0.5)', fontSize:16, lineHeight:1.6, fontWeight:500, margin:'0 auto', maxWidth:420 }}>
+            Real humans read every message. We typically reply within the hour.
           </p>
         </div>
 
-        {/* Two-col layout */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:32, alignItems:'start' }}>
-
-          {/* LEFT — Form */}
-          <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:24, padding:'40px 36px' }}>
+        {/* Card with animated gradient border */}
+        <div className="zirva-card" style={{ position:'relative' }}>
+          {/* Outer glow */}
+          <div className="zirva-card-border" style={{
+            position:'absolute', inset:-1, borderRadius:24,
+            background:'linear-gradient(145deg, rgba(167,139,250,0.5) 0%, rgba(99,102,241,0.15) 30%, transparent 55%, rgba(124,90,240,0.35) 100%)',
+            filter:'blur(0.5px)',
+          }}/>
+          {/* Inner card */}
+          <div style={{
+            position:'relative',
+            background:'linear-gradient(180deg, rgba(22,18,45,0.92) 0%, rgba(12,10,28,0.95) 100%)',
+            borderRadius:23,
+            padding:'38px 36px',
+            boxShadow:'0 30px 80px -30px rgba(0,0,0,0.8), 0 10px 30px -10px rgba(99,66,200,0.15), inset 0 1px 0 rgba(255,255,255,0.04)',
+            backdropFilter:'blur(20px)',
+          }}>
             {sent ? (
-              <div style={{ textAlign:'center', padding:'32px 0' }}>
-                <style>{`@keyframes zirvaCheckPop { 0% { transform: scale(0); opacity: 0 } 60% { transform: scale(1.15); opacity: 1 } 100% { transform: scale(1); opacity: 1 } } @keyframes zirvaRingFade { 0% { transform: scale(0.6); opacity: .7 } 100% { transform: scale(1.6); opacity: 0 } }`}</style>
-                <div style={{ position:'relative', width:80, height:80, margin:'0 auto 28px' }}>
-                  <span style={{ position:'absolute', inset:0, borderRadius:'50%', background:'rgba(34,197,94,0.28)', animation:'zirvaRingFade 1.6s ease-out infinite' }}/>
-                  <div style={{ position:'relative', width:80, height:80, borderRadius:'50%', background:'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05))', border:'1px solid rgba(34,197,94,0.35)', display:'flex', alignItems:'center', justifyContent:'center', animation:'zirvaCheckPop .5s cubic-bezier(.34,1.56,.64,1)' }}>
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{ textAlign:'center', padding:'28px 0' }}>
+                <div style={{ position:'relative', width:76, height:76, margin:'0 auto 24px' }}>
+                  <span style={{ position:'absolute', inset:-10, borderRadius:'50%', background:'radial-gradient(circle, rgba(34,197,94,0.3) 0%, transparent 70%)', animation:'zirvaPulse 2s ease-out infinite' }}/>
+                  <div style={{ position:'relative', width:76, height:76, borderRadius:'50%', background:'linear-gradient(135deg, rgba(34,197,94,0.25), rgba(34,197,94,0.05))', border:'1px solid rgba(34,197,94,0.4)', display:'flex', alignItems:'center', justifyContent:'center', animation:'zirvaCheckPop .55s cubic-bezier(.34,1.56,.64,1)', boxShadow:'0 10px 40px -8px rgba(34,197,94,0.5)' }}>
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12"/>
                     </svg>
                   </div>
                 </div>
-                <h3 style={{ color:'#fff', fontWeight:800, fontSize:24, marginBottom:10, letterSpacing:'-0.01em' }}>Message received</h3>
-                <p style={{ color:'rgba(255,255,255,0.5)', fontSize:14, lineHeight:1.7, maxWidth:320, margin:'0 auto' }}>Thanks, {form.name.split(' ')[0] || 'there'}. A real person from our team will reply to <strong style={{ color:'rgba(255,255,255,0.75)', fontWeight:700 }}>{form.email}</strong> within the hour.</p>
-                <div style={{ display:'flex', gap:10, justifyContent:'center', marginTop:32 }}>
-                  <Link to="/" style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'11px 22px', borderRadius:999, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.75)', textDecoration:'none', fontSize:13, fontWeight:600 }}>
-                    ← Back home
-                  </Link>
-                  <a href="mailto:hello@tryzirva.com" style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'11px 22px', borderRadius:999, background:'#fff', color:'#09090f', textDecoration:'none', fontSize:13, fontWeight:700 }}>
-                    Email us directly <ArrowRight style={{ width:13, height:13 }}/>
-                  </a>
-                </div>
+                <p style={{ color:'#fff', fontWeight:800, fontSize:24, marginBottom:12, letterSpacing:'-0.015em' }}>Got it — thanks!</p>
+                <p style={{ color:'rgba(255,255,255,0.55)', fontSize:14.5, lineHeight:1.65, maxWidth:340, margin:'0 auto 30px' }}>
+                  We'll reply to <strong style={{ color:'#c4b5fd', fontWeight:600 }}>{form.email}</strong> within the hour.
+                </p>
+                <Link to="/" className="zirva-back-btn" style={{ display:'inline-flex', alignItems:'center', gap:7, padding:'11px 24px', borderRadius:999, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.10)', color:'rgba(255,255,255,0.75)', textDecoration:'none', fontSize:13, fontWeight:600 }}>
+                  <ArrowLeft style={{ width:13, height:13 }}/> Back home
+                </Link>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:20 }}>
-                <div>
-                  <h2 style={{ color:'#fff', fontWeight:800, fontSize:20, marginBottom:4, letterSpacing:'-0.01em' }}>Send us a message</h2>
-                  <p style={{ color:'rgba(255,255,255,0.35)', fontSize:12.5, fontWeight:500 }}>Pick what you're here for — or just write.</p>
-                </div>
-
-                {/* Topic chips */}
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                  {topics.map(t => {
-                    const active = topic === t.key
-                    const Icon = t.icon
-                    return (
-                      <button key={t.key} type="button" onClick={() => selectTopic(t)}
-                        style={{
-                          display:'flex', alignItems:'center', gap:9, padding:'10px 14px', borderRadius:12,
-                          background: active ? `${t.color}18` : 'rgba(255,255,255,0.03)',
-                          border: active ? `1px solid ${t.color}55` : '1px solid rgba(255,255,255,0.08)',
-                          color: active ? '#fff' : 'rgba(255,255,255,0.7)',
-                          fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .15s', fontFamily:'inherit', textAlign:'left',
-                          boxShadow: active ? `0 0 0 3px ${t.color}12` : 'none',
-                        }}>
-                        <span style={{ width:24, height:24, borderRadius:7, background:`${t.color}22`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                          <Icon style={{ width:12, height:12, color:t.color }}/>
-                        </span>
-                        {t.label}
-                      </button>
-                    )
-                  })}
-                </div>
-
-                <div style={{ height:1, background:'rgba(255,255,255,0.06)', margin:'4px 0' }}/>
-
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+              <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:18 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
                   <div>
-                    <label style={labelStyle}>Your name</label>
-                    <input required style={inputStyle} placeholder="e.g. Rauf Aliyev" value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}
-                      onFocus={e=>e.target.style.borderColor='rgba(167,139,250,0.5)'} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.10)'}/>
+                    <label style={lbl}>Name</label>
+                    <input required style={inp} placeholder="Rauf Aliyev" value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} onFocus={focus} onBlur={blur}/>
                   </div>
                   <div>
-                    <label style={labelStyle}>Email</label>
-                    <input required type="email" style={inputStyle} placeholder="you@school.az" value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))}
-                      onFocus={e=>e.target.style.borderColor='rgba(167,139,250,0.5)'} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.10)'}/>
+                    <label style={lbl}>Email</label>
+                    <input required type="email" style={inp} placeholder="you@school.az" value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))} onFocus={focus} onBlur={blur}/>
+                  </div>
+                </div>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+                  <div>
+                    <label style={lbl}>School</label>
+                    <input required style={inp} placeholder="Baku International School" value={form.school} onChange={e=>setForm(f=>({...f,school:e.target.value}))} onFocus={focus} onBlur={blur}/>
+                  </div>
+                  <div>
+                    <label style={lbl}>Phone</label>
+                    <input type="tel" style={inp} placeholder="+994 50 123 45 67" value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} onFocus={focus} onBlur={blur}/>
                   </div>
                 </div>
                 <div>
-                  <label style={labelStyle}>School name</label>
-                  <input required style={inputStyle} placeholder="e.g. Baku International School" value={form.school} onChange={e=>setForm(f=>({...f,school:e.target.value}))}
-                    onFocus={e=>e.target.style.borderColor='rgba(167,139,250,0.5)'} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.10)'}/>
+                  <label style={lbl}>Message</label>
+                  <textarea required rows={4} style={{ ...inp, resize:'vertical', lineHeight:1.65, minHeight:118 }} placeholder="Tell us about your school and what you need…" value={form.message} onChange={e=>setForm(f=>({...f,message:e.target.value}))} onFocus={focus} onBlur={blur}/>
                 </div>
-                <div>
-                  <label style={labelStyle}>Your role</label>
-                  <select required style={{ ...inputStyle, cursor:'pointer' }} value={form.role} onChange={e=>setForm(f=>({...f,role:e.target.value}))}
-                    onFocus={e=>e.target.style.borderColor='rgba(167,139,250,0.5)'} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.10)'}>
-                    <option value="" style={{ background:'#1a1a2e' }}>Select your role…</option>
-                    {roles.map(r => <option key={r} value={r} style={{ background:'#1a1a2e' }}>{r}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={labelStyle}>Message</label>
-                  <textarea required rows={4} style={{ ...inputStyle, resize:'vertical', lineHeight:1.65 }} placeholder="Tell us about your school and what you're looking for…" value={form.message} onChange={e=>setForm(f=>({...f,message:e.target.value}))}
-                    onFocus={e=>e.target.style.borderColor='rgba(167,139,250,0.5)'} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.10)'}/>
-                </div>
-                {error && <p style={{ color:'#f87171', fontSize:13, fontWeight:600, textAlign:'center' }}>{error}</p>}
-                <button type="submit" disabled={loading} style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'14px 28px', borderRadius:999, background: loading ? 'rgba(255,255,255,0.7)' : '#fff', color:'#09090f', fontWeight:700, fontSize:15, border:'none', cursor: loading ? 'not-allowed' : 'pointer', transition:'transform .17s ease', fontFamily:'inherit', opacity: loading ? 0.8 : 1 }}
-                  onMouseEnter={e=>{ if(!loading) e.currentTarget.style.transform='translateY(-2px)' }} onMouseLeave={e=>e.currentTarget.style.transform=''}>
-                  {loading ? 'Sending…' : <>Send message <ArrowRight style={{ width:15, height:15 }}/></>}
+                <button type="submit" disabled={loading} className="zirva-submit"
+                  style={{
+                    display:'flex', alignItems:'center', justifyContent:'center', gap:9,
+                    padding:'15px', borderRadius:13,
+                    background: 'linear-gradient(120deg, #9b6dff 0%, #8b5cf6 30%, #7c5af0 55%, #6d4ad6 80%, #8b5cf6 100%)',
+                    color:'#fff', fontWeight:700, fontSize:14.5, letterSpacing:'0.01em',
+                    border:'none', cursor: loading ? 'not-allowed' : 'pointer', fontFamily:'inherit',
+                    boxShadow:'0 12px 32px -12px rgba(139,92,246,0.6), inset 0 1px 0 rgba(255,255,255,0.18)',
+                    opacity: loading ? 0.75 : 1, marginTop:6,
+                  }}>
+                  <span className="zirva-shine"/>
+                  {loading ? (
+                    <>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ animation:'spin 0.8s linear infinite' }}>
+                        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                      </svg>
+                      Sending…
+                    </>
+                  ) : (
+                    <>Send message <ArrowRight style={{ width:15, height:15 }}/></>
+                  )}
                 </button>
+
+                {/* Subtle assurance */}
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:7, color:'rgba(255,255,255,0.3)', fontSize:11.5, fontWeight:500, marginTop:2 }}>
+                  <Shield style={{ width:11, height:11 }}/>
+                  <span>Your details stay private. No marketing, no spam.</span>
+                </div>
               </form>
             )}
           </div>
-
-          {/* RIGHT — Info */}
-          <div style={{ display:'flex', flexDirection:'column', gap:24 }}>
-
-            {/* Direct contact */}
-            <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'28px 28px' }}>
-              <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:20 }}>Direct contact</p>
-              <a href="mailto:hello@tryzirva.com" style={{ display:'flex', alignItems:'center', gap:14, textDecoration:'none', marginBottom:16 }}>
-                <div style={{ width:42, height:42, borderRadius:12, background:'rgba(167,139,250,0.12)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <Mail style={{ width:18, height:18, color:'#a78bfa' }}/>
-                </div>
-                <div>
-                  <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:600, marginBottom:2 }}>Email</p>
-                  <p style={{ color:'#fff', fontSize:14, fontWeight:700 }}>hello@tryzirva.com</p>
-                </div>
-              </a>
-              <a href="tel:+994502411442" style={{ display:'flex', alignItems:'center', gap:14, textDecoration:'none' }}>
-                <div style={{ width:42, height:42, borderRadius:12, background:'rgba(29,158,117,0.12)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <Phone style={{ width:18, height:18, color:'#1D9E75' }}/>
-                </div>
-                <div>
-                  <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:600, marginBottom:2 }}>Phone</p>
-                  <p style={{ color:'#fff', fontSize:14, fontWeight:700 }}>+994 50 241 14 42</p>
-                </div>
-              </a>
-            </div>
-
-            {/* What happens next — numbered steps */}
-            <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'28px', overflow:'hidden', position:'relative' }}>
-              <div style={{ position:'absolute', top:0, right:0, width:200, height:200, background:'radial-gradient(circle at 100% 0%, rgba(167,139,250,0.08) 0%, transparent 65%)', pointerEvents:'none' }}/>
-
-              <p style={{ color:'rgba(255,255,255,0.28)', fontSize:10.5, fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:22 }}>What happens next</p>
-
-              {[
-                { n:'01', label:'We reply personally',   text:'Usually within the hour. From a real person on our team, not a templated auto-response.' },
-                { n:'02', label:'We schedule a demo',    text:'Live walkthrough tailored to your school — IB, national, or both.' },
-                { n:'03', label:'We build you a pilot', text:'If it\'s a fit, we onboard your school in 2–4 weeks with full support.' },
-              ].map(({ n, label, text }, i) => (
-                <div key={n} style={{ display:'flex', gap:16, paddingTop: i > 0 ? 20 : 0, marginTop: i > 0 ? 20 : 0, borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-                  <div style={{ position:'relative', flexShrink:0 }}>
-                    <span style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:36, height:36, borderRadius:10, background:'linear-gradient(135deg, rgba(167,139,250,0.18), rgba(99,75,215,0.08))', border:'1px solid rgba(167,139,250,0.22)', color:'#c4b5fd', fontSize:12, fontWeight:800, letterSpacing:'0.02em', fontVariantNumeric:'tabular-nums' }}>
-                      {n}
-                    </span>
-                  </div>
-                  <div style={{ paddingTop:1 }}>
-                    <p style={{ color:'#fff', fontSize:13.5, fontWeight:700, marginBottom:4 }}>{label}</p>
-                    <p style={{ color:'rgba(255,255,255,0.4)', fontSize:12.5, lineHeight:1.65, fontWeight:500 }}>{text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Location */}
-            <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'24px 28px', display:'flex', alignItems:'center', gap:16 }}>
-              <div style={{ width:48, height:48, borderRadius:12, background:'rgba(96,165,250,0.12)', border:'1px solid rgba(96,165,250,0.22)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                <Building2 style={{ width:20, height:20, color:'#60a5fa' }}/>
-              </div>
-              <div style={{ flex:1 }}>
-                <p style={{ color:'rgba(255,255,255,0.35)', fontSize:10.5, fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:4 }}>Our office</p>
-                <p style={{ color:'#fff', fontSize:14, fontWeight:700, marginBottom:2 }}>Baku, Azerbaijan</p>
-                <p style={{ color:'rgba(255,255,255,0.4)', fontSize:12.5, fontWeight:500 }}>Open Mon–Fri · 09:00–18:00 AZT</p>
-              </div>
-            </div>
-
-            {/* Already have an account */}
-            <div style={{ background:'rgba(83,74,183,0.08)', border:'1px solid rgba(83,74,183,0.18)', borderRadius:20, padding:'22px 28px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
-              <p style={{ color:'rgba(255,255,255,0.55)', fontSize:13.5, fontWeight:600 }}>Already have an account?</p>
-              <Link to="/daxil-ol" style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'9px 20px', borderRadius:999, background:'rgba(83,74,183,0.25)', border:'1px solid rgba(83,74,183,0.35)', color:'#c4b5fd', textDecoration:'none', fontSize:13, fontWeight:700 }}>
-                Sign in <ArrowRight style={{ width:13, height:13 }}/>
-              </Link>
-            </div>
-
-          </div>
         </div>
 
-        {/* Trust band */}
-        <div style={{ marginTop:80, paddingTop:48, borderTop:'1px solid rgba(255,255,255,0.06)' }}>
-          <p style={{ textAlign:'center', color:'rgba(255,255,255,0.35)', fontSize:11.5, fontWeight:700, letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:28 }}>
-            Built for Azerbaijan's most demanding schools
-          </p>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:12, maxWidth:860, margin:'0 auto' }}>
-            {[
-              { icon:Shield,   label:'IBO Authorized',   sub:'All 4 IB programmes' },
-              { icon:Building2,label:'E-Gov.az Ready',   sub:'Ministry integration' },
-              { icon:Database, label:'Data in AZ',        sub:'Local servers, GDPR' },
-              { icon:Sparkles, label:'ISO 27001',         sub:'Security certified' },
-            ].map(({ icon:Icon, label, sub }) => (
-              <div key={label} style={{ background:'rgba(255,255,255,0.025)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:14, padding:'18px 16px', textAlign:'left' }}>
-                <div style={{ width:28, height:28, borderRadius:8, background:'rgba(255,255,255,0.05)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:10 }}>
-                  <Icon style={{ width:13, height:13, color:'rgba(255,255,255,0.55)' }}/>
-                </div>
-                <p style={{ color:'#fff', fontSize:12.5, fontWeight:700, marginBottom:2 }}>{label}</p>
-                <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:500 }}>{sub}</p>
+        {/* Footer — elegant card strip */}
+        <div className="zirva-footer" style={{
+          marginTop:36,
+          display:'grid', gridTemplateColumns:'1fr auto 1fr auto 1fr', alignItems:'center', gap:0,
+          background:'rgba(255,255,255,0.015)',
+          border:'1px solid rgba(255,255,255,0.06)',
+          borderRadius:16,
+          padding:'14px 18px',
+          backdropFilter:'blur(10px)',
+        }}>
+          <a href="mailto:hello@tryzirva.com" className="zirva-footer-link" style={{ display:'flex', alignItems:'center', gap:9, color:'rgba(255,255,255,0.55)', textDecoration:'none', fontSize:12.5, fontWeight:600, transition:'color .15s', justifyContent:'center' }}>
+            <Mail style={{ width:14, height:14, color:'rgba(255,255,255,0.4)', transition:'color .15s' }}/>
+            <span>hello@tryzirva.com</span>
+          </a>
+          <span style={{ width:1, height:18, background:'rgba(255,255,255,0.08)' }}/>
+          <a href="tel:+994502411442" className="zirva-footer-link" style={{ display:'flex', alignItems:'center', gap:9, color:'rgba(255,255,255,0.55)', textDecoration:'none', fontSize:12.5, fontWeight:600, transition:'color .15s', justifyContent:'center' }}>
+            <Phone style={{ width:14, height:14, color:'rgba(255,255,255,0.4)', transition:'color .15s' }}/>
+            <span>+994 50 241 14 42</span>
+          </a>
+          <span style={{ width:1, height:18, background:'rgba(255,255,255,0.08)' }}/>
+          <span className="zirva-footer-link" style={{ display:'flex', alignItems:'center', gap:9, color:'rgba(255,255,255,0.55)', fontSize:12.5, fontWeight:600, justifyContent:'center' }}>
+            <MapPin style={{ width:14, height:14, color:'rgba(255,255,255,0.4)' }}/>
+            <span>Baku, Azerbaijan</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─── IB / Programme Page Template ─── */
+const PROGRAMME_META = {
+  'ib-pyp':            { code:'PYP', age:'3–12',  accent:'#f59e0b', accent2:'#fbbf24', logo:'/pyp.png', typeKey:'ui_ib_programme',  hlKey:'ib-pyp_hl' },
+  'ib-myp':            { code:'MYP', age:'11–16', accent:'#ef4444', accent2:'#f87171', logo:'/myp.png', typeKey:'ui_ib_programme',  hlKey:'ib-myp_hl' },
+  'ib-diploma':        { code:'DP',  age:'16–19', accent:'#3b82f6', accent2:'#60a5fa', logo:'/dp.png',  typeKey:'ui_ib_programme',  hlKey:'ib-diploma_hl' },
+  'ib-career':         { code:'CP',  age:'16–19', accent:'#a855f7', accent2:'#c084fc', logo:'/cp.png',  typeKey:'ui_ib_programme',  hlKey:'ib-career_hl' },
+  'government-schools':{ code:'GOV', age:'6–18',  accent:'#1D9E75', accent2:'#34d399', logo:null,       typeKey:'ui_state_schools', hlKey:'government-schools_hl' },
+}
+
+const RELATED_IB_BASE = [
+  { key:'ib-pyp',    label:'PYP', relKey:'rel_pyp', age:'3–12',  accent:'#f59e0b' },
+  { key:'ib-myp',    label:'MYP', relKey:'rel_myp', age:'11–16', accent:'#ef4444' },
+  { key:'ib-diploma',label:'DP',  relKey:'rel_dp',  age:'16–19', accent:'#3b82f6' },
+  { key:'ib-career', label:'CP',  relKey:'rel_cp',  age:'16–19', accent:'#a855f7' },
+]
+
+function ProgrammePage({ type }) {
+  const { lang } = useLang()
+  const t = T[lang] || T.en
+  const meta = PROGRAMME_META[type]
+  const accent = meta.accent
+  const accent2 = meta.accent2
+  const related = RELATED_IB_BASE.filter(r => r.key !== type)
+  const isIB = type.startsWith('ib-')
+
+  const page = {
+    title:    t[`${type}_title`],
+    subtitle: t[`${type}_subtitle`],
+    body:     t[`${type}_body`],
+  }
+  const highlights = t[meta.hlKey] || []
+  const typeLabel  = t[meta.typeKey]
+
+  return (
+    <div style={{ minHeight:'100vh', background:'#fafafa', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif' }}>
+      <style>{`
+        .pp-related-card { transition: all .3s cubic-bezier(.22,1,.36,1); }
+        .pp-related-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -16px rgba(15,15,26,0.18); }
+        .pp-related-card:hover .pp-related-arrow { transform: translateX(3px); }
+        .pp-related-arrow { transition: transform .3s ease; }
+        .pp-cta-btn { transition: all .22s ease; }
+        .pp-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -10px var(--accent-shadow); }
+        .pp-check-item { transition: all .2s ease; }
+        .pp-check-item:hover { background: rgba(0,0,0,0.02); }
+      `}</style>
+
+      {/* Nav */}
+      <nav className="bg-white border-b border-gray-100 px-6 py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">
+            <ArrowLeft className="w-4 h-4" />
+            Zirva
+          </Link>
+          <Link to="/contact" className="text-xs font-bold px-4 py-2 rounded-lg transition-all pp-cta-btn"
+            style={{ background:`linear-gradient(135deg, ${accent}, ${accent2})`, color:'#fff', '--accent-shadow': `${accent}55` }}>
+            {t.ui_contact_us}
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <div className="relative overflow-hidden" style={{ background:`linear-gradient(135deg, ${accent} 0%, ${accent2} 100%)` }}>
+        {/* Grid pattern */}
+        <div style={{ position:'absolute', inset:0, backgroundImage:'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize:'42px 42px', WebkitMaskImage:'radial-gradient(ellipse 80% 90% at 50% 50%, black 0%, transparent 90%)', maskImage:'radial-gradient(ellipse 80% 90% at 50% 50%, black 0%, transparent 90%)', pointerEvents:'none' }}/>
+        {/* Orbs */}
+        <div style={{ position:'absolute', top:'-40%', right:'-10%', width:500, height:500, background:'radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 65%)', borderRadius:'50%', pointerEvents:'none' }}/>
+        <div style={{ position:'absolute', bottom:'-50%', left:'-10%', width:400, height:400, background:'radial-gradient(circle, rgba(0,0,0,0.10) 0%, transparent 65%)', borderRadius:'50%', pointerEvents:'none' }}/>
+
+        <div className="relative max-w-5xl mx-auto px-6 py-20">
+          {/* Meta strip */}
+          <div className="flex items-center gap-3 mb-6">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
+              style={{ background:'rgba(255,255,255,0.18)', border:'1px solid rgba(255,255,255,0.22)', backdropFilter:'blur(12px)' }}>
+              <span style={{ width:6, height:6, borderRadius:'50%', background:'#fff' }}/>
+              <span style={{ fontSize:11, fontWeight:700, color:'#fff', letterSpacing:'0.08em', textTransform:'uppercase' }}>{typeLabel}</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+              style={{ background:'rgba(255,255,255,0.14)', border:'1px solid rgba(255,255,255,0.2)', backdropFilter:'blur(12px)' }}>
+              <Users style={{ width:12, height:12, color:'#fff' }}/>
+              <span style={{ fontSize:11, fontWeight:700, color:'#fff', letterSpacing:'0.04em' }}>{t.ui_ages} {meta.age}</span>
+            </span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 sm:gap-10">
+            {meta.logo && (
+              <div className="rounded-2xl p-4 shrink-0" style={{ background:'rgba(255,255,255,0.94)', boxShadow:'0 20px 40px -16px rgba(0,0,0,0.25)' }}>
+                <img src={meta.logo} alt={meta.code} className="h-20 w-auto object-contain"/>
               </div>
-            ))}
+            )}
+            <div className="flex-1">
+              <h1 style={{ fontSize:'clamp(2.4rem,5vw,3.8rem)', fontWeight:800, color:'#fff', letterSpacing:'-0.035em', lineHeight:1.05, marginBottom:12 }}>
+                {page.title}
+              </h1>
+              <p style={{ color:'rgba(255,255,255,0.85)', fontSize:18, fontWeight:500, lineHeight:1.5, maxWidth:620 }}>
+                {page.subtitle}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-5xl mx-auto px-6 py-20 -mt-12 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main content */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-3xl p-8 md:p-12 relative overflow-hidden"
+              style={{ border:'1px solid rgba(15,15,26,0.05)', boxShadow:'0 10px 40px -20px rgba(15,15,26,0.08)' }}>
+              {/* Accent bar */}
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:4, background:`linear-gradient(90deg, ${accent}, ${accent2})` }}/>
+
+              <div className="space-y-5">
+                {page.body.split('\n\n').map((para, i) => (
+                  <p key={i} style={{ color:'#4b5563', fontSize:15.5, lineHeight:1.75, fontWeight:500 }}>{para}</p>
+                ))}
+              </div>
+
+              {/* What's included */}
+              <div className="mt-12 pt-8" style={{ borderTop:'1px solid rgba(15,15,26,0.06)' }}>
+                <div className="flex items-center gap-2 mb-6">
+                  <Sparkles style={{ width:16, height:16, color:accent }}/>
+                  <span style={{ fontSize:11, fontWeight:800, color:accent, letterSpacing:'0.14em', textTransform:'uppercase' }}>
+                    {t.ui_whats_included}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {highlights.map((h, i) => (
+                    <div key={i} className="pp-check-item flex items-start gap-3 p-3 rounded-xl">
+                      <div className="shrink-0 w-6 h-6 rounded-lg flex items-center justify-center mt-0.5"
+                        style={{ background:`${accent}14`, border:`1px solid ${accent}22` }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      </div>
+                      <span style={{ color:'#1f2937', fontSize:14, fontWeight:600, lineHeight:1.5 }}>{h}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="mt-10 pt-8 flex flex-col sm:flex-row items-start sm:items-center gap-4" style={{ borderTop:'1px solid rgba(15,15,26,0.06)' }}>
+                <Link to="/contact" className="pp-cta-btn inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white"
+                  style={{ background:`linear-gradient(135deg, ${accent}, ${accent2})`, '--accent-shadow': `${accent}50`, boxShadow:`0 8px 24px -10px ${accent}88` }}>
+                  {t.ui_book_demo} <ArrowRight className="w-4 h-4"/>
+                </Link>
+                <a href="mailto:hello@tryzirva.com" className="text-sm font-semibold hover:underline" style={{ color:accent }}>
+                  hello@tryzirva.com
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-4">
+            {/* Quick facts card */}
+            <div className="bg-white rounded-2xl p-6" style={{ border:'1px solid rgba(15,15,26,0.05)', boxShadow:'0 4px 20px -10px rgba(15,15,26,0.05)' }}>
+              <p style={{ fontSize:11, fontWeight:800, color:'rgba(15,15,26,0.45)', letterSpacing:'0.12em', textTransform:'uppercase', marginBottom:16 }}>{t.ui_quick_facts}</p>
+
+              <div className="space-y-4">
+                <div>
+                  <div style={{ fontSize:11, fontWeight:700, color:'rgba(15,15,26,0.45)', letterSpacing:'0.04em', marginBottom:4 }}>{t.ui_programme}</div>
+                  <div style={{ fontSize:15, fontWeight:700, color:'#0f0f1a' }}>{typeLabel}</div>
+                </div>
+                <div style={{ height:1, background:'rgba(15,15,26,0.05)' }}/>
+                <div>
+                  <div style={{ fontSize:11, fontWeight:700, color:'rgba(15,15,26,0.45)', letterSpacing:'0.04em', marginBottom:4 }}>{t.ui_age_range}</div>
+                  <div style={{ fontSize:15, fontWeight:700, color:'#0f0f1a' }}>{meta.age} {t.ui_years}</div>
+                </div>
+                {isIB && (
+                  <>
+                    <div style={{ height:1, background:'rgba(15,15,26,0.05)' }}/>
+                    <div>
+                      <div style={{ fontSize:11, fontWeight:700, color:'rgba(15,15,26,0.45)', letterSpacing:'0.04em', marginBottom:4 }}>{t.ui_ib_code}</div>
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                        style={{ background:`${accent}14`, border:`1px solid ${accent}22` }}>
+                        <span style={{ width:6, height:6, borderRadius:'50%', background:accent }}/>
+                        <span style={{ fontSize:12, fontWeight:800, color:accent, letterSpacing:'0.04em' }}>IB {meta.code}</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Related programmes */}
+            {isIB && (
+              <div className="bg-white rounded-2xl p-6" style={{ border:'1px solid rgba(15,15,26,0.05)', boxShadow:'0 4px 20px -10px rgba(15,15,26,0.05)' }}>
+                <p style={{ fontSize:11, fontWeight:800, color:'rgba(15,15,26,0.45)', letterSpacing:'0.12em', textTransform:'uppercase', marginBottom:14 }}>{t.ui_related}</p>
+                <div className="space-y-2">
+                  {related.map(r => (
+                    <Link key={r.key} to={`/${r.key}`} className="pp-related-card flex items-center gap-3 p-3 rounded-xl no-underline"
+                      style={{ border:'1px solid rgba(15,15,26,0.05)', background:'#fff' }}>
+                      <span className="inline-flex items-center justify-center rounded-lg shrink-0"
+                        style={{ width:36, height:36, background:`${r.accent}14`, border:`1px solid ${r.accent}22`, color:r.accent, fontSize:11, fontWeight:800, letterSpacing:'0.04em' }}>
+                        {r.label}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div style={{ fontSize:13, fontWeight:700, color:'#0f0f1a', lineHeight:1.3 }}>{t[r.relKey]}</div>
+                        <div style={{ fontSize:11, fontWeight:600, color:'rgba(15,15,26,0.45)', marginTop:1 }}>{t.ui_ages} {r.age}</div>
+                      </div>
+                      <ArrowRight className="pp-related-arrow w-3.5 h-3.5 shrink-0" style={{ color:r.accent, opacity:.6 }}/>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Direct contact */}
+            <div className="rounded-2xl p-6 relative overflow-hidden"
+              style={{ background:`linear-gradient(135deg, ${accent}0f, ${accent2}08)`, border:`1px solid ${accent}22` }}>
+              <p style={{ fontSize:11, fontWeight:800, color:accent, letterSpacing:'0.12em', textTransform:'uppercase', marginBottom:10 }}>{t.ui_questions}</p>
+              <p style={{ fontSize:13.5, fontWeight:500, color:'#4b5563', lineHeight:1.6, marginBottom:14 }}>
+                {t.ui_questions_body}
+              </p>
+              <div className="flex flex-col gap-2">
+                <a href="mailto:hello@tryzirva.com" className="flex items-center gap-2 text-sm font-semibold hover:underline" style={{ color:accent }}>
+                  <Mail style={{ width:13, height:13 }}/> hello@tryzirva.com
+                </a>
+                <a href="tel:+994502411442" className="flex items-center gap-2 text-sm font-semibold hover:underline" style={{ color:accent }}>
+                  <Phone style={{ width:13, height:13 }}/> +994 50 241 14 42
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -569,6 +898,9 @@ export default function InfoPage({ type: typeProp }) {
       </div>
     )
   }
+
+  // Premium layout for IB programme pages + government schools
+  if (PROGRAMME_META[type]) return <ProgrammePage type={type} page={page} />
 
   const accentBg   = page.color === 'teal' ? 'bg-teal'   : 'bg-purple'
   const accentText = page.color === 'teal' ? 'text-teal'  : 'text-purple'
