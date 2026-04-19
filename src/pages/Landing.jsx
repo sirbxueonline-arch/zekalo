@@ -1092,7 +1092,7 @@ function Solutions({ s }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {ibCards.map(({ logo, title, desc }) => (
             <div key={title} className="card-lift rounded-2xl p-7 border border-gray-100 bg-gray-50 cursor-default">
-              <img src={logo} alt={title} className="h-10 w-auto object-contain mb-5" style={{ mixBlendMode:'multiply' }}/>
+              <img src={logo} alt={title} className="h-14 w-auto object-contain mb-5" style={{ mixBlendMode:'multiply' }}/>
               <h3 className="font-bold text-gray-900 text-base mb-2 leading-snug" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
               <p className="text-gray-500 text-sm leading-relaxed font-medium">{desc}</p>
             </div>
