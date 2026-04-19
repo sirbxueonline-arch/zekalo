@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@sentry/react": "^8.0.0",
     "@supabase/supabase-js": "^2",
     "jspdf": "^4.2.1",

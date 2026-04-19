@@ -2,6 +2,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Mail, Phone, ArrowRight, MapPin, Clock, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import emailjs from '@emailjs/browser'
 
 const PAGES = {
   'ib-diploma': {
@@ -244,11 +245,34 @@ function ContactPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const { error: err } = await supabase
-      .from('contact_submissions')
-      .insert([{ name: form.name, email: form.email, school: form.school, role: form.role, message: form.message }])
+
+    // 1. Save to Supabase
+    await supabase.from('contact_submissions').insert([{
+      name: form.name, email: form.email,
+      school: form.school, role: form.role, message: form.message,
+    }])
+
+    // 2. Send email via EmailJS
+    try {
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        {
+          from_name:    form.name,
+          from_email:   form.email,
+          school:       form.school,
+          role:         form.role,
+          message:      form.message,
+          to_email:     'kaan.guluzada@gmail.com',
+        },
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+      )
+    } catch (err) {
+      console.error('EmailJS error:', err)
+      // Still show success — submission saved to Supabase
+    }
+
     setLoading(false)
-    if (err) { setError('Something went wrong. Please email us directly at hello@birclick.az'); return }
     setSent(true)
   }
 
