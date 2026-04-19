@@ -260,10 +260,8 @@ function ContactPage() {
         {
           from_name:    form.name,
           from_email:   form.email,
-          school:       form.school,
-          role:         form.role,
-          message:      form.message,
-          to_email:     'hello@tryzirva.com',
+          name:         form.name,
+          message:      `Email: ${form.email}\nSchool: ${form.school}\nRole: ${form.role}\n\n${form.message}`,
         },
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
       )
