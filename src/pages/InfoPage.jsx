@@ -366,18 +366,25 @@ function ContactPage() {
             </div>
 
             {/* What to expect */}
-            <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'28px 28px' }}>
-              <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:20 }}>What to expect</p>
+            <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'28px', overflow:'hidden', position:'relative' }}>
+              {/* subtle gradient accent */}
+              <div style={{ position:'absolute', top:0, right:0, width:160, height:160, background:'radial-gradient(circle at 100% 0%, rgba(167,139,250,0.08) 0%, transparent 65%)', pointerEvents:'none' }}/>
+
+              <p style={{ color:'rgba(255,255,255,0.28)', fontSize:10.5, fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:22 }}>What to expect</p>
+
               {[
-                { icon:Clock,    text:'Reply within a few hours on business days' },
-                { icon:Sparkles, text:'A personalised demo tailored to your curriculum' },
-                { icon:MapPin,   text:'We\'re based in Baku — happy to meet in person' },
-              ].map(({ icon:Icon, text }) => (
-                <div key={text} style={{ display:'flex', alignItems:'flex-start', gap:12, marginBottom:16, lastChild:{ marginBottom:0 } }}>
-                  <div style={{ width:32, height:32, borderRadius:9, background:'rgba(255,255,255,0.06)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
-                    <Icon style={{ width:14, height:14, color:'rgba(255,255,255,0.5)' }}/>
+                { icon:Clock,    label:'Fast reply',   text:'We get back within a few hours on business days', color:'#a78bfa' },
+                { icon:Sparkles, label:'Live demo',    text:'A personalised walkthrough built around your school', color:'#34d399' },
+                { icon:MapPin,   label:'Meet in Baku', text:'We\'re local — happy to come to you in person', color:'#60a5fa' },
+              ].map(({ icon:Icon, label, text, color }, i) => (
+                <div key={label} style={{ display:'flex', gap:14, paddingTop: i > 0 ? 18 : 0, marginTop: i > 0 ? 18 : 0, borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                  <div style={{ width:38, height:38, borderRadius:10, background:`${color}14`, border:`1px solid ${color}22`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:2 }}>
+                    <Icon style={{ width:15, height:15, color }}/>
                   </div>
-                  <p style={{ color:'rgba(255,255,255,0.5)', fontSize:13.5, lineHeight:1.65, fontWeight:500 }}>{text}</p>
+                  <div>
+                    <p style={{ color:'#fff', fontSize:13.5, fontWeight:700, marginBottom:3 }}>{label}</p>
+                    <p style={{ color:'rgba(255,255,255,0.38)', fontSize:12.5, lineHeight:1.6, fontWeight:500 }}>{text}</p>
+                  </div>
                 </div>
               ))}
             </div>
