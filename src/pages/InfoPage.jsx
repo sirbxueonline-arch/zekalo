@@ -461,242 +461,126 @@ function ContactPage() {
     setSent(true)
   }
 
-  const focus = e => {
-    e.target.style.borderColor = 'rgba(167,139,250,0.55)'
-    e.target.style.background  = 'linear-gradient(180deg, rgba(167,139,250,0.06) 0%, rgba(255,255,255,0.04) 100%)'
-    e.target.style.boxShadow   = '0 0 0 4px rgba(167,139,250,0.10), inset 0 1px 0 rgba(255,255,255,0.04)'
-  }
-  const blur = e => {
-    e.target.style.borderColor = 'rgba(255,255,255,0.08)'
-    e.target.style.background  = 'rgba(255,255,255,0.025)'
-    e.target.style.boxShadow   = 'inset 0 1px 0 rgba(255,255,255,0.02)'
-  }
+  const focus = e => { e.target.style.borderColor='#8B5CF6'; e.target.style.boxShadow='0 0 0 3px rgba(139,92,246,0.12)' }
+  const blur  = e => { e.target.style.borderColor='#E8E8F0'; e.target.style.boxShadow='none' }
 
   const inp = {
-    width:'100%', padding:'14px 16px', borderRadius:13,
-    background:'rgba(255,255,255,0.025)',
-    border:'1px solid rgba(255,255,255,0.08)',
-    color:'#fff', fontSize:14, fontWeight:500,
-    outline:'none', transition:'all .22s cubic-bezier(.22,1,.36,1)',
-    fontFamily:'inherit',
-    boxShadow:'inset 0 1px 0 rgba(255,255,255,0.02)',
+    width:'100%', padding:'12px 14px', borderRadius:10,
+    background:'#F7F7FB', border:'1.5px solid #E8E8F0',
+    color:'#111', fontSize:14, fontWeight:500,
+    outline:'none', transition:'all .18s ease', fontFamily:'inherit', boxSizing:'border-box',
   }
-  const lbl = {
-    display:'block', fontSize:11, fontWeight:700,
-    color:'rgba(255,255,255,0.36)', letterSpacing:'0.1em',
-    textTransform:'uppercase', marginBottom:9,
-  }
+  const lbl = { display:'block', fontSize:11, fontWeight:700, color:'#6B7280', letterSpacing:'0.07em', textTransform:'uppercase', marginBottom:7 }
 
   return (
-    <div style={{ minHeight:'100vh', background:'#04040d', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif', position:'relative', overflow:'hidden' }}>
+    <div style={{ minHeight:'100vh', background:'#F5F4FF', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif' }}>
       <style>{`
-        @keyframes zirvaPulse { 0% { transform:scale(1); opacity:.6 } 80% { transform:scale(2.4); opacity:0 } 100% { opacity:0 } }
-        @keyframes zirvaCheckPop { 0% { transform:scale(0); opacity:0 } 60% { transform:scale(1.15); opacity:1 } 100% { transform:scale(1); opacity:1 } }
-        @keyframes zirvaFadeUp { 0% { opacity:0; transform:translateY(14px) } 100% { opacity:1; transform:translateY(0) } }
-        @keyframes zirvaFadeIn { 0% { opacity:0 } 100% { opacity:1 } }
-        @keyframes zirvaFloat1 { 0%,100% { transform:translate(0,0) scale(1) } 50% { transform:translate(3%,2%) scale(1.05) } }
-        @keyframes zirvaFloat2 { 0%,100% { transform:translate(0,0) scale(1) } 50% { transform:translate(-2%,-3%) scale(1.04) } }
-        @keyframes zirvaGradient { 0%,100% { background-position:0% 50% } 50% { background-position:100% 50% } }
-        @keyframes zirvaShine {
-          0% { transform: translateX(-120%) skewX(-20deg) }
-          100% { transform: translateX(220%) skewX(-20deg) }
-        }
-        @keyframes zirvaBorderGlow {
-          0%,100% { opacity:.5 }
-          50% { opacity:.85 }
-        }
-        .zirva-card { animation: zirvaFadeUp .7s cubic-bezier(.22,1,.36,1) both; animation-delay:.1s; }
-        .zirva-header { animation: zirvaFadeUp .6s cubic-bezier(.22,1,.36,1) both; }
-        .zirva-footer { animation: zirvaFadeIn .9s ease both; animation-delay:.4s; }
-        .zirva-orb1 { animation: zirvaFloat1 16s ease-in-out infinite; }
-        .zirva-orb2 { animation: zirvaFloat2 22s ease-in-out infinite; }
-        .zirva-card-border { animation: zirvaBorderGlow 6s ease-in-out infinite; }
-        .zirva-submit {
-          position: relative; overflow: hidden;
-          background-size: 200% 200%;
-          animation: zirvaGradient 7s ease infinite;
-          transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s ease;
-        }
-        .zirva-submit:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 18px 44px -12px rgba(139,92,246,0.65), inset 0 1px 0 rgba(255,255,255,0.22);
-        }
-        .zirva-submit:hover:not(:disabled) .zirva-shine { animation: zirvaShine 1.1s cubic-bezier(.22,1,.36,1); }
-        .zirva-submit:active:not(:disabled) { transform: translateY(0); }
-        .zirva-shine {
-          position:absolute; top:-20%; left:0; width:40%; height:140%;
-          background:linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-          pointer-events:none;
-        }
-        .zirva-footer-link { position: relative; }
-        .zirva-footer-link:hover { color:#fff !important; }
-        .zirva-footer-link:hover svg { color:#a78bfa !important; }
-        .zirva-nav-link:hover { color:#fff !important; }
-        .zirva-back-btn:hover { background:rgba(255,255,255,0.09) !important; color:#fff !important; transform:translateY(-1px); }
-        .zirva-back-btn { transition: all .2s ease; }
-        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.22); font-weight: 500; }
-        input:hover:not(:focus), textarea:hover:not(:focus) { border-color: rgba(255,255,255,0.14) !important; }
-        textarea { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
+        @keyframes ctFadeUp  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes ctCheckPop{ 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.15);opacity:1} 100%{transform:scale(1);opacity:1} }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .ct-card   { animation: ctFadeUp .55s cubic-bezier(.22,1,.36,1) both .1s; }
+        .ct-submit { transition: transform .2s ease, box-shadow .2s ease; }
+        .ct-submit:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 14px 30px -10px rgba(124,58,237,0.45) !important; }
+        .ct-submit:active:not(:disabled) { transform:translateY(0); }
+        .ct-foot-link { color:#9CA3AF; text-decoration:none; font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:8px; justify-content:center; transition:color .15s; }
+        .ct-foot-link:hover { color:#7C3AED; }
+        input::placeholder, textarea::placeholder { color:#C4C4D0; }
+        textarea { resize:vertical; scrollbar-width:thin; }
       `}</style>
 
-      {/* Background — layered orbs + subtle grid */}
-      <div style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:0 }}>
-        <div className="zirva-orb1" style={{ position:'absolute', top:'-28%', left:'-18%', width:'78%', height:'85%', background:'radial-gradient(ellipse at 40% 40%, rgba(139,92,246,0.28) 0%, rgba(124,90,240,0.08) 40%, transparent 65%)', filter:'blur(40px)' }}/>
-        <div className="zirva-orb2" style={{ position:'absolute', top:'-12%', right:'-22%', width:'68%', height:'78%', background:'radial-gradient(ellipse at 60% 35%, rgba(99,102,241,0.20) 0%, rgba(76,55,200,0.06) 45%, transparent 65%)', filter:'blur(40px)' }}/>
-        <div style={{ position:'absolute', bottom:'-30%', left:'10%', width:'65%', height:'65%', background:'radial-gradient(ellipse at 50% 50%, rgba(167,139,250,0.12) 0%, transparent 60%)', filter:'blur(50px)' }}/>
-        {/* Dot grid */}
-        <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize:'32px 32px', WebkitMaskImage:'radial-gradient(ellipse 75% 60% at 50% 20%, black 0%, transparent 85%)', maskImage:'radial-gradient(ellipse 75% 60% at 50% 20%, black 0%, transparent 85%)' }}/>
-        {/* Top vignette */}
-        <div style={{ position:'absolute', top:0, left:0, right:0, height:'40%', background:'linear-gradient(180deg, rgba(139,92,246,0.04) 0%, transparent 100%)' }}/>
-      </div>
-
       {/* Nav */}
-      <nav style={{ position:'relative', zIndex:10, padding:'22px 40px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-        <Link to="/" className="zirva-nav-link" style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none', color:'rgba(255,255,255,0.45)', fontSize:14, fontWeight:600, transition:'color .15s' }}>
-          <ArrowLeft style={{ width:15, height:15 }}/> Zirva
+      <nav style={{ padding:'20px 36px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(83,74,183,0.07)', background:'#fff' }}>
+        <Link to="/" style={{ display:'flex', alignItems:'center', gap:7, textDecoration:'none', color:'#9CA3AF', fontSize:13.5, fontWeight:600, transition:'color .15s' }}
+          onMouseOver={e=>e.currentTarget.style.color='#111'} onMouseOut={e=>e.currentTarget.style.color='#9CA3AF'}>
+          <ArrowLeft style={{ width:14, height:14 }}/> Zirva
         </Link>
-        <img src="/logo.png" alt="Zirva" style={{ height:26, opacity:.8 }}/>
+        <img src="/logo.png" alt="Zirva" style={{ height:26 }}/>
       </nav>
 
       {/* Main */}
-      <div style={{ position:'relative', zIndex:10, maxWidth:560, margin:'0 auto', padding:'72px 24px 100px' }}>
+      <div style={{ maxWidth:560, margin:'0 auto', padding:'60px 24px 80px' }}>
 
         {/* Header */}
-        <div className="zirva-header" style={{ marginBottom:44, textAlign:'center' }}>
-          {/* Eyebrow with dot */}
-          <div style={{ display:'inline-flex', alignItems:'center', gap:10, marginBottom:20 }}>
-            <span style={{ width:20, height:1, background:'linear-gradient(90deg, transparent, rgba(167,139,250,0.8))' }}/>
-            <span style={{ fontSize:10.5, fontWeight:700, letterSpacing:'0.3em', textTransform:'uppercase', color:'#a78bfa' }}>{ct.ct_eyebrow}</span>
-            <span style={{ width:20, height:1, background:'linear-gradient(90deg, rgba(167,139,250,0.8), transparent)' }}/>
-          </div>
-          <h1 style={{ fontSize:'clamp(2.5rem,6vw,3.75rem)', fontWeight:800, letterSpacing:'-0.04em', lineHeight:1.02, marginBottom:20 }}>
-            <span style={{ background:'linear-gradient(120deg,#ede9fe 0%,#c4b5fd 30%,#a78bfa 55%,#7c5af0 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', display:'inline-block', position:'relative' }}>
-              {ct.ct_heading}
-            </span>
+        <div style={{ marginBottom:36, textAlign:'center' }}>
+          <p style={{ fontSize:11, fontWeight:700, letterSpacing:'0.2em', textTransform:'uppercase', color:'#7C3AED', marginBottom:14 }}>{ct.ct_eyebrow}</p>
+          <h1 style={{ fontSize:'clamp(2.2rem,5vw,3.2rem)', fontWeight:800, letterSpacing:'-0.03em', lineHeight:1.05, marginBottom:14, color:'#111' }}>
+            {ct.ct_heading}
           </h1>
-          <p style={{ color:'rgba(255,255,255,0.5)', fontSize:16, lineHeight:1.6, fontWeight:500, margin:'0 auto', maxWidth:420 }}>
+          <p style={{ color:'#9CA3AF', fontSize:15.5, lineHeight:1.65, margin:'0 auto', maxWidth:400 }}>
             {ct.ct_sub}
           </p>
         </div>
 
-        {/* Card with animated gradient border */}
-        <div className="zirva-card" style={{ position:'relative' }}>
-          {/* Outer glow */}
-          <div className="zirva-card-border" style={{
-            position:'absolute', inset:-1, borderRadius:24,
-            background:'linear-gradient(145deg, rgba(167,139,250,0.5) 0%, rgba(99,102,241,0.15) 30%, transparent 55%, rgba(124,90,240,0.35) 100%)',
-            filter:'blur(0.5px)',
-          }}/>
-          {/* Inner card */}
-          <div style={{
-            position:'relative',
-            background:'linear-gradient(180deg, rgba(22,18,45,0.92) 0%, rgba(12,10,28,0.95) 100%)',
-            borderRadius:23,
-            padding:'38px 36px',
-            boxShadow:'0 30px 80px -30px rgba(0,0,0,0.8), 0 10px 30px -10px rgba(99,66,200,0.15), inset 0 1px 0 rgba(255,255,255,0.04)',
-            backdropFilter:'blur(20px)',
-          }}>
-            {sent ? (
-              <div style={{ textAlign:'center', padding:'28px 0' }}>
-                <div style={{ position:'relative', width:76, height:76, margin:'0 auto 24px' }}>
-                  <span style={{ position:'absolute', inset:-10, borderRadius:'50%', background:'radial-gradient(circle, rgba(34,197,94,0.3) 0%, transparent 70%)', animation:'zirvaPulse 2s ease-out infinite' }}/>
-                  <div style={{ position:'relative', width:76, height:76, borderRadius:'50%', background:'linear-gradient(135deg, rgba(34,197,94,0.25), rgba(34,197,94,0.05))', border:'1px solid rgba(34,197,94,0.4)', display:'flex', alignItems:'center', justifyContent:'center', animation:'zirvaCheckPop .55s cubic-bezier(.34,1.56,.64,1)', boxShadow:'0 10px 40px -8px rgba(34,197,94,0.5)' }}>
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                  </div>
+        {/* Card */}
+        <div className="ct-card" style={{ background:'#fff', borderRadius:20, padding:'36px 32px', boxShadow:'0 4px 24px rgba(83,74,183,0.08), 0 1px 4px rgba(0,0,0,0.04)', border:'1px solid rgba(83,74,183,0.08)' }}>
+          {sent ? (
+            <div style={{ textAlign:'center', padding:'24px 0' }}>
+              <div style={{ position:'relative', width:68, height:68, margin:'0 auto 20px' }}>
+                <div style={{ width:68, height:68, borderRadius:'50%', background:'#F0FDF4', border:'1.5px solid #BBF7D0', display:'flex', alignItems:'center', justifyContent:'center', animation:'ctCheckPop .5s cubic-bezier(.34,1.56,.64,1)' }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
-                <p style={{ color:'#fff', fontWeight:800, fontSize:24, marginBottom:12, letterSpacing:'-0.015em' }}>{ct.ct_success_title}</p>
-                <p style={{ color:'rgba(255,255,255,0.55)', fontSize:14.5, lineHeight:1.65, maxWidth:340, margin:'0 auto 30px' }}>
-                  <strong style={{ color:'#c4b5fd', fontWeight:600 }}>{form.email}</strong> — {ct.ct_success_body}
-                </p>
-                <Link to="/" className="zirva-back-btn" style={{ display:'inline-flex', alignItems:'center', gap:7, padding:'11px 24px', borderRadius:999, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.10)', color:'rgba(255,255,255,0.75)', textDecoration:'none', fontSize:13, fontWeight:600 }}>
-                  <ArrowLeft style={{ width:13, height:13 }}/> {ct.ct_back}
-                </Link>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:18 }}>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-                  <div>
-                    <label style={lbl}>{ct.ct_name}</label>
-                    <input required style={inp} placeholder={ct.ct_ph_name} value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} onFocus={focus} onBlur={blur}/>
-                  </div>
-                  <div>
-                    <label style={lbl}>{ct.ct_email}</label>
-                    <input required type="email" style={inp} placeholder="you@school.az" value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))} onFocus={focus} onBlur={blur}/>
-                  </div>
-                </div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-                  <div>
-                    <label style={lbl}>{ct.ct_school}</label>
-                    <input required style={inp} placeholder={ct.ct_ph_school} value={form.school} onChange={e=>setForm(f=>({...f,school:e.target.value}))} onFocus={focus} onBlur={blur}/>
-                  </div>
-                  <div>
-                    <label style={lbl}>{ct.ct_phone}</label>
-                    <input type="tel" style={inp} placeholder="+994 50 123 45 67" value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} onFocus={focus} onBlur={blur}/>
-                  </div>
+              <p style={{ color:'#111', fontWeight:800, fontSize:22, marginBottom:10, letterSpacing:'-0.015em' }}>{ct.ct_success_title}</p>
+              <p style={{ color:'#9CA3AF', fontSize:14, lineHeight:1.6, maxWidth:320, margin:'0 auto 24px' }}>
+                <strong style={{ color:'#7C3AED' }}>{form.email}</strong> — {ct.ct_success_body}
+              </p>
+              <Link to="/" style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'10px 22px', borderRadius:999, background:'#F5F4FF', border:'1px solid rgba(124,58,237,0.15)', color:'#7C3AED', textDecoration:'none', fontSize:13, fontWeight:600, transition:'all .2s' }}>
+                <ArrowLeft style={{ width:13, height:13 }}/> {ct.ct_back}
+              </Link>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:16 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                <div>
+                  <label style={lbl}>{ct.ct_name}</label>
+                  <input required style={inp} placeholder={ct.ct_ph_name} value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} onFocus={focus} onBlur={blur}/>
                 </div>
                 <div>
-                  <label style={lbl}>{ct.ct_message}</label>
-                  <textarea required rows={4} style={{ ...inp, resize:'vertical', lineHeight:1.65, minHeight:118 }} placeholder={ct.ct_ph_message} value={form.message} onChange={e=>setForm(f=>({...f,message:e.target.value}))} onFocus={focus} onBlur={blur}/>
+                  <label style={lbl}>{ct.ct_email}</label>
+                  <input required type="email" style={inp} placeholder="you@school.az" value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))} onFocus={focus} onBlur={blur}/>
                 </div>
-                <button type="submit" disabled={loading} className="zirva-submit"
-                  style={{
-                    display:'flex', alignItems:'center', justifyContent:'center', gap:9,
-                    padding:'15px', borderRadius:13,
-                    background: 'linear-gradient(120deg, #9b6dff 0%, #8b5cf6 30%, #7c5af0 55%, #6d4ad6 80%, #8b5cf6 100%)',
-                    color:'#fff', fontWeight:700, fontSize:14.5, letterSpacing:'0.01em',
-                    border:'none', cursor: loading ? 'not-allowed' : 'pointer', fontFamily:'inherit',
-                    boxShadow:'0 12px 32px -12px rgba(139,92,246,0.6), inset 0 1px 0 rgba(255,255,255,0.18)',
-                    opacity: loading ? 0.75 : 1, marginTop:6,
-                  }}>
-                  <span className="zirva-shine"/>
-                  {loading ? (
-                    <>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ animation:'spin 0.8s linear infinite' }}>
-                        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                      </svg>
-                      {ct.ct_sending}
-                    </>
-                  ) : (
-                    <>{ct.ct_send} <ArrowRight style={{ width:15, height:15 }}/></>
-                  )}
-                </button>
-
-                {/* Subtle assurance */}
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:7, color:'rgba(255,255,255,0.3)', fontSize:11.5, fontWeight:500, marginTop:2 }}>
-                  <Shield style={{ width:11, height:11 }}/>
-                  <span>{ct.ct_privacy}</span>
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                <div>
+                  <label style={lbl}>{ct.ct_school}</label>
+                  <input required style={inp} placeholder={ct.ct_ph_school} value={form.school} onChange={e=>setForm(f=>({...f,school:e.target.value}))} onFocus={focus} onBlur={blur}/>
                 </div>
-              </form>
-            )}
-          </div>
+                <div>
+                  <label style={lbl}>{ct.ct_phone}</label>
+                  <input type="tel" style={inp} placeholder="+994 50 123 45 67" value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} onFocus={focus} onBlur={blur}/>
+                </div>
+              </div>
+              <div>
+                <label style={lbl}>{ct.ct_message}</label>
+                <textarea required rows={4} style={{ ...inp, lineHeight:1.65, minHeight:112 }} placeholder={ct.ct_ph_message} value={form.message} onChange={e=>setForm(f=>({...f,message:e.target.value}))} onFocus={focus} onBlur={blur}/>
+              </div>
+              <button type="submit" disabled={loading} className="ct-submit"
+                style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'13px', borderRadius:10, background:'#7C3AED', color:'#fff', fontWeight:700, fontSize:14, border:'none', cursor:loading?'not-allowed':'pointer', fontFamily:'inherit', boxShadow:'0 8px 20px -8px rgba(124,58,237,0.4)', opacity:loading?.75:1, marginTop:4 }}>
+                {loading ? (
+                  <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ animation:'spin .8s linear infinite' }}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>{ct.ct_sending}</>
+                ) : (
+                  <>{ct.ct_send} <ArrowRight style={{ width:15, height:15 }}/></>
+                )}
+              </button>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, color:'#C4C4D0', fontSize:11.5, fontWeight:500 }}>
+                <Shield style={{ width:11, height:11 }}/><span>{ct.ct_privacy}</span>
+              </div>
+            </form>
+          )}
         </div>
 
-        {/* Footer — elegant card strip */}
-        <div className="zirva-footer" style={{
-          marginTop:36,
-          display:'grid', gridTemplateColumns:'1fr auto 1fr auto 1fr', alignItems:'center', gap:0,
-          background:'rgba(255,255,255,0.015)',
-          border:'1px solid rgba(255,255,255,0.06)',
-          borderRadius:16,
-          padding:'14px 18px',
-          backdropFilter:'blur(10px)',
-        }}>
-          <a href="mailto:hello@tryzirva.com" className="zirva-footer-link" style={{ display:'flex', alignItems:'center', gap:9, color:'rgba(255,255,255,0.55)', textDecoration:'none', fontSize:12.5, fontWeight:600, transition:'color .15s', justifyContent:'center' }}>
-            <Mail style={{ width:14, height:14, color:'rgba(255,255,255,0.4)', transition:'color .15s' }}/>
-            <span>hello@tryzirva.com</span>
+        {/* Footer strip */}
+        <div style={{ marginTop:24, display:'grid', gridTemplateColumns:'1fr auto 1fr auto 1fr', alignItems:'center', background:'#fff', border:'1px solid rgba(83,74,183,0.08)', borderRadius:14, padding:'13px 16px' }}>
+          <a href="mailto:hello@tryzirva.com" className="ct-foot-link">
+            <Mail style={{ width:13, height:13 }}/><span>hello@tryzirva.com</span>
           </a>
-          <span style={{ width:1, height:18, background:'rgba(255,255,255,0.08)' }}/>
-          <a href="tel:+994502411442" className="zirva-footer-link" style={{ display:'flex', alignItems:'center', gap:9, color:'rgba(255,255,255,0.55)', textDecoration:'none', fontSize:12.5, fontWeight:600, transition:'color .15s', justifyContent:'center' }}>
-            <Phone style={{ width:14, height:14, color:'rgba(255,255,255,0.4)', transition:'color .15s' }}/>
-            <span>+994 50 241 14 42</span>
+          <span style={{ width:1, height:16, background:'#E8E8F0' }}/>
+          <a href="tel:+994502411442" className="ct-foot-link">
+            <Phone style={{ width:13, height:13 }}/><span>+994 50 241 14 42</span>
           </a>
-          <span style={{ width:1, height:18, background:'rgba(255,255,255,0.08)' }}/>
-          <span className="zirva-footer-link" style={{ display:'flex', alignItems:'center', gap:9, color:'rgba(255,255,255,0.55)', fontSize:12.5, fontWeight:600, justifyContent:'center' }}>
-            <MapPin style={{ width:14, height:14, color:'rgba(255,255,255,0.4)' }}/>
-            <span>Baku, Azerbaijan</span>
+          <span style={{ width:1, height:16, background:'#E8E8F0' }}/>
+          <span className="ct-foot-link" style={{ cursor:'default' }}>
+            <MapPin style={{ width:13, height:13 }}/><span>Baku, Azerbaijan</span>
           </span>
         </div>
       </div>
