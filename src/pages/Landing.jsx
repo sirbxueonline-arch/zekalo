@@ -270,13 +270,8 @@ function Nav({ s, lang, setLang }) {
         <div className="max-w-7xl mx-auto px-6 sm:px-10 flex items-center justify-between h-[72px]">
 
           {/* ── Brand ── */}
-          <Link to="/" className="flex items-center gap-3 shrink-0 group">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
-              style={{ background: 'rgba(83,74,183,0.10)' }}
-            >
-              <ZirvaLogo size={22} />
-            </div>
+          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
+            <ZirvaLogo size={28} />
             <span className="text-[19px] font-extrabold text-gray-900 tracking-tight">Zirva</span>
           </Link>
 
