@@ -1341,7 +1341,6 @@ function Compliance({ s }) {
                 style={{ background:`${color}12` }}>
                 <Icon className="w-5 h-5" style={{ color }}/>
               </div>
-              <p className="text-xs font-bold mb-2" style={{ color }}>{label}</p>
               <h3 className="font-bold text-gray-900 text-base mb-2.5" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
               <p className="text-gray-500 text-sm leading-relaxed font-medium">{desc}</p>
             </div>
