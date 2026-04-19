@@ -1009,10 +1009,10 @@ function Solutions({ s }) {
   const isAz = s.nav_signin === 'Daxil ol'
 
   const ibCards = [
-    { icon:GraduationCap, title:s.sol_dp_t,  desc:s.sol_dp_d,  tag:'IB DP'  },
-    { icon:BookOpen,      title:s.sol_myp_t, desc:s.sol_myp_d, tag:'IB MYP' },
-    { icon:Users,         title:s.sol_cp_t,  desc:s.sol_cp_d,  tag:'IB CP'  },
-    { icon:Star,          title:s.sol_pyp_t, desc:s.sol_pyp_d, tag:'IB PYP' },
+    { icon:Star,          title:s.sol_pyp_t, desc:s.sol_pyp_d  },
+    { icon:BookOpen,      title:s.sol_myp_t, desc:s.sol_myp_d  },
+    { icon:GraduationCap, title:s.sol_dp_t,  desc:s.sol_dp_d   },
+    { icon:Users,         title:s.sol_cp_t,  desc:s.sol_cp_d   },
   ]
 
   return (
@@ -1090,13 +1090,8 @@ function Solutions({ s }) {
 
         {/* ── IB sub-programmes ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {ibCards.map(({ icon:Icon, title, desc, tag }) => (
-            <div key={title} className="card-lift rounded-2xl p-7 border cursor-default"
-              style={{ background:'#fafafa', borderColor:'rgba(83,74,183,0.12)', borderTopWidth:3, borderTopColor:'#534AB7' }}>
-              <span className="inline-block text-xs font-bold px-2.5 py-1 rounded-full mb-5"
-                style={{ background:'rgba(83,74,183,0.08)', color:'#534AB7' }}>
-                {tag}
-              </span>
+          {ibCards.map(({ icon:Icon, title, desc }) => (
+            <div key={title} className="card-lift rounded-2xl p-7 border border-gray-100 bg-gray-50 cursor-default">
               <Icon className="w-7 h-7 mb-4" style={{ color:'#534AB7' }}/>
               <h3 className="font-bold text-gray-900 text-base mb-2 leading-snug" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
               <p className="text-gray-500 text-sm leading-relaxed font-medium">{desc}</p>
