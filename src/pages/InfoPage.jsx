@@ -1,6 +1,7 @@
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Mail, Phone, ArrowRight, MapPin, Clock, Sparkles } from 'lucide-react'
 import { useState } from 'react'
+import { supabase } from '../lib/supabase'
 
 const PAGES = {
   'ib-diploma': {
@@ -234,11 +235,20 @@ For questions about these Terms, contact us at hello@birclick.az or write to Zir
 function ContactPage() {
   const [form, setForm] = useState({ name:'', school:'', role:'', email:'', message:'' })
   const [sent, setSent] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const roles = ['School Director / Principal', 'IB Coordinator', 'IT Manager', 'Teacher', 'Other']
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
+    setLoading(true)
+    setError(null)
+    const { error: err } = await supabase
+      .from('contact_submissions')
+      .insert([{ name: form.name, email: form.email, school: form.school, role: form.role, message: form.message }])
+    setLoading(false)
+    if (err) { setError('Something went wrong. Please email us directly at hello@birclick.az'); return }
     setSent(true)
   }
 
@@ -331,9 +341,10 @@ function ContactPage() {
                   <textarea required rows={4} style={{ ...inputStyle, resize:'vertical', lineHeight:1.65 }} placeholder="Tell us about your school and what you're looking for…" value={form.message} onChange={e=>setForm(f=>({...f,message:e.target.value}))}
                     onFocus={e=>e.target.style.borderColor='rgba(167,139,250,0.5)'} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.10)'}/>
                 </div>
-                <button type="submit" style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'14px 28px', borderRadius:999, background:'#fff', color:'#09090f', fontWeight:700, fontSize:15, border:'none', cursor:'pointer', transition:'transform .17s ease', fontFamily:'inherit' }}
-                  onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={e=>e.currentTarget.style.transform=''}>
-                  Send message <ArrowRight style={{ width:15, height:15 }}/>
+                {error && <p style={{ color:'#f87171', fontSize:13, fontWeight:600, textAlign:'center' }}>{error}</p>}
+                <button type="submit" disabled={loading} style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'14px 28px', borderRadius:999, background: loading ? 'rgba(255,255,255,0.7)' : '#fff', color:'#09090f', fontWeight:700, fontSize:15, border:'none', cursor: loading ? 'not-allowed' : 'pointer', transition:'transform .17s ease', fontFamily:'inherit', opacity: loading ? 0.8 : 1 }}
+                  onMouseEnter={e=>{ if(!loading) e.currentTarget.style.transform='translateY(-2px)' }} onMouseLeave={e=>e.currentTarget.style.transform=''}>
+                  {loading ? 'Sending…' : <>Send message <ArrowRight style={{ width:15, height:15 }}/></>}
                 </button>
               </form>
             )}
