@@ -5,7 +5,8 @@ import {
   Users, BarChart2, ArrowRight, Check, Shield, Globe, Menu, X,
   Building2, Lock, Clock, Award, Bell, ClipboardList,
   PenLine, TrendingUp, Calendar, HeartHandshake, LayoutDashboard,
-  Mail, HelpCircle, Layers, Star, Zap, CheckCircle, Sliders, Phone
+  Mail, HelpCircle, Layers, Star, Zap, CheckCircle, Sliders, Phone,
+  Server, ChevronRight
 } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 
@@ -14,20 +15,15 @@ const STR = {
   az: {
     nav_solutions: 'Həllər', nav_features: 'Xüsusiyyətlər', nav_zeka: 'Zəka AI',
     nav_resources: 'Resurslar', nav_pricing: 'Paketlər', nav_signin: 'Daxil ol', nav_demo: 'Bizimlə Əlaqə',
-
-    hero_h1a: 'Məktəbinizi',
-    hero_h1b: 'növbəti pilləyə qaldırın',
+    hero_h1a: 'Məktəbinizi', hero_h1b: 'növbəti pilləyə qaldırın',
     hero_sub: 'IB dünya məktəbləri və Azərbaycan dövlət məktəbləri üçün — kurikulumdan kommunikasiyaya, qiymətləndirmədən hesabata hər şey bir platformada.',
     hero_cta1: 'Xüsusiyyətlərə bax', hero_cta2: 'Bizimlə Əlaqə',
-
     dash_school: 'Zirva Beynəlxalq Məktəbi', dash_welcome: 'Xoş gəlmisiniz, Admin',
     dash_students: 'Şagird', dash_avg_grade: 'Orta Qiymət', dash_attendance: 'Davamiyyət', dash_ai: 'AI Sessiya',
     dash_timetable: 'Bu günün cədvəli', dash_activity: 'Son fəaliyyət',
     dash_math: 'Riyaziyyat', dash_physics: 'Fizika', dash_english: 'İngilis dili',
     dash_ev1: 'Qiymət daxil edildi', dash_ev2: 'Davamiyyət qeyd edildi', dash_ev3: 'Yeni mesaj',
-
     trust_title: 'İnteqrasiyalar & Tərəfdaşlar',
-
     sol_badge: 'Həllər', sol_title: 'Hər Kurikulum Üçün Zirva+',
     sol_sub: 'IB dünya məktəblərindən Azərbaycan dövlət məktəblərinə — hər kurikulum çərçivəsi dəstəklənir.',
     sol_multi_t: 'Çox Kurikulumlu', sol_multi_d: 'Bütün əsas kurikulum çərçivələri üçün ümumi dəstək, inklüziv qiymətləndirmə və hesabat',
@@ -37,7 +33,6 @@ const STR = {
     sol_myp_t: 'IB Orta İllər (MYP)', sol_myp_d: 'Tədqiqat proqramının birgə planlanması üçün tam dəstək',
     sol_pyp_t: 'IB İlk İllər (PYP)', sol_pyp_d: 'Kiçik yaşlı şagirdlər üçün eyni güclü dəstək',
     sol_cta: 'Daha çox',
-
     feat_badge: 'Xüsusiyyətlər', feat_title: 'Lazım olan hər şey.', feat_title_b: 'Lazım olmayan heç nə.',
     feat_sub: 'Kurikulumdan hesabata, qiymətləndirmədən AI müəlliminə — tam iş axını bir platformada.',
     tab_curriculum: 'Kurikulum', tab_teaching: 'Tədris', tab_assessment: 'Qiymətləndirmə',
@@ -50,9 +45,8 @@ const STR = {
     z1:'Azərbaycan, ingilis, rus dillərində', z2:'IB MYP/DP və milli kurikulum üzrə', z3:'Müəllimlər üçün AI hesabat köməkçisi', z4:'Claude AI ilə gücləndirilmiş',
     co1:'Müəllim-valideyn real vaxtda mesajlaşma', co2:'Məktəb miqyasında elanlar', co3:'Bildiriş idarəetməsi', co4:'Çoxdilli dəstək',
     feat_cta: 'Bizimlə Əlaqə',
-
-    ben_badge: 'Üstünlüklər', ben_title: 'Daha Ağıllı Məktəb İdarəetməsi üçün Sadələşdirilmiş Həllər',
-    ben_sub: 'Məktəb əməliyyatlarının hər tərəfini örtən vahid platforma. Fərdi dəstəqdən tutmuş sertifikasiyaya qədər hər aspekt sizin sürətlə inkişafınız üçün hazırlanmışdır.',
+    ben_badge: 'Üstünlüklər', ben_title: 'Daha Ağıllı Məktəb İdarəetməsi',
+    ben_sub: 'Məktəb əməliyyatlarının hər tərəfini örtən vahid platforma.',
     b1t:'Səmərəlilik', b1d:'Parçalanmış alətləri bir güclü platformayla əvəz edin',
     b2t:'İcma Əlaqəsi', b2d:'Elanlar, irəliləyiş izləmə — valideyn, şagird, müəllim bir-biri ilə bağlı',
     b3t:'Mükəmməl Təhsil', b3d:'Kurikulum planlamasından şəhadətnaməyə qədər tam tədris yolunu',
@@ -61,38 +55,31 @@ const STR = {
     b6t:'Dünya Standartlı Onboarding', b6d:'Birinci gündən tətbiq dəstəyi daxildir',
     b7t:'Standartlara Uyğunluq', b7d:'IB, CIS, BSO standartlarına uyğunluğu təmin edən alətlər',
     b8t:'2+ İllik Təcrübə', b8d:'Beynəlxalq və dövlət məktəblərini dərindən anlayan komanda',
-
     test_badge: 'Müştəri Rəyləri', test_title: 'Dünya Üzrə İstifadəçilərimizin Həqiqi Hekayələri',
     test_sub: 'Pilot proqramında iştirak edən məktəblərin həqiqi rəyləri.',
     test_read: 'Tam rəyi oxu',
-    t1q: '"Zirva bizim üçün yeganə platformadır — həm IB, həm dövlət kurikulumunu bir yerdə əhatə edir. Tam paket."',
+    t1q: '"Zirva bizim üçün yeganə platformadır — həm IB, həm dövlət kurikulumunu bir yerdə əhatə edir."',
     t1n: 'Rauf Əliyev', t1r: 'İT Sistemləri Rəhbəri, Bakı Beynəlxalq Məktəbi',
-    t2q: '"Zəka AI müəllimlərimizin həftəlik hesabat vaxtını 4 saatdan 20 dəqiqəyə endirdi. İnanılmaz nəticə."',
+    t2q: '"Zəka AI müəllimlərimizin həftəlik hesabat vaxtını 4 saatdan 20 dəqiqəyə endirdi."',
     t2n: 'Günel Hüseynova', t2r: 'Tədris Texnologiyaları Rəhbəri, Xəzər Universiteti Məktəbi',
-    t3q: '"Proqramımızı irəli aparan vasitədir. DP koordinatoru olaraq Zirva olmadan işimi təsəvvür edə bilmirəm."',
+    t3q: '"DP koordinatoru olaraq Zirva olmadan işimi təsəvvür edə bilmirəm."',
     t3n: 'Nigar Qasımova', t3r: 'DP Koordinatoru, Dünya İB Məktəbi',
-
     int_badge: 'İnteqrasiyalar', int_title: 'Sevdiyiniz Alətlərlə İnteqrasiya Edin.',
-    int_sub: 'Ən inteqrasiyalı məktəb texnologiya ekosistemini qururuq — tam vəziyyətdə işləyin. 50+ inteqrasiya artmaqdadır.',
-    int_hub: 'Zirva hər şeyi birləşdirir',
-
+    int_sub: '50+ inteqrasiya artmaqdadır.', int_hub: 'Zirva hər şeyi birləşdirir',
     sec_badge: 'Təhlükəsizlik & Uyğunluq', sec_title: 'Məlumatlarınızı Qorumağa Sadiqik.',
-    sec_sub: 'Beynəlxalq gizlilik qanunlarına uyğun yerli hosting, ISO/IEC 27001 sertifikatı və möhkəm fəlakəti bərpa protokolları vasitəsilə məlumat gizliliyini və etibarlılığını təmin edirik.',
+    sec_sub: 'Yerli hosting, ISO/IEC 27001 sertifikatı və möhkəm bərpa protokolları ilə məlumat gizliliyini təmin edirik.',
     sec_explore: 'Daha çox',
     s1t:'Yerli Hosting', s1d:'Bütün məlumatlar Azərbaycan serverlərində yerli qanunlara uyğun saxlanılır',
     s2t:'ISO/IEC 27001', s2d:'Beynəlxalq məlumat təhlükəsizliyi idarəetmə standartı',
     s3t:'Məlumat Qorunması', s3d:'GDPR və Azərbaycan Məlumatların Qorunması Qanunu ilə tam uyğunluq',
-    s4t:'Uşaq Təhlükəsizliyi', s4d:'24/7 izləmə, zərərli proqram skanı, ciddi giriş nəzarəti, fəlakəti bərpa planları',
-
-    sup_badge: 'Dəstək', sup_title: 'Rəqibsiz Dəstək. Yanınızdayıq.',
-    sup_sub: 'Hər gün, 24 saat, həftənin 7 günü. Suallarınız cavabsız qalmaz.',
+    s4t:'Uşaq Təhlükəsizliyi', s4d:'24/7 izləmə, ciddi giriş nəzarəti, fəlakəti bərpa planları',
+    sup_badge: 'Dəstək', sup_title: 'Rəqibsiz Dəstək.',
+    sup_sub: 'Hər gün, 24 saat, həftənin 7 günü.',
     su1t:'E-poçt Dəstəyi', su1d:'Sürətli, etibarlı cavablar.', su1cta: 'Sorğu göndər',
     su2t:'Yardım Mərkəzi', su2d:'Axtarıla bilən öz-özünə xidmət bilik bazası.', su2cta: 'Daxil ol',
-
     cta_title: 'Zirva+\'ı əməldə görməyə hazırsınızmı?',
     cta_sub: 'Pilot proqrama qoşulun — texnologiya hazırdır.',
     cta_btn1: 'Satış ilə əlaqə', cta_btn2: 'Bizimlə Əlaqə →',
-
     foot_tagline: 'Azərbaycanda rəqəmsal məktəbin infrastrukturu',
     foot_col1: 'Zirva+ öyrənmə', foot_col2: 'Resurslar', foot_col3: 'Dəstək Mərkəzi', foot_col4: 'Şirkət',
     foot_rights: 'Bütün hüquqlar qorunur.',
@@ -105,22 +92,17 @@ const STR = {
   en: {
     nav_solutions: 'Solutions', nav_features: 'Features', nav_zeka: 'Zeka AI',
     nav_resources: 'Resources', nav_pricing: 'Explore Bundles', nav_signin: 'Sign In', nav_demo: 'Contact Us',
-
-    hero_h1a: 'Run Your School',
-    hero_h1b: 'Smarter with Zirva',
+    hero_h1a: 'Run your school', hero_h1b: 'smarter with Zirva',
     hero_sub: 'From curriculum to communication, assessment to reporting — everything your school needs in one powerful platform built for IB World Schools and Azerbaijani state schools.',
     hero_cta1: 'Explore Features', hero_cta2: 'Contact Us',
-
     dash_school: 'Zirva International School', dash_welcome: 'Welcome back, Admin',
     dash_students: 'Students', dash_avg_grade: 'Avg Grade', dash_attendance: 'Attendance', dash_ai: 'AI Sessions',
     dash_timetable: "Today's Timetable", dash_activity: 'Recent Activity',
     dash_math: 'Mathematics', dash_physics: 'Physics', dash_english: 'English Language',
     dash_ev1: 'Grade submitted', dash_ev2: 'Attendance recorded', dash_ev3: 'New message',
-
     trust_title: 'Integrations & Partners',
-
     sol_badge: 'Solutions', sol_title: 'Zirva+ for Your Curriculum',
-    sol_sub: 'Discover a flexible multi-curricula teaching and learning platform where curriculum management, lesson planning, assessment, communication, reporting and much more flow together effortlessly.',
+    sol_sub: 'Discover a flexible multi-curricula platform where curriculum management, lesson planning, assessment, communication and reporting flow together effortlessly.',
     sol_multi_t: 'Multi-Curricula', sol_multi_d: 'General support for all major curriculum frameworks, inclusive assessment and reporting',
     sol_gov_t: 'National Curriculum', sol_gov_d: 'Dedicated mode for Azerbaijani public schools with Ministry integration',
     sol_dp_t: 'IB Diploma (DP)', sol_dp_d: 'Full IB Diploma Programme support including DP Core management',
@@ -128,12 +110,11 @@ const STR = {
     sol_myp_t: 'IB Middle Years (MYP)', sol_myp_d: 'Collaborative Programme of Inquiry planning',
     sol_pyp_t: 'IB Primary Years (PYP)', sol_pyp_d: 'The same powerful support for younger students',
     sol_cta: 'Learn more',
-
     feat_badge: 'Features', feat_title: 'Everything You Need.', feat_title_b: "Nothing You Don't.",
-    feat_sub: 'From curriculum to reporting, assessment to AI tutoring — complete workflow coverage on one platform.',
+    feat_sub: 'From curriculum to reporting, assessment to AI — complete workflow coverage on one platform.',
     tab_curriculum: 'Curriculum', tab_teaching: 'Teaching & Learning', tab_assessment: 'Assessment & Gradebook',
     tab_reports: 'Reports', tab_attendance: 'Attendance', tab_zeka: 'Zeka AI', tab_comms: 'Communications',
-    c1:'Collaborative curriculum planning', c2:'600+ built-in standards to choose from', c3:'Curriculum alignment and coverage tools', c4:'IBIS integration: exam registration, e-coursework, CAS moderation',
+    c1:'Collaborative curriculum planning', c2:'600+ built-in standards', c3:'Curriculum alignment tools', c4:'IBIS integration: exam registration, e-coursework, CAS',
     t1:'Lesson plans and teaching materials', t2:'Homework and assignment management', t3:'Student progress tracking', t4:'Zeka AI teaching assistant',
     a1:'IB criteria grading (A–D scale)', a2:'National 10-point grading scale', a3:'Real-time grade synchronisation', a4:'Student progress analytics',
     r1:'Ministry-compliant reports', r2:'Automatic E-Gov.az export', r3:'PDF and Excel output', r4:'IB Audit documentation',
@@ -141,49 +122,42 @@ const STR = {
     z1:'Available in Azerbaijani, English and Russian', z2:'Covers IB MYP/DP and national curriculum', z3:'AI report-writing assistant for teachers', z4:'Powered by Claude AI',
     co1:'Real-time teacher–parent messaging', co2:'School-wide announcements', co3:'Notification management', co4:'Multi-language support',
     feat_cta: 'Contact Us',
-
-    ben_badge: 'Benefits', ben_title: 'Streamlined Solutions for Smarter Learning and School Management',
-    ben_sub: 'Unlock a world of opportunities with a learning platform that prioritises your success. From personalised support to industry-recognised certifications, every aspect is crafted to help you achieve your goals faster and more effectively.',
+    ben_badge: 'Benefits', ben_title: 'Smarter School Management',
+    ben_sub: 'One platform covering every aspect of school operations.',
     b1t:'Efficiency', b1d:'Replace fragmented patchwork tools with one powerful platform',
     b2t:'Community Connection', b2d:'Announcements, progress tracking, keeping everyone in the loop',
     b3t:'Exceptional Education', b3d:'Manage the full teaching journey from curriculum planning to report cards',
-    b4t:'Tailorable', b4d:"Flexible features to meet your school's specific student needs",
+    b4t:'Tailorable', b4d:"Flexible features to meet your school's specific needs",
     b5t:'Multi-Curricula Delivery', b5d:'The largest curriculum catalogue in Azerbaijan — IB + national',
-    b6t:'World-Class Onboarding & Ongoing Support Included', b6d:'Our tailored implementation ensures your school is ready and sees value from day one.',
-    b7t:'Achieve and Demonstrate Educational Standards', b7d:'Our tools, guidance, and experts help you meet international standards like BSO and CIS.',
-    b8t:'19+ Years of Experience', b8d:"We've an unrivalled understanding of the needs and expectations of international schools.",
-
-    test_badge: 'Customer Stories', test_title: 'Real Stories From our Users Worldwide',
+    b6t:'World-Class Onboarding', b6d:'Our tailored implementation ensures your school sees value from day one.',
+    b7t:'Educational Standards', b7d:'Our tools help you meet international standards like BSO and CIS.',
+    b8t:'Expert Team', b8d:"Deep understanding of international and state school needs.",
+    test_badge: 'Customer Stories', test_title: 'Real Stories From our Users',
     test_sub: 'Real feedback from schools in our pilot programme.',
     test_read: 'Read case study',
-    t1q: '"Zirva is the only platform that gives us the full package — IB and national curriculum covered in one place. Nothing else comes close."',
+    t1q: '"Zirva is the only platform that gives us the full package — IB and national curriculum in one place."',
     t1n: 'Rauf Aliyev', t1r: 'IT Systems Leader, Baku International School',
-    t2q: '"Zeka AI reduced our teachers\' weekly reporting time from 4 hours to 20 minutes. The results have been extraordinary."',
+    t2q: '"Zeka AI reduced our teachers\' weekly reporting time from 4 hours to 20 minutes."',
     t2n: 'Gunel Huseynova', t2r: 'Head of Ed Tech, Khazar University School',
-    t3q: '"It\'s the vehicle that drives our programme. As a DP Coordinator, I can\'t imagine working without Zirva."',
+    t3q: '"As a DP Coordinator, I can\'t imagine working without Zirva."',
     t3n: 'Nigar Gasimova', t3r: 'DP Coordinator, IB World School',
-
-    int_badge: 'Integrations', int_title: 'Integrate With the Tools You Love, All in One Place.',
-    int_sub: "We're building the most integrated school technology ecosystem so you can work in a state of flow. 50+ integrations & counting.",
+    int_badge: 'Integrations', int_title: 'Integrate With the Tools You Love.',
+    int_sub: "Building the most integrated school technology ecosystem. 50+ integrations & counting.",
     int_hub: 'Zirva connects everything',
-
-    sec_badge: 'Security & Compliance', sec_title: "We're Committed to Keeping Your Data Safe and Secure.",
-    sec_sub: 'Ensure data privacy and reliability through global hosting, ISO/GDPR certification, and robust continuity and disaster recovery protocols.',
+    sec_badge: 'Security & Compliance', sec_title: "We're Committed to Keeping Your Data Safe.",
+    sec_sub: 'Local hosting, ISO/GDPR certification, and robust continuity protocols ensure your data is always protected.',
     sec_explore: 'Explore more',
-    s1t:'Global Hosting', s1d:'All data stored on Azerbaijani servers in compliance with local privacy law for all international operations.',
-    s2t:'ISO/IEC 27001:2013 Compliance', s2d:'Organisation-wide commitment to robust information security and risk management practices.',
-    s3t:'Data Protection', s3d:'Compliant with GDPR, Chinese Cybersecurity Law, and global data privacy regulations to safeguard all schools and over 30M.',
-    s4t:'Safeguarding', s4d:'Strict access controls, malware scanning, 24/7 monitoring and disaster-ready plans ensure secure resilient operations anywhere, anytime.',
-
-    sup_badge: 'Support', sup_title: "Unrivalled Support. We've Got You Covered.",
+    s1t:'Local Hosting', s1d:'All data stored on Azerbaijani servers in compliance with local privacy law.',
+    s2t:'ISO/IEC 27001', s2d:'Organisation-wide commitment to robust information security practices.',
+    s3t:'Data Protection', s3d:'Compliant with GDPR and Azerbaijani Data Protection Law.',
+    s4t:'Safeguarding', s4d:'Strict access controls, malware scanning, 24/7 monitoring and disaster-ready plans.',
+    sup_badge: 'Support', sup_title: "Unrivalled Support.",
     sup_sub: "We're at your side, 24 hours a day, 7 days a week.",
     su1t:'Email Support', su1d:'Fast, reliable answers.', su1cta: 'Submit Request',
     su2t:'Help Centre', su2d:'Searchable resources, anytime.', su2cta: 'Go In',
-
     cta_title: 'Ready to See Zirva+ in Action?',
     cta_sub: 'Empower your school with curriculum, teaching and reporting.',
     cta_btn1: 'Contact Sales', cta_btn2: 'Contact Us →',
-
     foot_tagline: 'The digital school infrastructure for Azerbaijan',
     foot_col1: 'Zirva+ for Learning', foot_col2: 'Resources', foot_col3: 'Support Centre', foot_col4: 'Company',
     foot_rights: 'All Rights Reserved.',
@@ -198,207 +172,217 @@ const STR = {
 /* ─── Logo ─── */
 function ZirvaLogo({ size = 32, invert = false }) {
   return (
-    <img
-      src="/logo.png"
-      alt="Zirva"
-      width={size}
-      height={size}
-      className="object-contain"
-      style={invert ? { filter: 'brightness(0) invert(1)' } : undefined}
-    />
+    <img src="/logo.png" alt="Zirva" width={size} height={size} className="object-contain"
+      style={invert ? { filter: 'brightness(0) invert(1)' } : undefined} />
   )
 }
 
-/* ─── Keyframe styles ─── */
+/* ─── Styles ─── */
 const globalStyles = `
-  @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  body, * { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+
+  @keyframes floatY {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-10px); }
   }
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+  @keyframes floatY2 {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
   }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
+  @keyframes popIn {
+    0%   { opacity: 0; transform: scale(0.9) translateY(6px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
   }
-  @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4); }
-    50%       { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+
+  .float-a  { animation: floatY  6s ease-in-out infinite; }
+  .float-b  { animation: floatY2 7.5s ease-in-out infinite 1.2s; }
+  .float-c  { animation: floatY  5.5s ease-in-out infinite 0.5s; }
+  .pop-in   { animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+  .nav-link-line { position: relative; }
+  .nav-link-line::after {
+    content: ''; position: absolute; left: 50%; bottom: -1px;
+    width: 0; height: 2px;
+    background: linear-gradient(90deg,#534AB7,#1D9E75);
+    border-radius: 2px;
+    transition: width .22s ease, left .22s ease;
   }
-  .nav-link {
-    position: relative;
+  .nav-link-line:hover::after { width: calc(100% - 16px); left: 8px; }
+
+  .card-lift {
+    transition: transform .24s cubic-bezier(.34,1,.64,1), box-shadow .24s ease;
   }
-  .nav-link::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 2px;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #534AB7, #2dd4bf);
-    border-radius: 1px;
-    transition: width 0.25s ease, left 0.25s ease;
-  }
-  .nav-link:hover::after {
-    width: calc(100% - 24px);
-    left: 12px;
-  }
-  @keyframes shimmerSlide {
-    0% { transform: translateX(-200%) skewX(-15deg); }
-    100% { transform: translateX(200%) skewX(-15deg); }
-  }
-  @keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
-  @keyframes badgePop {
-    0% { opacity: 0; transform: translateY(8px) scale(0.95); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .hero-float { animation: float 6s ease-in-out infinite; }
-  .hero-float-2 { animation: float 7s ease-in-out infinite 1s; }
-  .hero-float-3 { animation: float 5.5s ease-in-out infinite 0.5s; }
-  .fade-up { animation: fadeUp 0.6s ease forwards; }
-  .stat-pill { animation: pulseGlow 3s ease-in-out infinite; }
-  .badge-pop { animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-  .shimmer-card {
-    position: relative;
-    overflow: hidden;
-  }
-  .shimmer-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
-    animation: shimmerSlide 3.5s ease-in-out infinite;
-    pointer-events: none;
-  }
-  .gradient-text-animate {
-    background-size: 200% 200%;
-    animation: gradientShift 5s ease infinite;
-  }
-  .card-spring {
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-  }
-  .card-spring:hover {
+  .card-lift:hover {
     transform: translateY(-6px);
+    box-shadow: 0 20px 56px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
+  }
+
+  .hero-glow-l {
+    position:absolute; top:-10%; left:-8%;
+    width:52%; height:60%;
+    background: radial-gradient(ellipse, rgba(83,74,183,.22) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .hero-glow-r {
+    position:absolute; top:10%; right:-6%;
+    width:44%; height:52%;
+    background: radial-gradient(ellipse, rgba(29,158,117,.12) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .hero-glow-b {
+    position:absolute; bottom:0; left:25%;
+    width:50%; height:30%;
+    background: radial-gradient(ellipse, rgba(99,102,241,.15) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .hero-dots {
+    background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .purple-text {
+    background: linear-gradient(135deg, #a78bfa 0%, #818cf8 45%, #93c5fd 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 `
 
-/* ─── Nav ─── */
+/* ══════════════════════════════════════ NAV ══ */
 function Nav({ s, lang, setLang }) {
   const [open, setOpen] = useState(false)
+
+  const links = [
+    { label: s.nav_solutions, href: '#solutions' },
+    { label: s.nav_features,  href: '#features'  },
+    { label: s.nav_zeka,      href: '#zeka'       },
+  ]
+
   return (
     <>
       <style>{globalStyles}</style>
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/85 border-b border-gray-100/80 shadow-sm shadow-gray-100/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-            <ZirvaLogo size={32} />
-            <span className="font-serif text-xl text-gray-900 tracking-tight group-hover:text-purple transition-colors duration-200">Zirva</span>
+      <header
+        className="sticky top-0 z-50 bg-white/95 backdrop-blur-2xl"
+        style={{ boxShadow: '0 0 0 1px rgba(0,0,0,0.055), 0 4px 24px rgba(0,0,0,0.05)' }}
+      >
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 flex items-center justify-between h-[72px]">
+
+          {/* ── Brand ── */}
+          <Link to="/" className="flex items-center gap-3 shrink-0 group">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
+              style={{ background: 'rgba(83,74,183,0.10)' }}
+            >
+              <ZirvaLogo size={22} />
+            </div>
+            <div className="leading-none">
+              <span className="block text-[16px] font-extrabold text-gray-900 tracking-tight">Zirva</span>
+              <span className="block text-[10px] font-bold text-gray-400 tracking-[0.12em] uppercase mt-0.5">School Platform</span>
+            </div>
           </Link>
 
-          {/* Center nav */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {[
-              { label: s.nav_solutions, href: '#solutions' },
-              { label: s.nav_features,  href: '#features' },
-              { label: s.nav_zeka,      href: '#zeka' },
-              { label: s.nav_resources, href: '#integrations' },
-              { label: s.nav_pricing,   href: '#solutions' },
-            ].map(({ label, href }) => (
+          {/* ── Center links ── */}
+          <nav className="hidden lg:flex items-center gap-0.5">
+            {links.map(({ label, href }) => (
               <a
-                key={label}
-                href={href}
-                className="nav-link px-3 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium rounded-lg hover:bg-gray-50/80 transition-colors duration-150"
+                key={label} href={href}
+                className="relative px-4 py-2 text-[14px] text-gray-500 hover:text-gray-900 font-semibold rounded-lg transition-all duration-150 hover:bg-gray-100/80"
               >
                 {label}
               </a>
             ))}
           </nav>
 
-          {/* Right actions */}
-          <div className="hidden lg:flex items-center gap-2">
-            <div className="flex items-center bg-gray-100 rounded-lg p-0.5 mr-1">
+          {/* ── Right actions ── */}
+          <div className="hidden lg:flex items-center gap-1.5">
+
+            {/* Language toggle */}
+            <div className="flex items-center rounded-lg p-0.5 mr-1" style={{ background: 'rgba(0,0,0,0.05)' }}>
               {['az', 'en'].map(l => (
                 <button
-                  key={l}
-                  onClick={() => setLang(l)}
-                  className={`px-2.5 py-1.5 rounded-md text-xs font-semibold transition-all duration-200 ${
-                    lang === l
-                      ? 'bg-white text-purple shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'
-                  }`}
+                  key={l} onClick={() => setLang(l)}
+                  className="px-2.5 py-1.5 rounded-md text-[11px] font-extrabold tracking-wide transition-all duration-200"
+                  style={lang === l
+                    ? { background: '#fff', color: '#534AB7', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }
+                    : { color: '#9ca3af' }
+                  }
                 >
                   {l.toUpperCase()}
                 </button>
               ))}
             </div>
+
+            {/* Sign in */}
             <Link
               to="/daxil-ol"
-              className="text-sm text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200"
+              className="px-4 py-2 text-[14px] text-gray-500 hover:text-gray-900 font-semibold rounded-lg hover:bg-gray-100/80 transition-all"
             >
               {s.nav_signin}
             </Link>
+
+            {/* CTA */}
             <Link
               to="/contact"
-              className="relative overflow-hidden bg-purple text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-md shadow-purple/25 hover:shadow-lg hover:shadow-purple/35 hover:-translate-y-0.5 transition-all duration-200"
+              className="inline-flex items-center gap-1.5 text-white text-[14px] font-bold px-5 py-[10px] rounded-xl transition-all hover:-translate-y-px active:translate-y-0"
+              style={{
+                background: 'linear-gradient(135deg,#6056CC 0%,#534AB7 55%,#4A41A8 100%)',
+                boxShadow: '0 2px 10px rgba(83,74,183,0.45), 0 1px 2px rgba(0,0,0,0.1)',
+              }}
             >
               {s.nav_demo}
             </Link>
           </div>
 
-          {/* Mobile hamburger */}
+          {/* Mobile toggle */}
           <button
             onClick={() => setOpen(v => !v)}
-            className="lg:hidden p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
-            aria-label="Toggle menu"
+            className="lg:hidden p-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
           >
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
 
-        {/* Mobile menu */}
+        {/* ── Mobile drawer ── */}
         {open && (
-          <div className="lg:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl px-4 py-4">
-            <div className="space-y-1 mb-4">
-              {[
-                { label: s.nav_solutions, href: '#solutions' },
-                { label: s.nav_features,  href: '#features' },
-                { label: s.nav_zeka,      href: '#zeka' },
-                { label: s.nav_resources, href: '#integrations' },
-                { label: s.nav_pricing,   href: '#solutions' },
-              ].map(({ label, href }) => (
+          <div className="lg:hidden bg-white/98 border-t border-gray-100 px-6 pt-4 pb-6">
+            <div className="space-y-0.5 mb-5">
+              {links.map(({ label, href }) => (
                 <a
-                  key={label}
-                  href={href}
-                  onClick={() => setOpen(false)}
-                  className="block py-2.5 text-sm text-gray-700 font-medium px-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  key={label} href={href} onClick={() => setOpen(false)}
+                  className="flex items-center py-3 px-3 text-[15px] text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors"
                 >
                   {label}
                 </a>
               ))}
             </div>
-            <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-1">
+            <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
+              <div className="flex items-center rounded-lg p-0.5" style={{ background: 'rgba(0,0,0,0.06)' }}>
                 {['az', 'en'].map(l => (
                   <button
-                    key={l}
-                    onClick={() => setLang(l)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                      lang === l ? 'bg-purple text-white' : 'text-gray-400 border border-gray-200'
-                    }`}
+                    key={l} onClick={() => setLang(l)}
+                    className="px-3 py-1.5 rounded-md text-xs font-extrabold transition-all"
+                    style={lang === l
+                      ? { background: '#fff', color: '#534AB7', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }
+                      : { color: '#9ca3af' }
+                    }
                   >
                     {l.toUpperCase()}
                   </button>
                 ))}
               </div>
-              <div className="flex gap-2">
-                <Link to="/daxil-ol" className="text-sm text-gray-600 font-medium px-3 py-2">{s.nav_signin}</Link>
-                <Link to="/contact" className="bg-purple text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-md shadow-purple/25">{s.nav_demo}</Link>
+              <div className="flex items-center gap-2">
+                <Link to="/daxil-ol" className="text-sm text-gray-500 font-semibold px-3 py-2">
+                  {s.nav_signin}
+                </Link>
+                <Link
+                  to="/contact"
+                  className="text-white text-sm font-bold px-5 py-2.5 rounded-xl"
+                  style={{ background: 'linear-gradient(135deg,#6056CC,#534AB7)', boxShadow: '0 2px 8px rgba(83,74,183,0.4)' }}
+                >
+                  {s.nav_demo}
+                </Link>
               </div>
             </div>
           </div>
@@ -408,102 +392,73 @@ function Nav({ s, lang, setLang }) {
   )
 }
 
-/* ─── Dashboard Mockup ─── */
+/* ══════════════════════════════════════ DASHBOARD MOCKUP (unchanged) ══ */
 function DashboardMockup({ s }) {
   const sideItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', active: true },
-    { icon: BookOpen, label: s.tab_assessment, active: false },
-    { icon: Calendar, label: s.tab_attendance, active: false },
-    { icon: ClipboardList, label: s.tab_teaching, active: false },
-    { icon: MessageSquare, label: s.tab_comms, active: false },
-    { icon: Sparkles, label: s.tab_zeka, active: false },
+    { icon: LayoutDashboard, label: 'Dashboard',       active: true  },
+    { icon: BookOpen,        label: s.tab_assessment,  active: false },
+    { icon: Calendar,        label: s.tab_attendance,  active: false },
+    { icon: ClipboardList,   label: s.tab_teaching,    active: false },
+    { icon: MessageSquare,   label: s.tab_comms,       active: false },
+    { icon: Sparkles,        label: s.tab_zeka,        active: false },
   ]
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        border: '1px solid rgba(255,255,255,0.15)',
-        boxShadow: '0 50px 100px -20px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08)',
-      }}
-    >
-      {/* Browser chrome */}
+    <div className="rounded-2xl overflow-hidden" style={{ border:'1px solid rgba(255,255,255,0.13)', boxShadow:'0 50px 100px -20px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.07)' }}>
       <div className="bg-gray-900/90 px-4 py-2.5 flex items-center gap-3">
         <div className="flex gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-          <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-          <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+          <div className="w-2.5 h-2.5 rounded-full bg-red-400"/><div className="w-2.5 h-2.5 rounded-full bg-yellow-400"/><div className="w-2.5 h-2.5 rounded-full bg-green-400"/>
         </div>
-        <div className="flex-1 bg-gray-800 rounded-md px-3 py-1 text-[11px] text-gray-500 text-center max-w-xs mx-auto">
-          app.zirva.az/admin/dashboard
-        </div>
+        <div className="flex-1 bg-gray-800 rounded-md px-3 py-1 text-[11px] text-gray-500 text-center max-w-xs mx-auto">app.zirva.az/admin/dashboard</div>
       </div>
-
-      {/* App layout */}
-      <div className="flex bg-white" style={{ height: 420 }}>
-        {/* Sidebar */}
+      <div className="flex bg-white" style={{ height:420 }}>
         <div className="w-48 bg-white border-r border-gray-100 shrink-0 py-3 hidden sm:block">
           <div className="flex items-center gap-2 px-4 mb-5">
-            <img src="/logo.png" alt="Zirva" width="20" height="20" className="object-contain" />
-            <span className="font-serif text-sm font-bold text-gray-900">Zirva</span>
+            <img src="/logo.png" alt="Zirva" width="20" height="20" className="object-contain"/>
+            <span className="text-sm font-bold text-gray-900">Zirva</span>
           </div>
           {sideItems.map(({ icon: Icon, label, active }) => (
-            <div
-              key={label}
-              className={`flex items-center gap-2.5 mx-2 px-3 py-2 rounded-lg text-[11px] font-medium mb-0.5 ${
-                active ? 'bg-purple-light text-purple' : 'text-gray-400'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">{label}</span>
+            <div key={label} className={`flex items-center gap-2.5 mx-2 px-3 py-2 rounded-lg text-[11px] font-semibold mb-0.5 ${active ? 'bg-purple-light text-purple' : 'text-gray-400'}`}>
+              <Icon className="w-3.5 h-3.5 shrink-0"/><span className="truncate">{label}</span>
             </div>
           ))}
         </div>
-
-        {/* Main */}
         <div className="flex-1 bg-surface overflow-hidden flex flex-col">
-          {/* Top bar */}
           <div className="bg-white border-b border-gray-100 px-4 py-2.5 flex items-center justify-between shrink-0">
             <div>
               <p className="text-[11px] font-semibold text-gray-900">{s.dash_welcome}</p>
               <p className="text-[10px] text-gray-400">{s.dash_school}</p>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-              <span className="text-[10px] text-teal font-medium">Live</span>
-              <div className="w-7 h-7 bg-purple rounded-full flex items-center justify-center">
-                <span className="text-white text-[10px] font-bold">A</span>
-              </div>
+              <div className="w-2 h-2 rounded-full bg-teal animate-pulse"/>
+              <span className="text-[10px] text-teal font-semibold">Live</span>
+              <div className="w-7 h-7 bg-purple rounded-full flex items-center justify-center"><span className="text-white text-[10px] font-bold">A</span></div>
             </div>
           </div>
-
-          {/* KPIs */}
           <div className="grid grid-cols-4 gap-2.5 p-3">
             {[
-              { label: s.dash_students, value: '342', trend: '+12', c: 'purple' },
-              { label: s.dash_avg_grade, value: '7.8', trend: '↑0.4', c: 'teal' },
-              { label: s.dash_attendance, value: '94%', trend: '↑2.1%', c: 'purple' },
-              { label: s.dash_ai, value: '1.2k', trend: '+180', c: 'teal' },
+              { label:s.dash_students,   value:'342',  trend:'+12',   c:'purple' },
+              { label:s.dash_avg_grade,  value:'7.8',  trend:'↑0.4',  c:'teal'   },
+              { label:s.dash_attendance, value:'94%',  trend:'↑2.1%', c:'purple' },
+              { label:s.dash_ai,         value:'1.2k', trend:'+180',  c:'teal'   },
             ].map(({ label, value, trend, c }) => (
               <div key={label} className="bg-white rounded-lg p-2.5 border border-border-soft">
                 <p className="text-[9px] text-gray-400 truncate mb-0.5">{label}</p>
                 <p className="text-base font-bold text-gray-900 leading-tight">{value}</p>
-                <p className={`text-[9px] font-medium ${c === 'teal' ? 'text-teal' : 'text-purple'}`}>{trend}</p>
+                <p className={`text-[9px] font-semibold ${c==='teal'?'text-teal':'text-purple'}`}>{trend}</p>
               </div>
             ))}
           </div>
-
-          {/* Two panels */}
           <div className="grid grid-cols-2 gap-2.5 px-3 pb-3 flex-1 min-h-0">
             <div className="bg-white rounded-lg p-2.5 border border-border-soft overflow-hidden">
               <p className="text-[10px] font-semibold text-gray-600 mb-2">{s.dash_timetable}</p>
               {[
-                { time: '09:00', subj: s.dash_math, rm: '301' },
-                { time: '10:30', subj: s.dash_physics, rm: '202' },
-                { time: '12:00', subj: s.dash_english, rm: '105' },
+                { time:'09:00', subj:s.dash_math,    rm:'301' },
+                { time:'10:30', subj:s.dash_physics, rm:'202' },
+                { time:'12:00', subj:s.dash_english, rm:'105' },
               ].map(({ time, subj, rm }) => (
                 <div key={time} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
                   <span className="text-[9px] text-gray-400 w-8 shrink-0">{time}</span>
-                  <div className="w-1.5 h-1.5 rounded-full bg-purple shrink-0" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-purple shrink-0"/>
                   <span className="text-[10px] text-gray-700 flex-1 truncate">{subj}</span>
                   <span className="text-[9px] text-gray-400">{rm}</span>
                 </div>
@@ -512,13 +467,13 @@ function DashboardMockup({ s }) {
             <div className="bg-white rounded-lg p-2.5 border border-border-soft overflow-hidden">
               <p className="text-[10px] font-semibold text-gray-600 mb-2">{s.dash_activity}</p>
               {[
-                { ev: s.dash_ev1, t: '2m', ok: true },
-                { ev: s.dash_ev2, t: '15m', ok: true },
-                { ev: s.dash_ev3, t: '1h', ok: false },
+                { ev:s.dash_ev1, t:'2m',  ok:true  },
+                { ev:s.dash_ev2, t:'15m', ok:true  },
+                { ev:s.dash_ev3, t:'1h',  ok:false },
               ].map(({ ev, t, ok }) => (
                 <div key={ev} className="flex items-start gap-2 py-1.5 border-b border-gray-50 last:border-0">
-                  <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${ok ? 'bg-teal-light' : 'bg-purple-light'}`}>
-                    <span className={`text-[8px] font-bold ${ok ? 'text-teal' : 'text-purple'}`}>{ok ? '✓' : '✉'}</span>
+                  <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${ok?'bg-teal-light':'bg-purple-light'}`}>
+                    <span className={`text-[8px] font-bold ${ok?'text-teal':'text-purple'}`}>{ok?'✓':'✉'}</span>
                   </div>
                   <span className="text-[10px] text-gray-700 flex-1 truncate leading-tight pt-0.5">{ev}</span>
                   <span className="text-[9px] text-gray-400 shrink-0">{t}</span>
@@ -532,359 +487,21 @@ function DashboardMockup({ s }) {
   )
 }
 
-/* ─── Hero ─── */
-function Hero({ s }) {
-  return (
-    <section
-      className="relative overflow-hidden px-6 pt-20 pb-0"
-      style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4f46e5 75%, #7c3aed 100%)' }}
-    >
-      {/* Dot-grid texture */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)',
-          backgroundSize: '36px 36px',
-        }}
-      />
-      {/* Decorative blobs */}
-      <div className="pointer-events-none absolute -top-32 -left-32 w-[560px] h-[560px] rounded-full bg-purple/25 blur-[130px]" />
-      <div className="pointer-events-none absolute top-0 right-0 w-[640px] h-[640px] rounded-full bg-teal/10 blur-[150px]" />
-      <div className="pointer-events-none absolute bottom-1/3 left-1/4 w-80 h-80 rounded-full bg-indigo-400/20 blur-[90px]" />
-      <div className="pointer-events-none absolute top-1/2 right-1/3 w-48 h-48 rounded-full bg-violet-500/10 blur-[70px]" />
-
-      <div className="relative max-w-6xl mx-auto z-10">
-        <div className="text-center mb-10">
-          {/* Badge pill */}
-          <div
-            className="badge-pop inline-flex items-center gap-2.5 mb-8 px-5 py-2.5 rounded-full border border-teal/50 bg-teal/15 backdrop-blur-sm"
-            style={{ boxShadow: '0 0 24px rgba(29,158,117,0.25), inset 0 1px 0 rgba(255,255,255,0.1)' }}
-          >
-            <div className="w-2 h-2 rounded-full bg-teal animate-pulse" style={{ boxShadow: '0 0 6px rgba(29,158,117,0.8)' }} />
-            <span className="text-teal text-sm font-semibold tracking-wide">Azərbaycanın #1 Məktəb İdarəetmə Platforması</span>
-          </div>
-
-          {/* Headline */}
-          <h1
-            className="font-serif font-bold text-white tracking-tight leading-[1.05] mb-7"
-            style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)', lineHeight: 1.08 }}
-          >
-            {s.hero_h1a}
-            {s.hero_h1b && (
-              <>
-                <br />
-                <span
-                  style={{
-                    background: 'linear-gradient(90deg, #c4b5fd, #7dd3fc, #34d399)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
-                  {s.hero_h1b}
-                </span>
-              </>
-            )}
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-white/70 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10">
-            {s.hero_sub}
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-            <a
-              href="#features"
-              className="border-2 border-white/30 text-white font-semibold rounded-full px-8 py-3.5 text-sm hover:bg-white/10 hover:border-white/50 transition-all duration-200"
-            >
-              {s.hero_cta1}
-            </a>
-            <Link
-              to="/contact"
-              className="relative bg-white text-purple font-semibold rounded-full px-8 py-3.5 text-sm flex items-center gap-2 shadow-xl shadow-black/30 hover:shadow-2xl hover:shadow-black/40 hover:-translate-y-1 transition-all duration-200"
-            >
-              {s.hero_cta2}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* Feature highlight pills */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-14">
-            {[
-              { label: 'IB + Milli Kurikulum', icon: GraduationCap, bg: 'bg-purple/30 border-purple/40', iconBg: 'bg-purple/50', iconColor: 'text-violet-200', glow: 'rgba(139,92,246,0.3)' },
-              { label: 'Claude AI ilə gücləndirilmiş', icon: Sparkles, bg: 'bg-teal/20 border-teal/40', iconBg: 'bg-teal/35', iconColor: 'text-teal', glow: 'rgba(29,158,117,0.3)' },
-              { label: 'Az · En · Ru', icon: Globe, bg: 'bg-blue-500/20 border-blue-400/30', iconBg: 'bg-blue-500/35', iconColor: 'text-blue-200', glow: 'rgba(59,130,246,0.3)' },
-            ].map(({ label, icon: Icon, bg, iconBg, iconColor, glow }) => (
-              <div
-                key={label}
-                className={`flex items-center gap-3 px-5 py-3 rounded-full border backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 cursor-default ${bg}`}
-                style={{ boxShadow: `0 4px 16px ${glow}` }}
-              >
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center ${iconBg}`}>
-                  <Icon className={`w-3.5 h-3.5 ${iconColor}`} />
-                </div>
-                <span className="text-white text-sm font-semibold">{label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Dashboard mockup with perspective + floating badges */}
-        <div className="relative" style={{ perspective: '1400px' }}>
-          {/* Floating badge left */}
-          <div
-            className="hero-float absolute -left-4 sm:left-4 top-12 z-20 bg-white rounded-2xl px-4 py-3 shadow-2xl shadow-black/30 border border-gray-100/50"
-            style={{ maxWidth: 200 }}
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-purple/10 flex items-center justify-center shrink-0">
-                <Sparkles className="w-4 h-4 text-purple" />
-              </div>
-              <div>
-                <p className="text-[11px] font-bold text-gray-900">Zəka AI aktiv</p>
-                <p className="text-[10px] text-teal font-medium flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-teal inline-block" /> Hazır
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Floating badge right */}
-          <div
-            className="hero-float-2 absolute -right-4 sm:right-4 top-16 z-20 bg-white rounded-2xl px-4 py-3 shadow-2xl shadow-black/30 border border-gray-100/50"
-            style={{ maxWidth: 210 }}
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-teal/10 flex items-center justify-center shrink-0">
-                <GraduationCap className="w-4 h-4 text-teal" />
-              </div>
-              <div>
-                <p className="text-[11px] font-bold text-gray-900">IB + Dövlət məktəbi</p>
-                <p className="text-[10px] text-purple font-medium flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Tam dəstək
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="max-w-5xl mx-auto"
-            style={{ transform: 'rotateX(5deg)', transformOrigin: 'top center' }}
-          >
-            <DashboardMockup s={s} />
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── Trust / Marquee Strip ─── */
-function TrustStrip({ s }) {
-  const items = [
-    'IBO Certified', 'E-Gov.az', 'Microsoft 365', 'Google Workspace',
-    'Claude AI', 'ISO 27001', 'GDPR', 'Turnitin', 'ASAN Xidmət',
-    'CIS Standards',
-  ]
-  return (
-    <div className="bg-white py-8 overflow-hidden relative border-b border-gray-100 shadow-sm">
-      <p className="text-center text-[11px] text-gray-400 font-semibold uppercase tracking-widest mb-5">{s.trust_title}</p>
-
-      {/* Fade edges */}
-      <div className="absolute left-0 top-8 bottom-0 w-28 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-8 bottom-0 w-28 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-
-      <div
-        style={{
-          display: 'flex',
-          gap: '1.25rem',
-          animation: 'marquee 40s linear infinite',
-          width: 'max-content',
-        }}
-      >
-        {[...items, ...items].map((item, i) => (
-          <span
-            key={i}
-            className="flex items-center gap-2 text-gray-500 text-xs font-semibold whitespace-nowrap px-4 py-2 rounded-full border border-gray-100 bg-white shadow-sm"
-            style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
-          >
-            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${i % 2 === 0 ? 'bg-purple/50' : 'bg-teal/50'}`} />
-            {item}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-/* ─── Capabilities strip ─── */
-function Stats() {
-  const items = [
-    {
-      icon: GraduationCap,
-      label: 'IB + Milli Kurikulum',
-      desc: 'Diploma, MYP, CP, PYP və Azərbaycan milli kurikulumu',
-      color: 'purple',
-    },
-    {
-      icon: Sparkles,
-      label: 'Zəka AI',
-      desc: 'Claude AI ilə gücləndirilmiş daxili AI müəllim köməkçisi',
-      color: 'teal',
-    },
-    {
-      icon: Globe,
-      label: 'Az · En · Ru',
-      desc: 'Tam üçdilli interfeys — hər istifadəçi öz dilini seçir',
-      color: 'purple',
-    },
-    {
-      icon: Shield,
-      label: 'Yerli Hosting',
-      desc: 'Bütün məlumatlar Azərbaycan serverləri üzərindədir',
-      color: 'teal',
-    },
-  ]
-  return (
-    <section className="bg-white py-14">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {items.map(({ icon: Icon, label, desc, color }) => (
-            <div
-              key={label}
-              className={`card-spring group relative overflow-hidden rounded-2xl p-7 border cursor-default hover:shadow-xl hover:-translate-y-1.5 ${
-                color === 'teal' ? 'hover:border-teal/35' : 'hover:border-purple/35'
-              }`}
-              style={{
-                background: color === 'teal'
-                  ? 'linear-gradient(140deg, #f0fdf9 0%, #ffffff 65%)'
-                  : 'linear-gradient(140deg, #f5f3ff 0%, #ffffff 65%)',
-                borderColor: color === 'teal' ? 'rgba(29,158,117,0.18)' : 'rgba(83,74,183,0.18)',
-              }}
-            >
-              {/* Watermark icon */}
-              <div className="pointer-events-none absolute -bottom-2 -right-2 opacity-[0.06]">
-                <Icon className={`w-24 h-24 ${color === 'teal' ? 'text-teal' : 'text-purple'}`} />
-              </div>
-              {/* Top accent line */}
-              <div className={`absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl ${color === 'teal' ? 'bg-teal' : 'bg-purple'}`} />
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
-                color === 'teal' ? 'bg-teal/15' : 'bg-purple/15'
-              }`}>
-                <Icon className={`w-6 h-6 ${color === 'teal' ? 'text-teal' : 'text-purple'}`} />
-              </div>
-              <span className={`font-serif font-bold text-lg block mb-2 ${color === 'teal' ? 'text-teal' : 'text-purple'}`}>
-                {label}
-              </span>
-              <span className="text-gray-500 text-sm leading-relaxed">{desc}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── Solutions ─── */
-function Solutions({ s }) {
-  const items = [
-    { icon: Layers,        t: s.sol_multi_t, d: s.sol_multi_d, c: 'purple' },
-    { icon: Building2,     t: s.sol_gov_t,   d: s.sol_gov_d,   c: 'teal'   },
-    { icon: GraduationCap, t: s.sol_dp_t,    d: s.sol_dp_d,    c: 'purple' },
-    { icon: Award,         t: s.sol_cp_t,    d: s.sol_cp_d,    c: 'teal'   },
-    { icon: BookOpen,      t: s.sol_myp_t,   d: s.sol_myp_d,   c: 'purple' },
-    { icon: Users,         t: s.sol_pyp_t,   d: s.sol_pyp_d,   c: 'teal'   },
-  ]
-  return (
-    <section id="solutions" className="py-24 bg-[#F7F7FB]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-14">
-          <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-purple/10 border border-purple/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple" />
-              <span className="text-purple text-xs font-semibold tracking-wide uppercase">{s.sol_badge}</span>
-            </div>
-            <h2
-              className="font-serif text-gray-900 mb-3 leading-tight"
-              style={{ fontSize: 'clamp(1.875rem, 3.5vw, 2.875rem)' }}
-            >
-              {s.sol_title}
-            </h2>
-            <p className="text-gray-500 text-base leading-relaxed">{s.sol_sub}</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {items.map(({ icon: Icon, t, d, c }) => (
-            <a
-              href="#features"
-              key={t}
-              className={`card-spring group relative p-7 rounded-2xl bg-white border overflow-hidden block ${
-                c === 'teal'
-                  ? 'border-teal/15 hover:border-teal/25 hover:shadow-xl'
-                  : 'border-purple/15 hover:border-purple/25 hover:shadow-xl'
-              }`}
-            >
-              {/* Color-coded top border */}
-              <div
-                className={`absolute top-0 left-0 right-0 h-1 ${c === 'teal' ? 'bg-teal' : 'bg-purple'} rounded-t-2xl`}
-              />
-              {/* Hover gradient glow */}
-              <div
-                className={`pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                  c === 'teal' ? 'bg-gradient-to-br from-teal/5 to-transparent' : 'bg-gradient-to-br from-purple/5 to-transparent'
-                }`}
-              />
-              {/* Watermark icon */}
-              <div className="pointer-events-none absolute -bottom-3 -right-3 opacity-0 group-hover:opacity-[0.07] transition-opacity duration-300">
-                <Icon className={`w-24 h-24 ${c === 'teal' ? 'text-teal' : 'text-purple'}`} />
-              </div>
-              {/* Icon in colored circle */}
-              <div className="mb-5 mt-2">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 group-hover:scale-110 ${
-                  c === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
-                }`}>
-                  <Icon className={`w-6 h-6 ${c === 'teal' ? 'text-teal' : 'text-purple'}`} />
-                </div>
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-base leading-snug">{t}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{d}</p>
-              {/* Arrow on hover */}
-              <div
-                className={`mt-5 flex items-center gap-1.5 text-xs font-semibold translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ${
-                  c === 'teal' ? 'text-teal' : 'text-purple'
-                }`}
-              >
-                {s.sol_cta} <ArrowRight className="w-3.5 h-3.5" />
-              </div>
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── Feature Visual ─── */
+/* ══════════════════════════════════════ FEATURE VISUAL (unchanged) ══ */
 function FeatureVisual({ idx, s }) {
   if (idx === 0) return (
     <div className="space-y-2.5">
       {[
-        { label: 'Unit 1 · Algebra', tags: ['MYP', 'DP'], pct: 85, c: 'teal' },
-        { label: 'Unit 2 · Geometry', tags: ['MYP'], pct: 60, c: 'purple' },
-        { label: 'Unit 3 · Statistics', tags: ['National'], pct: 40, c: 'teal' },
+        { label:'Unit 1 · Algebra',    tags:['MYP','DP'], pct:85, c:'teal'   },
+        { label:'Unit 2 · Geometry',   tags:['MYP'],      pct:60, c:'purple' },
+        { label:'Unit 3 · Statistics', tags:['National'], pct:40, c:'teal'   },
       ].map(({ label, tags, pct, c }) => (
         <div key={label} className="bg-surface rounded-xl p-3.5 border border-border-soft">
           <div className="flex items-center justify-between mb-2">
             <span className="text-gray-700 text-xs font-medium">{label}</span>
-            <div className="flex gap-1">
-              {tags.map(t => <span key={t} className="bg-purple-light text-purple text-[9px] px-1.5 py-0.5 rounded-md font-medium">{t}</span>)}
-            </div>
+            <div className="flex gap-1">{tags.map(t => <span key={t} className="bg-purple-light text-purple text-[9px] px-1.5 py-0.5 rounded-md font-medium">{t}</span>)}</div>
           </div>
-          <div className="h-1.5 bg-gray-100 rounded-full">
-            <div className={`h-full rounded-full ${c === 'teal' ? 'bg-teal' : 'bg-purple'}`} style={{ width: `${pct}%` }} />
-          </div>
+          <div className="h-1.5 bg-gray-100 rounded-full"><div className={`h-full rounded-full ${c==='teal'?'bg-teal':'bg-purple'}`} style={{ width:`${pct}%` }}/></div>
           <p className="text-gray-400 text-[9px] mt-1">{pct}% coverage</p>
         </div>
       ))}
@@ -896,16 +513,16 @@ function FeatureVisual({ idx, s }) {
         <span>Student</span><span>Crit. A</span><span>Crit. B</span><span>Grade</span>
       </div>
       {[
-        { n: 'Aytən M.', a: '7', b: '6', g: '7', c: 'teal' },
-        { n: 'Rauf A.', a: '5', b: '5', g: '5', c: 'purple' },
-        { n: 'Günel H.', a: '8', b: '7', g: '8', c: 'teal' },
-        { n: 'Nigar Q.', a: '6', b: '6', g: '6', c: 'purple' },
-      ].map(({ n, a, b, g, c }) => (
+        { n:'Aytən M.',a:'7',b:'6',g:'7',c:'teal'   },
+        { n:'Rauf A.', a:'5',b:'5',g:'5',c:'purple' },
+        { n:'Günel H.',a:'8',b:'7',g:'8',c:'teal'   },
+        { n:'Nigar Q.',a:'6',b:'6',g:'6',c:'purple' },
+      ].map(({ n,a,b,g,c }) => (
         <div key={n} className="bg-white rounded-lg px-3 py-2 grid grid-cols-4 items-center border border-border-soft">
           <span className="text-gray-700 text-[10px] font-medium">{n}</span>
           <span className="text-gray-500 text-[10px]">{a}</span>
           <span className="text-gray-500 text-[10px]">{b}</span>
-          <span className={`text-[10px] font-bold ${c === 'teal' ? 'text-teal' : 'text-purple'}`}>{g}</span>
+          <span className={`text-[10px] font-bold ${c==='teal'?'text-teal':'text-purple'}`}>{g}</span>
         </div>
       ))}
     </div>
@@ -917,19 +534,15 @@ function FeatureVisual({ idx, s }) {
         <span className="bg-teal-light text-teal text-[9px] font-semibold px-2 py-0.5 rounded-full">94%</span>
       </div>
       {[
-        { n: 'Aytən M.', st: 'present', c: 'teal' },
-        { n: 'Rauf A.', st: 'late', c: 'yellow' },
-        { n: 'Günel H.', st: 'present', c: 'teal' },
-        { n: 'Nigar Q.', st: 'absent', c: 'red' },
-        { n: 'Kamran B.', st: 'present', c: 'teal' },
-      ].map(({ n, st, c }) => (
+        { n:'Aytən M.',  st:'present',c:'teal'   },
+        { n:'Rauf A.',   st:'late',   c:'yellow' },
+        { n:'Günel H.',  st:'present',c:'teal'   },
+        { n:'Nigar Q.',  st:'absent', c:'red'    },
+        { n:'Kamran B.', st:'present',c:'teal'   },
+      ].map(({ n,st,c }) => (
         <div key={n} className="bg-white rounded-lg px-3 py-2 flex items-center justify-between border border-border-soft">
           <span className="text-gray-700 text-[10px] font-medium">{n}</span>
-          <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${
-            c === 'teal' ? 'bg-teal-light text-teal'
-            : c === 'yellow' ? 'bg-yellow-50 text-yellow-600'
-            : 'bg-red-50 text-red-500'
-          }`}>{st}</span>
+          <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${c==='teal'?'bg-teal-light text-teal':c==='yellow'?'bg-yellow-50 text-yellow-600':'bg-red-50 text-red-500'}`}>{st}</span>
         </div>
       ))}
     </div>
@@ -937,35 +550,24 @@ function FeatureVisual({ idx, s }) {
   if (idx === 5) return (
     <div className="space-y-2.5">
       <div className="flex items-center gap-2 bg-purple-light rounded-xl px-3 py-2.5 border border-purple/10">
-        <div className="w-7 h-7 bg-purple rounded-full flex items-center justify-center shrink-0">
-          <Sparkles className="w-3.5 h-3.5 text-white" />
-        </div>
-        <div>
-          <p className="text-[9px] text-purple/60 font-medium">{s.tab_zeka}</p>
-          <p className="text-purple text-[10px] leading-snug font-medium">Əlbəttə! Gəl addım-addım izah edək...</p>
-        </div>
+        <div className="w-7 h-7 bg-purple rounded-full flex items-center justify-center shrink-0"><Sparkles className="w-3.5 h-3.5 text-white"/></div>
+        <div><p className="text-[9px] text-purple/60 font-medium">{s.tab_zeka}</p><p className="text-purple text-[10px] leading-snug font-medium">Əlbəttə! Gəl addım-addım izah edək...</p></div>
       </div>
       {[
-        { label: 'Quadratic equations', sub: 'IB MYP · Mathematics', pct: 72 },
-        { label: 'Essay feedback', sub: 'English Language & Lit', pct: 91 },
-        { label: 'DP Core reflection', sub: 'CAS / TOK', pct: 55 },
+        { label:'Quadratic equations',sub:'IB MYP · Mathematics',   pct:72 },
+        { label:'Essay feedback',      sub:'English Language & Lit', pct:91 },
+        { label:'DP Core reflection',  sub:'CAS / TOK',              pct:55 },
       ].map(({ label, sub, pct }) => (
         <div key={label} className="bg-white rounded-xl px-3 py-2.5 border border-border-soft">
           <div className="flex items-center justify-between mb-1.5">
-            <div>
-              <p className="text-gray-700 text-[10px] font-medium">{label}</p>
-              <p className="text-gray-400 text-[9px]">{sub}</p>
-            </div>
+            <div><p className="text-gray-700 text-[10px] font-medium">{label}</p><p className="text-gray-400 text-[9px]">{sub}</p></div>
             <span className="text-teal text-[9px] font-bold">{pct}%</span>
           </div>
-          <div className="h-1 bg-gray-100 rounded-full">
-            <div className="h-full bg-teal rounded-full" style={{ width: `${pct}%` }} />
-          </div>
+          <div className="h-1 bg-gray-100 rounded-full"><div className="h-full bg-teal rounded-full" style={{ width:`${pct}%` }}/></div>
         </div>
       ))}
     </div>
   )
-  // idx 1 — Tədris (Teaching & Learning)
   if (idx === 1) return (
     <div className="space-y-2.5">
       <div className="flex items-center justify-between mb-3">
@@ -973,39 +575,26 @@ function FeatureVisual({ idx, s }) {
         <span className="bg-purple-light text-purple text-[9px] font-semibold px-2 py-0.5 rounded-full">3 aktiv</span>
       </div>
       {[
-        { title: 'Quadratic Equations – HW', subj: 'Riyaziyyat', due: '20 Apr', pct: 68, c: 'purple' },
-        { title: 'Essay: Romeo & Juliet', subj: 'İngilis dili', due: '22 Apr', pct: 42, c: 'teal' },
-        { title: 'Lab Report – Titration', subj: 'Kimya', due: '25 Apr', pct: 85, c: 'purple' },
+        { title:'Quadratic Equations – HW',subj:'Riyaziyyat',  due:'20 Apr',pct:68,c:'purple' },
+        { title:'Essay: Romeo & Juliet',   subj:'İngilis dili',due:'22 Apr',pct:42,c:'teal'   },
+        { title:'Lab Report – Titration',  subj:'Kimya',       due:'25 Apr',pct:85,c:'purple' },
       ].map(({ title, subj, due, pct, c }) => (
         <div key={title} className="bg-white rounded-xl border border-border-soft p-3.5">
           <div className="flex items-start justify-between gap-2 mb-2">
-            <div>
-              <p className="text-gray-800 text-[11px] font-semibold leading-snug">{title}</p>
-              <p className="text-gray-400 text-[9px] mt-0.5">{subj} · Son tarix: {due}</p>
-            </div>
-            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${c === 'teal' ? 'bg-teal-light text-teal' : 'bg-purple-light text-purple'}`}>
-              {pct}%
-            </span>
+            <div><p className="text-gray-800 text-[11px] font-semibold leading-snug">{title}</p><p className="text-gray-400 text-[9px] mt-0.5">{subj} · Son tarix: {due}</p></div>
+            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${c==='teal'?'bg-teal-light text-teal':'bg-purple-light text-purple'}`}>{pct}%</span>
           </div>
-          <div className="h-1.5 bg-gray-100 rounded-full">
-            <div className={`h-full rounded-full transition-all ${c === 'teal' ? 'bg-teal' : 'bg-purple'}`} style={{ width: `${pct}%` }} />
-          </div>
+          <div className="h-1.5 bg-gray-100 rounded-full"><div className={`h-full rounded-full ${c==='teal'?'bg-teal':'bg-purple'}`} style={{ width:`${pct}%` }}/></div>
           <p className="text-gray-400 text-[9px] mt-1">{pct}% təhvil verildi</p>
         </div>
       ))}
     </div>
   )
-
-  // idx 3 — Hesabatlar (Reports)
   if (idx === 3) return (
     <div className="space-y-2.5">
-      {/* Mini report card header */}
       <div className="bg-white rounded-xl border border-border-soft p-3.5">
         <div className="flex items-center justify-between mb-3">
-          <div>
-            <p className="text-gray-800 text-[11px] font-semibold">Şagird Qiymət Cədvəli</p>
-            <p className="text-gray-400 text-[9px]">9A sinfi · Aprel 2025</p>
-          </div>
+          <div><p className="text-gray-800 text-[11px] font-semibold">Şagird Qiymət Cədvəli</p><p className="text-gray-400 text-[9px]">9A sinfi · Aprel 2025</p></div>
           <div className="flex gap-1">
             <span className="bg-surface border border-border-soft text-gray-500 text-[8px] font-semibold px-2 py-0.5 rounded-md">PDF</span>
             <span className="bg-surface border border-border-soft text-gray-500 text-[8px] font-semibold px-2 py-0.5 rounded-md">Excel</span>
@@ -1016,71 +605,46 @@ function FeatureVisual({ idx, s }) {
             <span>Şagird</span><span>Riyaziyyat</span><span>Fizika</span><span>Ortalama</span>
           </div>
           {[
-            { n: 'Aytən M.', m: '8', p: '7', avg: '7.5', c: 'teal' },
-            { n: 'Rauf A.',  m: '6', p: '5', avg: '5.5', c: 'red' },
-            { n: 'Günel H.', m: '9', p: '8', avg: '8.5', c: 'teal' },
-          ].map(({ n, m, p, avg, c }) => (
+            { n:'Aytən M.',m:'8',p:'7',avg:'7.5',c:'teal' },
+            { n:'Rauf A.', m:'6',p:'5',avg:'5.5',c:'red'  },
+            { n:'Günel H.',m:'9',p:'8',avg:'8.5',c:'teal' },
+          ].map(({ n,m,p,avg,c }) => (
             <div key={n} className="grid grid-cols-4 items-center py-1 border-b border-gray-50 last:border-0">
               <span className="text-gray-700 text-[10px] font-medium">{n}</span>
               <span className="text-gray-500 text-[10px]">{m}</span>
               <span className="text-gray-500 text-[10px]">{p}</span>
-              <span className={`text-[10px] font-bold ${c === 'teal' ? 'text-teal' : 'text-red-500'}`}>{avg}</span>
+              <span className={`text-[10px] font-bold ${c==='teal'?'text-teal':'text-red-500'}`}>{avg}</span>
             </div>
           ))}
         </div>
       </div>
-      {/* Export status */}
       <div className="flex gap-2">
         <div className="flex-1 bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-teal/10 flex items-center justify-center shrink-0">
-            <CheckCircle className="w-3.5 h-3.5 text-teal" />
-          </div>
-          <div>
-            <p className="text-gray-700 text-[10px] font-medium">E-Gov.az ixracı</p>
-            <p className="text-teal text-[9px]">Hazır</p>
-          </div>
+          <div className="w-6 h-6 rounded-lg bg-teal/10 flex items-center justify-center shrink-0"><CheckCircle className="w-3.5 h-3.5 text-teal"/></div>
+          <div><p className="text-gray-700 text-[10px] font-medium">E-Gov.az ixracı</p><p className="text-teal text-[9px]">Hazır</p></div>
         </div>
         <div className="flex-1 bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-purple/10 flex items-center justify-center shrink-0">
-            <FileText className="w-3.5 h-3.5 text-purple" />
-          </div>
-          <div>
-            <p className="text-gray-700 text-[10px] font-medium">IB Audit</p>
-            <p className="text-purple text-[9px]">Sənədlər hazır</p>
-          </div>
+          <div className="w-6 h-6 rounded-lg bg-purple/10 flex items-center justify-center shrink-0"><FileText className="w-3.5 h-3.5 text-purple"/></div>
+          <div><p className="text-gray-700 text-[10px] font-medium">IB Audit</p><p className="text-purple text-[9px]">Sənədlər hazır</p></div>
         </div>
       </div>
     </div>
   )
-
-  // idx 6 — Kommunikasiya (Communications)
   if (idx === 6) return (
     <div className="space-y-2">
-      {/* Announcement banner */}
       <div className="bg-purple-light border border-purple/20 rounded-xl px-3.5 py-2.5 flex items-start gap-2.5">
-        <div className="w-6 h-6 rounded-lg bg-purple flex items-center justify-center shrink-0 mt-0.5">
-          <Bell className="w-3 h-3 text-white" />
-        </div>
-        <div>
-          <p className="text-purple text-[10px] font-semibold">Məktəb Elanı</p>
-          <p className="text-purple/70 text-[9px] leading-snug mt-0.5">Yarımillik imtahanlar 12 May tarixindən başlayır. Cədvəl tezliklə bildiriləcək.</p>
-        </div>
+        <div className="w-6 h-6 rounded-lg bg-purple flex items-center justify-center shrink-0 mt-0.5"><Bell className="w-3 h-3 text-white"/></div>
+        <div><p className="text-purple text-[10px] font-semibold">Məktəb Elanı</p><p className="text-purple/70 text-[9px] leading-snug mt-0.5">Yarımillik imtahanlar 12 May tarixindən başlayır.</p></div>
       </div>
-
-      {/* Message thread */}
       <div className="bg-white rounded-xl border border-border-soft p-3 space-y-2">
         <p className="text-[9px] text-gray-400 font-medium uppercase tracking-wide mb-2">Müəllim → Valideyn</p>
-
-        {/* Teacher message */}
         <div className="flex items-end gap-2">
           <div className="w-6 h-6 rounded-full bg-purple flex items-center justify-center text-white text-[8px] font-bold shrink-0">M</div>
           <div className="bg-surface rounded-xl rounded-bl-md px-3 py-2 max-w-[75%]">
-            <p className="text-gray-700 text-[10px] leading-snug">Aytənin riyaziyyat nəticəsi bu ay əhəmiyyətli dərəcədə yaxşılaşıb. Təbriklər!</p>
+            <p className="text-gray-700 text-[10px] leading-snug">Aytənin riyaziyyat nəticəsi bu ay yaxşılaşıb. Təbriklər!</p>
             <p className="text-gray-400 text-[8px] mt-1">09:42</p>
           </div>
         </div>
-
-        {/* Parent reply */}
         <div className="flex items-end gap-2 flex-row-reverse">
           <div className="w-6 h-6 rounded-full bg-teal flex items-center justify-center text-white text-[8px] font-bold shrink-0">V</div>
           <div className="bg-teal-light rounded-xl rounded-br-md px-3 py-2 max-w-[75%]">
@@ -1089,151 +653,541 @@ function FeatureVisual({ idx, s }) {
           </div>
         </div>
       </div>
-
-      {/* Unread badge */}
       <div className="bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
-          <p className="text-gray-700 text-[10px] font-medium">3 oxunmamış mesaj</p>
-        </div>
+        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500 shrink-0"/><p className="text-gray-700 text-[10px] font-medium">3 oxunmamış mesaj</p></div>
         <span className="text-purple text-[9px] font-semibold">Hamısına bax →</span>
       </div>
     </div>
   )
-
-  // fallback (should never be reached now)
   return null
 }
 
-/* ─── Features ─── */
-function Features({ s }) {
-  const [active, setActive] = useState(0)
-  const tabColors = ['purple', 'teal', 'purple', 'teal', 'purple', 'purple', 'teal']
-  const tabs = [
-    { label: s.tab_curriculum,  icon: BookOpen,      bullets: [s.c1,  s.c2,  s.c3,  s.c4]  },
-    { label: s.tab_teaching,    icon: PenLine,        bullets: [s.t1,  s.t2,  s.t3,  s.t4]  },
-    { label: s.tab_assessment,  icon: BarChart2,      bullets: [s.a1,  s.a2,  s.a3,  s.a4]  },
-    { label: s.tab_reports,     icon: FileText,       bullets: [s.r1,  s.r2,  s.r3,  s.r4]  },
-    { label: s.tab_attendance,  icon: Clock,          bullets: [s.at1, s.at2, s.at3, s.at4] },
-    { label: s.tab_zeka,        icon: Sparkles,       bullets: [s.z1,  s.z2,  s.z3,  s.z4]  },
-    { label: s.tab_comms,       icon: MessageSquare,  bullets: [s.co1, s.co2, s.co3, s.co4] },
-  ]
-  const cur = tabs[active]
-  const curColor = tabColors[active]
+/* ══════════════════════════════════════════════════════════
+   S E C T I O N S
+══════════════════════════════════════════════════════════ */
+
+/* ─── HERO ─── */
+function Hero({ s }) {
+  const isAz = s.nav_signin === 'Daxil ol'
+  const trustItems = isAz
+    ? ['IBO Sertifikatlı', 'ISO 27001', 'E-Gov.az İnteqrasiyası']
+    : ['IBO Authorized', 'ISO 27001', 'E-Gov.az Integration']
 
   return (
-    <section id="features" className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-teal/10 border border-teal/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal" />
-            <span className="text-teal text-xs font-semibold tracking-wide uppercase">{s.feat_badge}</span>
-          </div>
-          <h2
-            className="font-serif text-gray-900 mb-4"
-            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
-          >
-            {s.feat_title}{' '}
-            <span
-              style={{
-                background: 'linear-gradient(90deg, #0d9488, #2dd4bf)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              {s.feat_title_b}
+    <section style={{ background:'#060614', minHeight:'100vh', position:'relative', overflow:'hidden' }}>
+
+      {/* ── Multi-layer background ── */}
+      <div style={{ position:'absolute', inset:0, pointerEvents:'none' }}>
+
+        {/* Aurora blob — top-left purple */}
+        <div style={{
+          position:'absolute', top:'-22%', left:'-12%',
+          width:'70%', height:'80%',
+          background:'radial-gradient(ellipse at 40% 40%, rgba(99,75,215,0.24) 0%, transparent 65%)',
+        }}/>
+
+        {/* Aurora blob — top-right indigo */}
+        <div style={{
+          position:'absolute', top:'-15%', right:'-18%',
+          width:'60%', height:'70%',
+          background:'radial-gradient(ellipse at 60% 35%, rgba(65,50,190,0.18) 0%, transparent 62%)',
+        }}/>
+
+        {/* Center beam — tightest, most saturated */}
+        <div style={{
+          position:'absolute', top:0, left:'50%', transform:'translateX(-50%)',
+          width:'820px', height:'480px',
+          background:'radial-gradient(ellipse 55% 50% at 50% 0%, rgba(140,100,255,0.20) 0%, rgba(100,75,220,0.08) 55%, transparent 80%)',
+        }}/>
+
+        {/* Dot grid — masked to the lit area */}
+        <div style={{
+          position:'absolute', inset:0,
+          backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px)',
+          backgroundSize:'44px 44px',
+          WebkitMaskImage:'radial-gradient(ellipse 72% 52% at 50% 12%, black 0%, transparent 80%)',
+          maskImage:'radial-gradient(ellipse 72% 52% at 50% 12%, black 0%, transparent 80%)',
+        }}/>
+
+        {/* Grain noise texture — makes gradients feel premium, not flat */}
+        <div style={{
+          position:'absolute', inset:0,
+          backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          backgroundRepeat:'repeat',
+          backgroundSize:'160px 160px',
+          opacity:0.035,
+          mixBlendMode:'overlay',
+        }}/>
+
+        {/* Bottom fade — smooth transition into the next section */}
+        <div style={{
+          position:'absolute', bottom:0, left:0, right:0,
+          height:'28%',
+          background:'linear-gradient(to top, #060614 0%, transparent 100%)',
+        }}/>
+      </div>
+
+      {/* ── Content ── */}
+      <div
+        className="max-w-6xl mx-auto px-5 sm:px-10 flex flex-col items-center"
+        style={{ position:'relative', zIndex:10, paddingTop:100, paddingBottom:0 }}
+      >
+
+        {/* ── Status badge ── */}
+        <div className="pop-in" style={{ marginBottom:40 }}>
+          <div style={{
+            display:'inline-flex', alignItems:'center', gap:10,
+            padding:'8px 18px 8px 12px', borderRadius:999,
+            background:'rgba(255,255,255,0.04)',
+            border:'1px solid rgba(255,255,255,0.09)',
+            backdropFilter:'blur(10px)',
+          }}>
+            {/* Pulsing green dot */}
+            <span style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'center', width:20, height:20 }}>
+              <span style={{
+                position:'absolute',
+                width:18, height:18, borderRadius:'50%',
+                background:'rgba(29,158,117,0.18)',
+                animation:'floatY 2s ease-in-out infinite',
+              }}/>
+              <span style={{
+                width:7, height:7, borderRadius:'50%',
+                background:'#22c55e',
+                boxShadow:'0 0 8px rgba(34,197,94,0.7)',
+                flexShrink:0,
+              }}/>
             </span>
-          </h2>
-          <p className="text-gray-500 text-lg max-w-2xl mx-auto">{s.feat_sub}</p>
+            <span style={{ color:'rgba(255,255,255,0.5)', fontSize:12.5, fontWeight:600 }}>
+              {isAz ? 'Azərbaycanın Məktəb İdarəetmə Platforması' : "Azerbaijan's School Management Platform"}
+            </span>
+          </div>
         </div>
 
-        {/* Scrollable tab pills row */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-8 scrollbar-none justify-start lg:justify-center">
-          {tabs.map(({ label, icon: Icon }, i) => {
-            const isActive = active === i
-            const tc = tabColors[i]
-            return (
-              <button
-                key={label}
-                onClick={() => setActive(i)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 shrink-0 ${
-                  isActive
-                    ? tc === 'teal'
-                      ? 'bg-teal text-white'
-                      : 'bg-purple text-white'
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800'
-                }`}
-                style={isActive ? {
-                  boxShadow: tc === 'teal'
-                    ? '0 4px 16px rgba(29,158,117,0.4), 0 0 0 2px rgba(29,158,117,0.2)'
-                    : '0 4px 16px rgba(83,74,183,0.4), 0 0 0 2px rgba(83,74,183,0.2)',
-                } : undefined}
-              >
-                <span className={`w-2 h-2 rounded-full shrink-0 ${
-                  isActive ? 'bg-white/70' : tc === 'teal' ? 'bg-teal/60' : 'bg-purple/60'
-                }`} />
-                <Icon className="w-3.5 h-3.5 shrink-0" />
-                {label}
-              </button>
-            )
-          })}
-        </div>
+        {/* ── Headline ── */}
+        <h1 style={{
+          textAlign:'center',
+          fontWeight:800,
+          fontSize:'clamp(2.9rem, 9vw, 7.5rem)',
+          lineHeight:1.0,
+          letterSpacing:'-0.038em',
+          color:'#ffffff',
+          marginBottom:28,
+          maxWidth:'18ch',
+        }}>
+          {s.hero_h1a}
+          {' '}
+          <span style={{
+            background:'linear-gradient(128deg, #c4b5fd 0%, #a78bfa 35%, #8b5cf6 65%, #6d28d9 100%)',
+            WebkitBackgroundClip:'text',
+            WebkitTextFillColor:'transparent',
+            backgroundClip:'text',
+          }}>
+            {s.hero_h1b}
+          </span>
+        </h1>
 
-        {/* Content area */}
-        <div className="max-w-6xl mx-auto">
-          <div
-            className="rounded-3xl overflow-hidden"
+        {/* ── Sub-copy ── */}
+        <p style={{
+          textAlign:'center',
+          color:'rgba(255,255,255,0.40)',
+          fontSize:16.5,
+          lineHeight:1.78,
+          maxWidth:500,
+          fontWeight:500,
+          marginBottom:40,
+        }}>
+          {s.hero_sub}
+        </p>
+
+        {/* ── CTAs ── */}
+        <div style={{ display:'flex', gap:12, flexWrap:'wrap', justifyContent:'center', marginBottom:24 }}>
+          <Link
+            to="/contact"
             style={{
-              border: '1px solid rgba(0,0,0,0.07)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)',
+              display:'inline-flex', alignItems:'center', gap:8,
+              padding:'13px 28px', borderRadius:999,
+              background:'#ffffff', color:'#09090f',
+              fontWeight:700, fontSize:14.5,
+              textDecoration:'none', whiteSpace:'nowrap',
+              boxShadow:'0 0 0 1px rgba(255,255,255,0.15), 0 8px 28px rgba(255,255,255,0.07)',
+              transition:'transform .17s ease, box-shadow .17s ease',
             }}
+            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 0 0 1px rgba(255,255,255,0.2), 0 12px 36px rgba(255,255,255,0.12)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 0 0 1px rgba(255,255,255,0.15), 0 8px 28px rgba(255,255,255,0.07)' }}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-2">
-              {/* Left: bullets */}
-              <div className="p-8 lg:p-10 bg-white">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${
-                  curColor === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
-                }`}>
-                  <cur.icon className={`w-6 h-6 ${curColor === 'teal' ? 'text-teal' : 'text-purple'}`} />
-                </div>
-                <h3 className="font-serif text-2xl text-gray-900 mb-6">{cur.label}</h3>
-                <ul className="space-y-4">
-                  {cur.bullets.map(b => (
-                    <li key={b} className="flex items-start gap-3">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
-                        curColor === 'teal' ? 'bg-teal/15' : 'bg-purple/10'
-                      }`}>
-                        <Check className={`w-3 h-3 ${curColor === 'teal' ? 'text-teal' : 'text-purple'}`} />
-                      </div>
-                      <span className="text-gray-600 text-sm leading-relaxed">{b}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to="/contact"
-                  className={`inline-flex items-center gap-2 mt-8 text-sm font-semibold hover:gap-3 transition-all duration-200 group ${
-                    curColor === 'teal' ? 'text-teal' : 'text-purple'
-                  }`}
-                >
-                  {s.feat_cta}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-              </div>
+            {s.hero_cta2} <ArrowRight style={{ width:15, height:15, flexShrink:0 }}/>
+          </Link>
+          <a
+            href="#solutions"
+            style={{
+              display:'inline-flex', alignItems:'center', gap:8,
+              padding:'13px 28px', borderRadius:999,
+              border:'1px solid rgba(255,255,255,0.11)',
+              color:'rgba(255,255,255,0.58)',
+              fontWeight:600, fontSize:14.5,
+              textDecoration:'none', whiteSpace:'nowrap',
+              transition:'all .17s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.2)'; e.currentTarget.style.color='#fff' }}
+            onMouseLeave={e => { e.currentTarget.style.background=''; e.currentTarget.style.borderColor='rgba(255,255,255,0.11)'; e.currentTarget.style.color='rgba(255,255,255,0.58)' }}
+          >
+            {s.hero_cta1}
+          </a>
+        </div>
 
-              {/* Right: visual mockup card */}
-              <div
-                className="border-t lg:border-t-0 lg:border-l border-gray-100 p-8 lg:p-10 flex flex-col justify-center"
-                style={{
-                  background: curColor === 'teal'
-                    ? 'linear-gradient(145deg, #f0fdf9 0%, #f7f7fb 60%, #ffffff 100%)'
-                    : 'linear-gradient(145deg, #f5f3ff 0%, #f7f7fb 60%, #ffffff 100%)',
-                }}
-              >
-                <FeatureVisual idx={active} s={s} />
+        {/* ── Trust micro-row ── */}
+        <div style={{
+          display:'flex', alignItems:'center', gap:16,
+          marginBottom:72, flexWrap:'wrap', justifyContent:'center',
+        }}>
+          {trustItems.map((item, i) => (
+            <span key={item} style={{ display:'flex', alignItems:'center', gap:16 }}>
+              {i > 0 && (
+                <span style={{ width:3, height:3, borderRadius:'50%', background:'rgba(255,255,255,0.18)', flexShrink:0 }}/>
+              )}
+              <span style={{ color:'rgba(255,255,255,0.28)', fontSize:11.5, fontWeight:600, letterSpacing:'0.04em' }}>
+                {item}
+              </span>
+            </span>
+          ))}
+        </div>
+
+        {/* ── Dashboard area ── */}
+        <div style={{ position:'relative', width:'100%', maxWidth:980 }}>
+
+          {/* Purple glow behind the mockup */}
+          <div style={{
+            position:'absolute',
+            bottom:-20, left:'10%', right:'10%',
+            height:100,
+            background:'rgba(83,74,183,0.55)',
+            filter:'blur(55px)',
+            borderRadius:'50%',
+          }}/>
+
+          {/* ── Floating chip — left (Zeka AI) ── */}
+          <div className="float-a" style={{
+            position:'absolute', zIndex:20,
+            left:-12, top:44,
+            background:'rgba(255,255,255,0.88)',
+            backdropFilter:'blur(24px)',
+            WebkitBackdropFilter:'blur(24px)',
+            borderRadius:16,
+            padding:'12px 16px',
+            boxShadow:'0 20px 56px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.12)',
+            border:'1px solid rgba(255,255,255,0.65)',
+          }}>
+            <div style={{ display:'flex', alignItems:'center', gap:11 }}>
+              <div style={{
+                width:38, height:38, borderRadius:10,
+                background:'rgba(83,74,183,0.10)',
+                display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+              }}>
+                <Sparkles style={{ width:17, height:17, color:'#534AB7' }}/>
+              </div>
+              <div>
+                <p style={{ fontSize:12.5, fontWeight:800, color:'#0d0d1a', lineHeight:1.2 }}>Zəka AI</p>
+                <p style={{ fontSize:11, fontWeight:600, color:'#1D9E75', display:'flex', alignItems:'center', gap:4, marginTop:3 }}>
+                  <span style={{ width:5, height:5, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 6px rgba(34,197,94,0.6)', flexShrink:0 }}/>
+                  Aktiv · Hazır
+                </p>
               </div>
             </div>
+          </div>
+
+          {/* ── Floating chip — right (Curricula) ── */}
+          <div className="float-b" style={{
+            position:'absolute', zIndex:20,
+            right:-12, top:60,
+            background:'rgba(255,255,255,0.88)',
+            backdropFilter:'blur(24px)',
+            WebkitBackdropFilter:'blur(24px)',
+            borderRadius:16,
+            padding:'12px 16px',
+            boxShadow:'0 20px 56px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.12)',
+            border:'1px solid rgba(255,255,255,0.65)',
+          }}>
+            <div style={{ display:'flex', alignItems:'center', gap:11 }}>
+              <div style={{
+                width:38, height:38, borderRadius:10,
+                background:'rgba(29,158,117,0.10)',
+                display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+              }}>
+                <GraduationCap style={{ width:17, height:17, color:'#1D9E75' }}/>
+              </div>
+              <div>
+                <p style={{ fontSize:12.5, fontWeight:800, color:'#0d0d1a', lineHeight:1.2 }}>IB + Milli Kurikulum</p>
+                <p style={{ fontSize:11, fontWeight:600, color:'#534AB7', display:'flex', alignItems:'center', gap:4, marginTop:3 }}>
+                  <Check style={{ width:10, height:10 }}/>
+                  Tam dəstəklənir
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Dashboard — perspective tilt */}
+          <div style={{ transform:'perspective(2000px) rotateX(3.5deg)', transformOrigin:'top center' }}>
+            <DashboardMockup s={s}/>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  )
+}
+
+/* ─── PARTNER BAR ─── */
+function PartnerBar({ s }) {
+  const items = ['IBO Certified','E-Gov.az','Microsoft 365','Claude AI','ISO 27001','ASAN Xidmət']
+  return (
+    <div className="bg-white border-y border-gray-100 py-7">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8">
+        <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-[0.22em] mb-5">{s.trust_title}</p>
+        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
+          {items.map((name, i) => (
+            <div key={name} className="flex items-center gap-10">
+              {i > 0 && <div className="hidden sm:block w-px h-4 bg-gray-200"/>}
+              <span className="text-gray-400 text-sm font-bold hover:text-gray-600 transition-colors cursor-default">{name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─── WHAT WE DO ─── */
+function WhatWeDo({ s }) {
+  const isAz = s.nav_signin === 'Daxil ol'
+  const cols = [
+    {
+      icon: BookOpen, color: '#534AB7',
+      eyebrow: isAz ? 'Kurikulum' : 'Curriculum',
+      title: isAz ? 'Tədris & Kurikulum' : 'Teaching & Curriculum',
+      body: isAz
+        ? 'IB DP, MYP, CP, PYP və Azərbaycan milli kurikulumu — birgə planlaşdırma, 600+ standart, IBIS inteqrasiyası.'
+        : 'IB DP, MYP, CP, PYP and national curriculum — collaborative planning, 600+ standards, IBIS integration.',
+      pts: isAz
+        ? ['Birgə kurikulum planlaması','600+ daxili standart','IBIS & E-Gov.az inteqrasiyası']
+        : ['Collaborative curriculum planning','600+ built-in standards','IBIS & E-Gov.az integration'],
+    },
+    {
+      icon: BarChart2, color: '#1D9E75',
+      eyebrow: isAz ? 'Qiymətləndirmə' : 'Assessment',
+      title: isAz ? 'Qiymətləndirmə & Hesabat' : 'Assessment & Reporting',
+      body: isAz
+        ? 'IB kriteriyaları, milli 10-ballıq sistem, real vaxt sinxronizasiya, Nazirlik uyğunluqlu hesabatlar.'
+        : 'IB criteria grading, national 10-point scale, real-time sync, Ministry-compliant reports.',
+      pts: isAz
+        ? ['IB A–D kriteriya qiymətləndirməsi','Nazirlik uyğunluqlu hesabatlar','E-Gov.az avtomatik ixracı']
+        : ['IB A–D criteria grading','Ministry-compliant reporting','Automatic E-Gov.az export'],
+    },
+    {
+      icon: MessageSquare, color: '#534AB7',
+      eyebrow: isAz ? 'Kommunikasiya' : 'Communication',
+      title: isAz ? 'Kommunikasiya & AI' : 'Communication & AI',
+      body: isAz
+        ? 'Müəllim-valideyn real vaxt mesajlaşma, məktəb elanları, Zəka AI hesabat köməkçisi — üç dildə.'
+        : 'Real-time teacher–parent messaging, school announcements, Zeka AI report assistant — in three languages.',
+      pts: isAz
+        ? ['Real vaxtda mesajlaşma','Məktəb miqyasında elanlar','Zəka AI — 3 dildə']
+        : ['Real-time messaging','School-wide announcements','Zeka AI — 3 languages'],
+    },
+  ]
+
+  return (
+    <section className="py-28 bg-white">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        <div className="max-w-2xl mb-16">
+          <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">
+            {isAz ? 'Platforma' : 'Platform'}
+          </p>
+          <h2 className="font-extrabold text-gray-900 leading-tight mb-5"
+            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em' }}>
+            {isAz ? 'Bir platforma.' : 'One platform.'}<br/>
+            <span style={{ color:'#534AB7' }}>{isAz ? 'Bütün məktəb əməliyyatları.' : 'Every school operation.'}</span>
+          </h2>
+          <p className="text-gray-500 text-base leading-relaxed font-medium">
+            {isAz
+              ? 'Zirva+ məktəb idarəetməsinin hər tərəfini — kurikulumdan kommunikasiyaya, qiymətləndirmədən AI köməkçisinə qədər — vahid platformada birləşdirir.'
+              : 'Zirva+ brings every aspect of school management — from curriculum to communication, assessment to AI — into one seamless platform.'}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {cols.map(({ icon: Icon, color, eyebrow, title, body, pts }) => (
+            <div key={title} className="card-lift bg-gray-50 border border-gray-100 rounded-2xl p-8 group cursor-default">
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-6" style={{ background:`${color}14` }}>
+                <Icon className="w-5 h-5" style={{ color }}/>
+              </div>
+              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color }}>{eyebrow}</p>
+              <h3 className="font-bold text-gray-900 text-xl mb-3 leading-tight" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
+              <p className="text-gray-500 text-sm leading-relaxed mb-6 font-medium">{body}</p>
+              <ul className="space-y-2">
+                {pts.map(p => (
+                  <li key={p} className="flex items-center gap-2.5 text-sm text-gray-600 font-medium">
+                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background:`${color}18` }}>
+                      <Check className="w-2.5 h-2.5" style={{ color }}/>
+                    </div>
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── SOLUTIONS ─── */
+function Solutions({ s }) {
+  const isAz = s.nav_signin === 'Daxil ol'
+  const cards = [
+    { icon:Layers,        title:s.sol_multi_t, desc:s.sol_multi_d, tag: isAz?'Əsas':'Core',   color:'#534AB7' },
+    { icon:Building2,     title:s.sol_gov_t,   desc:s.sol_gov_d,   tag: isAz?'Dövlət':'State',color:'#1D9E75' },
+    { icon:GraduationCap, title:s.sol_dp_t,    desc:s.sol_dp_d,    tag:'IB DP',                color:'#534AB7' },
+    { icon:BookOpen,      title:s.sol_myp_t,   desc:s.sol_myp_d,   tag:'IB MYP',               color:'#1D9E75' },
+    { icon:Users,         title:s.sol_cp_t,    desc:s.sol_cp_d,    tag:'IB CP',                color:'#534AB7' },
+    { icon:Star,          title:s.sol_pyp_t,   desc:s.sol_pyp_d,   tag:'IB PYP',               color:'#1D9E75' },
+  ]
+
+  return (
+    <section id="solutions" className="py-28" style={{ background:'#F6F6FC' }}>
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        <div className="text-center mb-14">
+          <p className="text-teal text-xs font-bold uppercase tracking-widest mb-4">{s.sol_badge}</p>
+          <h2 className="font-extrabold text-gray-900 mb-5"
+            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em' }}>
+            {s.sol_title}
+          </h2>
+          <p className="text-gray-500 text-base max-w-xl mx-auto leading-relaxed font-medium">{s.sol_sub}</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {cards.map(({ icon:Icon, title, desc, tag, color }) => (
+            <div key={title} className="card-lift bg-white rounded-2xl p-7 border border-gray-100 cursor-default group">
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background:`${color}12` }}>
+                  <Icon className="w-5 h-5" style={{ color }}/>
+                </div>
+                <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background:`${color}12`, color }}>
+                  {tag}
+                </span>
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-2 leading-snug" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
+              <p className="text-gray-500 text-sm leading-relaxed font-medium">{desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── FEATURES ─── */
+function Features({ s }) {
+  const isAz = s.nav_signin === 'Daxil ol'
+  const grid = [
+    { icon:BookOpen,      title:s.tab_curriculum, pts:[s.c1,s.c2,s.c3], color:'#534AB7' },
+    { icon:PenLine,       title:s.tab_teaching,   pts:[s.t1,s.t2,s.t3], color:'#1D9E75' },
+    { icon:BarChart2,     title:s.tab_assessment, pts:[s.a1,s.a2,s.a3], color:'#534AB7' },
+    { icon:FileText,      title:s.tab_reports,    pts:[s.r1,s.r2,s.r3], color:'#1D9E75' },
+    { icon:ClipboardList, title:s.tab_attendance, pts:[s.at1,s.at2,s.at3], color:'#534AB7' },
+    { icon:MessageSquare, title:s.tab_comms,      pts:[s.co1,s.co2,s.co3], color:'#1D9E75' },
+  ]
+
+  return (
+    <section id="features" className="py-28 bg-white">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        <div className="text-center mb-14">
+          <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">{s.feat_badge}</p>
+          <h2 className="font-extrabold text-gray-900 mb-5"
+            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em' }}>
+            {s.feat_title} <span style={{ color:'#534AB7' }}>{s.feat_title_b}</span>
+          </h2>
+          <p className="text-gray-500 text-base max-w-xl mx-auto leading-relaxed font-medium">{s.feat_sub}</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+          {grid.map(({ icon:Icon, title, pts, color }) => (
+            <div key={title} className="card-lift bg-gray-50 rounded-2xl p-7 border border-gray-100 cursor-default group">
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-200"
+                style={{ background:`${color}12` }}>
+                <Icon className="w-5 h-5" style={{ color }}/>
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-4 leading-snug" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
+              <ul className="space-y-2.5">
+                {pts.map(p => (
+                  <li key={p} className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background:`${color}16` }}>
+                      <Check className="w-2.5 h-2.5" style={{ color }}/>
+                    </div>
+                    <span className="text-gray-500 text-sm leading-relaxed font-medium">{p}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center">
+          <Link to="/contact"
+            className="inline-flex items-center gap-2 bg-purple text-white font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg shadow-purple/25 hover:shadow-xl hover:shadow-purple/35 hover:-translate-y-0.5 transition-all">
+            {s.feat_cta} <ArrowRight className="w-4 h-4"/>
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── PRODUCT SHOWCASE ─── */
+function ProductShowcase({ s }) {
+  const isAz = s.nav_signin === 'Daxil ol'
+  const bullets = [
+    { icon:BookOpen,  text:s.c1  },
+    { icon:BarChart2, text:s.a1  },
+    { icon:FileText,  text:s.r1  },
+    { icon:Clock,     text:s.at1 },
+  ]
+  return (
+    <section className="py-28" style={{ background:'#F6F6FC' }}>
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <p className="text-teal text-xs font-bold uppercase tracking-widest mb-4">
+              {isAz ? 'Canlı nümayiş' : 'Live demo'}
+            </p>
+            <h2 className="font-extrabold text-gray-900 leading-tight mb-5"
+              style={{ fontSize:'clamp(1.8rem,3.8vw,2.8rem)', letterSpacing:'-0.02em' }}>
+              {isAz ? <>Hər şey bir yerdə —<br/><span style={{ color:'#1D9E75' }}>real vaxtda</span></> : <>Everything together —<br/><span style={{ color:'#1D9E75' }}>in real time</span></>}
+            </h2>
+            <p className="text-gray-500 text-base leading-relaxed mb-10 font-medium">{s.feat_sub}</p>
+            <ul className="space-y-4 mb-10">
+              {bullets.map(({ icon:Icon, text }) => (
+                <li key={text} className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background:'rgba(83,74,183,0.1)' }}>
+                    <Icon className="w-5 h-5 text-purple"/>
+                  </div>
+                  <span className="text-gray-600 text-sm leading-relaxed font-semibold">{text}</span>
+                </li>
+              ))}
+            </ul>
+            <Link to="/contact"
+              className="inline-flex items-center gap-2 bg-purple text-white font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg shadow-purple/20 hover:shadow-xl hover:shadow-purple/30 hover:-translate-y-0.5 transition-all">
+              {s.feat_cta} <ArrowRight className="w-4 h-4"/>
+            </Link>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-7 shadow-sm">
+            <div className="flex items-center justify-between mb-5">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{s.tab_assessment}</p>
+              <span className="text-[11px] font-bold px-3 py-1.5 rounded-full" style={{ background:'rgba(29,158,117,0.1)', color:'#1D9E75' }}>IB MYP · 9A</span>
+            </div>
+            <FeatureVisual idx={2} s={s}/>
           </div>
         </div>
       </div>
@@ -1241,134 +1195,116 @@ function Features({ s }) {
   )
 }
 
-/* ─── Zeka AI section ─── */
+/* ─── ZEKA AI ─── */
 function ZekaAI({ s }) {
+  const isAz = s.nav_signin === 'Daxil ol'
   return (
-    <section id="zeka" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(145deg, #f5f3ff 0%, #fafaff 40%, #f0fdf8 100%)' }}>
-      {/* Subtle mesh blobs */}
-      <div className="pointer-events-none absolute top-0 left-0 w-96 h-96 rounded-full bg-purple/10 blur-[110px]" />
-      <div className="pointer-events-none absolute bottom-0 right-0 w-[28rem] h-[28rem] rounded-full bg-teal/10 blur-[110px]" />
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-indigo-200/20 blur-[90px]" />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="zeka" className="py-28 bg-white">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Left: copy */}
+
+          {/* Left */}
           <div>
-            <div className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full bg-purple/10 border border-purple/20">
-              <Sparkles className="w-3.5 h-3.5 text-purple" />
-              <span className="text-purple text-xs font-semibold tracking-wide uppercase">Zəka AI</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{ background:'rgba(83,74,183,0.1)' }}>
+              <Sparkles className="w-3.5 h-3.5 text-purple"/>
+              <span className="text-purple text-xs font-bold uppercase tracking-widest">Zəka AI</span>
             </div>
-            <h2
-              className="font-serif text-gray-900 mb-5 leading-tight"
-              style={{ fontSize: 'clamp(1.875rem, 3.5vw, 2.875rem)' }}
-            >
-              Zəka AI —{' '}
-              <span
-                style={{
-                  background: 'linear-gradient(90deg, #534AB7, #1D9E75)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                Məktəbinizin AI Müəllimi
-              </span>
+            <h2 className="font-extrabold text-gray-900 leading-tight mb-5"
+              style={{ fontSize:'clamp(1.8rem,3.8vw,2.8rem)', letterSpacing:'-0.02em' }}>
+              {isAz ? <>Müəllimin<br/><span style={{ color:'#534AB7' }}>ən güclü köməkçisi</span></> : <>The teacher's<br/><span style={{ color:'#534AB7' }}>most powerful tool</span></>}
             </h2>
-            <p className="text-gray-500 text-base leading-relaxed mb-8 max-w-lg">
-              {s.z1}. {s.z2}. Hesabatlar yazmaqdan vaxt qazanın, tədrisə daha çox vaxt ayırın.
+
+            {/* Pull quote */}
+            <div className="border-l-[3px] border-purple/25 pl-5 mb-7">
+              <p className="text-gray-600 text-lg italic leading-relaxed font-medium">
+                {isAz ? '"4 saatlıq hesabat işini 20 dəqiqəyə endirdik."' : '"We cut 4-hour reporting work down to 20 minutes."'}
+              </p>
+            </div>
+
+            <p className="text-gray-500 text-base leading-relaxed mb-8 font-medium">
+              {isAz
+                ? 'Claude AI ilə gücləndirilmiş Zəka AI hesabat yazır, qiymətlər analiz edir, valideyn xülasələri hazırlayır — Azərbaycan, ingilis və rus dillərində.'
+                : 'Powered by Claude AI, Zeka AI writes reports, analyses grades, and prepares parent summaries — in Azerbaijani, English, and Russian.'}
             </p>
 
-            <ul className="space-y-4 mb-10">
-              {[s.z1, s.z2, s.z3].map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-purple/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <Check className="w-3.5 h-3.5 text-purple" />
+            <ul className="space-y-3 mb-10">
+              {[s.z3, s.z2, s.z4, s.z1].map(item => (
+                <li key={item} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background:'rgba(83,74,183,0.1)' }}>
+                    <Check className="w-3 h-3 text-purple"/>
                   </div>
-                  <span className="text-gray-700 text-sm leading-relaxed">{item}</span>
+                  <span className="text-gray-600 text-sm font-semibold">{item}</span>
                 </li>
               ))}
             </ul>
 
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-2 bg-purple text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg shadow-purple/25 hover:shadow-xl hover:shadow-purple/35 hover:-translate-y-0.5 transition-all duration-200 text-sm"
-            >
-              Zəka AI ilə tanış ol <ArrowRight className="w-4 h-4" />
+            <Link to="/contact"
+              className="inline-flex items-center gap-2 bg-purple text-white font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg shadow-purple/20 hover:shadow-xl hover:shadow-purple/30 hover:-translate-y-0.5 transition-all">
+              {isAz ? 'Zəka AI ilə tanış ol' : 'Meet Zeka AI'} <ArrowRight className="w-4 h-4"/>
             </Link>
           </div>
 
-          {/* Right: AI chat mockup */}
+          {/* Right: chat card */}
           <div className="relative">
-            <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden" style={{ boxShadow: '0 30px 80px rgba(83,74,183,0.15), 0 4px 16px rgba(0,0,0,0.06)' }}>
-              {/* Chat header */}
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-purple/5 to-teal/5">
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
+              style={{ boxShadow:'0 24px 80px rgba(83,74,183,0.12),0 4px 20px rgba(0,0,0,0.05)' }}>
+
+              {/* Header */}
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-gray-50/70">
                 <div className="w-9 h-9 rounded-xl bg-purple flex items-center justify-center shadow-md shadow-purple/30">
-                  <Sparkles className="w-4.5 h-4.5 text-white" style={{ width: 18, height: 18 }} />
+                  <Sparkles className="w-4 h-4 text-white"/>
                 </div>
                 <div>
                   <p className="text-sm font-bold text-gray-900">Zəka AI</p>
-                  <p className="text-[11px] text-teal font-medium flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-teal inline-block" /> Online
+                  <p className="text-[11px] text-teal font-semibold flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal inline-block"/>Online
                   </p>
                 </div>
                 <div className="ml-auto">
-                  <span className="text-[10px] bg-purple/10 text-purple px-2.5 py-1 rounded-full font-semibold">Powered by Claude AI</span>
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ background:'rgba(83,74,183,0.1)', color:'#534AB7' }}>Powered by Claude AI</span>
                 </div>
               </div>
 
-              {/* Chat messages */}
-              <div className="p-5 space-y-4 bg-gray-50/50" style={{ minHeight: 300 }}>
-                {/* User message */}
+              {/* Messages */}
+              <div className="p-5 space-y-4 bg-gray-50/40" style={{ minHeight:280 }}>
                 <div className="flex justify-end">
                   <div className="bg-purple text-white text-sm px-4 py-3 rounded-2xl rounded-tr-sm max-w-xs leading-relaxed shadow-sm">
                     IB MYP kriteriyaları üzrə hesabat yaz
                   </div>
                 </div>
-
-                {/* AI response */}
-                <div className="flex justify-start gap-2.5">
+                <div className="flex gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-purple flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                    <Sparkles className="w-4 h-4 text-white" />
+                    <Sparkles className="w-4 h-4 text-white"/>
                   </div>
                   <div className="bg-white border border-gray-100 text-sm px-4 py-3 rounded-2xl rounded-tl-sm max-w-xs leading-relaxed shadow-sm">
-                    <p className="text-gray-800 font-medium mb-2">Əlbəttə! Hesabat hazırlanır...</p>
+                    <p className="text-gray-800 font-semibold mb-2">Hesabat hazırlanır...</p>
                     <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded bg-purple/10 flex items-center justify-center">
-                          <Check className="w-2.5 h-2.5 text-purple" />
+                      {[
+                        { label:'A kriteriyas:', val:'6/8', c:'#534AB7' },
+                        { label:'B kriteriyas:', val:'7/8', c:'#1D9E75' },
+                        { label:'C kriteriyas:', val:'5/8', c:'#534AB7' },
+                      ].map(({ label, val, c }) => (
+                        <div key={label} className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded flex items-center justify-center" style={{ background:`${c}16` }}>
+                            <Check className="w-2.5 h-2.5" style={{ color:c }}/>
+                          </div>
+                          <span className="text-gray-600 text-xs">{label} <strong style={{ color:c }}>{val}</strong></span>
                         </div>
-                        <span className="text-gray-600 text-xs">A kriteriyas: <strong className="text-purple">6/8</strong></span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded bg-teal/10 flex items-center justify-center">
-                          <Check className="w-2.5 h-2.5 text-teal" />
-                        </div>
-                        <span className="text-gray-600 text-xs">B kriteriyas: <strong className="text-teal">7/8</strong></span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded bg-purple/10 flex items-center justify-center">
-                          <Check className="w-2.5 h-2.5 text-purple" />
-                        </div>
-                        <span className="text-gray-600 text-xs">C kriteriyas: <strong className="text-purple">5/8</strong></span>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>
-
-                {/* Second user message */}
                 <div className="flex justify-end">
                   <div className="bg-purple text-white text-sm px-4 py-3 rounded-2xl rounded-tr-sm max-w-xs leading-relaxed shadow-sm">
                     Valideyn üçün qısa xülasə yaz
                   </div>
                 </div>
-
-                {/* Second AI response */}
-                <div className="flex justify-start gap-2.5">
+                <div className="flex gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-purple flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                    <Sparkles className="w-4 h-4 text-white" />
+                    <Sparkles className="w-4 h-4 text-white"/>
                   </div>
                   <div className="bg-white border border-gray-100 text-sm px-4 py-3 rounded-2xl rounded-tl-sm max-w-xs leading-relaxed shadow-sm">
-                    <p className="text-gray-700 text-xs leading-relaxed">Şagirdiniz bu rüb əla nəticələr göstərdi. Xüsusilə B kriteriyasında yüksək bal aldı. Riyaziyyat üzrə daha çox çalışmasını tövsiyə edirik.</p>
+                    <p className="text-gray-700 text-xs leading-relaxed">Şagirdiniz bu rüb əla nəticələr göstərdi. Xüsusilə B kriteriyasında yüksək bal aldı.</p>
                     <div className="mt-2 pt-2 border-t border-gray-50 flex items-center gap-1.5">
                       <span className="text-[9px] text-gray-400">Powered by</span>
                       <span className="text-[9px] font-bold text-purple">Claude AI</span>
@@ -1377,26 +1313,26 @@ function ZekaAI({ s }) {
                 </div>
               </div>
 
-              {/* Input bar */}
+              {/* Input */}
               <div className="px-4 py-3 border-t border-gray-100 bg-white flex items-center gap-3">
-                <div className="flex-1 bg-gray-50 rounded-xl px-4 py-2.5 text-[11px] text-gray-400 border border-gray-100">
+                <div className="flex-1 bg-gray-50 rounded-xl px-4 py-2.5 text-[11px] text-gray-400 font-medium border border-gray-100">
                   Zəka AI ilə yazın...
                 </div>
-                <div className="w-8 h-8 rounded-xl bg-purple flex items-center justify-center shrink-0 cursor-pointer">
-                  <ArrowRight className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-xl bg-purple flex items-center justify-center shrink-0 shadow-md shadow-purple/20">
+                  <ArrowRight className="w-4 h-4 text-white"/>
                 </div>
               </div>
             </div>
 
-            {/* Floating time-saved badge */}
-            <div className="hero-float-3 absolute -right-4 -bottom-4 bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100">
+            {/* Floating badge */}
+            <div className="float-c absolute -right-4 -bottom-5 bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-teal/10 flex items-center justify-center">
-                  <Clock className="w-4.5 h-4.5 text-teal" style={{ width: 18, height: 18 }} />
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background:'rgba(29,158,117,0.1)' }}>
+                  <Clock className="w-4 h-4 text-teal"/>
                 </div>
                 <div>
-                  <p className="text-[11px] font-bold text-gray-900">4 saat → 20 dəq</p>
-                  <p className="text-[10px] text-gray-400">Hesabat vaxtı azaldıldı</p>
+                  <p className="text-[12px] font-bold text-gray-900">4 saat → 20 dəq</p>
+                  <p className="text-[10px] text-gray-400 font-medium">Hesabat vaxtı azaldıldı</p>
                 </div>
               </div>
             </div>
@@ -1407,70 +1343,100 @@ function ZekaAI({ s }) {
   )
 }
 
-/* ─── Pilot Program Invite ─── */
-function Testimonials({ s }) {
-  const lang = s.nav_signin === 'Daxil ol' ? 'az' : 'en'
-  const isAz = lang === 'az'
-
-  const perks = isAz
-    ? [
-        { icon: Zap,          label: 'Tam giriş',      desc: 'Bütün funksiyalar pilot mərhələsində açıqdır' },
-        { icon: HeartHandshake, label: 'Birgə inkişaf', desc: 'Rəyiniz platformanı formalaşdırır' },
-        { icon: Award,        label: 'Prioritet dəstək', desc: 'Birbaşa komandamızla əlaqə imkanı' },
-      ]
-    : [
-        { icon: Zap,          label: 'Full access',       desc: 'All features open during the pilot phase' },
-        { icon: HeartHandshake, label: 'Shape the product', desc: 'Your feedback directly influences development' },
-        { icon: Award,        label: 'Priority support',   desc: 'Direct line to our team throughout the pilot' },
-      ]
+/* ─── COMPLIANCE ─── */
+function Compliance({ s }) {
+  const isAz = s.nav_signin === 'Daxil ol'
+  const cards = [
+    { icon:Server,    title:s.s1t, desc:s.s1d, label:isAz?'AZ Serverləri':'AZ Servers', color:'#534AB7' },
+    { icon:Shield,    title:s.s2t, desc:s.s2d, label:'ISO/IEC 27001',                   color:'#1D9E75' },
+    { icon:Lock,      title:s.s3t, desc:s.s3d, label:isAz?'GDPR Uyğunluğu':'GDPR Compliant', color:'#534AB7' },
+    { icon:Users,     title:s.s4t, desc:s.s4d, label:'24/7',                             color:'#1D9E75' },
+  ]
 
   return (
-    <section className="py-24 bg-[#F7F7FB]">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl overflow-hidden border border-purple/20 shadow-xl shadow-purple/8">
-          {/* Top gradient band */}
-          <div
-            className="px-8 pt-12 pb-10 text-center"
-            style={{ background: 'linear-gradient(135deg, #4338ca 0%, #534AB7 50%, #6d28d9 100%)' }}
-          >
-            <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-teal/40 bg-teal/10 backdrop-blur-sm">
-              <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-              <span className="text-teal text-sm font-semibold">
+    <section className="py-28" style={{ background:'#F6F6FC' }}>
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-end mb-14">
+          <div>
+            <p className="text-teal text-xs font-bold uppercase tracking-widest mb-4">{s.sec_badge}</p>
+            <h2 className="font-extrabold text-gray-900 leading-tight"
+              style={{ fontSize:'clamp(2rem,4vw,3rem)', letterSpacing:'-0.02em' }}>
+              {isAz ? <>Məlumatlarınız<br/><span style={{ color:'#1D9E75' }}>tam qorunur</span></> : <>Your data is<br/><span style={{ color:'#1D9E75' }}>fully protected</span></>}
+            </h2>
+          </div>
+          <p className="text-gray-500 text-base leading-relaxed font-medium">{s.sec_sub}</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {cards.map(({ icon:Icon, title, desc, label, color }) => (
+            <div key={title} className="card-lift bg-white rounded-2xl p-7 border border-gray-100 cursor-default group">
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200"
+                style={{ background:`${color}12` }}>
+                <Icon className="w-5 h-5" style={{ color }}/>
+              </div>
+              <p className="text-xs font-bold mb-2" style={{ color }}>{label}</p>
+              <h3 className="font-bold text-gray-900 text-base mb-2.5" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
+              <p className="text-gray-500 text-sm leading-relaxed font-medium">{desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── PILOT CTA ─── */
+function PilotCTA({ s }) {
+  const isAz = s.nav_signin === 'Daxil ol'
+  const perks = isAz ? [
+    { icon:Zap,            label:'Tam giriş',       desc:'Bütün funksiyalar pilot mərhələsində açıqdır' },
+    { icon:HeartHandshake, label:'Birgə inkişaf',   desc:'Rəyiniz platformanı birbaşa formalaşdırır'   },
+    { icon:Award,          label:'Prioritet dəstək',desc:'Komandamızla birbaşa əlaqə imkanı'            },
+  ] : [
+    { icon:Zap,            label:'Full access',       desc:'All features open during the pilot phase'       },
+    { icon:HeartHandshake, label:'Shape the product', desc:'Your feedback directly influences development'  },
+    { icon:Award,          label:'Priority support',  desc:'Direct line to our team throughout the pilot'  },
+  ]
+
+  return (
+    <section className="py-28 bg-white">
+      <div className="max-w-4xl mx-auto px-5 sm:px-8">
+        <div className="rounded-3xl overflow-hidden shadow-2xl shadow-purple/12" style={{ border:'1px solid rgba(83,74,183,0.15)' }}>
+
+          {/* Header */}
+          <div className="px-10 pt-16 pb-14 text-center"
+            style={{ background:'linear-gradient(145deg,#1a1460 0%,#2c2690 40%,#534AB7 78%,#6d28d9 100%)' }}>
+            <div className="inline-flex items-center gap-2.5 mb-8 px-5 py-2.5 rounded-full border border-white/15 bg-white/8">
+              <span className="w-2 h-2 rounded-full bg-teal flex-shrink-0 animate-pulse"/>
+              <span className="text-white/80 text-sm font-semibold">
                 {isAz ? 'Pilot Proqram — Məhdud Yer' : 'Pilot Programme — Limited Spots'}
               </span>
             </div>
-            <h2
-              className="font-serif font-bold text-white mb-4 leading-tight"
-              style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)' }}
-            >
-              {isAz
-                ? 'Məktəbinizi pilot proqrama dəvət edirik'
-                : 'We\'re inviting schools to our pilot programme'}
+            <h2 className="font-extrabold text-white leading-tight mb-5"
+              style={{ fontSize:'clamp(1.8rem,4vw,2.8rem)', letterSpacing:'-0.02em' }}>
+              {isAz ? 'Məktəbinizi pilot proqrama dəvət edirik' : "We're inviting your school to join our pilot"}
             </h2>
-            <p className="text-white/65 text-base max-w-xl mx-auto leading-relaxed">
+            <p className="text-white/55 text-base max-w-xl mx-auto leading-relaxed mb-10 font-medium">
               {isAz
                 ? 'Texnologiya hazırdır. Azərbaycanda rəqəmsal məktəbin əsasını qurmaq istəyən öncü məktəbləri axtarırıq.'
-                : 'The platform is ready. We\'re looking for forward-thinking schools to help shape the future of school management in Azerbaijan.'}
+                : "The platform is ready. We're looking for forward-thinking schools to help shape the future of school management in Azerbaijan."}
             </p>
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-2 mt-8 bg-white text-purple font-semibold px-7 py-3.5 rounded-full shadow-lg shadow-black/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 text-sm"
-            >
-              {isAz ? 'Müraciət et' : 'Apply now'}
-              <ArrowRight className="w-4 h-4" />
+            <Link to="/contact"
+              className="inline-flex items-center gap-2.5 bg-white text-purple font-bold px-9 py-4 rounded-xl shadow-xl shadow-black/12 hover:-translate-y-0.5 hover:shadow-2xl transition-all text-sm">
+              {isAz ? 'Müraciət et' : 'Apply now'} <ArrowRight className="w-4 h-4"/>
             </Link>
           </div>
 
-          {/* Perks row */}
+          {/* Perks */}
           <div className="bg-white grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
-            {perks.map(({ icon: Icon, label, desc }) => (
+            {perks.map(({ icon:Icon, label, desc }) => (
               <div key={label} className="flex items-start gap-4 px-8 py-8">
-                <div className="w-10 h-10 rounded-xl bg-purple/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Icon className="w-5 h-5 text-purple" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style={{ background:'rgba(83,74,183,0.08)' }}>
+                  <Icon className="w-5 h-5 text-purple"/>
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900 text-sm mb-1">{label}</p>
-                  <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
+                  <p className="font-bold text-gray-900 text-sm mb-1">{label}</p>
+                  <p className="text-gray-500 text-xs leading-relaxed font-medium">{desc}</p>
                 </div>
               </div>
             ))}
@@ -1481,428 +1447,48 @@ function Testimonials({ s }) {
   )
 }
 
-/* ─── Benefits ─── */
-function Benefits({ s }) {
-  const items = [
-    { icon: Zap,            t: s.b1t, d: s.b1d, c: 'teal'   },
-    { icon: HeartHandshake, t: s.b2t, d: s.b2d, c: 'purple' },
-    { icon: GraduationCap,  t: s.b3t, d: s.b3d, c: 'teal'   },
-    { icon: Sliders,        t: s.b4t, d: s.b4d, c: 'purple' },
-    { icon: Layers,         t: s.b5t, d: s.b5d, c: 'teal'   },
-    { icon: CheckCircle,    t: s.b6t, d: s.b6d, c: 'purple' },
-    { icon: Shield,         t: s.b7t, d: s.b7d, c: 'teal'   },
-    { icon: TrendingUp,     t: s.b8t, d: s.b8d, c: 'purple' },
-  ]
-  return (
-    <section id="benefits" className="py-24 bg-white relative overflow-hidden">
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 items-start">
-          {/* Left sticky */}
-          <div className="lg:sticky lg:top-28">
-            <div className="inline-flex items-center gap-2 mb-5 px-3 py-1 rounded-full bg-purple/10 border border-purple/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple" />
-              <span className="text-purple text-xs font-semibold tracking-wide uppercase">{s.ben_badge}</span>
-            </div>
-            <h2
-              className="font-serif text-gray-900 mb-5 leading-tight"
-              style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)' }}
-            >
-              {s.ben_title}
-            </h2>
-            <p className="text-gray-500 text-sm leading-relaxed mb-8">{s.ben_sub}</p>
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-2 bg-purple text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-purple/20 hover:shadow-xl hover:shadow-purple/30 hover:-translate-y-0.5"
-            >
-              {s.feat_cta} <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* Right grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {items.map(({ icon: Icon, t, d, c }) => (
-              <div
-                key={t}
-                className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-white hover:border-purple/20 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-default"
-              >
-                <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-200 ${
-                    c === 'teal' ? 'bg-teal/10' : 'bg-purple/10'
-                  }`}>
-                    <Icon className={`w-5 h-5 ${c === 'teal' ? 'text-teal' : 'text-purple'}`} />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 text-sm mb-1 leading-snug">{t}</h3>
-                    <p className="text-gray-500 text-xs leading-relaxed">{d}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── Integration logos ─── */
-function MicrosoftLogo() {
-  return (
-    <svg viewBox="0 0 21 21" width="42" height="42">
-      <rect x="0" y="0" width="10" height="10" fill="#F35325"/>
-      <rect x="11" y="0" width="10" height="10" fill="#81BC06"/>
-      <rect x="0" y="11" width="10" height="10" fill="#05A6F0"/>
-      <rect x="11" y="11" width="10" height="10" fill="#FFBA08"/>
-    </svg>
-  )
-}
-
-const INT_ITEMS = [
-  { name: 'Microsoft',       Logo: () => <MicrosoftLogo /> },
-  { name: 'Microsoft Excel', Logo: () => <img src="/excel.png"      alt="Excel"       width="44" height="44" className="object-contain" /> },
-  { name: 'Claude AI',       Logo: () => <img src="/claude.png"     alt="Claude AI"   width="44" height="44" className="object-contain rounded-xl" /> },
-  { name: 'E-Gov.az',        Logo: () => <img src="/egov.png"       alt="E-Gov.az"    width="44" height="44" className="object-contain" /> },
-  { name: 'ASAN Xidmət',    Logo: () => <img src="/asanxidmet.png" alt="ASAN Xidmət" width="44" height="44" className="object-contain" /> },
-  { name: 'Zoom',            Logo: () => <img src="/zoom.png"       alt="Zoom"        width="44" height="44" className="object-contain rounded-xl" /> },
-]
-
-function IntCard({ item: { name, Logo } }) {
-  return (
-    <div
-      className="group flex flex-col items-center gap-3 bg-white rounded-2xl py-8 px-4 cursor-pointer transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-purple/10 border border-gray-100 shadow-sm"
-    >
-      <div className="h-12 flex items-center justify-center"><Logo /></div>
-      <span className="text-xs text-gray-500 font-medium text-center leading-tight group-hover:text-gray-800 transition-colors">{name}</span>
-    </div>
-  )
-}
-
-function Integrations({ s }) {
-  return (
-    <section id="integrations" className="py-24" style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f7f7fb 50%, #ffffff 100%)' }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-purple/10 border border-purple/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-purple" />
-            <span className="text-purple text-xs font-semibold tracking-wide uppercase">{s.int_badge}</span>
-          </div>
-          <h2
-            className="font-serif text-gray-900 mb-4"
-            style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)' }}
-          >
-            {s.int_title}
-          </h2>
-          <p className="text-gray-500 text-base max-w-xl mx-auto leading-relaxed">{s.int_sub}</p>
-        </div>
-
-        <div className="flex justify-center mb-10">
-          <div className="flex items-center gap-3 bg-purple/8 border border-purple/15 rounded-2xl px-6 py-3">
-            <div className="w-9 h-9 bg-purple rounded-xl flex items-center justify-center shadow-md shadow-purple/30">
-              <img src="/logo.png" alt="Zirva" width="18" height="18" className="object-contain" style={{ filter: 'brightness(0) invert(1)' }} />
-            </div>
-            <span className="text-purple font-semibold text-sm">{s.int_hub}</span>
-            <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {INT_ITEMS.map(item => <IntCard key={item.name} item={item} />)}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── Security ─── */
-function Security({ s }) {
-  const items = [
-    { icon: Globe,  t: s.s1t, d: s.s1d, c: 'teal'   },
-    { icon: Shield, t: s.s2t, d: s.s2d, c: 'teal'   },
-    { icon: Lock,   t: s.s3t, d: s.s3d, c: 'teal'   },
-    { icon: Bell,   t: s.s4t, d: s.s4d, c: 'teal'   },
-  ]
-  const badges = ['ISO 27001', 'GDPR', 'E-Gov.az', 'SOC 2']
-
-  return (
-    <section
-      id="security"
-      className="py-24 bg-[#F7F7FB] relative overflow-hidden"
-    >
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-teal/10 border border-teal/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal" />
-            <span className="text-teal text-xs font-semibold tracking-wide uppercase">{s.sec_badge}</span>
-          </div>
-          <h2
-            className="font-serif text-gray-900 mb-4 leading-tight"
-            style={{ fontSize: 'clamp(1.875rem, 3.5vw, 2.875rem)' }}
-          >
-            {s.sec_title}
-          </h2>
-          <p className="text-gray-500 text-base max-w-2xl mx-auto leading-relaxed mb-6">{s.sec_sub}</p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {badges.map(b => (
-              <span
-                key={b}
-                className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-600 text-xs font-medium px-4 py-2 rounded-full"
-              >
-                <Check className="w-3 h-3 text-teal shrink-0" />{b}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* 2x2 grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-4xl mx-auto">
-          {items.map(({ icon: Icon, t, d }) => (
-            <div
-              key={t}
-              className="group bg-white rounded-2xl p-6 border border-gray-100 hover:border-teal/20 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-            >
-              <div className="w-12 h-12 rounded-xl bg-teal/10 group-hover:bg-teal/15 flex items-center justify-center mb-4 transition-colors">
-                <Icon className="w-6 h-6 text-teal" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-base">{t}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── Support ─── */
-function Support({ s }) {
-  return (
-    <section id="support" className="py-24 bg-white">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-teal/10 border border-teal/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal" />
-            <span className="text-teal text-xs font-semibold tracking-wide uppercase">{s.sup_badge}</span>
-          </div>
-          <h2
-            className="font-serif text-gray-900 mb-3"
-            style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)' }}
-          >
-            {s.sup_title}
-          </h2>
-          <p className="text-gray-500 text-base">{s.sup_sub}</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {[
-            { icon: Mail,       t: s.su1t, d: s.su1d, cta: s.su1cta, href: 'mailto:hello@birclick.az', accent: 'purple' },
-            { icon: HelpCircle, t: s.su2t, d: s.su2d, cta: s.su2cta, href: 'https://zirva.az/help',   accent: 'teal'   },
-          ].map(({ icon: Icon, t, d, cta, href, accent }) => (
-            <div
-              key={t}
-              className={`card-spring group relative overflow-hidden p-9 rounded-2xl border transition-all duration-300 ${
-                accent === 'teal' ? 'border-teal/15 hover:border-teal/25 hover:shadow-xl' : 'border-purple/15 hover:border-purple/25 hover:shadow-xl'
-              }`}
-              style={{
-                background: accent === 'teal'
-                  ? 'linear-gradient(145deg, #f0fdf9 0%, #ffffff 100%)'
-                  : 'linear-gradient(145deg, #f5f3ff 0%, #ffffff 100%)',
-              }}
-            >
-              {/* Top accent strip */}
-              <div className={`absolute top-0 left-0 right-0 h-1 ${
-                accent === 'teal'
-                  ? 'bg-gradient-to-r from-teal to-teal/30'
-                  : 'bg-gradient-to-r from-purple to-purple/30'
-              }`} />
-              {/* Watermark */}
-              <div className="pointer-events-none absolute -bottom-4 -right-4 opacity-[0.05]">
-                <Icon className={`w-28 h-28 ${accent === 'teal' ? 'text-teal' : 'text-purple'}`} />
-              </div>
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm ${
-                accent === 'teal' ? 'bg-teal/15' : 'bg-purple/15'
-              }`}>
-                <Icon className={`w-7 h-7 ${accent === 'teal' ? 'text-teal' : 'text-purple'}`} />
-              </div>
-              <h3 className="font-serif text-xl text-gray-900 mb-2">{t}</h3>
-              <p className="text-gray-500 text-sm mb-6 leading-relaxed">{d}</p>
-              <a
-                href={href}
-                className={`inline-flex items-center gap-2 text-sm font-semibold group/btn ${
-                  accent === 'teal' ? 'text-teal' : 'text-purple'
-                }`}
-              >
-                {cta}
-                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-              </a>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── Closing CTA ─── */
-function ClosingCTA({ s }) {
-  return (
-    <section
-      className="py-32 overflow-hidden relative"
-      style={{ background: 'linear-gradient(135deg, #534AB7 0%, #3730a3 40%, #1D9E75 100%)' }}
-    >
-      {/* Blobs */}
-      <div className="pointer-events-none absolute top-0 left-1/3 w-[500px] h-[500px] bg-white/5 rounded-full blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-teal/10 rounded-full blur-[100px]" />
-
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Top badge */}
-        <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
-          <Sparkles className="w-3.5 h-3.5 text-white/80" />
-          <span className="text-white/80 text-xs font-semibold tracking-wide uppercase">Pilot Proqram</span>
-        </div>
-
-        <h2
-          className="font-serif text-white mb-6 leading-tight"
-          style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', lineHeight: 1.1, textShadow: '0 2px 40px rgba(0,0,0,0.2)' }}
-        >
-          {s.cta_title}
-        </h2>
-        <p className="text-white/75 text-xl mb-12 leading-relaxed max-w-2xl mx-auto">{s.cta_sub}</p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
-            href="mailto:hello@birclick.az"
-            className="relative bg-white text-purple font-semibold px-9 py-4 rounded-xl hover:bg-gray-50 hover:-translate-y-1 transition-all duration-200 text-sm"
-            style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.15)' }}
-          >
-            {s.cta_btn1}
-          </a>
-          <Link
-            to="/contact"
-            className="group border-2 border-white/40 text-white font-semibold px-9 py-4 rounded-xl hover:bg-white/15 hover:border-white/70 transition-all duration-200 text-sm flex items-center gap-2"
-          >
-            {s.cta_btn2}
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── Footer ─── */
+/* ─── FOOTER ─── */
 function Footer({ s }) {
   return (
-    <footer className="bg-[#0f0e2a] text-white/60 text-sm">
-      <div className="h-px bg-gradient-to-r from-transparent via-teal/50 to-transparent" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2.5 mb-4">
-              <ZirvaLogo size={32} invert />
-              <span className="font-serif text-xl text-white">Zirva</span>
+    <footer style={{ background:'#09091E' }}>
+      <div className="h-px" style={{ background:'linear-gradient(90deg,transparent,rgba(83,74,183,0.55),rgba(29,158,117,0.35),transparent)' }}/>
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-12">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <ZirvaLogo size={28} invert/>
+              <span className="text-lg font-bold text-white">Zirva</span>
             </div>
-            <p className="text-xs text-white/40 leading-relaxed mb-4">{s.foot_tagline}</p>
-            <a
-              href="tel:+994502411442"
-              className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors mb-2.5"
-            >
-              <Phone className="w-3 h-3 text-teal shrink-0" />
-              +994 50 241 14 42
+            <p className="text-xs leading-relaxed mb-5" style={{ color:'rgba(255,255,255,0.35)' }}>{s.foot_tagline}</p>
+            <a href="mailto:hello@birclick.az" className="flex items-center gap-2 text-xs mb-2 hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>
+              <Mail className="w-3.5 h-3.5 text-teal shrink-0"/>hello@birclick.az
             </a>
-            <a
-              href="mailto:hello@birclick.az"
-              className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors mb-5"
-            >
-              <Mail className="w-3 h-3 text-teal shrink-0" />
-              hello@birclick.az
+            <a href="tel:+994502411442" className="flex items-center gap-2 text-xs hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>
+              <Phone className="w-3.5 h-3.5 text-teal shrink-0"/>+994 50 241 14 42
             </a>
-            <p className="text-[10px] text-white/25">© 2026 Zirva LLC. {s.foot_rights}</p>
           </div>
-
-          {/* Col 1 */}
           <div>
-            <h4 className="text-white font-semibold text-xs tracking-wider uppercase mb-4">{s.foot_col1}</h4>
-            <ul className="space-y-2.5">
-              {[
-                { label: s.fl1, to: '/ib-diploma' },
-                { label: s.fl2, to: '/ib-career' },
-                { label: s.fl3, to: '/ib-myp' },
-                { label: s.fl4, to: '/ib-pyp' },
-                { label: s.fl5, to: '/government-schools' },
-                { label: s.fl6, to: '/mobile' },
-                { label: s.fl7, to: '/online-exams' },
-              ].map(({ label, to }) => (
-                <li key={label}>
-                  <Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link>
-                </li>
+            <h4 className="text-white font-bold text-xs tracking-widest uppercase mb-5">{s.foot_col1}</h4>
+            <ul className="space-y-3">
+              {[s.fl1,s.fl2,s.fl3,s.fl4,s.fl5].map(label => (
+                <li key={label}><Link to="#" className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>{label}</Link></li>
               ))}
             </ul>
           </div>
-
-          {/* Col 2 */}
           <div>
-            <h4 className="text-white font-semibold text-xs tracking-wider uppercase mb-4">{s.foot_col2}</h4>
-            <ul className="space-y-2.5">
-              {[
-                { label: s.fr1, to: '/ceo-letter' },
-                { label: s.fr2, to: '/resources' },
-                { label: s.fr3, to: '/events' },
-                { label: s.fr4, to: '/blog' },
-                { label: s.fr5, to: '/product-portal' },
-                { label: s.fr6, to: '/reviews' },
-                { label: s.fr7, to: '/faq' },
-              ].map(({ label, to }) => (
-                <li key={label}>
-                  <Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Col 3 */}
-          <div>
-            <h4 className="text-white font-semibold text-xs tracking-wider uppercase mb-4">{s.foot_col3}</h4>
-            <ul className="space-y-2.5">
-              {[
-                { label: s.fs1, to: '/premium-support' },
-                { label: s.fs2, to: '/help' },
-              ].map(({ label, to }) => (
-                <li key={label}>
-                  <Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Col 4 */}
-          <div>
-            <h4 className="text-white font-semibold text-xs tracking-wider uppercase mb-4">{s.foot_col4}</h4>
-            <ul className="space-y-2.5">
-              {[
-                { label: s.fc1, to: '/about' },
-                { label: s.fc2, to: '/careers' },
-                { label: s.fc3, to: '/partners' },
-                { label: s.fc4, to: '/contact' },
-              ].map(({ label, to }) => (
-                <li key={label}>
-                  <Link to={to} className="hover:text-white transition-colors text-xs">{label}</Link>
-                </li>
+            <h4 className="text-white font-bold text-xs tracking-widest uppercase mb-5">{s.foot_col4}</h4>
+            <ul className="space-y-3">
+              {[{ label:s.fc1,to:'/about' },{ label:s.fc2,to:'/careers' },{ label:s.fc3,to:'/contact' },{ label:s.fc4,to:'/contact' }].map(({ label, to }) => (
+                <li key={label}><Link to={to} className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>{label}</Link></li>
               ))}
             </ul>
           </div>
         </div>
-
-        {/* Bottom bar */}
-        <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <ZirvaLogo size={20} invert />
-            <span className="text-xs text-white/30">© 2026 Zirva LLC</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link to="/privacy" className="text-xs hover:text-white transition-colors">{s.foot_privacy}</Link>
-            <Link to="/terms" className="text-xs hover:text-white transition-colors">{s.foot_terms}</Link>
+        <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3" style={{ borderColor:'rgba(255,255,255,0.06)' }}>
+          <span className="text-xs font-medium" style={{ color:'rgba(255,255,255,0.2)' }}>© 2026 Zirva LLC. {s.foot_rights}</span>
+          <div className="flex gap-5">
+            <Link to="/privacy" className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.35)' }}>{s.foot_privacy}</Link>
+            <Link to="/terms"   className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.35)' }}>{s.foot_terms}</Link>
           </div>
         </div>
       </div>
@@ -1910,27 +1496,23 @@ function Footer({ s }) {
   )
 }
 
-/* ─── Main export ─── */
+/* ─── EXPORT ─── */
 export default function Landing() {
   const { lang, setLang } = useLang()
   const s = STR[lang] || STR.az
-
   return (
-    <div className="min-h-screen font-sans antialiased">
-      <Nav s={s} lang={lang} setLang={setLang} />
-      <Hero s={s} />
-      <TrustStrip s={s} />
-      <Stats />
-      <Solutions s={s} />
-      <Features s={s} />
-      <ZekaAI s={s} />
-      <Testimonials s={s} />
-      <Benefits s={s} />
-      <Integrations s={s} />
-      <Security s={s} />
-      <Support s={s} />
-      <ClosingCTA s={s} />
-      <Footer s={s} />
+    <div className="min-h-screen antialiased">
+      <Nav s={s} lang={lang} setLang={setLang}/>
+      <Hero s={s}/>
+      <PartnerBar s={s}/>
+      <WhatWeDo s={s}/>
+      <Solutions s={s}/>
+      <Features s={s}/>
+      <ProductShowcase s={s}/>
+      <ZekaAI s={s}/>
+      <Compliance s={s}/>
+      <PilotCTA s={s}/>
+      <Footer s={s}/>
     </div>
   )
 }

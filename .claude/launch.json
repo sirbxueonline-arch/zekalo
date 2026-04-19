@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "zirva",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-e", "setInterval(()=>{},1e9)"],
       "port": 5173
     }
   ]
