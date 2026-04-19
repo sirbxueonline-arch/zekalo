@@ -880,20 +880,34 @@ function Hero({ s }) {
 
 /* ─── PARTNER BAR ─── */
 function PartnerBar({ s }) {
-  const items = ['IBO Certified','E-Gov.az','Microsoft 365','Claude AI','ISO 27001','ASAN Xidmət']
+  const items = [
+    { name:'IBO Certified',  color:'#009FDA', url:'https://ibo.org' },
+    { name:'E-Gov.az',       color:'#0057A8', url:'https://e-gov.az' },
+    { name:'Microsoft 365',  color:'#D83B01', url:'https://microsoft.com/microsoft-365' },
+    { name:'Claude AI',      color:'#D4820A', url:'https://claude.ai' },
+    { name:'ISO 27001',      color:'#1D7A3A', url:'https://iso.org/standard/27001' },
+    { name:'ASAN Xidmət',    color:'#E31E24', url:'https://asan.gov.az' },
+  ]
   return (
     <div className="bg-white border-y border-gray-100 py-7">
       <div className="max-w-6xl mx-auto px-5 sm:px-8">
         <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-[0.22em] mb-5">{s.trust_title}</p>
         <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
-          {items.map((name, i) => (
+          {items.map(({ name, color, url }, i) => (
             <div key={name} className="flex items-center gap-10">
               {i > 0 && <div className="hidden sm:block w-px h-4 bg-gray-200"/>}
-              <span className="text-gray-400 text-sm font-bold hover:text-gray-600 transition-colors cursor-default">{name}</span>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="partner-item text-sm font-bold transition-colors duration-150"
+                style={{ color:'#9CA3AF', textDecoration:'none', '--brand': color }}
+              >{name}</a>
             </div>
           ))}
         </div>
       </div>
+      <style>{`.partner-item:hover { color: var(--brand) !important; }`}</style>
     </div>
   )
 }

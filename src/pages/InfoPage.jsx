@@ -502,7 +502,6 @@ function ContactPage() {
 
         {/* Header */}
         <div style={{ marginBottom:36, textAlign:'center' }}>
-          <p style={{ fontSize:11, fontWeight:700, letterSpacing:'0.2em', textTransform:'uppercase', color:'#7C3AED', marginBottom:14 }}>{ct.ct_eyebrow}</p>
           <h1 style={{ fontSize:'clamp(2.2rem,5vw,3.2rem)', fontWeight:800, letterSpacing:'-0.03em', lineHeight:1.05, marginBottom:14, color:'#111' }}>
             {ct.ct_heading}
           </h1>

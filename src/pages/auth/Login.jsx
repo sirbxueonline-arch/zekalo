@@ -40,7 +40,7 @@ export default function Login() {
   }
 
   async function handleReset() {
-    if (!resetEmail) { setResetError('E-poçt daxil edin'); return }
+    if (!resetEmail) { setResetError(t('email')); return }
     setResetLoading(true); setResetError(null)
     const { error: err } = await supabase.auth.resetPasswordForEmail(resetEmail, {
       redirectTo: window.location.origin + '/sifre-sifirla'
@@ -94,41 +94,41 @@ export default function Login() {
 
         {showReset ? (
           <>
-            <h1 style={{ color:'#111', fontSize:21, fontWeight:800, letterSpacing:'-0.02em', marginBottom:6, textAlign:'center' }}>Şifrəni sıfırla</h1>
+            <h1 style={{ color:'#111', fontSize:21, fontWeight:800, letterSpacing:'-0.02em', marginBottom:6, textAlign:'center' }}>{t('reset_password')}</h1>
             <p style={{ color:'#9CA3AF', fontSize:13.5, textAlign:'center', marginBottom:26, lineHeight:1.55 }}>
-              E-poçtunuza sıfırlama linki göndərəcəyik.
+              {t('forgot_subtitle')}
             </p>
 
             {resetSent ? (
               <div style={{ background:'#F0FDF4', border:'1px solid #BBF7D0', borderRadius:10, padding:'13px 15px', color:'#16A34A', fontSize:13.5, textAlign:'center', marginBottom:22 }}>
-                Sıfırlama linki e-poçtunuza göndərildi ✓
+                {t('reset_link_sent')}
               </div>
             ) : (
               <>
                 {resetError && <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:10, padding:'11px 14px', color:'#DC2626', fontSize:13, marginBottom:16 }}>{resetError}</div>}
                 <div style={{ marginBottom:14 }}>
-                  <label style={lbl}>E-poçt</label>
+                  <label style={lbl}>{t('email')}</label>
                   <input type="email" style={inp} placeholder="ad@mekteb.az" value={resetEmail} onChange={e=>setResetEmail(e.target.value)} onFocus={focus} onBlur={blur}/>
                 </div>
                 <button onClick={handleReset} disabled={resetLoading} className="lgn-btn" style={{ width:'100%', padding:'12px', borderRadius:10, background:'#7C3AED', color:'#fff', fontWeight:700, fontSize:14, border:'none', cursor:resetLoading?'not-allowed':'pointer', fontFamily:'inherit', boxShadow:'0 8px 20px -8px rgba(124,58,237,0.45)', opacity:resetLoading?.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
-                  {resetLoading ? <><SpinIcon/> Göndərilir…</> : 'Sıfırlama linki göndər'}
+                  {resetLoading ? <><SpinIcon/> {t('sending')}</> : t('send_link')}
                 </button>
               </>
             )}
 
             <div style={{ textAlign:'center', marginTop:20 }}>
               <button type="button" onClick={()=>{setShowReset(false);setResetSent(false);setResetError(null);setResetEmail('')}} className="lgn-link-purple" style={{ fontSize:13, background:'none', border:'none', cursor:'pointer', fontFamily:'inherit' }}>
-                ← Geri qayıt
+                ← {t('back_to_login')}
               </button>
             </div>
           </>
         ) : (
           <>
-            <h1 style={{ color:'#111', fontSize:21, fontWeight:800, letterSpacing:'-0.02em', marginBottom:5, textAlign:'center' }}>Xoş gəldiniz</h1>
+            <h1 style={{ color:'#111', fontSize:21, fontWeight:800, letterSpacing:'-0.02em', marginBottom:5, textAlign:'center' }}>{t('login_welcome')}</h1>
             <p style={{ color:'#9CA3AF', fontSize:13.5, textAlign:'center', marginBottom:26 }}>{t('login_subtitle')}</p>
 
-            {passwordReset && <div style={{ background:'#F0FDF4', border:'1px solid #BBF7D0', borderRadius:10, padding:'11px 14px', color:'#16A34A', fontSize:13, marginBottom:16 }}>Şifrəniz uğurla yeniləndi. İndi daxil ola bilərsiniz.</div>}
-            {sessionExpired && <div style={{ background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:10, padding:'11px 14px', color:'#92400E', fontSize:13, marginBottom:16 }}>Sessiyanız başa çatdı. Zəhmət olmasa yenidən daxil olun.</div>}
+            {passwordReset && <div style={{ background:'#F0FDF4', border:'1px solid #BBF7D0', borderRadius:10, padding:'11px 14px', color:'#16A34A', fontSize:13, marginBottom:16 }}>{t('password_updated')}</div>}
+            {sessionExpired && <div style={{ background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:10, padding:'11px 14px', color:'#92400E', fontSize:13, marginBottom:16 }}>{t('session_expired')}</div>}
             {error && <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:10, padding:'11px 14px', color:'#DC2626', fontSize:13, marginBottom:16 }}>{error}</div>}
 
             <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:14 }}>
@@ -148,12 +148,12 @@ export default function Login() {
 
               <div style={{ display:'flex', justifyContent:'flex-end', marginTop:-4 }}>
                 <button type="button" onClick={()=>setShowReset(true)} className="lgn-link-purple" style={{ fontSize:12.5, background:'none', border:'none', cursor:'pointer', fontFamily:'inherit' }}>
-                  Şifrəni unutmusunuz?
+                  {t('forgot_password')}
                 </button>
               </div>
 
               <button type="submit" disabled={loading} className="lgn-btn" style={{ width:'100%', padding:'13px', borderRadius:10, background:'#7C3AED', color:'#fff', fontWeight:700, fontSize:14, border:'none', cursor:loading?'not-allowed':'pointer', fontFamily:'inherit', boxShadow:'0 8px 20px -8px rgba(124,58,237,0.45)', opacity:loading?.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:8, marginTop:2 }}>
-                {loading ? <><SpinIcon/> Yüklənir…</> : <>{t('login')} <ArrowRight style={{ width:15, height:15 }}/></>}
+                {loading ? <><SpinIcon/> {t('loading')}</> : <>{t('login')} <ArrowRight style={{ width:15, height:15 }}/></>}
               </button>
             </form>
 
