@@ -277,10 +277,7 @@ function Nav({ s, lang, setLang }) {
             >
               <ZirvaLogo size={22} />
             </div>
-            <div className="leading-none">
-              <span className="block text-[16px] font-extrabold text-gray-900 tracking-tight">Zirva</span>
-              <span className="block text-[10px] font-bold text-gray-400 tracking-[0.12em] uppercase mt-0.5">School Platform</span>
-            </div>
+            <span className="text-[19px] font-extrabold text-gray-900 tracking-tight">Zirva</span>
           </Link>
 
           {/* ── Center links ── */}
@@ -733,36 +730,6 @@ function Hero({ s }) {
         style={{ position:'relative', zIndex:10, paddingTop:100, paddingBottom:0 }}
       >
 
-        {/* ── Status badge ── */}
-        <div className="pop-in" style={{ marginBottom:40 }}>
-          <div style={{
-            display:'inline-flex', alignItems:'center', gap:10,
-            padding:'8px 18px 8px 12px', borderRadius:999,
-            background:'rgba(255,255,255,0.04)',
-            border:'1px solid rgba(255,255,255,0.09)',
-            backdropFilter:'blur(10px)',
-          }}>
-            {/* Pulsing green dot */}
-            <span style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'center', width:20, height:20 }}>
-              <span style={{
-                position:'absolute',
-                width:18, height:18, borderRadius:'50%',
-                background:'rgba(29,158,117,0.18)',
-                animation:'floatY 2s ease-in-out infinite',
-              }}/>
-              <span style={{
-                width:7, height:7, borderRadius:'50%',
-                background:'#22c55e',
-                boxShadow:'0 0 8px rgba(34,197,94,0.7)',
-                flexShrink:0,
-              }}/>
-            </span>
-            <span style={{ color:'rgba(255,255,255,0.5)', fontSize:12.5, fontWeight:600 }}>
-              {isAz ? 'Azərbaycanın Məktəb İdarəetmə Platforması' : "Azerbaijan's School Management Platform"}
-            </span>
-          </div>
-        </div>
-
         {/* ── Headline ── */}
         <h1 style={{
           textAlign:'center',
@@ -1163,7 +1130,7 @@ function ProductShowcase({ s }) {
             </p>
             <h2 className="font-extrabold text-gray-900 leading-tight mb-5"
               style={{ fontSize:'clamp(1.8rem,3.8vw,2.8rem)', letterSpacing:'-0.02em' }}>
-              {isAz ? <>Hər şey bir yerdə —<br/><span style={{ color:'#1D9E75' }}>real vaxtda</span></> : <>Everything together —<br/><span style={{ color:'#1D9E75' }}>in real time</span></>}
+              {isAz ? <>Hər şey bir yerdə<br/><span style={{ color:'#1D9E75' }}>real vaxtda</span></> : <>Everything together<br/><span style={{ color:'#1D9E75' }}>in real time</span></>}
             </h2>
             <p className="text-gray-500 text-base leading-relaxed mb-10 font-medium">{s.feat_sub}</p>
             <ul className="space-y-4 mb-10">
