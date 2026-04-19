@@ -1007,43 +1007,103 @@ function WhatWeDo({ s }) {
 /* ─── SOLUTIONS ─── */
 function Solutions({ s }) {
   const isAz = s.nav_signin === 'Daxil ol'
-  const cards = [
-    { icon:Layers,        title:s.sol_multi_t, desc:s.sol_multi_d, tag: isAz?'Əsas':'Core',   color:'#534AB7' },
-    { icon:Building2,     title:s.sol_gov_t,   desc:s.sol_gov_d,   tag: isAz?'Dövlət':'State',color:'#1D9E75' },
-    { icon:GraduationCap, title:s.sol_dp_t,    desc:s.sol_dp_d,    tag:'IB DP',                color:'#534AB7' },
-    { icon:BookOpen,      title:s.sol_myp_t,   desc:s.sol_myp_d,   tag:'IB MYP',               color:'#1D9E75' },
-    { icon:Users,         title:s.sol_cp_t,    desc:s.sol_cp_d,    tag:'IB CP',                color:'#534AB7' },
-    { icon:Star,          title:s.sol_pyp_t,   desc:s.sol_pyp_d,   tag:'IB PYP',               color:'#1D9E75' },
+
+  const ibCards = [
+    { icon:GraduationCap, title:s.sol_dp_t,  desc:s.sol_dp_d,  tag:'IB DP'  },
+    { icon:BookOpen,      title:s.sol_myp_t, desc:s.sol_myp_d, tag:'IB MYP' },
+    { icon:Users,         title:s.sol_cp_t,  desc:s.sol_cp_d,  tag:'IB CP'  },
+    { icon:Star,          title:s.sol_pyp_t, desc:s.sol_pyp_d, tag:'IB PYP' },
   ]
 
   return (
-    <section id="solutions" className="py-28" style={{ background:'#F6F6FC' }}>
+    <section id="solutions" className="py-28 bg-white">
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="text-center mb-14">
-          <p className="text-teal text-xs font-bold uppercase tracking-widest mb-4">{s.sol_badge}</p>
-          <h2 className="font-extrabold text-gray-900 mb-5"
-            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em' }}>
-            {s.sol_title}
-          </h2>
-          <p className="text-gray-500 text-base max-w-xl mx-auto leading-relaxed font-medium">{s.sol_sub}</p>
+
+        {/* ── Header ── */}
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
+          <div>
+            <span className="inline-block text-xs font-bold uppercase tracking-widest mb-5 text-teal">{s.sol_badge}</span>
+            <h2 style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', fontWeight:800, letterSpacing:'-0.025em', lineHeight:1.1, color:'#0f0f1a' }}>
+              {isAz
+                ? <><span style={{ color:'#534AB7' }}>Hər kurikulum</span><br/>üçün hazırlanmış</>
+                : <>Built for<br/><span style={{ color:'#534AB7' }}>every curriculum</span></>}
+            </h2>
+          </div>
+          <p className="text-gray-500 text-base leading-relaxed font-medium max-w-sm">{s.sol_sub}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {cards.map(({ icon:Icon, title, desc, tag, color }) => (
-            <div key={title} className="card-lift bg-white rounded-2xl p-7 border border-gray-100 cursor-default group">
-              <div className="flex items-start justify-between mb-5">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background:`${color}12` }}>
-                  <Icon className="w-5 h-5" style={{ color }}/>
+        {/* ── Featured: Multi-Curricula ── */}
+        <div className="rounded-3xl p-10 mb-4 relative overflow-hidden"
+          style={{ background:'linear-gradient(130deg,#12104a 0%,#1e1880 40%,#534AB7 80%,#6d28d9 100%)' }}>
+          {/* decorative orbs */}
+          <div style={{ position:'absolute', top:'-30%', right:'-5%', width:380, height:380, background:'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 65%)', borderRadius:'50%', pointerEvents:'none' }}/>
+          <div style={{ position:'absolute', bottom:'-20%', left:'35%', width:260, height:260, background:'radial-gradient(circle, rgba(29,158,117,0.18) 0%, transparent 65%)', borderRadius:'50%', pointerEvents:'none' }}/>
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-10">
+            <div className="flex-1">
+              <span className="inline-block text-xs font-bold px-3 py-1.5 rounded-full mb-6 border"
+                style={{ color:'rgba(255,255,255,0.65)', borderColor:'rgba(255,255,255,0.18)', background:'rgba(255,255,255,0.07)' }}>
+                {isAz ? 'Əsas Paket' : 'Core'}
+              </span>
+              <Layers className="w-10 h-10 mb-5" style={{ color:'rgba(255,255,255,0.65)' }}/>
+              <h3 style={{ fontSize:'clamp(1.4rem,3vw,2rem)', fontWeight:800, color:'#fff', letterSpacing:'-0.02em', lineHeight:1.15, marginBottom:12 }}>
+                {s.sol_multi_t}
+              </h3>
+              <p style={{ color:'rgba(255,255,255,0.5)', fontSize:15, lineHeight:1.75, maxWidth:420 }}>
+                {s.sol_multi_d}
+              </p>
+            </div>
+
+            {/* Inline credential pills */}
+            <div className="flex flex-col gap-3 shrink-0">
+              {['IB DP','IB MYP','IB CP','IB PYP', isAz?'Milli Kurikulum':'National Curriculum'].map(label => (
+                <div key={label} className="flex items-center gap-3 px-5 py-3 rounded-xl"
+                  style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.10)' }}>
+                  <Check style={{ width:14, height:14, color:'#4ade80', flexShrink:0 }}/>
+                  <span style={{ color:'rgba(255,255,255,0.75)', fontSize:13, fontWeight:600 }}>{label}</span>
                 </div>
-                <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background:`${color}12`, color }}>
-                  {tag}
-                </span>
-              </div>
-              <h3 className="font-bold text-gray-900 text-lg mb-2 leading-snug" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── National Curriculum card ── */}
+        <div className="rounded-3xl p-8 mb-4 flex flex-col sm:flex-row sm:items-center gap-8 border border-gray-100 bg-gray-50">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+            style={{ background:'rgba(29,158,117,0.10)' }}>
+            <Building2 className="w-7 h-7" style={{ color:'#1D9E75' }}/>
+          </div>
+          <div className="flex-1">
+            <span className="inline-block text-xs font-bold px-3 py-1 rounded-full mb-2"
+              style={{ background:'rgba(29,158,117,0.10)', color:'#1D9E75' }}>
+              {isAz ? 'Dövlət Məktəbləri' : 'State Schools'}
+            </span>
+            <h3 className="font-bold text-gray-900 text-xl mb-1.5" style={{ letterSpacing:'-0.015em' }}>{s.sol_gov_t}</h3>
+            <p className="text-gray-500 text-sm leading-relaxed font-medium max-w-xl">{s.sol_gov_d}</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 px-4 py-2 rounded-xl"
+            style={{ background:'rgba(29,158,117,0.08)', border:'1px solid rgba(29,158,117,0.15)' }}>
+            <Check style={{ width:14, height:14, color:'#1D9E75' }}/>
+            <span style={{ color:'#1D9E75', fontSize:12, fontWeight:700 }}>E-Gov.az</span>
+          </div>
+        </div>
+
+        {/* ── IB sub-programmes ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {ibCards.map(({ icon:Icon, title, desc, tag }) => (
+            <div key={title} className="card-lift rounded-2xl p-7 border cursor-default"
+              style={{ background:'#fafafa', borderColor:'rgba(83,74,183,0.12)', borderTopWidth:3, borderTopColor:'#534AB7' }}>
+              <span className="inline-block text-xs font-bold px-2.5 py-1 rounded-full mb-5"
+                style={{ background:'rgba(83,74,183,0.08)', color:'#534AB7' }}>
+                {tag}
+              </span>
+              <Icon className="w-7 h-7 mb-4" style={{ color:'#534AB7' }}/>
+              <h3 className="font-bold text-gray-900 text-base mb-2 leading-snug" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
               <p className="text-gray-500 text-sm leading-relaxed font-medium">{desc}</p>
             </div>
           ))}
         </div>
+
       </div>
     </section>
   )
