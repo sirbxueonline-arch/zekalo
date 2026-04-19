@@ -276,10 +276,6 @@ function ContactPage() {
 
         {/* Header */}
         <div style={{ textAlign:'center', marginBottom:72 }}>
-          <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'7px 18px', borderRadius:999, border:'1px solid rgba(255,255,255,0.09)', background:'rgba(255,255,255,0.04)', marginBottom:28 }}>
-            <span style={{ width:6, height:6, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 8px rgba(34,197,94,0.7)' }}/>
-            <span style={{ color:'rgba(255,255,255,0.5)', fontSize:12, fontWeight:600 }}>Responding within a few hours</span>
-          </div>
           <h1 style={{ fontSize:'clamp(2.4rem,6vw,4.5rem)', fontWeight:800, color:'#fff', letterSpacing:'-0.03em', lineHeight:1.05, marginBottom:20 }}>
             Let's talk about<br/><span style={{ background:'linear-gradient(128deg,#c4b5fd 0%,#a78bfa 40%,#8b5cf6 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>your school</span>
           </h1>
