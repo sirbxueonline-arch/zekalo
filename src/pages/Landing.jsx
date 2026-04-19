@@ -1411,51 +1411,90 @@ function PilotCTA({ s }) {
   ]
 
   return (
-    <section className="py-28 bg-white">
-      <div className="max-w-4xl mx-auto px-5 sm:px-8">
-        <div className="rounded-3xl overflow-hidden shadow-2xl shadow-purple/12" style={{ border:'1px solid rgba(83,74,183,0.15)' }}>
+    <section style={{ background:'#060614', position:'relative', overflow:'hidden' }} className="py-36">
 
-          {/* Header */}
-          <div className="px-10 pt-16 pb-14 text-center"
-            style={{ background:'linear-gradient(145deg,#1a1460 0%,#2c2690 40%,#534AB7 78%,#6d28d9 100%)' }}>
-            <div className="inline-flex items-center gap-2.5 mb-8 px-5 py-2.5 rounded-full border border-white/15 bg-white/8">
-              <span className="w-2 h-2 rounded-full bg-teal flex-shrink-0 animate-pulse"/>
-              <span className="text-white/80 text-sm font-semibold">
-                {isAz ? 'Pilot Proqram — Məhdud Yer' : 'Pilot Programme — Limited Spots'}
-              </span>
-            </div>
-            <h2 className="font-extrabold text-white leading-tight mb-5"
-              style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.025em' }}>
-              {isAz
-                ? <>Məktəbiniz<br/><span style={{ color:'#86efac' }}>gələcəyi formalaşdırsın</span></>
-                : <>Your school could<br/><span style={{ color:'#86efac' }}>shape what's next</span></>}
-            </h2>
-            <p className="text-white/55 text-base max-w-lg mx-auto leading-relaxed mb-10 font-medium">
-              {isAz
-                ? 'Zirva+ hazırdır. Azərbaycanda rəqəmsal məktəbin əsasını birlikdə qurmaq üçün öncü məktəbləri dəvət edirik.'
-                : 'Zirva+ is live. We\'re partnering with a select group of schools to define what great school management looks like in Azerbaijan.'}
-            </p>
-            <Link to="/contact"
-              className="inline-flex items-center gap-2.5 bg-white text-purple font-bold px-9 py-4 rounded-xl shadow-xl shadow-black/12 hover:-translate-y-0.5 hover:shadow-2xl transition-all text-sm">
-              {isAz ? 'Müraciət et' : 'Apply now'} <ArrowRight className="w-4 h-4"/>
-            </Link>
-          </div>
+      {/* ── Background (mirrors Hero) ── */}
+      <div style={{ position:'absolute', inset:0, pointerEvents:'none' }}>
+        <div style={{ position:'absolute', top:'-30%', left:'-10%', width:'65%', height:'80%', background:'radial-gradient(ellipse at 40% 40%, rgba(99,75,215,0.20) 0%, transparent 65%)' }}/>
+        <div style={{ position:'absolute', top:'-20%', right:'-15%', width:'55%', height:'70%', background:'radial-gradient(ellipse at 60% 35%, rgba(65,50,190,0.14) 0%, transparent 62%)' }}/>
+        <div style={{ position:'absolute', bottom:'-10%', left:'20%', right:'20%', height:'50%', background:'radial-gradient(ellipse at 50% 80%, rgba(83,74,183,0.13) 0%, transparent 65%)' }}/>
+        <div style={{
+          position:'absolute', inset:0,
+          backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
+          backgroundSize:'44px 44px',
+          WebkitMaskImage:'radial-gradient(ellipse 70% 60% at 50% 50%, black 0%, transparent 80%)',
+          maskImage:'radial-gradient(ellipse 70% 60% at 50% 50%, black 0%, transparent 80%)',
+        }}/>
+        <div style={{
+          position:'absolute', inset:0,
+          backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          backgroundSize:'160px 160px', opacity:0.03, mixBlendMode:'overlay',
+        }}/>
+      </div>
 
-          {/* Perks */}
-          <div className="bg-white grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
-            {perks.map(({ icon:Icon, label, desc }) => (
-              <div key={label} className="flex items-start gap-4 px-8 py-8">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style={{ background:'rgba(83,74,183,0.08)' }}>
-                  <Icon className="w-5 h-5 text-purple"/>
-                </div>
-                <div>
-                  <p className="font-bold text-gray-900 text-sm mb-1">{label}</p>
-                  <p className="text-gray-500 text-xs leading-relaxed font-medium">{desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* ── Content ── */}
+      <div className="max-w-5xl mx-auto px-5 sm:px-10 text-center" style={{ position:'relative', zIndex:10 }}>
+
+        {/* Badge */}
+        <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'7px 18px', borderRadius:999, border:'1px solid rgba(255,255,255,0.09)', background:'rgba(255,255,255,0.04)', marginBottom:36 }}>
+          <span style={{ width:7, height:7, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 8px rgba(34,197,94,0.7)', flexShrink:0 }}/>
+          <span style={{ color:'rgba(255,255,255,0.5)', fontSize:12.5, fontWeight:600 }}>
+            {isAz ? 'Pilot Proqram · Məhdud Yer' : 'Pilot Programme · Limited Spots'}
+          </span>
         </div>
+
+        {/* Headline */}
+        <h2 style={{ fontSize:'clamp(2.4rem,6vw,5rem)', fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-0.03em', marginBottom:24 }}>
+          {isAz
+            ? <>Məktəbiniz<br/><span style={{ color:'#86efac' }}>gələcəyi formalaşdırsın</span></>
+            : <>Your school could<br/><span style={{ color:'#86efac' }}>shape what's next</span></>}
+        </h2>
+
+        {/* Sub */}
+        <p style={{ color:'rgba(255,255,255,0.42)', fontSize:16.5, lineHeight:1.78, maxWidth:480, margin:'0 auto 40px', fontWeight:500 }}>
+          {isAz
+            ? 'Zirva+ hazırdır. Azərbaycanda rəqəmsal məktəbin əsasını birlikdə qurmaq üçün öncü məktəbləri dəvət edirik.'
+            : "Zirva+ is live. We're partnering with a select group of schools to define what great school management looks like in Azerbaijan."}
+        </p>
+
+        {/* CTA */}
+        <Link
+          to="/contact"
+          style={{
+            display:'inline-flex', alignItems:'center', gap:8,
+            padding:'14px 32px', borderRadius:999,
+            background:'#fff', color:'#09090f',
+            fontWeight:700, fontSize:15,
+            textDecoration:'none',
+            boxShadow:'0 0 0 1px rgba(255,255,255,0.15), 0 8px 28px rgba(255,255,255,0.07)',
+            transition:'transform .17s ease',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)' }}
+          onMouseLeave={e => { e.currentTarget.style.transform='' }}
+        >
+          {isAz ? 'Müraciət et' : 'Apply now'} <ArrowRight style={{ width:15, height:15 }}/>
+        </Link>
+
+        {/* Perks */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-16">
+          {perks.map(({ icon:Icon, label, desc }) => (
+            <div key={label} style={{
+              background:'rgba(255,255,255,0.04)',
+              border:'1px solid rgba(255,255,255,0.08)',
+              borderRadius:20,
+              padding:'28px 24px',
+              textAlign:'left',
+              backdropFilter:'blur(12px)',
+            }}>
+              <div style={{ width:40, height:40, borderRadius:11, background:'rgba(255,255,255,0.07)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:16 }}>
+                <Icon style={{ width:18, height:18, color:'rgba(255,255,255,0.6)' }}/>
+              </div>
+              <p style={{ fontWeight:700, color:'#fff', fontSize:14, marginBottom:6 }}>{label}</p>
+              <p style={{ color:'rgba(255,255,255,0.38)', fontSize:13, lineHeight:1.65, fontWeight:500 }}>{desc}</p>
+            </div>
+          ))}
+        </div>
+
       </div>
     </section>
   )
