@@ -1,5 +1,6 @@
-import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Mail, Phone } from 'lucide-react'
+import { Link, useParams, useNavigate } from 'react-router-dom'
+import { ArrowLeft, Mail, Phone, ArrowRight, MapPin, Clock, Sparkles } from 'lucide-react'
+import { useState } from 'react'
 
 const PAGES = {
   'ib-diploma': {
@@ -229,9 +230,183 @@ For questions about these Terms, contact us at hello@birclick.az or write to Zir
   },
 }
 
+/* ─── CONTACT PAGE ─── */
+function ContactPage() {
+  const [form, setForm] = useState({ name:'', school:'', role:'', email:'', message:'' })
+  const [sent, setSent] = useState(false)
+
+  const roles = ['School Director / Principal', 'IB Coordinator', 'IT Manager', 'Teacher', 'Other']
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    setSent(true)
+  }
+
+  const inputStyle = {
+    width:'100%', padding:'12px 16px', borderRadius:12,
+    background:'rgba(255,255,255,0.05)',
+    border:'1px solid rgba(255,255,255,0.10)',
+    color:'#fff', fontSize:14, fontWeight:500,
+    outline:'none', transition:'border-color .15s',
+    fontFamily:'inherit',
+  }
+  const labelStyle = { display:'block', fontSize:12, fontWeight:700, color:'rgba(255,255,255,0.45)', letterSpacing:'0.06em', textTransform:'uppercase', marginBottom:8 }
+
+  return (
+    <div style={{ minHeight:'100vh', background:'#060614', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif' }}>
+
+      {/* Background */}
+      <div style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:0 }}>
+        <div style={{ position:'absolute', top:'-20%', left:'-10%', width:'60%', height:'70%', background:'radial-gradient(ellipse at 40% 40%, rgba(99,75,215,0.18) 0%, transparent 65%)' }}/>
+        <div style={{ position:'absolute', top:'-10%', right:'-15%', width:'50%', height:'60%', background:'radial-gradient(ellipse at 60% 35%, rgba(65,50,190,0.12) 0%, transparent 62%)' }}/>
+        <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.045) 1px, transparent 1px)', backgroundSize:'44px 44px', WebkitMaskImage:'radial-gradient(ellipse 80% 60% at 50% 20%, black 0%, transparent 75%)', maskImage:'radial-gradient(ellipse 80% 60% at 50% 20%, black 0%, transparent 75%)' }}/>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ position:'relative', zIndex:10, padding:'20px 40px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
+        <Link to="/" style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none', color:'rgba(255,255,255,0.5)', fontSize:14, fontWeight:600, transition:'color .15s' }}
+          onMouseEnter={e=>e.currentTarget.style.color='#fff'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.5)'}>
+          <ArrowLeft style={{ width:16, height:16 }}/> Zirva
+        </Link>
+        <img src="/logo.png" alt="Zirva" style={{ height:28, opacity:.85 }}/>
+      </nav>
+
+      {/* Main */}
+      <div style={{ position:'relative', zIndex:10, maxWidth:1100, margin:'0 auto', padding:'72px 24px 96px' }}>
+
+        {/* Header */}
+        <div style={{ textAlign:'center', marginBottom:72 }}>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'7px 18px', borderRadius:999, border:'1px solid rgba(255,255,255,0.09)', background:'rgba(255,255,255,0.04)', marginBottom:28 }}>
+            <span style={{ width:6, height:6, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 8px rgba(34,197,94,0.7)' }}/>
+            <span style={{ color:'rgba(255,255,255,0.5)', fontSize:12, fontWeight:600 }}>Responding within a few hours</span>
+          </div>
+          <h1 style={{ fontSize:'clamp(2.4rem,6vw,4.5rem)', fontWeight:800, color:'#fff', letterSpacing:'-0.03em', lineHeight:1.05, marginBottom:20 }}>
+            Let's talk about<br/><span style={{ background:'linear-gradient(128deg,#c4b5fd 0%,#a78bfa 40%,#8b5cf6 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>your school</span>
+          </h1>
+          <p style={{ color:'rgba(255,255,255,0.4)', fontSize:16.5, lineHeight:1.75, maxWidth:460, margin:'0 auto', fontWeight:500 }}>
+            Whether you're exploring a pilot, want a demo, or just have a question — we're ready.
+          </p>
+        </div>
+
+        {/* Two-col layout */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:32, alignItems:'start' }}>
+
+          {/* LEFT — Form */}
+          <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:24, padding:'40px 36px' }}>
+            {sent ? (
+              <div style={{ textAlign:'center', padding:'40px 0' }}>
+                <div style={{ width:64, height:64, borderRadius:'50%', background:'rgba(34,197,94,0.12)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 24px' }}>
+                  <span style={{ fontSize:28 }}>✓</span>
+                </div>
+                <h3 style={{ color:'#fff', fontWeight:800, fontSize:22, marginBottom:12 }}>Message sent!</h3>
+                <p style={{ color:'rgba(255,255,255,0.4)', fontSize:14, lineHeight:1.7 }}>We'll get back to you within a few hours.</p>
+                <Link to="/" style={{ display:'inline-flex', alignItems:'center', gap:8, marginTop:32, padding:'12px 28px', borderRadius:999, background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.7)', textDecoration:'none', fontSize:14, fontWeight:600 }}>← Back to home</Link>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:20 }}>
+                <h2 style={{ color:'#fff', fontWeight:800, fontSize:20, marginBottom:4, letterSpacing:'-0.01em' }}>Send us a message</h2>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+                  <div>
+                    <label style={labelStyle}>Your name</label>
+                    <input required style={inputStyle} placeholder="e.g. Rauf Aliyev" value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}
+                      onFocus={e=>e.target.style.borderColor='rgba(167,139,250,0.5)'} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.10)'}/>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Email</label>
+                    <input required type="email" style={inputStyle} placeholder="you@school.az" value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))}
+                      onFocus={e=>e.target.style.borderColor='rgba(167,139,250,0.5)'} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.10)'}/>
+                  </div>
+                </div>
+                <div>
+                  <label style={labelStyle}>School name</label>
+                  <input required style={inputStyle} placeholder="e.g. Baku International School" value={form.school} onChange={e=>setForm(f=>({...f,school:e.target.value}))}
+                    onFocus={e=>e.target.style.borderColor='rgba(167,139,250,0.5)'} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.10)'}/>
+                </div>
+                <div>
+                  <label style={labelStyle}>Your role</label>
+                  <select required style={{ ...inputStyle, cursor:'pointer' }} value={form.role} onChange={e=>setForm(f=>({...f,role:e.target.value}))}
+                    onFocus={e=>e.target.style.borderColor='rgba(167,139,250,0.5)'} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.10)'}>
+                    <option value="" style={{ background:'#1a1a2e' }}>Select your role…</option>
+                    {roles.map(r => <option key={r} value={r} style={{ background:'#1a1a2e' }}>{r}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>Message</label>
+                  <textarea required rows={4} style={{ ...inputStyle, resize:'vertical', lineHeight:1.65 }} placeholder="Tell us about your school and what you're looking for…" value={form.message} onChange={e=>setForm(f=>({...f,message:e.target.value}))}
+                    onFocus={e=>e.target.style.borderColor='rgba(167,139,250,0.5)'} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.10)'}/>
+                </div>
+                <button type="submit" style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'14px 28px', borderRadius:999, background:'#fff', color:'#09090f', fontWeight:700, fontSize:15, border:'none', cursor:'pointer', transition:'transform .17s ease', fontFamily:'inherit' }}
+                  onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={e=>e.currentTarget.style.transform=''}>
+                  Send message <ArrowRight style={{ width:15, height:15 }}/>
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* RIGHT — Info */}
+          <div style={{ display:'flex', flexDirection:'column', gap:24 }}>
+
+            {/* Direct contact */}
+            <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'28px 28px' }}>
+              <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:20 }}>Direct contact</p>
+              <a href="mailto:hello@birclick.az" style={{ display:'flex', alignItems:'center', gap:14, textDecoration:'none', marginBottom:16 }}>
+                <div style={{ width:42, height:42, borderRadius:12, background:'rgba(167,139,250,0.12)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <Mail style={{ width:18, height:18, color:'#a78bfa' }}/>
+                </div>
+                <div>
+                  <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:600, marginBottom:2 }}>Email</p>
+                  <p style={{ color:'#fff', fontSize:14, fontWeight:700 }}>hello@birclick.az</p>
+                </div>
+              </a>
+              <a href="tel:+994502411442" style={{ display:'flex', alignItems:'center', gap:14, textDecoration:'none' }}>
+                <div style={{ width:42, height:42, borderRadius:12, background:'rgba(29,158,117,0.12)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <Phone style={{ width:18, height:18, color:'#1D9E75' }}/>
+                </div>
+                <div>
+                  <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:600, marginBottom:2 }}>Phone</p>
+                  <p style={{ color:'#fff', fontSize:14, fontWeight:700 }}>+994 50 241 14 42</p>
+                </div>
+              </a>
+            </div>
+
+            {/* What to expect */}
+            <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'28px 28px' }}>
+              <p style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:20 }}>What to expect</p>
+              {[
+                { icon:Clock,    text:'Reply within a few hours on business days' },
+                { icon:Sparkles, text:'A personalised demo tailored to your curriculum' },
+                { icon:MapPin,   text:'We\'re based in Baku — happy to meet in person' },
+              ].map(({ icon:Icon, text }) => (
+                <div key={text} style={{ display:'flex', alignItems:'flex-start', gap:12, marginBottom:16, lastChild:{ marginBottom:0 } }}>
+                  <div style={{ width:32, height:32, borderRadius:9, background:'rgba(255,255,255,0.06)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
+                    <Icon style={{ width:14, height:14, color:'rgba(255,255,255,0.5)' }}/>
+                  </div>
+                  <p style={{ color:'rgba(255,255,255,0.5)', fontSize:13.5, lineHeight:1.65, fontWeight:500 }}>{text}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Already have an account */}
+            <div style={{ background:'rgba(83,74,183,0.08)', border:'1px solid rgba(83,74,183,0.18)', borderRadius:20, padding:'22px 28px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
+              <p style={{ color:'rgba(255,255,255,0.55)', fontSize:13.5, fontWeight:600 }}>Already have an account?</p>
+              <Link to="/daxil-ol" style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'9px 20px', borderRadius:999, background:'rgba(83,74,183,0.25)', border:'1px solid rgba(83,74,183,0.35)', color:'#c4b5fd', textDecoration:'none', fontSize:13, fontWeight:700 }}>
+                Sign in <ArrowRight style={{ width:13, height:13 }}/>
+              </Link>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function InfoPage({ type: typeProp }) {
   const { type: typeParam } = useParams()
   const type = typeProp || typeParam
+
+  if (type === 'contact') return <ContactPage />
+
   const page = PAGES[type]
 
   if (!page) {

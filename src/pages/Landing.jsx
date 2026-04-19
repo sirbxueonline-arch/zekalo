@@ -661,10 +661,6 @@ function FeatureVisual({ idx, s }) {
 /* ─── HERO ─── */
 function Hero({ s }) {
   const isAz = s.nav_signin === 'Daxil ol'
-  const trustItems = isAz
-    ? ['IBO Sertifikatlı', 'ISO 27001', 'E-Gov.az İnteqrasiyası']
-    : ['IBO Authorized', 'ISO 27001', 'E-Gov.az Integration']
-
   return (
     <section style={{ background:'#060614', minHeight:'100vh', position:'relative', overflow:'hidden' }}>
 
@@ -762,7 +758,7 @@ function Hero({ s }) {
         </p>
 
         {/* ── CTAs ── */}
-        <div style={{ display:'flex', gap:12, flexWrap:'wrap', justifyContent:'center', marginBottom:24 }}>
+        <div style={{ display:'flex', gap:12, flexWrap:'wrap', justifyContent:'center', marginBottom:72 }}>
           <Link
             to="/contact"
             style={{
@@ -795,23 +791,6 @@ function Hero({ s }) {
           >
             {s.hero_cta1}
           </a>
-        </div>
-
-        {/* ── Trust micro-row ── */}
-        <div style={{
-          display:'flex', alignItems:'center', gap:16,
-          marginBottom:72, flexWrap:'wrap', justifyContent:'center',
-        }}>
-          {trustItems.map((item, i) => (
-            <span key={item} style={{ display:'flex', alignItems:'center', gap:16 }}>
-              {i > 0 && (
-                <span style={{ width:3, height:3, borderRadius:'50%', background:'rgba(255,255,255,0.18)', flexShrink:0 }}/>
-              )}
-              <span style={{ color:'rgba(255,255,255,0.28)', fontSize:11.5, fontWeight:600, letterSpacing:'0.04em' }}>
-                {item}
-              </span>
-            </span>
-          ))}
         </div>
 
         {/* ── Dashboard area ── */}
