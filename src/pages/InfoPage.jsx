@@ -48,6 +48,24 @@ const T = {
     'ib-diploma_hl': ['Subject selection & scheduling','A–D assessment tracking','CAS & TOK management','Extended Essay workflow','IBIS integration'],
     'ib-career_hl':  ['Personalised learning records','Reflective project tracking','Service learning documentation','Language development'],
     'government-schools_hl': ['Ministry of Education integration','E-Gov.az & ASAN Xidmət export','National 10-point grading','Automated compliance reports','Local Azerbaijani data hosting'],
+    // Contact page
+    ct_eyebrow:      'Contact',
+    ct_heading:      "Let's talk.",
+    ct_sub:          'Real humans read every message. We typically reply within the hour.',
+    ct_name:         'Name',
+    ct_email:        'Email',
+    ct_school:       'School',
+    ct_phone:        'Phone',
+    ct_message:      'Message',
+    ct_ph_name:      'Rauf Aliyev',
+    ct_ph_school:    'Baku International School',
+    ct_ph_message:   'Tell us about your school and what you need…',
+    ct_send:         'Send message',
+    ct_sending:      'Sending…',
+    ct_privacy:      'Your details stay private. No marketing, no spam.',
+    ct_success_title:'Got it — thanks!',
+    ct_success_body: 'within the hour.',
+    ct_back:         'Back home',
     // Related full names
     rel_pyp: 'IB Primary Years',
     rel_myp: 'IB Middle Years',
@@ -92,6 +110,24 @@ const T = {
     'ib-diploma_hl': ['Fənn seçimi və cədvəl','A–D qiymətləndirmə izləməsi','CAS və TOK idarəetməsi','Extended Essay iş axını','IBIS inteqrasiyası'],
     'ib-career_hl':  ['Fərdiləşdirilmiş tədris qeydləri','Refleksiv layihə izləməsi','Xidmət öyrənmə sənədləşdirməsi','Dil inkişafı'],
     'government-schools_hl': ['Təhsil Nazirliyi inteqrasiyası','E-Gov.az və ASAN Xidmət ixracı','Milli 10 ballıq qiymətləndirmə','Avtomatik uyğunluq hesabatları','Yerli Azərbaycan serverlərində saxlama'],
+    // Contact page
+    ct_eyebrow:      'Əlaqə',
+    ct_heading:      'Danışaq.',
+    ct_sub:          'Hər mesajı real insanlar oxuyur. Adətən bir saat ərzində cavab veririk.',
+    ct_name:         'Ad',
+    ct_email:        'E-poçt',
+    ct_school:       'Məktəb',
+    ct_phone:        'Telefon',
+    ct_message:      'Mesaj',
+    ct_ph_name:      'Rauf Əliyev',
+    ct_ph_school:    'Bakı Beynəlxalq Məktəbi',
+    ct_ph_message:   'Məktəbiniz və ehtiyaclarınız haqqında yazın…',
+    ct_send:         'Mesaj göndər',
+    ct_sending:      'Göndərilir…',
+    ct_privacy:      'Məlumatlarınız gizli qalır. Spam yoxdur.',
+    ct_success_title:'Aldıq — sağ olun!',
+    ct_success_body: 'bir saat ərzində cavab veririk.',
+    ct_back:         'Ana səhifəyə qayıt',
     rel_pyp: 'IB İlk İllər',
     rel_myp: 'IB Orta İllər',
     rel_dp:  'IB Diploma',
@@ -135,6 +171,24 @@ const T = {
     'ib-diploma_hl': ['Выбор предметов и расписание','Отслеживание оценок A–D','Управление CAS и TOK','Рабочий процесс Extended Essay','Интеграция с IBIS'],
     'ib-career_hl':  ['Персонализированные учебные записи','Отслеживание рефлексивных проектов','Документация сервисного обучения','Развитие языковых навыков'],
     'government-schools_hl': ['Интеграция с Министерством образования','Экспорт E-Gov.az и ASAN Xidmət','Национальная 10-балльная шкала','Автоматические отчёты','Хранение данных в Азербайджане'],
+    // Contact page
+    ct_eyebrow:      'Контакты',
+    ct_heading:      'Свяжитесь с нами.',
+    ct_sub:          'Каждое сообщение читают живые люди. Обычно отвечаем в течение часа.',
+    ct_name:         'Имя',
+    ct_email:        'Email',
+    ct_school:       'Школа',
+    ct_phone:        'Телефон',
+    ct_message:      'Сообщение',
+    ct_ph_name:      'Рауф Алиев',
+    ct_ph_school:    'Бакинская международная школа',
+    ct_ph_message:   'Расскажите о вашей школе и ваших потребностях…',
+    ct_send:         'Отправить сообщение',
+    ct_sending:      'Отправка…',
+    ct_privacy:      'Ваши данные останутся конфиденциальными. Никакого спама.',
+    ct_success_title:'Получили — спасибо!',
+    ct_success_body: 'в течение часа.',
+    ct_back:         'На главную',
     rel_pyp: 'IB Primary Years',
     rel_myp: 'IB Middle Years',
     rel_dp:  'IB Diploma',
@@ -372,6 +426,8 @@ For questions about these Terms, contact us at hello@tryzirva.com or write to Zi
 
 /* ─── CONTACT PAGE ─── */
 function ContactPage() {
+  const { lang } = useLang()
+  const ct = T[lang] || T.en
   const [form, setForm] = useState({ name:'', school:'', email:'', phone:'', message:'' })
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -510,17 +566,16 @@ function ContactPage() {
           {/* Eyebrow with dot */}
           <div style={{ display:'inline-flex', alignItems:'center', gap:10, marginBottom:20 }}>
             <span style={{ width:20, height:1, background:'linear-gradient(90deg, transparent, rgba(167,139,250,0.8))' }}/>
-            <span style={{ fontSize:10.5, fontWeight:700, letterSpacing:'0.3em', textTransform:'uppercase', color:'#a78bfa' }}>Contact</span>
+            <span style={{ fontSize:10.5, fontWeight:700, letterSpacing:'0.3em', textTransform:'uppercase', color:'#a78bfa' }}>{ct.ct_eyebrow}</span>
             <span style={{ width:20, height:1, background:'linear-gradient(90deg, rgba(167,139,250,0.8), transparent)' }}/>
           </div>
           <h1 style={{ fontSize:'clamp(2.5rem,6vw,3.75rem)', fontWeight:800, letterSpacing:'-0.04em', lineHeight:1.02, marginBottom:20 }}>
-            <span style={{ color:'#fff' }}>Let's </span>
             <span style={{ background:'linear-gradient(120deg,#ede9fe 0%,#c4b5fd 30%,#a78bfa 55%,#7c5af0 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', display:'inline-block', position:'relative' }}>
-              talk.
+              {ct.ct_heading}
             </span>
           </h1>
           <p style={{ color:'rgba(255,255,255,0.5)', fontSize:16, lineHeight:1.6, fontWeight:500, margin:'0 auto', maxWidth:420 }}>
-            Real humans read every message. We typically reply within the hour.
+            {ct.ct_sub}
           </p>
         </div>
 
@@ -551,39 +606,39 @@ function ContactPage() {
                     </svg>
                   </div>
                 </div>
-                <p style={{ color:'#fff', fontWeight:800, fontSize:24, marginBottom:12, letterSpacing:'-0.015em' }}>Got it — thanks!</p>
+                <p style={{ color:'#fff', fontWeight:800, fontSize:24, marginBottom:12, letterSpacing:'-0.015em' }}>{ct.ct_success_title}</p>
                 <p style={{ color:'rgba(255,255,255,0.55)', fontSize:14.5, lineHeight:1.65, maxWidth:340, margin:'0 auto 30px' }}>
-                  We'll reply to <strong style={{ color:'#c4b5fd', fontWeight:600 }}>{form.email}</strong> within the hour.
+                  <strong style={{ color:'#c4b5fd', fontWeight:600 }}>{form.email}</strong> — {ct.ct_success_body}
                 </p>
                 <Link to="/" className="zirva-back-btn" style={{ display:'inline-flex', alignItems:'center', gap:7, padding:'11px 24px', borderRadius:999, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.10)', color:'rgba(255,255,255,0.75)', textDecoration:'none', fontSize:13, fontWeight:600 }}>
-                  <ArrowLeft style={{ width:13, height:13 }}/> Back home
+                  <ArrowLeft style={{ width:13, height:13 }}/> {ct.ct_back}
                 </Link>
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:18 }}>
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
                   <div>
-                    <label style={lbl}>Name</label>
-                    <input required style={inp} placeholder="Rauf Aliyev" value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} onFocus={focus} onBlur={blur}/>
+                    <label style={lbl}>{ct.ct_name}</label>
+                    <input required style={inp} placeholder={ct.ct_ph_name} value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} onFocus={focus} onBlur={blur}/>
                   </div>
                   <div>
-                    <label style={lbl}>Email</label>
+                    <label style={lbl}>{ct.ct_email}</label>
                     <input required type="email" style={inp} placeholder="you@school.az" value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))} onFocus={focus} onBlur={blur}/>
                   </div>
                 </div>
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
                   <div>
-                    <label style={lbl}>School</label>
-                    <input required style={inp} placeholder="Baku International School" value={form.school} onChange={e=>setForm(f=>({...f,school:e.target.value}))} onFocus={focus} onBlur={blur}/>
+                    <label style={lbl}>{ct.ct_school}</label>
+                    <input required style={inp} placeholder={ct.ct_ph_school} value={form.school} onChange={e=>setForm(f=>({...f,school:e.target.value}))} onFocus={focus} onBlur={blur}/>
                   </div>
                   <div>
-                    <label style={lbl}>Phone</label>
+                    <label style={lbl}>{ct.ct_phone}</label>
                     <input type="tel" style={inp} placeholder="+994 50 123 45 67" value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} onFocus={focus} onBlur={blur}/>
                   </div>
                 </div>
                 <div>
-                  <label style={lbl}>Message</label>
-                  <textarea required rows={4} style={{ ...inp, resize:'vertical', lineHeight:1.65, minHeight:118 }} placeholder="Tell us about your school and what you need…" value={form.message} onChange={e=>setForm(f=>({...f,message:e.target.value}))} onFocus={focus} onBlur={blur}/>
+                  <label style={lbl}>{ct.ct_message}</label>
+                  <textarea required rows={4} style={{ ...inp, resize:'vertical', lineHeight:1.65, minHeight:118 }} placeholder={ct.ct_ph_message} value={form.message} onChange={e=>setForm(f=>({...f,message:e.target.value}))} onFocus={focus} onBlur={blur}/>
                 </div>
                 <button type="submit" disabled={loading} className="zirva-submit"
                   style={{
@@ -602,17 +657,17 @@ function ContactPage() {
                         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
                         <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
                       </svg>
-                      Sending…
+                      {ct.ct_sending}
                     </>
                   ) : (
-                    <>Send message <ArrowRight style={{ width:15, height:15 }}/></>
+                    <>{ct.ct_send} <ArrowRight style={{ width:15, height:15 }}/></>
                   )}
                 </button>
 
                 {/* Subtle assurance */}
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:7, color:'rgba(255,255,255,0.3)', fontSize:11.5, fontWeight:500, marginTop:2 }}>
                   <Shield style={{ width:11, height:11 }}/>
-                  <span>Your details stay private. No marketing, no spam.</span>
+                  <span>{ct.ct_privacy}</span>
                 </div>
               </form>
             )}
