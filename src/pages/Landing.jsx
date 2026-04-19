@@ -1041,10 +1041,6 @@ function Solutions({ s }) {
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-10">
             <div className="flex-1">
-              <span className="inline-block text-xs font-bold px-3 py-1.5 rounded-full mb-6 border"
-                style={{ color:'rgba(255,255,255,0.65)', borderColor:'rgba(255,255,255,0.18)', background:'rgba(255,255,255,0.07)' }}>
-                {isAz ? 'Əsas Paket' : 'Core'}
-              </span>
               <Layers className="w-10 h-10 mb-5" style={{ color:'rgba(255,255,255,0.65)' }}/>
               <h3 style={{ fontSize:'clamp(1.4rem,3vw,2rem)', fontWeight:800, color:'#fff', letterSpacing:'-0.02em', lineHeight:1.15, marginBottom:12 }}>
                 {s.sol_multi_t}
