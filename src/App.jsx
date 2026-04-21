@@ -15,6 +15,9 @@ import ErrorBoundary from './components/ui/ErrorBoundary'
 import Landing from './pages/Landing'
 import Demo from './pages/Demo'
 import InfoPage from './pages/InfoPage'
+import Solutions from './pages/Solutions'
+import Features from './pages/Features'
+import ZekaAIPage from './pages/ZekaAIPage'
 
 // Auth pages
 import Login from './pages/auth/Login'
@@ -257,6 +260,11 @@ export default function App() {
 
         {/* Landing page */}
         <Route path="/" element={<PublicOnlyRoute><Landing /></PublicOnlyRoute>} />
+
+        {/* Marketing pages */}
+        <Route path="/solutions" element={<Solutions />} />
+        <Route path="/features" element={<Features />} />
+        <Route path="/zeka-ai" element={<ZekaAIPage />} />
 
         {/* Info pages (footer links) */}
         <Route path="/ib-diploma"          element={<InfoPage type="ib-diploma" />} />

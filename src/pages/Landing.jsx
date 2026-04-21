@@ -255,9 +255,9 @@ function Nav({ s, lang, setLang }) {
   const [open, setOpen] = useState(false)
 
   const links = [
-    { label: s.nav_solutions, href: '#solutions' },
-    { label: s.nav_features,  href: '#features'  },
-    { label: s.nav_zeka,      href: '#zeka'       },
+    { label: s.nav_solutions, to: '/solutions' },
+    { label: s.nav_features,  to: '/features'  },
+    { label: s.nav_zeka,      to: '/zeka-ai'   },
   ]
 
   return (
@@ -277,13 +277,13 @@ function Nav({ s, lang, setLang }) {
 
           {/* ── Center links ── */}
           <nav className="hidden lg:flex items-center gap-0.5">
-            {links.map(({ label, href }) => (
-              <a
-                key={label} href={href}
+            {links.map(({ label, to }) => (
+              <Link
+                key={label} to={to}
                 className="relative px-4 py-2 text-[14px] text-gray-500 hover:text-gray-900 font-semibold rounded-lg transition-all duration-150 hover:bg-gray-100/80"
               >
                 {label}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -340,13 +340,13 @@ function Nav({ s, lang, setLang }) {
         {open && (
           <div className="lg:hidden bg-white/98 border-t border-gray-100 px-6 pt-4 pb-6">
             <div className="space-y-0.5 mb-5">
-              {links.map(({ label, href }) => (
-                <a
-                  key={label} href={href} onClick={() => setOpen(false)}
+              {links.map(({ label, to }) => (
+                <Link
+                  key={label} to={to} onClick={() => setOpen(false)}
                   className="flex items-center py-3 px-3 text-[15px] text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors"
                 >
                   {label}
-                </a>
+                </Link>
               ))}
             </div>
             <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
