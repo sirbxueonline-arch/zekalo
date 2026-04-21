@@ -1,182 +1,103 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, GraduationCap, BookOpen, LayoutDashboard, Sparkles, CheckCircle } from 'lucide-react'
+import { Menu, X, GraduationCap, BookOpen, LayoutDashboard, Sparkles, ArrowRight, Check, Zap } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 
-/* ─── Translations ─── */
 const STR = {
   az: {
-    nav_signin: 'Daxil ol',
-    nav_contact: 'Bizimlə Əlaqə',
-    hero_eyebrow: 'Süni İntellekt',
-    hero_headline: 'Zəka AI',
-    hero_tagline: 'Şagirdlər öyrənir. Müəllimlər öyrədir. Zəka hər ikisini gücləndirir.',
-    hero_btn: 'Zəka ilə tanış ol',
-    chat_user: 'Kvadrat tənlikləri necə həll etmək olar?',
-    chat_zeka: 'Kvadrat tənliklər ax²+bx+c=0 formasında yazılır. Üç əsas üsul var: çarpanlara ayırma, tam kvadrat metodu və diskriminant düsturu. Hansından başlayaq?',
-    audience_title: 'Hər kəs üçün fərqli, hamı üçün güclü',
-    card1_title: 'Şagirdlər üçün',
-    card1_features: [
-      'Ev tapşırıqlarında addım-addım köməklik',
-      'İmtahan hazırlığı üçün fərdi plan',
-      'İzah, xülasə, nümunə çıxarma',
-      'Dərsi qaçırdınsa? Zəka cəmləşdirər',
-    ],
-    card2_title: 'Müəllimlər üçün',
-    card2_features: [
-      'Avtomatik hesabat generasiyası',
-      'Dərs planı yaratma köməyi',
-      'Esse rəyi aləti',
-      'Şagird irəliləyiş xülasəsi',
-    ],
-    card3_title: 'Adminlər üçün',
-    card3_features: [
-      'Sinif performans xülasələri',
-      'Davamiyyət anomaliyaları',
-      'Müəllim yükü analizi',
-      'Valideyn məlumatlandırma mərkəzi',
-    ],
-    stat1_val: '4 saatdan 20 dəqiqəyə',
-    stat1_sub: 'həftəlik hesabat işi',
-    stat2_val: '3× daha sürətli',
-    stat2_sub: 'dərs planlaması',
-    stat3_val: '98%',
-    stat3_sub: 'şagird məmnuniyyəti',
-    cta_headline: 'Zəkanı sinifinizə gətirin',
-    cta_sub: 'Zəka AI bütün Zirva planlarında daxildir. Hesab yaratmaq üçün bizimlə əlaqə saxlayın.',
-    cta_btn: 'Başla',
-    footer: '© 2026 Zirva LLC',
+    nav_signin:'Daxil ol', nav_contact:'Bizimlə Əlaqə',
+    hero_h1:'Zəka AI',
+    hero_tag:'Şagirdlər öyrənir. Müəllimlər öyrədir.',
+    hero_tag2:'Zəka hər ikisini gücləndirir.',
+    hero_btn:'Zəka ilə tanış ol',
+    chat_user:'Kvadrat tənlikləri necə həll etmək olar?',
+    chat_zeka:'Kvadrat tənliklər ax²+bx+c=0 formasında yazılır. Üç əsas üsul var: çarpanlara ayırma, tam kvadrat metodu və diskriminant düsturu. Hansından başlayaq?',
+    chat_hint:'Daha çox sual ver...',
+    who_title:'Hər kəs üçün fərqli',
+    who_sub:'Zəka AI rolunuza uyğun işləyir — şagird, müəllim ya da admin.',
+    c1:'Şagirdlər üçün', c1_sub:'Dərs boyu köməkçi',
+    c1f:['Ev tapşırıqlarında addım-addım köməklik','İmtahan hazırlığı üçün fərdi plan','İzah, xülasə, nümunə çıxarma','Dərsi qaçırdınsa? Zəka cəmləşdirər'],
+    c2:'Müəllimlər üçün', c2_sub:'Hesabat və plan generatoru',
+    c2f:['Avtomatik hesabat generasiyası','Dərs planı yaratma köməyi','Esse rəyi aləti','Şagird irəliləyiş xülasəsi'],
+    c3:'Adminlər üçün', c3_sub:'Analitika və qərar dəstəyi',
+    c3f:['Sinif performans xülasələri','Davamiyyət anomaliyaları','Müəllim yükü analizi','Valideyn məlumatlandırma mərkəzi'],
+    stat1_v:'4 saat → 20 dəq', stat1_s:'həftəlik hesabat işi',
+    stat2_v:'3×', stat2_s:'daha sürətli dərs planlaması',
+    stat3_v:'98%', stat3_s:'şagird məmnuniyyəti',
+    cta_h:'Zəkanı sinifinizə gətirin',
+    cta_sub:'Zəka AI bütün Zirva planlarında daxildir.',
+    cta_btn:'Başla',
+    footer:'© 2026 Zirva LLC',
   },
   en: {
-    nav_signin: 'Sign In',
-    nav_contact: 'Contact Us',
-    hero_eyebrow: 'Artificial Intelligence',
-    hero_headline: 'Zeka AI',
-    hero_tagline: 'Students learn. Teachers teach. Zeka powers both.',
-    hero_btn: 'Meet Zeka',
-    chat_user: 'How do I solve quadratic equations?',
-    chat_zeka: 'Quadratic equations follow ax²+bx+c=0. There are three main methods: factoring, completing the square, and the quadratic formula. Which shall we start with?',
-    audience_title: 'Different for everyone, powerful for all',
-    card1_title: 'For Students',
-    card1_features: [
-      'Step-by-step homework help',
-      'Personalised exam prep plan',
-      'Explanations, summaries, examples',
-      'Missed a lesson? Zeka will catch you up',
-    ],
-    card2_title: 'For Teachers',
-    card2_features: [
-      'Automated report generation',
-      'Lesson plan creation support',
-      'Essay feedback tool',
-      'Student progress summaries',
-    ],
-    card3_title: 'For Administrators',
-    card3_features: [
-      'Class performance summaries',
-      'Attendance anomaly detection',
-      'Teacher workload analysis',
-      'Parent communication hub',
-    ],
-    stat1_val: '4 hours to 20 minutes',
-    stat1_sub: 'weekly reporting work',
-    stat2_val: '3× faster',
-    stat2_sub: 'lesson planning',
-    stat3_val: '98%',
-    stat3_sub: 'student satisfaction',
-    cta_headline: 'Bring Zeka to your classroom',
-    cta_sub: 'Zeka AI is included in all Zirva plans. Get in touch to get started.',
-    cta_btn: 'Get Started',
-    footer: '© 2026 Zirva LLC',
+    nav_signin:'Sign In', nav_contact:'Contact Us',
+    hero_h1:'Zeka AI',
+    hero_tag:'Students learn. Teachers teach.',
+    hero_tag2:'Zeka powers both.',
+    hero_btn:'Meet Zeka',
+    chat_user:'How do I solve quadratic equations?',
+    chat_zeka:'Quadratic equations follow ax²+bx+c=0. There are three main methods: factoring, completing the square, and the quadratic formula. Which shall we start with?',
+    chat_hint:'Ask anything...',
+    who_title:'Different for everyone',
+    who_sub:'Zeka AI adapts to your role — whether you\'re a student, teacher or admin.',
+    c1:'For Students', c1_sub:'A companion for every lesson',
+    c1f:['Step-by-step homework help','Personalised exam prep plan','Explanations, summaries, examples','Missed a lesson? Zeka catches you up'],
+    c2:'For Teachers', c2_sub:'Report & lesson plan generator',
+    c2f:['Automated report generation','Lesson plan creation support','Essay feedback tool','Student progress summaries'],
+    c3:'For Administrators', c3_sub:'Analytics & decision support',
+    c3f:['Class performance summaries','Attendance anomaly detection','Teacher workload analysis','Parent communication hub'],
+    stat1_v:'4h → 20min', stat1_s:'weekly reporting time',
+    stat2_v:'3×', stat2_s:'faster lesson planning',
+    stat3_v:'98%', stat3_s:'student satisfaction',
+    cta_h:'Bring Zeka to your classroom',
+    cta_sub:'Zeka AI is included in all Zirva plans.',
+    cta_btn:'Get Started',
+    footer:'© 2026 Zirva LLC',
   },
 }
 
-/* ─── MiniNav ─── */
 function MiniNav({ s, lang, setLang }) {
   const [open, setOpen] = useState(false)
   return (
-    <header
-      className="sticky top-0 z-50 bg-white/95 backdrop-blur-2xl"
-      style={{ boxShadow: '0 0 0 1px rgba(0,0,0,0.055), 0 4px 24px rgba(0,0,0,0.05)' }}
-    >
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 flex items-center justify-between h-[72px]">
-        {/* Brand */}
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-2xl" style={{ boxShadow:'0 0 0 1px rgba(0,0,0,0.06), 0 2px 16px rgba(0,0,0,0.04)' }}>
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 flex items-center justify-between h-[68px]">
         <Link to="/" className="flex items-center gap-2.5 shrink-0">
-          <img src="/logo.png" alt="Zirva" width={28} height={28} className="object-contain" />
-          <span className="text-[19px] font-extrabold text-gray-900 tracking-tight">Zirva</span>
+          <img src="/logo.png" alt="Zirva" width={26} height={26} className="object-contain" />
+          <span className="text-[18px] font-extrabold text-gray-900 tracking-tight">Zirva</span>
         </Link>
-
-        {/* Right actions — desktop */}
         <div className="hidden lg:flex items-center gap-1.5">
-          <div className="flex items-center rounded-lg p-0.5 mr-1" style={{ background: 'rgba(0,0,0,0.05)' }}>
-            {['az', 'en'].map(l => (
-              <button
-                key={l} onClick={() => setLang(l)}
-                className="px-2.5 py-1.5 rounded-md text-[11px] font-extrabold tracking-wide transition-all duration-200"
-                style={lang === l
-                  ? { background: '#fff', color: '#534AB7', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }
-                  : { color: '#9ca3af' }}
-              >
+          <div className="flex rounded-lg p-0.5 mr-2" style={{background:'rgba(0,0,0,0.05)'}}>
+            {['az','en'].map(l=>(
+              <button key={l} onClick={()=>setLang(l)} className="px-2.5 py-1.5 rounded-md text-[11px] font-extrabold tracking-wide transition-all"
+                style={lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'}:{color:'#9ca3af'}}>
                 {l.toUpperCase()}
               </button>
             ))}
           </div>
-          <Link
-            to="/daxil-ol"
-            className="px-4 py-2 text-[14px] text-gray-500 hover:text-gray-900 font-semibold rounded-lg hover:bg-gray-100/80 transition-all"
-          >
-            {s.nav_signin}
-          </Link>
-          <Link
-            to="/contact"
-            className="inline-flex items-center gap-1.5 text-white text-[14px] font-bold px-5 py-[10px] rounded-xl transition-all hover:-translate-y-px active:translate-y-0"
-            style={{
-              background: 'linear-gradient(135deg,#6056CC 0%,#534AB7 55%,#4A41A8 100%)',
-              boxShadow: '0 2px 10px rgba(83,74,183,0.45), 0 1px 2px rgba(0,0,0,0.1)',
-            }}
-          >
+          <Link to="/daxil-ol" className="px-4 py-2 text-[13.5px] text-gray-500 hover:text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-all">{s.nav_signin}</Link>
+          <Link to="/contact" className="inline-flex items-center text-white text-[13.5px] font-bold px-5 py-2.5 rounded-xl transition-all hover:-translate-y-px"
+            style={{background:'linear-gradient(135deg,#6056CC,#534AB7)',boxShadow:'0 2px 10px rgba(83,74,183,0.4)'}}>
             {s.nav_contact}
           </Link>
         </div>
-
-        {/* Mobile toggle */}
-        <button
-          onClick={() => setOpen(v => !v)}
-          className="lg:hidden p-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        <button onClick={()=>setOpen(v=>!v)} className="lg:hidden p-2 text-gray-600 rounded-lg hover:bg-gray-100">
+          {open?<X className="w-5 h-5"/>:<Menu className="w-5 h-5"/>}
         </button>
       </div>
-
-      {/* Mobile drawer */}
       {open && (
-        <div className="lg:hidden bg-white/98 border-t border-gray-100 px-6 pt-4 pb-6">
-          <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
-            <div className="flex items-center rounded-lg p-0.5" style={{ background: 'rgba(0,0,0,0.06)' }}>
-              {['az', 'en'].map(l => (
-                <button
-                  key={l} onClick={() => setLang(l)}
-                  className="px-3 py-1.5 rounded-md text-xs font-extrabold transition-all"
-                  style={lang === l
-                    ? { background: '#fff', color: '#534AB7', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }
-                    : { color: '#9ca3af' }}
-                >
-                  {l.toUpperCase()}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              <Link to="/daxil-ol" className="text-sm text-gray-500 font-semibold px-3 py-2">
-                {s.nav_signin}
-              </Link>
-              <Link
-                to="/contact"
-                className="text-white text-sm font-bold px-5 py-2.5 rounded-xl"
-                style={{ background: 'linear-gradient(135deg,#6056CC,#534AB7)', boxShadow: '0 2px 8px rgba(83,74,183,0.4)' }}
-              >
-                {s.nav_contact}
-              </Link>
-            </div>
+        <div className="lg:hidden bg-white border-t border-gray-100 px-6 py-4 flex items-center justify-between">
+          <div className="flex rounded-lg p-0.5" style={{background:'rgba(0,0,0,0.06)'}}>
+            {['az','en'].map(l=>(
+              <button key={l} onClick={()=>setLang(l)} className="px-3 py-1.5 rounded-md text-xs font-extrabold transition-all"
+                style={lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'}:{color:'#9ca3af'}}>
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <Link to="/daxil-ol" className="text-sm text-gray-500 font-semibold px-3 py-2">{s.nav_signin}</Link>
+            <Link to="/contact" className="text-white text-sm font-bold px-4 py-2 rounded-xl"
+              style={{background:'linear-gradient(135deg,#6056CC,#534AB7)'}}>{s.nav_contact}</Link>
           </div>
         </div>
       )}
@@ -184,250 +105,144 @@ function MiniNav({ s, lang, setLang }) {
   )
 }
 
-/* ─── Main Page ─── */
 export default function ZekaAIPage() {
   const { lang, setLang } = useLang()
   const s = STR[lang] || STR.az
 
-  const audienceCards = [
-    {
-      icon: GraduationCap,
-      title: s.card1_title,
-      features: s.card1_features,
-      accent: '#534AB7',
-    },
-    {
-      icon: BookOpen,
-      title: s.card2_title,
-      features: s.card2_features,
-      accent: '#1D9E75',
-    },
-    {
-      icon: LayoutDashboard,
-      title: s.card3_title,
-      features: s.card3_features,
-      accent: '#2563eb',
-    },
+  const cards = [
+    { icon:GraduationCap, title:s.c1, sub:s.c1_sub, features:s.c1f, accent:'#534AB7', bg:'rgba(83,74,183,0.07)', border:'rgba(83,74,183,0.18)' },
+    { icon:BookOpen,       title:s.c2, sub:s.c2_sub, features:s.c2f, accent:'#1D9E75', bg:'rgba(29,158,117,0.07)', border:'rgba(29,158,117,0.18)' },
+    { icon:LayoutDashboard,title:s.c3, sub:s.c3_sub, features:s.c3f, accent:'#2563eb', bg:'rgba(37,99,235,0.07)',  border:'rgba(37,99,235,0.18)' },
   ]
 
   const stats = [
-    { val: s.stat1_val, sub: s.stat1_sub },
-    { val: s.stat2_val, sub: s.stat2_sub },
-    { val: s.stat3_val, sub: s.stat3_sub },
+    { v:s.stat1_v, sub:s.stat1_s, accent:'#a78bfa', bg:'rgba(167,139,250,0.09)', border:'rgba(167,139,250,0.22)' },
+    { v:s.stat2_v, sub:s.stat2_s, accent:'#34d399', bg:'rgba(52,211,153,0.09)',  border:'rgba(52,211,153,0.22)' },
+    { v:s.stat3_v, sub:s.stat3_s, accent:'#60a5fa', bg:'rgba(96,165,250,0.09)',  border:'rgba(96,165,250,0.22)' },
   ]
 
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" }}>
+    <div style={{ fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif", background:'#fff' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body, * { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
-        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+        .zk-card { transition: transform .2s ease, box-shadow .2s ease; }
+        .zk-card:hover { transform:translateY(-6px); box-shadow:0 20px 56px rgba(0,0,0,0.12) !important; }
       `}</style>
 
       <MiniNav s={s} lang={lang} setLang={setLang} />
 
       {/* ── Hero ── */}
-      <section
-        style={{
-          background: '#060614',
-          position: 'relative',
-          overflow: 'hidden',
-          padding: '96px 24px 80px',
-          textAlign: 'center',
-        }}
-      >
-        {/* Glow orbs */}
-        <div style={{
-          position: 'absolute', top: '-10%', left: '-8%',
-          width: '52%', height: '60%',
-          background: 'radial-gradient(ellipse, rgba(83,74,183,.25) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }} />
-        <div style={{
-          position: 'absolute', top: '20%', right: '-5%',
-          width: '44%', height: '50%',
-          background: 'radial-gradient(ellipse, rgba(109,40,217,.18) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }} />
+      <section style={{ background:'#060614', position:'relative', overflow:'hidden', minHeight:600, display:'flex', alignItems:'center' }}>
+        {/* bg effects */}
+        <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize:'36px 36px', WebkitMaskImage:'radial-gradient(ellipse 90% 80% at 50% 50%, black, transparent)', maskImage:'radial-gradient(ellipse 90% 80% at 50% 50%, black, transparent)', pointerEvents:'none' }}/>
+        <div style={{ position:'absolute', top:'-20%', left:'-10%', width:'60%', height:'80%', background:'radial-gradient(ellipse, rgba(83,74,183,.3) 0%, transparent 65%)', pointerEvents:'none' }}/>
+        <div style={{ position:'absolute', bottom:'-10%', right:'-5%', width:'50%', height:'70%', background:'radial-gradient(ellipse, rgba(109,40,217,.2) 0%, transparent 65%)', pointerEvents:'none' }}/>
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 760, margin: '0 auto' }}>
-          <h1 style={{
-            fontSize: 'clamp(3rem, 8vw, 5.5rem)',
-            fontWeight: 800,
-            lineHeight: 1.05,
-            marginBottom: 20,
-            letterSpacing: '-0.04em',
-            background: 'linear-gradient(135deg, #a78bfa 0%, #818cf8 45%, #93c5fd 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}>
-            {s.hero_headline}
-          </h1>
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 py-20 w-full" style={{ position:'relative', zIndex:1 }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, alignItems:'center' }}>
 
-          <p style={{
-            fontSize: 'clamp(1.05rem, 2.5vw, 1.3rem)',
-            color: 'rgba(255,255,255,0.7)',
-            lineHeight: 1.65,
-            maxWidth: 560,
-            margin: '0 auto 36px',
-          }}>
-            {s.hero_tagline}
-          </p>
-
-          <Link
-            to="/daxil-ol"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: 'linear-gradient(135deg,#6056CC 0%,#534AB7 55%,#4A41A8 100%)',
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: 15,
-              padding: '14px 32px',
-              borderRadius: 14,
-              textDecoration: 'none',
-              boxShadow: '0 4px 24px rgba(83,74,183,0.55)',
-              marginBottom: 56,
-            }}
-          >
-            {s.hero_btn}
-          </Link>
-
-          {/* Chat mock card */}
-          <div style={{
-            maxWidth: 480,
-            margin: '0 auto',
-            background: 'rgba(255,255,255,0.04)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 20,
-            padding: '24px',
-            textAlign: 'left',
-          }}>
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 10,
-                background: 'linear-gradient(135deg,#6056CC,#534AB7)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Sparkles style={{ width: 16, height: 16, color: '#fff' }} />
+            {/* Left: text */}
+            <div>
+              <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'5px 14px', borderRadius:99, border:'1px solid rgba(167,139,250,0.25)', background:'rgba(167,139,250,0.08)', marginBottom:24 }}>
+                <Sparkles style={{ width:13, height:13, color:'#a78bfa' }}/>
+                <span style={{ fontSize:12, fontWeight:700, color:'#a78bfa', letterSpacing:'0.06em', textTransform:'uppercase' }}>AI Assistant</span>
               </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>
-                  {lang === 'az' ? 'Zəka' : 'Zeka'}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <div style={{
-                    width: 6, height: 6, borderRadius: '50%', background: '#1D9E75',
-                    animation: 'pulse-dot 2s ease-in-out infinite',
-                  }} />
-                  <span style={{ fontSize: 11, color: '#1D9E75', fontWeight: 500 }}>
-                    {lang === 'az' ? 'Aktiv' : 'Online'}
-                  </span>
-                </div>
-              </div>
+
+              <h1 style={{ fontSize:'clamp(3rem,7vw,5rem)', fontWeight:800, lineHeight:1.05, letterSpacing:'-0.04em', marginBottom:20, background:'linear-gradient(128deg,#c4b5fd 0%,#a78bfa 35%,#818cf8 70%,#93c5fd 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+                {s.hero_h1}
+              </h1>
+              <p style={{ fontSize:'clamp(1.05rem,2vw,1.2rem)', color:'rgba(255,255,255,0.65)', lineHeight:1.7, marginBottom:6 }}>
+                {s.hero_tag}
+              </p>
+              <p style={{ fontSize:'clamp(1.05rem,2vw,1.2rem)', color:'rgba(255,255,255,0.65)', lineHeight:1.7, marginBottom:36 }}>
+                {s.hero_tag2}
+              </p>
+              <Link to="/daxil-ol"
+                style={{ display:'inline-flex', alignItems:'center', gap:9, background:'linear-gradient(135deg,#7c3aed,#4f46e5)', color:'#fff', fontWeight:700, fontSize:14.5, padding:'13px 28px', borderRadius:14, textDecoration:'none', boxShadow:'0 8px 28px rgba(109,40,217,0.45)', transition:'transform .17s ease' }}
+                onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
+                onMouseLeave={e=>e.currentTarget.style.transform=''}>
+                {s.hero_btn} <ArrowRight style={{ width:15, height:15 }}/>
+              </Link>
             </div>
 
-            {/* User message */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
-              <div style={{
-                background: 'linear-gradient(135deg,#534AB7,#6056CC)',
-                color: '#fff',
-                fontSize: 13,
-                fontWeight: 500,
-                padding: '10px 14px',
-                borderRadius: '16px 16px 4px 16px',
-                maxWidth: '80%',
-                lineHeight: 1.5,
-              }}>
-                {s.chat_user}
-              </div>
-            </div>
+            {/* Right: chat card */}
+            <div style={{ animation:'float 4s ease-in-out infinite' }}>
+              <div style={{ background:'rgba(255,255,255,0.05)', backdropFilter:'blur(24px)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:24, padding:28, boxShadow:'0 24px 64px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05)' }}>
+                {/* Chat header */}
+                <div style={{ display:'flex', alignItems:'center', gap:10, paddingBottom:18, marginBottom:18, borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ width:38, height:38, borderRadius:11, background:'linear-gradient(135deg,#6056CC,#534AB7)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 12px rgba(83,74,183,0.5)' }}>
+                    <Sparkles style={{ width:16, height:16, color:'#fff' }}/>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:700, color:'#fff' }}>{lang==='az'?'Zəka':'Zeka'}</div>
+                    <div style={{ display:'flex', alignItems:'center', gap:5 }}>
+                      <span style={{ width:6, height:6, borderRadius:'50%', background:'#34d399', display:'inline-block', animation:'pulse-dot 2s ease-in-out infinite' }}/>
+                      <span style={{ fontSize:11, color:'#34d399', fontWeight:500 }}>{lang==='az'?'Aktiv':'Online'}</span>
+                    </div>
+                  </div>
+                  <div style={{ marginLeft:'auto', fontSize:11, color:'rgba(255,255,255,0.3)', fontWeight:500 }}>Zirva+</div>
+                </div>
 
-            {/* Zeka reply */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                background: 'linear-gradient(135deg,#6056CC,#534AB7)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Sparkles style={{ width: 12, height: 12, color: '#fff' }} />
-              </div>
-              <div style={{
-                background: 'rgba(255,255,255,0.07)',
-                color: 'rgba(255,255,255,0.88)',
-                fontSize: 13,
-                fontWeight: 400,
-                padding: '10px 14px',
-                borderRadius: '4px 16px 16px 16px',
-                lineHeight: 1.6,
-              }}>
-                {s.chat_zeka}
+                {/* User bubble */}
+                <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:14 }}>
+                  <div style={{ background:'linear-gradient(135deg,#534AB7,#6056CC)', color:'#fff', fontSize:13, fontWeight:500, padding:'11px 15px', borderRadius:'18px 18px 4px 18px', maxWidth:'82%', lineHeight:1.5, boxShadow:'0 4px 12px rgba(83,74,183,0.3)' }}>
+                    {s.chat_user}
+                  </div>
+                </div>
+
+                {/* Zeka reply */}
+                <div style={{ display:'flex', alignItems:'flex-start', gap:10, marginBottom:18 }}>
+                  <div style={{ width:28, height:28, borderRadius:8, flexShrink:0, background:'rgba(167,139,250,0.2)', border:'1px solid rgba(167,139,250,0.3)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Sparkles style={{ width:12, height:12, color:'#a78bfa' }}/>
+                  </div>
+                  <div style={{ background:'rgba(255,255,255,0.07)', color:'rgba(255,255,255,0.88)', fontSize:13, padding:'11px 14px', borderRadius:'4px 18px 18px 18px', lineHeight:1.6 }}>
+                    {s.chat_zeka}
+                  </div>
+                </div>
+
+                {/* Input hint */}
+                <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:12, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)' }}>
+                  <span style={{ fontSize:13, color:'rgba(255,255,255,0.25)', flex:1 }}>{s.chat_hint}</span>
+                  <div style={{ width:28, height:28, borderRadius:8, background:'linear-gradient(135deg,#6056CC,#534AB7)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <ArrowRight style={{ width:12, height:12, color:'#fff' }}/>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Mobile hero: hide chat card below lg */}
+        <style>{`@media(max-width:1023px){.zeka-chat-col{display:none!important}}`}</style>
       </section>
 
-      {/* ── Audience Cards ── */}
-      <section style={{ background: '#f8f9fa', padding: '80px 24px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <h2 style={{
-            textAlign: 'center',
-            fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
-            fontWeight: 800,
-            color: '#0f0f1a',
-            marginBottom: 48,
-            letterSpacing: '-0.02em',
-          }}>
-            {s.audience_title}
-          </h2>
+      {/* ── Who it's for ── */}
+      <section style={{ background:'#f9fafb', padding:'88px 24px' }}>
+        <div style={{ maxWidth:1100, margin:'0 auto' }}>
+          <div style={{ textAlign:'center', marginBottom:60 }}>
+            <h2 style={{ fontSize:'clamp(1.6rem,3vw,2.4rem)', fontWeight:800, color:'#0f0f1a', marginBottom:10, letterSpacing:'-0.025em' }}>{s.who_title}</h2>
+            <p style={{ fontSize:15.5, color:'#6b7280', fontWeight:500, maxWidth:480, margin:'0 auto' }}>{s.who_sub}</p>
+          </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 24,
-          }}>
-            {audienceCards.map((card) => {
-              const IconComp = card.icon
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))', gap:22 }}>
+            {cards.map(c => {
+              const IC = c.icon
               return (
-                <div
-                  key={card.title}
-                  style={{
-                    background: '#fff',
-                    borderRadius: 16,
-                    boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
-                    border: '1px solid #f0f0f0',
-                    padding: '28px',
-                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-4px)'
-                    e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.1)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = '0 2px 16px rgba(0,0,0,0.06)'
-                  }}
-                >
-                  <div style={{
-                    width: 48, height: 48, borderRadius: 12,
-                    background: `${card.accent}14`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    marginBottom: 16,
-                  }}>
-                    <IconComp style={{ width: 22, height: 22, color: card.accent }} />
+                <div key={c.title} className="zk-card" style={{ background:'#fff', borderRadius:20, border:`1px solid ${c.border}`, boxShadow:`0 2px 24px rgba(0,0,0,0.05), inset 0 1px 0 ${c.border}`, padding:'28px', overflow:'hidden', position:'relative' }}>
+                  <div style={{ position:'absolute', top:-24, right:-24, width:96, height:96, borderRadius:'50%', background:c.bg, pointerEvents:'none' }}/>
+                  <div style={{ width:46, height:46, borderRadius:13, background:c.bg, border:`1px solid ${c.border}`, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:16 }}>
+                    <IC style={{ width:21, height:21, color:c.accent }}/>
                   </div>
-                  <h3 style={{ fontSize: 17, fontWeight: 800, color: '#0f0f1a', marginBottom: 16 }}>
-                    {card.title}
-                  </h3>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {card.features.map(f => (
-                      <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#374151', fontWeight: 500, lineHeight: 1.5 }}>
-                        <CheckCircle style={{ width: 15, height: 15, color: card.accent, flexShrink: 0, marginTop: 1 }} />
+                  <h3 style={{ fontSize:17, fontWeight:800, color:'#0f0f1a', marginBottom:3 }}>{c.title}</h3>
+                  <p style={{ fontSize:12.5, color:'#9ca3af', fontWeight:500, marginBottom:20 }}>{c.sub}</p>
+                  <ul style={{ listStyle:'none', padding:0, margin:0, display:'flex', flexDirection:'column', gap:10 }}>
+                    {c.features.map(f => (
+                      <li key={f} style={{ display:'flex', alignItems:'flex-start', gap:9, fontSize:13.5, color:'#374151', fontWeight:500, lineHeight:1.45 }}>
+                        <span style={{ width:18, height:18, borderRadius:'50%', background:c.bg, border:`1px solid ${c.border}`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
+                          <Check style={{ width:10, height:10, color:c.accent, strokeWidth:3 }}/>
+                        </span>
                         {f}
                       </li>
                     ))}
@@ -439,93 +254,38 @@ export default function ZekaAIPage() {
         </div>
       </section>
 
-      {/* ── Stats Strip ── */}
-      <section style={{ background: '#0b0b1e', padding: '72px 24px' }}>
-        <div style={{ maxWidth: 960, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
-          {[
-            { val: stats[0].val, sub: stats[0].sub, accent: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.2)' },
-            { val: stats[1].val, sub: stats[1].sub, accent: '#34d399', bg: 'rgba(52,211,153,0.08)',  border: 'rgba(52,211,153,0.2)'  },
-            { val: stats[2].val, sub: stats[2].sub, accent: '#60a5fa', bg: 'rgba(96,165,250,0.08)',  border: 'rgba(96,165,250,0.2)'  },
-          ].map((s, i) => (
-            <div key={i} style={{
-              background: s.bg,
-              border: `1px solid ${s.border}`,
-              borderRadius: 18,
-              padding: '32px 28px',
-              textAlign: 'center',
-            }}>
-              <div style={{
-                fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)',
-                fontWeight: 800,
-                letterSpacing: '-0.03em',
-                marginBottom: 8,
-                color: s.accent,
-                lineHeight: 1.1,
-              }}>
-                {s.val}
-              </div>
-              <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.5)', fontWeight: 500, lineHeight: 1.4 }}>
-                {s.sub}
-              </div>
+      {/* ── Stats ── */}
+      <section style={{ background:'#0b0b1e', padding:'72px 24px' }}>
+        <div style={{ maxWidth:960, margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))', gap:20 }}>
+          {stats.map((st,i) => (
+            <div key={i} style={{ background:st.bg, border:`1px solid ${st.border}`, borderRadius:18, padding:'32px 28px', textAlign:'center' }}>
+              <div style={{ fontSize:'clamp(1.8rem,4vw,2.6rem)', fontWeight:800, letterSpacing:'-0.03em', color:st.accent, lineHeight:1.1, marginBottom:8 }}>{st.v}</div>
+              <div style={{ fontSize:13.5, color:'rgba(255,255,255,0.45)', fontWeight:500 }}>{st.sub}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── CTA ── */}
-      <section
-        style={{
-          background: '#060614',
-          position: 'relative',
-          overflow: 'hidden',
-          padding: '88px 24px',
-          textAlign: 'center',
-        }}
-      >
-        <div style={{
-          position: 'absolute', top: '-20%', left: '20%',
-          width: '60%', height: '100%',
-          background: 'radial-gradient(ellipse, rgba(83,74,183,.2) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }} />
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 600, margin: '0 auto' }}>
-          <h2 style={{
-            fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
-            fontWeight: 800,
-            color: '#fff',
-            marginBottom: 16,
-            lineHeight: 1.25,
-            letterSpacing: '-0.02em',
-          }}>
-            {s.cta_headline}
-          </h2>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', marginBottom: 36, lineHeight: 1.7 }}>
-            {s.cta_sub}
-          </p>
-          <Link
-            to="/contact"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: 'linear-gradient(135deg,#6056CC 0%,#534AB7 55%,#4A41A8 100%)',
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: 15,
-              padding: '14px 32px',
-              borderRadius: 14,
-              textDecoration: 'none',
-              boxShadow: '0 4px 20px rgba(83,74,183,0.5)',
-            }}
-          >
-            {s.cta_btn}
+      <section style={{ background:'#060614', position:'relative', overflow:'hidden', padding:'96px 24px', textAlign:'center' }}>
+        <div style={{ position:'absolute', top:'-30%', left:'15%', width:'70%', height:'130%', background:'radial-gradient(ellipse, rgba(83,74,183,.22) 0%, transparent 65%)', pointerEvents:'none' }}/>
+        <div style={{ position:'relative', zIndex:1, maxWidth:560, margin:'0 auto' }}>
+          <div style={{ width:56, height:56, borderRadius:16, background:'linear-gradient(135deg,#7c3aed,#4f46e5)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 24px', boxShadow:'0 8px 24px rgba(109,40,217,0.4)' }}>
+            <Zap style={{ width:24, height:24, color:'#fff' }}/>
+          </div>
+          <h2 style={{ fontSize:'clamp(1.6rem,3.5vw,2.5rem)', fontWeight:800, color:'#fff', marginBottom:14, lineHeight:1.2, letterSpacing:'-0.025em' }}>{s.cta_h}</h2>
+          <p style={{ fontSize:16, color:'rgba(255,255,255,0.5)', marginBottom:36, lineHeight:1.7 }}>{s.cta_sub}</p>
+          <Link to="/contact"
+            style={{ display:'inline-flex', alignItems:'center', gap:9, background:'linear-gradient(135deg,#7c3aed,#4f46e5)', color:'#fff', fontWeight:700, fontSize:14.5, padding:'14px 30px', borderRadius:14, textDecoration:'none', boxShadow:'0 8px 32px rgba(109,40,217,0.45)', transition:'transform .17s ease' }}
+            onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)'}}
+            onMouseLeave={e=>{e.currentTarget.style.transform=''}}>
+            {s.cta_btn} <ArrowRight style={{ width:15, height:15 }}/>
           </Link>
         </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer style={{ background: '#060614', borderTop: '1px solid rgba(255,255,255,0.07)', padding: '24px', textAlign: 'center' }}>
-        <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13 }}>{s.footer}</p>
+      <footer style={{ background:'#060614', borderTop:'1px solid rgba(255,255,255,0.06)', padding:'20px 24px', textAlign:'center' }}>
+        <p style={{ color:'rgba(255,255,255,0.25)', fontSize:12.5 }}>{s.footer}</p>
       </footer>
     </div>
   )
