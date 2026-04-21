@@ -1461,13 +1461,6 @@ function PilotCTA({ s }) {
       {/* ── Content ── */}
       <div className="max-w-5xl mx-auto px-5 sm:px-10 text-center" style={{ position:'relative', zIndex:10 }}>
 
-        {/* Badge */}
-        <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'6px 16px', borderRadius:999, border:'1px solid rgba(34,197,94,0.25)', background:'rgba(34,197,94,0.08)', marginBottom:32 }}>
-          <span style={{ width:6, height:6, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 6px rgba(34,197,94,0.8)', flexShrink:0 }}/>
-          <span style={{ color:'#86efac', fontSize:12, fontWeight:700, letterSpacing:'0.04em' }}>
-            {isAz ? 'Pilot Proqram · Məhdud Yer' : 'Pilot Programme · Limited Spots'}
-          </span>
-        </div>
 
         {/* Headline */}
         <h2 style={{ fontSize:'clamp(2.4rem,6vw,5rem)', fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-0.03em', marginBottom:24 }}>
