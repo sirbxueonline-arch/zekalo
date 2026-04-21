@@ -1462,9 +1462,9 @@ function PilotCTA({ s }) {
       <div className="max-w-5xl mx-auto px-5 sm:px-10 text-center" style={{ position:'relative', zIndex:10 }}>
 
         {/* Badge */}
-        <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'7px 18px', borderRadius:999, border:'1px solid rgba(255,255,255,0.09)', background:'rgba(255,255,255,0.04)', marginBottom:36 }}>
-          <span style={{ width:7, height:7, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 8px rgba(34,197,94,0.7)', flexShrink:0 }}/>
-          <span style={{ color:'rgba(255,255,255,0.5)', fontSize:12.5, fontWeight:600 }}>
+        <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'6px 16px', borderRadius:999, border:'1px solid rgba(34,197,94,0.25)', background:'rgba(34,197,94,0.08)', marginBottom:32 }}>
+          <span style={{ width:6, height:6, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 6px rgba(34,197,94,0.8)', flexShrink:0 }}/>
+          <span style={{ color:'#86efac', fontSize:12, fontWeight:700, letterSpacing:'0.04em' }}>
             {isAz ? 'Pilot Proqram · Məhdud Yer' : 'Pilot Programme · Limited Spots'}
           </span>
         </div>
@@ -1477,46 +1477,42 @@ function PilotCTA({ s }) {
         </h2>
 
         {/* Sub */}
-        <p style={{ color:'rgba(255,255,255,0.42)', fontSize:16.5, lineHeight:1.78, maxWidth:480, margin:'0 auto 40px', fontWeight:500 }}>
+        <p style={{ color:'rgba(255,255,255,0.5)', fontSize:15.5, lineHeight:1.7, maxWidth:420, margin:'0 auto 44px', fontWeight:400 }}>
           {isAz
-            ? 'Zirva+ hazırdır. Azərbaycanda rəqəmsal məktəbin əsasını birlikdə qurmaq üçün öncü məktəbləri dəvət edirik.'
-            : "Zirva+ is live. We're partnering with a select group of schools to define what great school management looks like in Azerbaijan."}
+            ? 'Azərbaycanda rəqəmsal məktəbin əsasını birlikdə quraq.'
+            : 'Join our founding school cohort and help define the future of school management in Azerbaijan.'}
         </p>
 
         {/* CTA */}
         <Link
           to="/contact"
           style={{
-            display:'inline-flex', alignItems:'center', gap:8,
-            padding:'14px 32px', borderRadius:999,
-            background:'#fff', color:'#09090f',
-            fontWeight:700, fontSize:15,
+            display:'inline-flex', alignItems:'center', gap:9,
+            padding:'14px 30px', borderRadius:14,
+            background:'linear-gradient(135deg,#7c3aed,#4f46e5)',
+            color:'#fff',
+            fontWeight:700, fontSize:14.5,
             textDecoration:'none',
-            boxShadow:'0 0 0 1px rgba(255,255,255,0.15), 0 8px 28px rgba(255,255,255,0.07)',
-            transition:'transform .17s ease',
+            boxShadow:'0 8px 32px rgba(109,40,217,0.45)',
+            transition:'transform .17s ease, box-shadow .17s ease',
           }}
-          onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)' }}
-          onMouseLeave={e => { e.currentTarget.style.transform='' }}
+          onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 14px 40px rgba(109,40,217,0.55)' }}
+          onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 8px 32px rgba(109,40,217,0.45)' }}
         >
           {isAz ? 'Müraciət et' : 'Apply now'} <ArrowRight style={{ width:15, height:15 }}/>
         </Link>
 
         {/* Perks */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-16">
+        <div style={{ display:'flex', justifyContent:'center', flexWrap:'wrap', gap:'32px 48px', marginTop:56 }}>
           {perks.map(({ icon:Icon, label, desc }) => (
-            <div key={label} style={{
-              background:'rgba(255,255,255,0.04)',
-              border:'1px solid rgba(255,255,255,0.08)',
-              borderRadius:20,
-              padding:'28px 24px',
-              textAlign:'left',
-              backdropFilter:'blur(12px)',
-            }}>
-              <div style={{ width:40, height:40, borderRadius:11, background:'rgba(255,255,255,0.07)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:16 }}>
-                <Icon style={{ width:18, height:18, color:'rgba(255,255,255,0.6)' }}/>
+            <div key={label} style={{ display:'flex', alignItems:'flex-start', gap:14, maxWidth:220, textAlign:'left' }}>
+              <div style={{ width:36, height:36, borderRadius:10, background:'rgba(124,58,237,0.22)', border:'1px solid rgba(124,58,237,0.3)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
+                <Icon style={{ width:16, height:16, color:'#c4b5fd' }}/>
               </div>
-              <p style={{ fontWeight:700, color:'#fff', fontSize:14, marginBottom:6 }}>{label}</p>
-              <p style={{ color:'rgba(255,255,255,0.38)', fontSize:13, lineHeight:1.65, fontWeight:500 }}>{desc}</p>
+              <div>
+                <p style={{ fontWeight:700, color:'rgba(255,255,255,0.9)', fontSize:13.5, marginBottom:4 }}>{label}</p>
+                <p style={{ color:'rgba(255,255,255,0.38)', fontSize:12.5, lineHeight:1.6, fontWeight:400 }}>{desc}</p>
+              </div>
             </div>
           ))}
         </div>
