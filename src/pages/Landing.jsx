@@ -775,8 +775,8 @@ function Hero({ s }) {
           >
             {s.hero_cta2} <ArrowRight style={{ width:15, height:15, flexShrink:0 }}/>
           </Link>
-          <a
-            href="#solutions"
+          <Link
+            to="/solutions"
             style={{
               display:'inline-flex', alignItems:'center', gap:8,
               padding:'13px 28px', borderRadius:999,
@@ -790,7 +790,7 @@ function Hero({ s }) {
             onMouseLeave={e => { e.currentTarget.style.background=''; e.currentTarget.style.borderColor='rgba(255,255,255,0.11)'; e.currentTarget.style.color='rgba(255,255,255,0.58)' }}
           >
             {s.hero_cta1}
-          </a>
+          </Link>
         </div>
 
         {/* ── Dashboard area ── */}
