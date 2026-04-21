@@ -251,21 +251,6 @@ export default function ZekaAIPage() {
         }} />
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 760, margin: '0 auto' }}>
-          {/* Eyebrow */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            marginBottom: 24,
-            padding: '6px 16px',
-            borderRadius: 99,
-            border: '1px solid rgba(167,139,250,0.3)',
-            background: 'rgba(167,139,250,0.08)',
-          }}>
-            <Sparkles style={{ width: 14, height: 14, color: '#a78bfa' }} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#a78bfa', letterSpacing: '0.04em' }}>
-              {s.hero_eyebrow}
-            </span>
-          </div>
-
           <h1 style={{
             fontSize: 'clamp(3rem, 8vw, 5.5rem)',
             fontWeight: 800,
@@ -455,38 +440,32 @@ export default function ZekaAIPage() {
       </section>
 
       {/* ── Stats Strip ── */}
-      <section
-        style={{
-          background: '#060614',
-          padding: '64px 24px',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-        }}
-      >
-        <div style={{
-          maxWidth: 900,
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 32,
-          textAlign: 'center',
-        }}>
-          {stats.map((stat, i) => (
-            <div key={i}>
+      <section style={{ background: '#0b0b1e', padding: '72px 24px' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+          {[
+            { val: stats[0].val, sub: stats[0].sub, accent: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.2)' },
+            { val: stats[1].val, sub: stats[1].sub, accent: '#34d399', bg: 'rgba(52,211,153,0.08)',  border: 'rgba(52,211,153,0.2)'  },
+            { val: stats[2].val, sub: stats[2].sub, accent: '#60a5fa', bg: 'rgba(96,165,250,0.08)',  border: 'rgba(96,165,250,0.2)'  },
+          ].map((s, i) => (
+            <div key={i} style={{
+              background: s.bg,
+              border: `1px solid ${s.border}`,
+              borderRadius: 18,
+              padding: '32px 28px',
+              textAlign: 'center',
+            }}>
               <div style={{
-                fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+                fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)',
                 fontWeight: 800,
-                color: '#fff',
-                marginBottom: 6,
-                background: 'linear-gradient(135deg, #a78bfa 0%, #818cf8 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
+                letterSpacing: '-0.03em',
+                marginBottom: 8,
+                color: s.accent,
+                lineHeight: 1.1,
               }}>
-                {stat.val}
+                {s.val}
               </div>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>
-                {stat.sub}
+              <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.5)', fontWeight: 500, lineHeight: 1.4 }}>
+                {s.sub}
               </div>
             </div>
           ))}
