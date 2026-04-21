@@ -1549,15 +1549,21 @@ function Footer({ s }) {
           <div>
             <h4 className="text-white font-bold text-xs tracking-widest uppercase mb-5">{s.foot_col1}</h4>
             <ul className="space-y-3">
-              {[s.fl1,s.fl2,s.fl3,s.fl4,s.fl5].map(label => (
-                <li key={label}><Link to="#" className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>{label}</Link></li>
+              {[
+                { label:s.fl1, to:'/ib-pyp' },
+                { label:s.fl2, to:'/ib-myp' },
+                { label:s.fl3, to:'/ib-diploma' },
+                { label:s.fl4, to:'/ib-career' },
+                { label:s.fl5, to:'/government-schools' },
+              ].map(({ label, to }) => (
+                <li key={label}><Link to={to} className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>{label}</Link></li>
               ))}
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold text-xs tracking-widest uppercase mb-5">{s.foot_col4}</h4>
             <ul className="space-y-3">
-              {[{ label:s.fc1,to:'/about' },{ label:s.fc2,to:'/careers' },{ label:s.fc3,to:'/contact' },{ label:s.fc4,to:'/contact' }].map(({ label, to }) => (
+              {[{ label:s.fc1,to:'/about' },{ label:s.fc2,to:'/careers' },{ label:s.fc3,to:'/partners' },{ label:s.fc4,to:'/contact' }].map(({ label, to }) => (
                 <li key={label}><Link to={to} className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>{label}</Link></li>
               ))}
             </ul>

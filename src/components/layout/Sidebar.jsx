@@ -7,7 +7,7 @@ import {
   Clock, Users, GraduationCap, School, Megaphone, Award, Building, Settings,
   Bell, LogOut, X, HeartHandshake, ShieldCheck, FileBarChart, AlertTriangle,
   ArrowLeftRight, PenLine, TrendingUp, UserPlus, CalendarOff, DoorOpen,
-  Library, CalendarCheck, BookMarked, FolderOpen
+  Library, CalendarCheck, BookMarked, FolderOpen, ChevronRight
 } from 'lucide-react'
 
 // ── Admin nav sections ───────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ function getAdminGroups(profile, t) {
   return groups
 }
 
-// ── Role nav lists (flat) ────────────────────────────────────────────────────
+// ── Role nav lists ────────────────────────────────────────────────────────────
 const studentGroups = [
   {
     label: 'Genel',
@@ -234,7 +234,6 @@ export default function Sidebar({ open, onClose }) {
     : profile?.role === 'super_admin' ? superAdminGroups
     : []
 
-  // Resolve labels: each item may have a `label` string or a `key` to translate
   const resolvedGroups = groups.map(g => ({
     ...g,
     items: g.items.map(item => ({
@@ -251,43 +250,46 @@ export default function Sidebar({ open, onClose }) {
   return (
     <>
       {open && (
-        <div className="fixed inset-0 bg-black/30 z-40 lg:hidden" onClick={onClose} />
+        <div className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-sm" onClick={onClose} />
       )}
       <aside
-        className={`fixed top-0 left-0 h-full bg-white border-r border-border-soft z-50 flex flex-col transition-transform duration-200 lg:translate-x-0 ${
+        className={`fixed top-0 left-0 h-full z-50 flex flex-col transition-transform duration-200 lg:translate-x-0 ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
-        style={{ width: 260 }}
+        style={{
+          width: 256,
+          background: '#111827',
+          borderRight: '1px solid rgba(255,255,255,0.06)',
+        }}
       >
         {/* Logo / brand */}
-        <div className="flex items-center justify-between px-5 py-5 border-b border-border-soft flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-purple flex items-center justify-center flex-shrink-0 shadow-sm">
-              <img src="/logo.png" alt="Zirva" width="20" height="20" className="object-contain brightness-0 invert" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6d28d9,#4f46e5)' }}>
+              <img src="/logo.png" alt="Zirva" width="18" height="18" className="object-contain brightness-0 invert" />
             </div>
             <div className="min-w-0">
-              <span className="font-serif text-xl text-gray-900 tracking-tight leading-tight block">Zirva</span>
+              <span className="font-bold text-base text-white tracking-tight leading-tight block">Zirva</span>
               {profile?.school?.name && (
-                <span className="text-[10px] text-gray-400 truncate block leading-tight max-w-[140px]">
+                <span className="text-[10px] truncate block leading-tight max-w-[140px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
                   {profile.school.name}
                 </span>
               )}
             </div>
           </div>
-          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-surface transition-colors flex-shrink-0">
+          <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg transition-colors flex-shrink-0" style={{ color: 'rgba(255,255,255,0.4)' }}>
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+        <nav className="flex-1 overflow-y-auto px-3 py-4" style={{ scrollbarWidth: 'none' }}>
+          <style>{`aside nav::-webkit-scrollbar { display: none; }`}</style>
           {resolvedGroups.map((group, gi) => (
-            <div key={gi}>
-              {/* Section label */}
-              <p className="px-3 mb-1 text-[10px] font-semibold tracking-widest text-gray-400 uppercase select-none mt-1">
+            <div key={gi} className={gi > 0 ? 'mt-5' : ''}>
+              <p className="px-3 mb-1.5 text-[10px] font-bold tracking-widest uppercase select-none" style={{ color: 'rgba(255,255,255,0.25)' }}>
                 {group.label}
               </p>
-              {/* Items */}
               <div className="space-y-0.5">
                 {group.items.map((item) => (
                   <NavLink
@@ -295,22 +297,26 @@ export default function Sidebar({ open, onClose }) {
                     to={item.path}
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors duration-150 ${
-                        isActive
-                          ? 'bg-purple-light text-purple font-semibold'
-                          : 'text-gray-600 hover:bg-surface hover:text-gray-800'
+                      `relative flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 group ${
+                        isActive ? 'active-nav-item' : 'inactive-nav-item'
                       }`
+                    }
+                    style={({ isActive }) => isActive
+                      ? { background: 'rgba(109,40,217,0.25)', color: '#c4b5fd' }
+                      : { color: 'rgba(255,255,255,0.55)' }
                     }
                   >
                     {({ isActive }) => (
                       <>
                         {isActive && (
-                          <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-purple rounded-r-full" />
+                          <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full" style={{ background: '#a78bfa' }} />
                         )}
                         <item.icon
-                          className={`w-[18px] h-[18px] shrink-0 ${
-                            isActive ? 'text-purple' : 'text-gray-400'
-                          }`}
+                          className="shrink-0"
+                          style={{
+                            width: 16, height: 16,
+                            color: isActive ? '#a78bfa' : 'rgba(255,255,255,0.35)',
+                          }}
                         />
                         <span className="truncate">{item.label}</span>
                       </>
@@ -318,38 +324,34 @@ export default function Sidebar({ open, onClose }) {
                   </NavLink>
                 ))}
               </div>
-              {/* Divider between groups (skip last) */}
-              {gi < resolvedGroups.length - 1 && (
-                <div className="mt-4 border-t border-border-soft/60" />
-              )}
             </div>
           ))}
         </nav>
 
         {/* User footer */}
-        <div className="border-t border-border-soft px-4 py-4 flex-shrink-0 bg-surface/40">
-          <div className="flex items-center gap-3 mb-3">
-            {/* Avatar initials circle */}
+        <div className="px-3 py-3 flex-shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="flex items-center gap-3 px-2 py-2 rounded-lg mb-1" style={{ background: 'rgba(255,255,255,0.05)' }}>
             <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-sm"
-              style={{
-                backgroundColor: profile?.avatar_color || '#534AB7',
-              }}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+              style={{ backgroundColor: profile?.avatar_color || '#6d28d9' }}
             >
               {profile?.full_name
                 ? profile.full_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
                 : '?'}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-gray-900 truncate leading-tight">
+              <p className="text-xs font-semibold truncate leading-tight" style={{ color: 'rgba(255,255,255,0.9)' }}>
                 {profile?.full_name}
               </p>
-              <p className="text-xs text-gray-400 capitalize leading-tight mt-0.5">{t(profile?.role)}</p>
+              <p className="text-[10px] capitalize leading-tight mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>{t(profile?.role)}</p>
             </div>
           </div>
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2 text-xs text-gray-500 hover:text-red-500 transition-colors duration-150 w-full px-2 py-1.5 rounded-lg hover:bg-red-50"
+            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-xs font-medium transition-colors duration-150"
+            style={{ color: 'rgba(255,255,255,0.4)' }}
+            onMouseEnter={e => { e.currentTarget.style.color='#f87171'; e.currentTarget.style.background='rgba(239,68,68,0.08)' }}
+            onMouseLeave={e => { e.currentTarget.style.color='rgba(255,255,255,0.4)'; e.currentTarget.style.background='transparent' }}
           >
             <LogOut className="w-3.5 h-3.5 flex-shrink-0" />
             {t('sign_out')}
