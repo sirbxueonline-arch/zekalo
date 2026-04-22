@@ -13,7 +13,7 @@ export default function LandingNav({ s, lang, setLang }) {
         </Link>
         <div className="hidden lg:flex items-center gap-1.5">
           <div className="flex items-center rounded-lg p-0.5 mr-2" style={{ background:'rgba(0,0,0,0.05)' }}>
-            {['az','en'].map(l => (
+            {['az','tr','en'].map(l => (
               <button key={l} onClick={() => setLang(l)} className="px-2.5 py-1.5 rounded-md text-[11px] font-extrabold tracking-wide transition-all"
                 style={lang===l ? {background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'} : {color:'#9ca3af'}}>
                 {l.toUpperCase()}
@@ -33,7 +33,7 @@ export default function LandingNav({ s, lang, setLang }) {
       {open && (
         <div className="lg:hidden bg-white border-t border-gray-100 px-6 py-4 flex items-center justify-between gap-3">
           <div className="flex rounded-lg p-0.5" style={{background:'rgba(0,0,0,0.06)'}}>
-            {['az','en'].map(l=>(
+            {['az','tr','en'].map(l=>(
               <button key={l} onClick={()=>setLang(l)} className="px-3 py-1.5 rounded-md text-xs font-extrabold transition-all"
                 style={lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'}:{color:'#9ca3af'}}>
                 {l.toUpperCase()}

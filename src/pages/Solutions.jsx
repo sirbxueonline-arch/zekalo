@@ -32,6 +32,20 @@ const STR = {
     cta_btn: 'Contact Us',
     footer: '© 2026 Zirva LLC',
   },
+  tr: {
+    nav_signin: 'Giriş yap', nav_contact: 'Bize Ulaşın',
+    hero_eyebrow: 'Çözümler',
+    hero_h1a: 'Her okul için',
+    hero_h1b: 'doğru çözüm',
+    hero_sub: 'IB dünya okulları ve Azerbaycan devlet okulları için — her müfredat çerçevesi desteklenmektedir.',
+    programmes_title: 'Desteklenen Programlar',
+    programmes_sub: 'Müfredatınızı seçin, gerisini Zirva halleder.',
+    learn_more: 'Daha fazla',
+    cta_h: 'Okulunuza hangisinin uygun olduğundan emin değil misiniz?',
+    cta_sub: 'Ekibimiz sizin için doğru çözümü bulacak.',
+    cta_btn: 'Bize Ulaşın',
+    footer: '© 2026 Zirva LLC',
+  },
 }
 
 const CARDS = {
@@ -48,6 +62,13 @@ const CARDS = {
     { img:'/dp.png',  name:'IB Diploma (DP)',           ages:'16–19', desc:'Manage every DP component — from exam registration to CAS — all in one platform.', features:['IBIS exam registration','CAS activity tracking','DP subject grade tracker','College counselling module'], link:'/ib-diploma', accent:'#3b82f6', glow:'rgba(59,130,246,0.15)' },
     { img:'/cp.png',  name:'IB Career-Related (CP)',    ages:'16–19', desc:'Full support for career-related learning, personal development and Reflective Project tracking.', features:['Career development plan','Reflective Project tracking','Personal-professional skills','IBIS integration'], link:'/ib-career', accent:'#a855f7', glow:'rgba(168,85,247,0.15)' },
     { img:null, icon:Building2, name:'National Curriculum', ages:'6–18', desc:'Ministry reports, E-Gov.az integration and a 10-point grading system — purpose-built for state schools.', features:['10-point grading system','Ministry reports','E-Gov.az auto-export','Attendance + grade sync'], link:'/government-schools', accent:'#1D9E75', glow:'rgba(29,158,117,0.15)' },
+  ],
+  tr: [
+    { img:'/pyp.png', name:'IB İlk Yıllar (PYP)', ages:'3–12', desc:'Erken yıllar için güçlü destek — portfolio yönetimi, Araştırma Birimi planlaması ve veli bildirimleri.', features:['Portfolio yönetimi','Araştırma Birimi planlaması','Öğrenci ilerleme raporu','Veli bildirim sistemi'], link:'/ib-pyp', accent:'#f59e0b', glow:'rgba(245,158,11,0.15)' },
+    { img:'/myp.png', name:'IB Orta Yıllar (MYP)', ages:'11–16', desc:'Araştırma tabanlı planlama ve IB A–D kriterlerine göre tam değerlendirme desteği.', features:['Birim Planlayıcı aracı','Kriter değerlendirmesi (A–D)','Öğrenci ilerleme analitiği','e-Portfolio desteği'], link:'/ib-myp', accent:'#ef4444', glow:'rgba(239,68,68,0.15)' },
+    { img:'/dp.png',  name:'IB Diploma (DP)', ages:'16–19', desc:"DP'nin tüm bileşenlerini — sınav kaydından CAS'a kadar — tek platformda yönetin.", features:['IBIS sınav kaydı','CAS faaliyet takibi','DP not çizelgesi','Üniversite danışmanlığı modülü'], link:'/ib-diploma', accent:'#3b82f6', glow:'rgba(59,130,246,0.15)' },
+    { img:'/cp.png',  name:'IB Kariyer (CP)', ages:'16–19', desc:'Kariyer odaklı eğitim, kişisel gelişim ve Düşünce Projesi takibi için tam destek.', features:['Kariyer gelişim planı','Yansıma Projesi takibi','Kişisel-mesleki beceriler','IBIS entegrasyonu'], link:'/ib-career', accent:'#a855f7', glow:'rgba(168,85,247,0.15)' },
+    { img:null, icon:Building2, name:'Ulusal Müfredat', ages:'6–18', desc:'Bakanlık raporları, E-Gov.az entegrasyonu ve 10 puanlık notlandırma sistemi ile devlet okulları için tam çözüm.', features:['10 puanlık notlandırma','Bakanlık raporları','E-Gov.az otomatik dışa aktarma','Devam + not senkronizasyonu'], link:'/government-schools', accent:'#1D9E75', glow:'rgba(29,158,117,0.15)' },
   ],
 }
 

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   BookOpen, Sparkles, MessageSquare, FileText, GraduationCap,
   Users, BarChart2, ArrowRight, Check, Shield, Globe, Menu, X,
@@ -169,6 +169,84 @@ const STR = {
     fs1:'Premium Support', fs2:'Help & Support',
     fc1:'About', fc2:'Careers', fc3:'Partners', fc4:'Contact',
   },
+  tr: {
+    isAz: false,
+    nav_solutions: 'Çözümler', nav_features: 'Özellikler', nav_zeka: 'Zeka AI',
+    nav_resources: 'Kaynaklar', nav_pricing: 'Paketler', nav_signin: 'Giriş yap', nav_demo: 'Bize Ulaşın',
+    hero_h1a: 'Okulunuzu', hero_h1b: 'bir üst seviyeye taşıyın',
+    hero_sub: 'IB dünya okulları ve Azerbaycan devlet okulları için — müfredattan iletişime, değerlendirmeden raporlamaya her şey tek platformda.',
+    hero_cta1: 'Özelliklere bak', hero_cta2: 'Bize Ulaşın',
+    dash_school: 'Zirva Uluslararası Okulu', dash_welcome: 'Hoş geldiniz, Yönetici',
+    dash_students: 'Öğrenci', dash_avg_grade: 'Ort. Not', dash_attendance: 'Devam', dash_ai: 'AI Oturumu',
+    dash_timetable: 'Bugünün Programı', dash_activity: 'Son Aktivite',
+    dash_math: 'Matematik', dash_physics: 'Fizik', dash_english: 'İngilizce',
+    dash_ev1: 'Not girildi', dash_ev2: 'Devam kaydedildi', dash_ev3: 'Yeni mesaj',
+    trust_title: 'Entegrasyonlar & Ortaklar',
+    sol_badge: 'Çözümler', sol_title: 'Her Müfredat İçin Zirva+',
+    sol_sub: 'IB dünya okullarından Azerbaycan devlet okullarına — her müfredat çerçevesi desteklenmektedir.',
+    sol_multi_t: 'Çok Müfredatlı', sol_multi_d: 'Tüm ana müfredat çerçeveleri için genel destek, kapsayıcı değerlendirme ve raporlama',
+    sol_gov_t: 'Ulusal Müfredat', sol_gov_d: 'Bakanlık entegrasyonuyla Azerbaycan devlet okulları için özel mod',
+    sol_dp_t: 'IB Diploma (DP)', sol_dp_d: 'DP Core yönetimi dahil IB Diploma Programı için tam destek',
+    sol_cp_t: 'IB Kariyer (CP)', sol_cp_d: 'Kariyer odaklı programı yürüten okullar için',
+    sol_myp_t: 'IB Orta Yıllar (MYP)', sol_myp_d: 'Araştırma programının ortak planlanması için tam destek',
+    sol_pyp_t: 'IB İlk Yıllar (PYP)', sol_pyp_d: 'Küçük öğrenciler için aynı güçlü destek',
+    sol_cta: 'Daha fazla',
+    feat_badge: 'Özellikler', feat_title: 'İhtiyacınız olan her şey.', feat_title_b: 'İhtiyacınız olmayan hiçbir şey.',
+    feat_sub: 'Müfredattan raporlamaya, değerlendirmeden AI öğretmenine — tam iş akışı tek platformda.',
+    tab_curriculum: 'Müfredat', tab_teaching: 'Öğretim & Öğrenim', tab_assessment: 'Değerlendirme & Notlar',
+    tab_reports: 'Raporlar', tab_attendance: 'Devam', tab_zeka: 'Zeka AI', tab_comms: 'İletişim',
+    c1:'Ortak müfredat planlaması', c2:'600+ yerleşik standart', c3:'Müfredat uyum araçları', c4:'IBIS entegrasyonu: sınav kaydı, e-ödev, CAS',
+    t1:'Ders planları ve öğretim materyalleri', t2:'Ödev yönetimi', t3:'Öğrenci ilerleme takibi', t4:'Zeka AI öğretim asistanı',
+    a1:'IB kriter notlandırma (A–D ölçeği)', a2:'Ulusal 10 puanlık notlandırma', a3:'Gerçek zamanlı senkronizasyon', a4:'Öğrenci ilerleme analitiği',
+    r1:'Bakanlık uyumlu raporlar', r2:'E-Gov.az otomatik dışa aktarma', r3:'PDF ve Excel çıktısı', r4:'IB Denetim belgelendirmesi',
+    at1:'Tek dokunuşta devam kaydı', at2:'Ebeveynlere anında bildirim', at3:'Devam trend analitiği', at4:'E-Gov.az uyumlu raporlar',
+    z1:'Azerbaycanca, İngilizce ve Rusça dillerinde', z2:'IB MYP/DP ve ulusal müfredat kapsamında', z3:'Öğretmenler için AI rapor asistanı', z4:'Claude AI ile güçlendirilmiş',
+    co1:'Gerçek zamanlı öğretmen–veli mesajlaşma', co2:'Okul genelinde duyurular', co3:'Bildirim yönetimi', co4:'Çok dilli destek',
+    feat_cta: 'Bize Ulaşın',
+    ben_badge: 'Avantajlar', ben_title: 'Daha Akıllı Okul Yönetimi',
+    ben_sub: 'Okul operasyonlarının her yönünü kapsayan tek platform.',
+    b1t:'Verimlilik', b1d:'Dağınık araçları güçlü tek bir platformla değiştirin',
+    b2t:'Topluluk Bağlantısı', b2d:'Duyurular ve ilerleme takibi — veli, öğrenci, öğretmen birbirine bağlı',
+    b3t:'Mükemmel Eğitim', b3d:'Müfredat planlamasından diploma sertifikasına tam öğretim yolculuğu',
+    b4t:'Özelleştirilebilir', b4d:'Okulunuzun özel ihtiyaçlarına uygun esnek işlevsellik',
+    b5t:'Çok Müfredatlı', b5d:"Azerbaycan'da mevcut en geniş müfredat kataloğu — IB + ulusal",
+    b6t:'Dünya Standartlarında Onboarding', b6d:'İlk günden itibaren uygulama desteği dahildir',
+    b7t:'Standartlara Uygunluk', b7d:'IB, CIS, BSO standartlarına uygunluğu sağlayan araçlar',
+    b8t:'2+ Yıllık Deneyim', b8d:'Uluslararası ve devlet okullarını derinden anlayan ekip',
+    test_badge: 'Müşteri Görüşleri', test_title: 'Kullanıcılarımızın Gerçek Hikayeleri',
+    test_sub: 'Pilot programımızdaki okulların gerçek görüşleri.',
+    test_read: 'Vaka çalışmasını oku',
+    t1q: '"Zirva bizim için tek platform — hem IB hem ulusal müfredat tek yerde."',
+    t1n: 'Rauf Əliyev', t1r: 'BT Sistemleri Lideri, Bakü Uluslararası Okulu',
+    t2q: '"Zeka AI öğretmenlerimizin haftalık raporlama süresini 4 saatten 20 dakikaya indirdi."',
+    t2n: 'Günel Hüseynova', t2r: 'Eğitim Teknolojileri Başkanı, Hazar Üniversitesi Okulu',
+    t3q: '"DP Koordinatörü olarak Zirva olmadan çalışmayı hayal edemiyorum."',
+    t3n: 'Nigar Qasımova', t3r: 'DP Koordinatörü, IB Dünya Okulu',
+    int_badge: 'Entegrasyonlar', int_title: 'Sevdiğiniz Araçlarla Entegrasyon.',
+    int_sub: '50+ entegrasyon artmaya devam ediyor.', int_hub: 'Zirva her şeyi birleştiriyor',
+    sec_badge: 'Güvenlik & Uyumluluk', sec_title: 'Verilerinizi Korumaya Kararlıyız.',
+    sec_sub: 'Yerel barındırma, ISO/GDPR sertifikası ve sağlam süreklilik protokolleri verilerinizin korunmasını sağlar.',
+    sec_explore: 'Daha fazla',
+    s1t:'Yerel Barındırma', s1d:'Tüm veriler Azerbaycan sunucularında yerel gizlilik yasalarına uygun saklanır',
+    s2t:'ISO/IEC 27001', s2d:'Güçlü bilgi güvenliği uygulamalarına kurum genelinde bağlılık',
+    s3t:'Veri Koruma', s3d:'GDPR ve Azerbaycan Veri Koruma Kanunu ile tam uyumluluk',
+    s4t:'Güvenlik', s4d:'Sıkı erişim kontrolleri, kötü amaçlı yazılım taraması, 7/24 izleme',
+    sup_badge: 'Destek', sup_title: 'Rakipsiz Destek.',
+    sup_sub: 'Haftanın 7 günü, günün 24 saati yanınızdayız.',
+    su1t:'E-posta Desteği', su1d:'Hızlı, güvenilir yanıtlar.', su1cta: 'Talep Gönder',
+    su2t:'Yardım Merkezi', su2d:'Aranabilir kaynaklar, her zaman.', su2cta: 'Gir',
+    cta_title: "Zirva+'yı Uygulamada Görmeye Hazır Mısınız?",
+    cta_sub: 'Pilot programa katılın — teknoloji hazır.',
+    cta_btn1: 'Satışla İletişim', cta_btn2: 'Bize Ulaşın →',
+    foot_tagline: "Azerbaycan'ın dijital okul altyapısı",
+    foot_col1: 'Zirva+ Öğrenim', foot_col2: 'Kaynaklar', foot_col3: 'Destek Merkezi', foot_col4: 'Şirket',
+    foot_rights: 'Tüm hakları saklıdır.',
+    foot_privacy: 'Gizlilik', foot_terms: 'Şartlar',
+    fl1:'IB İlk Yıllar (PYP)', fl2:'IB Orta Yıllar (MYP)', fl3:'IB Diploma (DP)', fl4:'IB Kariyer (CP)', fl5:'Devlet Okulları', fl6:'Mobil Uygulama', fl7:'Çevrimiçi Sınavlar',
+    fr1:'CEO Mektubu', fr2:'Kaynak Kütüphanesi', fr3:'Etkinlikler & Webinarlar', fr4:'Blog', fr5:'Ürün Portalı', fr6:'Müşteri Görüşleri', fr7:'Sıkça Sorulan Sorular',
+    fs1:'Premium Destek', fs2:'Yardım & Destek',
+    fc1:'Hakkımızda', fc2:'Kariyer', fc3:'Ortaklar', fc4:'İletişim',
+  },
 }
 
 /* ─── Logo ─── */
@@ -250,7 +328,33 @@ const globalStyles = `
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* ── Scroll-fade-up ── */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.55s cubic-bezier(.22,1,.36,1), transform 0.55s cubic-bezier(.22,1,.36,1);
+  }
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 `
+
+/* ── Scroll fade-up hook ── */
+function useFadeUp(threshold = 0.15) {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { el.classList.add('visible'); obs.disconnect() }
+    }, { threshold })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [threshold])
+  return ref
+}
 
 /* ══════════════════════════════════════ NAV ══ */
 function Nav({ s, lang, setLang }) {
@@ -294,7 +398,7 @@ function Nav({ s, lang, setLang }) {
 
             {/* Language toggle */}
             <div className="flex items-center rounded-lg p-0.5 mr-1" style={{ background: 'rgba(0,0,0,0.05)' }}>
-              {['az', 'en'].map(l => (
+              {['az', 'tr', 'en'].map(l => (
                 <button
                   key={l} onClick={() => setLang(l)}
                   className="px-2.5 py-1.5 rounded-md text-[11px] font-extrabold tracking-wide transition-all duration-200"
@@ -353,7 +457,7 @@ function Nav({ s, lang, setLang }) {
             </div>
             <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
               <div className="flex items-center rounded-lg p-0.5" style={{ background: 'rgba(0,0,0,0.06)' }}>
-                {['az', 'en'].map(l => (
+                {['az', 'tr', 'en'].map(l => (
                   <button
                     key={l} onClick={() => setLang(l)}
                     className="px-3 py-1.5 rounded-md text-xs font-extrabold transition-all"
@@ -759,10 +863,10 @@ function Hero({ s }) {
           {s.hero_sub}
         </p>
 
-        {/* ── CTAs ── */}
+        {/* ── CTAs — features first (lower commitment), contact second ── */}
         <div style={{ display:'flex', gap:12, flexWrap:'wrap', justifyContent:'center', marginBottom:72 }}>
           <Link
-            to="/contact"
+            to="/features"
             style={{
               display:'inline-flex', alignItems:'center', gap:8,
               padding:'13px 28px', borderRadius:999,
@@ -775,10 +879,10 @@ function Hero({ s }) {
             onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 0 0 1px rgba(255,255,255,0.2), 0 12px 36px rgba(255,255,255,0.12)' }}
             onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 0 0 1px rgba(255,255,255,0.15), 0 8px 28px rgba(255,255,255,0.07)' }}
           >
-            {s.hero_cta2} <ArrowRight style={{ width:15, height:15, flexShrink:0 }}/>
+            {s.hero_cta1} <ArrowRight style={{ width:15, height:15, flexShrink:0 }}/>
           </Link>
           <Link
-            to="/solutions"
+            to="/contact"
             style={{
               display:'inline-flex', alignItems:'center', gap:8,
               padding:'13px 28px', borderRadius:999,
@@ -791,7 +895,7 @@ function Hero({ s }) {
             onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.2)'; e.currentTarget.style.color='#fff' }}
             onMouseLeave={e => { e.currentTarget.style.background=''; e.currentTarget.style.borderColor='rgba(255,255,255,0.11)'; e.currentTarget.style.color='rgba(255,255,255,0.58)' }}
           >
-            {s.hero_cta1}
+            {s.hero_cta2}
           </Link>
         </div>
 
@@ -916,6 +1020,7 @@ function PartnerBar({ s }) {
 
 /* ─── WHAT WE DO ─── */
 function WhatWeDo({ s }) {
+  const ref = useFadeUp()
   const isAz = s.isAz
   const cols = [
     {
@@ -954,7 +1059,7 @@ function WhatWeDo({ s }) {
   ]
 
   return (
-    <section className="py-28 bg-white">
+    <section ref={ref} className="fade-up py-28 bg-white">
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="max-w-2xl mb-16">
           <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">
@@ -1001,6 +1106,7 @@ function WhatWeDo({ s }) {
 
 /* ─── SOLUTIONS ─── */
 function Solutions({ s }) {
+  const ref = useFadeUp()
   const isAz = s.isAz
 
   const ibCards = [
@@ -1020,7 +1126,7 @@ function Solutions({ s }) {
   ]
 
   return (
-    <section id="solutions" className="py-28 bg-white">
+    <section ref={ref} id="solutions" className="fade-up py-28 bg-white">
       {/* SVG filter: remove white background from images */}
       <svg width="0" height="0" style={{ position:'absolute' }} aria-hidden="true">
         <defs>
@@ -1144,6 +1250,7 @@ function Solutions({ s }) {
 
 /* ─── FEATURES ─── */
 function Features({ s }) {
+  const ref = useFadeUp()
   const isAz = s.isAz
   const grid = [
     { icon:BookOpen,      title:s.tab_curriculum, pts:[s.c1,s.c2,s.c3], color:'#534AB7' },
@@ -1155,7 +1262,7 @@ function Features({ s }) {
   ]
 
   return (
-    <section id="features" className="py-28 bg-white">
+    <section ref={ref} id="features" className="fade-up py-28 bg-white">
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="text-center mb-14">
           <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">{s.feat_badge}</p>
@@ -1201,6 +1308,7 @@ function Features({ s }) {
 
 /* ─── PRODUCT SHOWCASE ─── */
 function ProductShowcase({ s }) {
+  const ref = useFadeUp()
   const isAz = s.isAz
   const bullets = [
     { icon:BookOpen,  text:s.c1  },
@@ -1209,7 +1317,7 @@ function ProductShowcase({ s }) {
     { icon:Clock,     text:s.at1 },
   ]
   return (
-    <section className="py-24" style={{ background:'#F7F7FB' }}>
+    <section ref={ref} className="fade-up py-24" style={{ background:'#F7F7FB' }}>
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
@@ -1257,9 +1365,10 @@ function ProductShowcase({ s }) {
 
 /* ─── ZEKA AI ─── */
 function ZekaAI({ s }) {
+  const ref = useFadeUp()
   const isAz = s.isAz
   return (
-    <section id="zeka" className="py-24 bg-white">
+    <section ref={ref} id="zeka" className="fade-up py-24 bg-white">
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
@@ -1386,6 +1495,7 @@ function ZekaAI({ s }) {
 
 /* ─── COMPLIANCE ─── */
 function Compliance({ s }) {
+  const ref = useFadeUp()
   const isAz = s.isAz
   const cards = [
     { icon:Server,    title:s.s1t, desc:s.s1d, label:isAz?'AZ Serverləri':'AZ Servers', color:'#534AB7' },
@@ -1395,7 +1505,7 @@ function Compliance({ s }) {
   ]
 
   return (
-    <section className="py-28" style={{ background:'#F6F6FC' }}>
+    <section ref={ref} className="fade-up py-28" style={{ background:'#F6F6FC' }}>
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-end mb-14">
           <div>
@@ -1517,50 +1627,124 @@ function PilotCTA({ s }) {
   )
 }
 
-/* ─── TESTIMONIALS ─── */
-function Testimonials({ s }) {
-  const isAz = s.isAz
-  const quotes = [
-    { q:s.t1q, name:s.t1n, role:s.t1r, initials:'RA', color:'#534AB7', bg:'rgba(83,74,183,0.10)' },
-    { q:s.t2q, name:s.t2n, role:s.t2r, initials:'GH', color:'#1D9E75', bg:'rgba(29,158,117,0.10)' },
-    { q:s.t3q, name:s.t3n, role:s.t3r, initials:'NQ', color:'#534AB7', bg:'rgba(83,74,183,0.10)' },
+/* ─── BENEFITS ─── */
+function Benefits({ s }) {
+  const ref = useFadeUp()
+  const cards = [
+    { icon:Zap,            title:s.b1t, desc:s.b1d, color:'#534AB7' },
+    { icon:Users,          title:s.b2t, desc:s.b2d, color:'#1D9E75' },
+    { icon:GraduationCap,  title:s.b3t, desc:s.b3d, color:'#534AB7' },
+    { icon:Sliders,        title:s.b4t, desc:s.b4d, color:'#1D9E75' },
+    { icon:Layers,         title:s.b5t, desc:s.b5d, color:'#534AB7' },
+    { icon:Award,          title:s.b6t, desc:s.b6d, color:'#1D9E75' },
+    { icon:CheckCircle,    title:s.b7t, desc:s.b7d, color:'#534AB7' },
+    { icon:Clock,          title:s.b8t, desc:s.b8d, color:'#1D9E75' },
   ]
   return (
-    <section className="py-28 bg-white">
+    <section ref={ref} className="fade-up py-24" style={{ background:'#F7F7FB' }}>
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="text-center mb-14">
-          <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">{s.test_badge}</p>
+          <p className="text-teal text-xs font-bold uppercase tracking-widest mb-4">{s.ben_badge}</p>
           <h2 className="font-extrabold text-gray-900 mb-4"
-            style={{ fontSize:'clamp(1.9rem,4vw,3rem)', letterSpacing:'-0.025em', lineHeight:1.1 }}>
-            {s.test_title}
+            style={{ fontSize:'clamp(1.9rem,4vw,3rem)', letterSpacing:'-0.025em' }}>
+            {s.ben_title}
           </h2>
-          <p className="text-gray-400 text-base font-medium max-w-md mx-auto">{s.test_sub}</p>
+          <p className="text-gray-500 text-base font-medium max-w-md mx-auto">{s.ben_sub}</p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {quotes.map(({ q, name, role, initials, color, bg }) => (
-            <div key={name} className="card-lift flex flex-col rounded-2xl p-8 border border-gray-100 bg-gray-50 cursor-default">
-              {/* Stars */}
-              <div className="flex gap-1 mb-6">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-current" style={{ color:'#f59e0b' }}/>
-                ))}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {cards.map(({ icon:Icon, title, desc, color }) => (
+            <div key={title} className="card-lift bg-white rounded-2xl p-6 border border-gray-100 cursor-default">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                style={{ background:`${color}12` }}>
+                <Icon className="w-5 h-5" style={{ color }}/>
               </div>
-              {/* Quote */}
-              <p className="text-gray-700 text-sm leading-relaxed font-medium flex-1 mb-8">{q}</p>
-              {/* Author */}
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bold text-sm"
-                  style={{ background: bg, color }}>
-                  {initials}
-                </div>
-                <div>
-                  <p className="text-gray-900 text-sm font-bold leading-tight">{name}</p>
-                  <p className="text-gray-400 text-xs font-medium mt-0.5 leading-tight">{role}</p>
-                </div>
-              </div>
+              <h3 className="font-bold text-gray-900 text-sm mb-1.5" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
+              <p className="text-gray-500 text-xs leading-relaxed">{desc}</p>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── FAQ ─── */
+function FAQ({ s }) {
+  const ref = useFadeUp()
+  const [open, setOpen] = useState(null)
+  const isAz = s.isAz
+  const lang = isAz ? 'az' : s.nav_signin === 'Giriş yap' ? 'tr' : 'en'
+
+  const items = {
+    az: [
+      { q:'Xidmət neçə müddətdə fəaliyyətə başlayır?', a:'Orta hesabla 2–4 həftə ərzində tam tətbiq tamamlanır. Pilot mərhələsindəki məktəblər adətən 1 həftə ərzində işə başlayır.' },
+      { q:'IB məktəbi deyilik — Zirva bizim üçündürmü?', a:'Bəli. Zirva həm IB, həm də Azərbaycan dövlət kurikulumu üçün xüsusi olaraq hazırlanmışdır. Dövlət məktəbləri üçün ayrıca rejim mövcuddur.' },
+      { q:'Mövcud sistemdən məlumatlarımızı necə köçürəcəyik?', a:'Komandamız hər məktəb üçün fərdi köçürmə planı hazırlayır. Excel, CSV və ya digər sistemlərdən məlumatları idxal edirik.' },
+      { q:'Mobil tətbiq varmı?', a:'Bəli, iOS və Android üçün tam funksiyalı mobil tətbiq mövcuddur. Müəllim, valideyn və şagird rolları tam dəstəklənir.' },
+      { q:'Zəka AI hansı dillərdə işləyir?', a:'Zəka AI Azərbaycan, ingilis və rus dillərini dəstəkləyir. Hesabat köməkçisi istənilən dildə çıxış yarada bilir.' },
+      { q:'Qiymətlər necədir?', a:'Qiymətlər məktəbin ölçüsünə və kurikulumuna görə fərqlənir. Pilot proqram çərçivəsində ilk tətbiq tam dəstəklə həyata keçirilir. Ətraflı məlumat üçün bizimlə əlaqə saxlayın.' },
+    ],
+    tr: [
+      { q:'Hizmet ne kadar sürede başlar?', a:'Ortalama 2–4 hafta içinde tam uygulama tamamlanır. Pilot programındaki okullar genellikle 1 haftada başlar.' },
+      { q:'IB okulu değiliz — Zirva bizim için mi?', a:'Evet. Zirva hem IB hem de Azerbaycan ulusal müfredatı için özel olarak tasarlanmıştır. Devlet okulları için ayrı bir mod mevcuttur.' },
+      { q:'Mevcut sistemimizden verileri nasıl taşıyacağız?', a:'Ekibimiz her okul için özel bir taşıma planı hazırlar. Excel, CSV veya diğer sistemlerden veri aktarımı yapılır.' },
+      { q:'Mobil uygulama var mı?', a:'Evet, iOS ve Android için tam özellikli mobil uygulama mevcuttur. Öğretmen, veli ve öğrenci rolleri tam desteklenmektedir.' },
+      { q:'Zeka AI hangi dillerde çalışır?', a:"Zeka AI Azerbaycanca, İngilizce ve Rusçayı destekler. Rapor asistanı istenen dilde çıktı üretebilir." },
+      { q:'Fiyatlandırma nasıl?', a:'Fiyatlar okulun büyüklüğüne ve müfredata göre değişir. Pilot program kapsamında ilk uygulama tam destekle gerçekleştirilir. Detaylı bilgi için bizimle iletişime geçin.' },
+    ],
+    en: [
+      { q:'How quickly can we get started?', a:'Full onboarding typically takes 2–4 weeks. Schools in our pilot programme are usually up and running within a week.' },
+      { q:"We're not an IB school — is Zirva for us?", a:'Yes. Zirva is purpose-built for both IB and the Azerbaijani national curriculum. There is a dedicated mode specifically for government schools.' },
+      { q:'How do we migrate data from our current system?', a:'Our team creates a custom migration plan for every school. We can import from Excel, CSV, or directly from other platforms.' },
+      { q:'Is there a mobile app?', a:'Yes — a fully-featured mobile app is available for iOS and Android, with complete support for teacher, parent, and student roles.' },
+      { q:'What languages does Zeka AI work in?', a:'Zeka AI supports Azerbaijani, English, and Russian. The report assistant can generate output in any of these languages.' },
+      { q:'How does pricing work?', a:'Pricing varies by school size and curriculum. Pilot-programme onboarding is fully supported from day one. Contact us for a tailored quote.' },
+    ],
+  }
+
+  const faqs = items[lang] || items.az
+
+  return (
+    <section ref={ref} className="fade-up py-24 bg-white">
+      <div className="max-w-3xl mx-auto px-5 sm:px-8">
+        <div className="text-center mb-14">
+          <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">
+            {isAz ? 'FAQ' : lang === 'tr' ? 'SSS' : 'FAQ'}
+          </p>
+          <h2 className="font-extrabold text-gray-900"
+            style={{ fontSize:'clamp(1.9rem,4vw,3rem)', letterSpacing:'-0.025em' }}>
+            {isAz ? 'Tez-Tez Soruşulan Suallar' : lang === 'tr' ? 'Sıkça Sorulan Sorular' : 'Frequently Asked Questions'}
+          </h2>
+        </div>
+
+        <div className="space-y-2">
+          {faqs.map((item, i) => (
+            <div key={i} className="border border-gray-100 rounded-2xl overflow-hidden">
+              <button
+                onClick={() => setOpen(open === i ? null : i)}
+                className="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors"
+              >
+                <span className="font-semibold text-gray-900 text-[15px] pr-4">{item.q}</span>
+                <ChevronRight
+                  className="w-4 h-4 shrink-0 text-gray-400 transition-transform duration-200"
+                  style={{ transform: open === i ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                />
+              </button>
+              {open === i && (
+                <div className="px-6 pb-5 text-sm text-gray-500 leading-relaxed border-t border-gray-50">
+                  <div className="pt-4">{item.a}</div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-10">
+          <Link to="/contact"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-purple hover:underline">
+            {isAz ? 'Başqa sualınız var?' : lang === 'tr' ? 'Başka sorunuz var mı?' : 'Still have questions?'}
+            <ArrowRight className="w-4 h-4"/>
+          </Link>
         </div>
       </div>
     </section>
@@ -1611,7 +1795,7 @@ function Footer({ s }) {
                 { label:s.fr1, to:'/about'   },
                 { label:s.fr4, to:'/blog'    },
                 { label:s.fr6, to:'/contact' },
-                { label:s.fr7, to:'/contact' },
+                { label:s.fr7, to:'/faq' },
               ].map(({ label, to }) => (
                 <li key={label}><Link to={to} className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>{label}</Link></li>
               ))}
@@ -1658,8 +1842,9 @@ export default function Landing() {
       <Features s={s}/>
       <ProductShowcase s={s}/>
       <ZekaAI s={s}/>
+      <Benefits s={s}/>
       <Compliance s={s}/>
-      <Testimonials s={s}/>
+      <FAQ s={s}/>
       <PilotCTA s={s}/>
       <Footer s={s}/>
     </div>

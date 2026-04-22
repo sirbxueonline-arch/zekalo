@@ -33,6 +33,19 @@ const STR = {
     cta_btn:'Book a Demo',
     footer:'© 2026 Zirva LLC',
   },
+  tr: {
+    nav_signin:'Giriş yap', nav_contact:'Bize Ulaşın',
+    hero_eyebrow:'Özellikler',
+    hero_h1:'İhtiyacınız olan her şey.',
+    hero_h2:'İhtiyacınız olmayan hiçbir şey.',
+    hero_body:'Müfredattan raporlamaya, değerlendirmeden AI öğretmenine — tam iş akışı tek platformda.',
+    section_title:'Platform özellikleri',
+    section_sub:'8 güçlü modül, 60+ özellik.',
+    cta_h:'Canlı görmek ister misiniz?',
+    cta_sub:'Her şeyi okulunuzun bağlamında size göstereceğiz.',
+    cta_btn:'Demo Talep Et',
+    footer:'© 2026 Zirva LLC',
+  },
 }
 
 const FEATURES = {
@@ -55,6 +68,16 @@ const FEATURES = {
     { icon:Clock,         title:'Timetable Management',   desc:'Automatic timetable generator',          items:['Auto generator','Conflict detection','Substitution system','Room booking'], accent:'#7c3aed' },
     { icon:Users,         title:'Student & Staff',        desc:'Profiles, portfolio, discipline',        items:['Student profiles','Teacher workload','Discipline management','Parent portal'], accent:'#be185d' },
     { icon:Sparkles,      title:'Zeka AI',                 desc:'AI-powered teaching assistant',          items:['AI homework assistant','Report generator','Essay feedback','Personalised learning'], accent:'#6d28d9', wide:true },
+  ],
+  tr: [
+    { icon:BookOpen,      title:'Müfredat Yönetimi',   desc:'Ortak planlama, 600+ standart',         items:['Ortak müfredat planlaması','600+ yerleşik standart','Uyum araçları','IBIS entegrasyonu'], accent:'#7c3aed', wide:true },
+    { icon:ClipboardCheck,title:'Değerlendirme',        desc:'IB + ulusal sistem desteği',            items:['IB kriterleri (A–D)','10 puanlık sistem','Gerçek zamanlı senkronizasyon','Öğrenci analitiği'], accent:'#2563eb' },
+    { icon:Calendar,      title:'Devam Takibi',         desc:'Tek dokunuşla kayıt',                   items:['Tek dokunuşla kayıt','Veli bildirimleri','Trend analitiği','E-Gov.az uyumlu'], accent:'#059669' },
+    { icon:BarChart2,     title:'Raporlar & Analitik', desc:'Bakanlık + IB raporlaması',             items:['Bakanlık raporları','E-Gov.az dışa aktarma','PDF, Excel','IB Denetim belgeleri'], accent:'#d97706', wide:true },
+    { icon:MessageSquare, title:'İletişim',              desc:'Öğretmen-veli mesajlaşma',              items:['Öğretmen-veli mesajlaşma','Duyuru sistemi','Etkinlikler & bildirimler','Çok dilli destek'], accent:'#0891b2' },
+    { icon:Clock,         title:'Program Yönetimi',     desc:'Otomatik program oluşturucu',           items:['Otomatik oluşturucu','Çakışma tespiti','Vekâlet sistemi','Oda rezervasyonu'], accent:'#7c3aed' },
+    { icon:Users,         title:'Öğrenci & Personel',  desc:'Profiller, portfolio, disiplin',        items:['Öğrenci profilleri','Öğretmen iş yükü','Disiplin yönetimi','Veli portalı'], accent:'#be185d' },
+    { icon:Sparkles,      title:'Zeka AI',               desc:'AI destekli öğretim asistanı',          items:['AI ödev asistanı','Rapor oluşturucu','Kompozisyon geri bildirimi','Kişiselleştirilmiş öğrenme'], accent:'#6d28d9', wide:true },
   ],
 }
 

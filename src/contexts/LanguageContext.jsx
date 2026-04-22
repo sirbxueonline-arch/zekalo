@@ -7,7 +7,7 @@ const STORAGE_KEY = 'zirva:lang'
 function readStored() {
   try {
     const v = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null
-    if (v === 'az' || v === 'en' || v === 'ru') return v
+    if (v === 'az' || v === 'en' || v === 'ru' || v === 'tr') return v
   } catch {}
   return 'az'
 }
@@ -16,7 +16,7 @@ export function LanguageProvider({ children }) {
   const [lang, setLangState] = useState(readStored)
 
   const setLang = useCallback((next) => {
-    if (next !== 'az' && next !== 'en' && next !== 'ru') return
+    if (next !== 'az' && next !== 'en' && next !== 'ru' && next !== 'tr') return
     setLangState(next)
     try { window.localStorage.setItem(STORAGE_KEY, next) } catch {}
   }, [])
