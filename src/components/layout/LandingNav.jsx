@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, ChevronRight, BookOpen, FileText, PenLine, Star, Users, TrendingUp, HeartHandshake, Mail, Building2 } from 'lucide-react'
+import { Menu, X, ChevronRight, BookOpen, FileText, PenLine, Star, Users, TrendingUp, HeartHandshake, Mail, Building2, ClipboardCheck, Calendar, BarChart2, MessageSquare, Clock, Sparkles, ArrowRight } from 'lucide-react'
 
 export default function LandingNav({ s, lang, setLang }) {
   const [open, setOpen]             = useState(false)
@@ -33,9 +33,20 @@ export default function LandingNav({ s, lang, setLang }) {
     { to:'/contact',  icon:Mail,           accent:'#1D9E75', title:L==='az'?'Əlaqə':L==='tr'?'İletişim':L==='ru'?'Контакты':'Contact',          desc:L==='az'?'Bizimlə əlaqə saxla':L==='tr'?'Bize ulaşın':L==='ru'?'Свяжитесь с нами':'Get in touch' },
   ]
 
+  const featItems = [
+    { to:'/features/curriculum',    icon:BookOpen,      accent:'#7c3aed', title:L==='az'?'Kurikulum İdarəetməsi':L==='tr'?'Müfredat Yönetimi':L==='ru'?'Управление программой':'Curriculum Management',  desc:L==='az'?'Birgə planlaşdırma, 600+ standart':L==='tr'?'Ortak planlama, 600+ standart':L==='ru'?'Планирование, 600+ стандартов':'Collaborative planning, 600+ standards' },
+    { to:'/features/assessment',    icon:ClipboardCheck,accent:'#2563eb', title:L==='az'?'Qiymətləndirmə & Jurnal':L==='tr'?'Değerlendirme & Not Defteri':L==='ru'?'Оценивание & Журнал':'Assessment & Gradebook',          desc:L==='az'?'IB + milli sistem dəstəyi':L==='tr'?'IB + ulusal sistem desteği':L==='ru'?'IB + национальная система':'IB + national system support' },
+    { to:'/features/attendance',    icon:Calendar,       accent:'#059669', title:L==='az'?'Davamiyyət':L==='tr'?'Devam Takibi':L==='ru'?'Посещаемость':'Attendance',                  desc:L==='az'?'Bir toxunuşla qeydiyyat':L==='tr'?'Tek dokunuşla kayıt':L==='ru'?'Отметка в одно касание':'One-tap registration' },
+    { to:'/features/reports',       icon:BarChart2,      accent:'#d97706', title:L==='az'?'Hesabatlar & Analitika':L==='tr'?'Raporlar & Analitik':L==='ru'?'Отчёты & Аналитика':'Reports & Analytics',          desc:L==='az'?'Nazirlik + IB hesabatları':L==='tr'?'Bakanlık + IB raporları':L==='ru'?'Министерство + IB отчёты':'Ministry + IB reporting' },
+    { to:'/features/communication', icon:MessageSquare,  accent:'#0891b2', title:L==='az'?'Kommunikasiya':L==='tr'?'İletişim':L==='ru'?'Коммуникация':'Communication',                 desc:L==='az'?'Müəllim-valideyn mesajlaşma':L==='tr'?'Öğretmen-veli mesajlaşma':L==='ru'?'Учитель–родитель сообщения':'Teacher-parent messaging' },
+    { to:'/features/timetable',     icon:Clock,          accent:'#7c3aed', title:L==='az'?'Cədvəl İdarəetməsi':L==='tr'?'Program Yönetimi':L==='ru'?'Управление расписанием':'Timetable Management',          desc:L==='az'?'Avtomatik cədvəl generatoru':L==='tr'?'Otomatik program oluşturucu':L==='ru'?'Автогенератор расписания':'Auto timetable generator' },
+    { to:'/features/student-staff', icon:Users,          accent:'#be185d', title:L==='az'?'Şagird & Heyət':L==='tr'?'Öğrenci & Personel':L==='ru'?'Ученики & Персонал':'Student & Staff',                   desc:L==='az'?'Profillər, portfolio, intizam':L==='tr'?'Profiller, portfolyo, disiplin':L==='ru'?'Профили, портфолио, дисциплина':'Profiles, portfolio, discipline' },
+    { to:'/zeka-ai',                icon:Sparkles,       accent:'#6d28d9', title:L==='az'?'Zəka AI':L==='tr'?'Zeka AI':L==='ru'?'Зека AI':'Zeka AI',                                  desc:L==='az'?'AI müəllim köməkçisi':L==='tr'?'AI öğretim asistanı':L==='ru'?'AI ассистент для обучения':'AI teaching assistant' },
+  ]
+
   const navItems = [
     { label: s.nav_solutions, key: 'solutions' },
-    { label: s.nav_features,  to:  '/features'  },
+    { label: s.nav_features,  key: 'features'  },
     { label: s.nav_zeka,      to:  '/zeka-ai'   },
     { label: L==='az'?'Resurslar':L==='tr'?'Kaynaklar':L==='ru'?'Ресурсы':'Resources', key: 'resources' },
     { label: L==='az'?'Şirkət':L==='tr'?'Şirket':L==='ru'?'Компания':'Company', key: 'company' },
@@ -127,6 +138,31 @@ export default function LandingNav({ s, lang, setLang }) {
                 </div>
               )}
 
+              {/* Features panel */}
+              {key==='features' && dropdown==='features' && (
+                <div style={{ ...ddStyle, left:'50%', transform:'translateX(-50%)', width:560 }}
+                  onMouseEnter={keepDd} onMouseLeave={closeDd}>
+                  <div style={caretStyle}/>
+                  <p style={{ fontSize:10, fontWeight:800, textTransform:'uppercase', letterSpacing:'0.1em', color:'#9ca3af', marginBottom:8, paddingLeft:4 }}>
+                    {L==='az'?'Platform Xüsusiyyətləri':L==='tr'?'Platform Özellikleri':L==='ru'?'Возможности платформы':'Platform Features'}
+                  </p>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:2 }}>
+                    {featItems.map(item => <DdItem key={item.to} {...item}/>)}
+                  </div>
+                  <div style={{ marginTop:10, padding:'10px 10px 6px', borderTop:'1px solid rgba(0,0,0,0.06)' }}>
+                    <Link to="/features" onClick={() => setDropdown(null)}
+                      style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 10px', borderRadius:10, textDecoration:'none', transition:'background .15s', background:'rgba(124,58,237,0.05)' }}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(124,58,237,0.1)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(124,58,237,0.05)'}>
+                      <span style={{ fontSize:12.5, fontWeight:700, color:'#7c3aed' }}>
+                        {L==='az'?'Bütün xüsusiyyətlərə bax':L==='tr'?'Tüm özellikleri gör':L==='ru'?'Все возможности':'View all features'}
+                      </span>
+                      <ArrowRight style={{ width:13, height:13, color:'#7c3aed' }}/>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
               {/* Resources panel */}
               {key==='resources' && dropdown==='resources' && (
                 <div style={{ ...ddStyle, left:'50%', transform:'translateX(-50%)', width:500 }}
@@ -188,6 +224,7 @@ export default function LandingNav({ s, lang, setLang }) {
           <div className="space-y-0.5 mb-4">
             {[
               { label:s.nav_solutions, key:'solutions', items:solItems },
+              { label:s.nav_features, key:'features', items:featItems },
               { label:L==='az'?'Resurslar':L==='tr'?'Kaynaklar':L==='ru'?'Ресурсы':'Resources', key:'resources', items:resItems },
               { label:L==='az'?'Şirkət':L==='tr'?'Şirket':L==='ru'?'Компания':'Company', key:'company', items:compItems },
             ].map(({ label, key, items }) => (
@@ -219,8 +256,7 @@ export default function LandingNav({ s, lang, setLang }) {
               </div>
             ))}
             {[
-              { label:s.nav_features, to:'/features' },
-              { label:s.nav_zeka,     to:'/zeka-ai'  },
+              { label:s.nav_zeka, to:'/zeka-ai' },
             ].map(({ label, to }) => (
               <Link key={label} to={to} onClick={() => setOpen(false)}
                 className="flex items-center py-3 px-3 text-[15px] text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors">

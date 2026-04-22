@@ -17,6 +17,7 @@ import Demo from './pages/Demo'
 import InfoPage from './pages/InfoPage'
 import Solutions from './pages/Solutions'
 import Features from './pages/Features'
+import FeaturePage from './pages/FeaturePage'
 import ZekaAIPage from './pages/ZekaAIPage'
 
 // Auth pages
@@ -264,6 +265,13 @@ export default function App() {
         {/* Marketing pages */}
         <Route path="/solutions" element={<Solutions />} />
         <Route path="/features" element={<Features />} />
+        <Route path="/features/curriculum"    element={<FeaturePage type="curriculum" />} />
+        <Route path="/features/assessment"    element={<FeaturePage type="assessment" />} />
+        <Route path="/features/attendance"    element={<FeaturePage type="attendance" />} />
+        <Route path="/features/reports"       element={<FeaturePage type="reports" />} />
+        <Route path="/features/communication" element={<FeaturePage type="communication" />} />
+        <Route path="/features/timetable"     element={<FeaturePage type="timetable" />} />
+        <Route path="/features/student-staff" element={<FeaturePage type="student-staff" />} />
         <Route path="/zeka-ai" element={<ZekaAIPage />} />
 
         {/* Info pages (footer links) */}
