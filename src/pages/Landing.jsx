@@ -495,7 +495,6 @@ function Nav({ s, lang, setLang }) {
   const navItems = [
     { label: s.nav_solutions, key: 'solutions' },
     { label: s.nav_features,  key: 'features'  },
-    { label: s.nav_zeka,      to:  '/zeka-ai'   },
     { label: s.nav_resources, key: 'resources'  },
     { label: L==='az'?'Şirkət':L==='tr'?'Şirket':'Company', key: 'company' },
   ]
@@ -779,14 +778,6 @@ function Nav({ s, lang, setLang }) {
                     </div>
                   )}
                 </div>
-              ))}
-              {[
-                { label:s.nav_zeka, to:'/zeka-ai' },
-              ].map(({ label, to }) => (
-                <Link key={label} to={to} onClick={() => setOpen(false)}
-                  className="flex items-center py-3 px-3 text-[15px] text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors">
-                  {label}
-                </Link>
               ))}
             </div>
             <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">

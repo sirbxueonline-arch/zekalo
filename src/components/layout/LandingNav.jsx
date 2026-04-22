@@ -47,7 +47,6 @@ export default function LandingNav({ s, lang, setLang }) {
   const navItems = [
     { label: s.nav_solutions, key: 'solutions' },
     { label: s.nav_features,  key: 'features'  },
-    { label: s.nav_zeka,      to:  '/zeka-ai'   },
     { label: L==='az'?'Resurslar':L==='tr'?'Kaynaklar':L==='ru'?'Ресурсы':'Resources', key: 'resources' },
     { label: L==='az'?'Şirkət':L==='tr'?'Şirket':L==='ru'?'Компания':'Company', key: 'company' },
   ]
