@@ -17,7 +17,7 @@ const STR = {
     nav_solutions: 'Həllər', nav_features: 'Xüsusiyyətlər', nav_zeka: 'Zəka AI',
     nav_resources: 'Resurslar', nav_pricing: 'Paketlər', nav_signin: 'Daxil ol', nav_demo: 'Bizimlə Əlaqə',
     hero_h1a: 'Məktəbinizi', hero_h1b: 'növbəti pilləyə qaldırın',
-    hero_sub: 'IB dünya məktəbləri və Azərbaycan dövlət məktəbləri üçün — kurikulumdan kommunikasiyaya, qiymətləndirmədən hesabata hər şey bir platformada.',
+    hero_sub: 'Kurikulumdan hesabata, qiymətləndirmədən kommunikasiyaya — hər şey bir platformada.',
     hero_cta1: 'Xüsusiyyətlərə bax', hero_cta2: 'Bizimlə Əlaqə',
     dash_school: 'Zirva Beynəlxalq Məktəbi', dash_welcome: 'Xoş gəlmisiniz, Admin',
     dash_students: 'Şagird', dash_avg_grade: 'Orta Qiymət', dash_attendance: 'Davamiyyət', dash_ai: 'AI Sessiya',
@@ -95,7 +95,7 @@ const STR = {
     nav_solutions: 'Solutions', nav_features: 'Features', nav_zeka: 'Zeka AI',
     nav_resources: 'Resources', nav_pricing: 'Explore Bundles', nav_signin: 'Sign In', nav_demo: 'Contact Us',
     hero_h1a: 'Run your school', hero_h1b: 'smarter with Zirva',
-    hero_sub: 'From curriculum to communication, assessment to reporting — everything your school needs in one powerful platform built for IB World Schools and Azerbaijani state schools.',
+    hero_sub: 'Curriculum to reporting, assessment to communication — everything your school needs, in one platform.',
     hero_cta1: 'Explore Features', hero_cta2: 'Contact Us',
     dash_school: 'Zirva International School', dash_welcome: 'Welcome back, Admin',
     dash_students: 'Students', dash_avg_grade: 'Avg Grade', dash_attendance: 'Attendance', dash_ai: 'AI Sessions',
@@ -174,7 +174,7 @@ const STR = {
     nav_solutions: 'Çözümler', nav_features: 'Özellikler', nav_zeka: 'Zeka AI',
     nav_resources: 'Kaynaklar', nav_pricing: 'Paketler', nav_signin: 'Giriş yap', nav_demo: 'Bize Ulaşın',
     hero_h1a: 'Okulunuzu', hero_h1b: 'bir üst seviyeye taşıyın',
-    hero_sub: 'IB dünya okulları ve Azerbaycan devlet okulları için — müfredattan iletişime, değerlendirmeden raporlamaya her şey tek platformda.',
+    hero_sub: 'Müfredattan raporlamaya, değerlendirmeden iletişime — okulunuzun ihtiyacı olan her şey tek platformda.',
     hero_cta1: 'Özelliklere bak', hero_cta2: 'Bize Ulaşın',
     dash_school: 'Zirva Uluslararası Okulu', dash_welcome: 'Hoş geldiniz, Yönetici',
     dash_students: 'Öğrenci', dash_avg_grade: 'Ort. Not', dash_attendance: 'Devam', dash_ai: 'AI Oturumu',
@@ -246,6 +246,84 @@ const STR = {
     fr1:'CEO Mektubu', fr2:'Kaynak Kütüphanesi', fr3:'Etkinlikler & Webinarlar', fr4:'Blog', fr5:'Ürün Portalı', fr6:'Müşteri Görüşleri', fr7:'Sıkça Sorulan Sorular',
     fs1:'Premium Destek', fs2:'Yardım & Destek',
     fc1:'Hakkımızda', fc2:'Kariyer', fc3:'Ortaklar', fc4:'İletişim',
+  },
+  ru: {
+    isAz: false, lang: 'ru',
+    nav_solutions: 'Решения', nav_features: 'Возможности', nav_zeka: 'Зека AI',
+    nav_resources: 'Ресурсы', nav_pricing: 'Тарифы', nav_signin: 'Войти', nav_demo: 'Связаться',
+    hero_h1a: 'Управляйте школой', hero_h1b: 'умнее с Zirva',
+    hero_sub: 'От учебного плана до отчётов, от оценивания до коммуникации — всё необходимое в одной платформе.',
+    hero_cta1: 'Возможности', hero_cta2: 'Связаться',
+    dash_school: 'Международная школа Zirva', dash_welcome: 'Добро пожаловать, Администратор',
+    dash_students: 'Ученик', dash_avg_grade: 'Ср. оценка', dash_attendance: 'Посещаемость', dash_ai: 'AI Сессия',
+    dash_timetable: 'Расписание на сегодня', dash_activity: 'Последняя активность',
+    dash_math: 'Математика', dash_physics: 'Физика', dash_english: 'Английский язык',
+    dash_ev1: 'Оценка выставлена', dash_ev2: 'Посещаемость отмечена', dash_ev3: 'Новое сообщение',
+    trust_title: 'Интеграции & Партнёры',
+    sol_badge: 'Решения', sol_title: 'Zirva+ для вашей школы',
+    sol_sub: 'От IB-школ до государственных школ Азербайджана — поддерживаются все учебные программы.',
+    sol_multi_t: 'Мультикурикулум', sol_multi_d: 'Общая поддержка всех основных учебных программ, инклюзивное оценивание и отчётность',
+    sol_gov_t: 'Национальный Учебный план', sol_gov_d: 'Специальный режим для государственных школ Азербайджана с интеграцией Министерства',
+    sol_dp_t: 'IB Diploma (DP)', sol_dp_d: 'Полная поддержка программы IB Diploma, включая управление DP Core',
+    sol_cp_t: 'IB Career-Related (CP)', sol_cp_d: 'Для школ, реализующих карьерно-ориентированную программу',
+    sol_myp_t: 'IB Средние годы (MYP)', sol_myp_d: 'Совместное планирование программы исследования',
+    sol_pyp_t: 'IB Начальные годы (PYP)', sol_pyp_d: 'Та же мощная поддержка для младших учащихся',
+    sol_cta: 'Подробнее',
+    feat_badge: 'Возможности', feat_title: 'Всё, что нужно.', feat_title_b: 'Ничего лишнего.',
+    feat_sub: 'От учебного плана до отчётов, от оценивания до AI — полный рабочий процесс на одной платформе.',
+    tab_curriculum: 'Учебная программа', tab_teaching: 'Обучение', tab_assessment: 'Оценивание',
+    tab_reports: 'Отчёты', tab_attendance: 'Посещаемость', tab_zeka: 'Зека AI', tab_comms: 'Коммуникация',
+    c1:'Совместное планирование учебной программы', c2:'600+ встроенных стандартов', c3:'Инструменты соответствия программе', c4:'Интеграция IBIS: регистрация на экзамены, e-coursework, CAS',
+    t1:'Планы уроков и учебные материалы', t2:'Управление домашними заданиями', t3:'Отслеживание успеваемости учащихся', t4:'AI-ассистент Зека',
+    a1:'Критериальное оценивание IB (шкала A–D)', a2:'Национальная 10-балльная шкала', a3:'Синхронизация в реальном времени', a4:'Аналитика успеваемости',
+    r1:'Отчёты для Министерства', r2:'Автоматический экспорт E-Gov.az', r3:'Вывод PDF и Excel', r4:'Документация IB Audit',
+    at1:'Отметка посещаемости в одно касание', at2:'Мгновенные уведомления родителям', at3:'Аналитика тенденций посещаемости', at4:'Отчёты E-Gov.az',
+    z1:'На азербайджанском, английском и русском', z2:'Охватывает IB MYP/DP и национальный учебный план', z3:'AI-помощник для написания отчётов', z4:'На базе Claude AI',
+    co1:'Общение учитель–родитель в реальном времени', co2:'Объявления для всей школы', co3:'Управление уведомлениями', co4:'Многоязычная поддержка',
+    feat_cta: 'Связаться',
+    ben_badge: 'Преимущества', ben_title: 'Умное управление школой',
+    ben_sub: 'Единая платформа, охватывающая все аспекты школьной деятельности.',
+    b1t:'Эффективность', b1d:'Замените разрозненные инструменты одной мощной платформой',
+    b2t:'Связь с сообществом', b2d:'Объявления, отслеживание успеваемости — все в курсе событий',
+    b3t:'Превосходное образование', b3d:'Управляйте полным учебным процессом от планирования до аттестатов',
+    b4t:'Гибкость', b4d:'Настраиваемые функции под конкретные потребности вашей школы',
+    b5t:'Мультикурикулум', b5d:'Крупнейший каталог учебных программ в Азербайджане — IB + национальная',
+    b6t:'Онбординг мирового класса', b6d:'Индивидуальное сопровождение внедрения с первого дня',
+    b7t:'Соответствие стандартам', b7d:'Инструменты для соответствия стандартам IB, CIS, BSO',
+    b8t:'2+ года опыта', b8d:'Команда с глубоким пониманием международных и государственных школ',
+    test_badge: 'Отзывы клиентов', test_title: 'Реальные истории наших пользователей',
+    test_sub: 'Настоящие отзывы школ из пилотной программы.',
+    test_read: 'Читать кейс',
+    t1q: '"Zirva — единственная платформа, дающая нам полный пакет: IB и национальная программа в одном месте."',
+    t1n: 'Рауф Алиев', t1r: 'Руководитель ИТ, Бакинская международная школа',
+    t2q: '"Зека AI сократил еженедельное время на отчётность у наших учителей с 4 часов до 20 минут."',
+    t2n: 'Гюнель Гусейнова', t2r: 'Руководитель EdTech, Школа университета Хазар',
+    t3q: '"Как координатор DP, я не могу представить работу без Zirva."',
+    t3n: 'Нигяр Касымова', t3r: 'Координатор DP, IB World School',
+    int_badge: 'Интеграции', int_title: 'Интегрируйтесь с любимыми инструментами.',
+    int_sub: '50+ интеграций и это только начало.', int_hub: 'Zirva объединяет всё',
+    sec_badge: 'Безопасность & Соответствие', sec_title: 'Мы гарантируем защиту ваших данных.',
+    sec_sub: 'Локальный хостинг, сертификация ISO/GDPR и надёжные протоколы непрерывности обеспечивают защиту данных.',
+    sec_explore: 'Подробнее',
+    s1t:'Локальный хостинг', s1d:'Все данные хранятся на серверах в Азербайджане в соответствии с местным законодательством.',
+    s2t:'ISO/IEC 27001', s2d:'Обязательство всей организации к надёжной информационной безопасности.',
+    s3t:'Защита данных', s3d:'Соответствие GDPR и законодательству Азербайджана о защите данных.',
+    s4t:'Защита детей', s4d:'Строгий контроль доступа, сканирование угроз, мониторинг 24/7 и планы восстановления.',
+    sup_badge: 'Поддержка', sup_title: 'Непревзойдённая поддержка.',
+    sup_sub: 'Мы рядом 24 часа в сутки, 7 дней в неделю.',
+    su1t:'Email-поддержка', su1d:'Быстрые, надёжные ответы.', su1cta: 'Отправить запрос',
+    su2t:'Центр помощи', su2d:'Поисковая база знаний, доступная в любое время.', su2cta: 'Войти',
+    cta_title: 'Готовы увидеть Zirva+ в действии?',
+    cta_sub: 'Присоединяйтесь к пилотной программе — технология готова.',
+    cta_btn1: 'Связаться с отделом продаж', cta_btn2: 'Связаться →',
+    foot_tagline: 'Инфраструктура цифровой школы для Азербайджана',
+    foot_col1: 'Zirva+ для обучения', foot_col2: 'Ресурсы', foot_col3: 'Центр поддержки', foot_col4: 'Компания',
+    foot_rights: 'Все права защищены.',
+    foot_privacy: 'Конфиденциальность', foot_terms: 'Условия',
+    fl1:'IB Начальные годы (PYP)', fl2:'IB Средние годы (MYP)', fl3:'IB Diploma (DP)', fl4:'IB Career-Related (CP)', fl5:'Государственные школы', fl6:'Мобильное приложение', fl7:'Онлайн-экзамены',
+    fr1:'Письмо CEO', fr2:'Библиотека ресурсов', fr3:'События & Вебинары', fr4:'Блог', fr5:'Портал продукта', fr6:'Отзывы клиентов', fr7:'Часто задаваемые вопросы',
+    fs1:'Премиум-поддержка', fs2:'Помощь & Поддержка',
+    fc1:'О нас', fc2:'Карьера', fc3:'Партнёры', fc4:'Контакты',
   },
 }
 
@@ -695,95 +773,139 @@ function Nav({ s, lang, setLang }) {
   )
 }
 
-/* ══════════════════════════════════════ DASHBOARD MOCKUP (unchanged) ══ */
+/* ══════════════════════════════════════ DASHBOARD MOCKUP ══ */
 function DashboardMockup({ s }) {
   const sideItems = [
-    { icon: LayoutDashboard, label: 'Dashboard',       active: true  },
-    { icon: BookOpen,        label: s.tab_assessment,  active: false },
-    { icon: Calendar,        label: s.tab_attendance,  active: false },
-    { icon: ClipboardList,   label: s.tab_teaching,    active: false },
-    { icon: MessageSquare,   label: s.tab_comms,       active: false },
-    { icon: Sparkles,        label: s.tab_zeka,        active: false },
+    { icon: LayoutDashboard, label: 'Dashboard',      active: true  },
+    { icon: BookOpen,        label: s.tab_assessment, active: false },
+    { icon: Calendar,        label: s.tab_attendance, active: false },
+    { icon: ClipboardList,   label: s.tab_teaching,   active: false },
+    { icon: MessageSquare,   label: s.tab_comms,      active: false },
+    { icon: Sparkles,        label: s.tab_zeka,       active: false },
   ]
+  const stats = [
+    { label:s.dash_students,   value:'342',  trend:'+12',   icon:Users,        color:'#534AB7', bg:'#ede9fe' },
+    { label:s.dash_avg_grade,  value:'7.8',  trend:'↑0.4',  icon:TrendingUp,   color:'#1D9E75', bg:'#d1fae5' },
+    { label:s.dash_attendance, value:'94%',  trend:'↑2.1%', icon:CheckCircle,  color:'#3b82f6', bg:'#dbeafe' },
+    { label:s.dash_ai,         value:'1.2k', trend:'+180',  icon:Sparkles,     color:'#f59e0b', bg:'#fef3c7' },
+  ]
+  const timetable = [
+    { time:'09:00', subj:s.dash_math,    rm:'301', color:'#534AB7' },
+    { time:'10:30', subj:s.dash_physics, rm:'202', color:'#1D9E75' },
+    { time:'12:00', subj:s.dash_english, rm:'105', color:'#f59e0b' },
+  ]
+  const activity = [
+    { ev:s.dash_ev1, t:'2m',  color:'#1D9E75', bg:'#d1fae5' },
+    { ev:s.dash_ev2, t:'15m', color:'#1D9E75', bg:'#d1fae5' },
+    { ev:s.dash_ev3, t:'1h',  color:'#534AB7', bg:'#ede9fe' },
+  ]
+
+  const R = { borderRadius:999 }
+
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ border:'1px solid rgba(255,255,255,0.13)', boxShadow:'0 50px 100px -20px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.07)' }}>
-      <div className="bg-gray-900/90 px-4 py-2.5 flex items-center gap-3">
-        <div className="flex gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-red-400"/><div className="w-2.5 h-2.5 rounded-full bg-yellow-400"/><div className="w-2.5 h-2.5 rounded-full bg-green-400"/>
+    <div style={{ borderRadius:18, overflow:'hidden', border:'1px solid rgba(255,255,255,0.12)', boxShadow:'0 40px 90px -16px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)' }}>
+
+      {/* ── Chrome bar ── */}
+      <div style={{ background:'#161224', padding:'10px 16px', display:'flex', alignItems:'center', gap:12 }}>
+        <div style={{ display:'flex', gap:6 }}>
+          {['#ff5f57','#ffbd2e','#28c840'].map(c => <div key={c} style={{ width:11, height:11, borderRadius:'50%', background:c }}/>)}
         </div>
-        <div className="flex-1 bg-gray-800 rounded-md px-3 py-1 text-[11px] text-gray-500 text-center max-w-xs mx-auto">app.zirva.az/admin/dashboard</div>
+        <div style={{ flex:1, background:'#221d33', borderRadius:7, padding:'5px 0', fontSize:11, color:'#6b7280', textAlign:'center', maxWidth:280, margin:'0 auto' }}>
+          app.zirva.az/admin/dashboard
+        </div>
       </div>
-      <div className="flex bg-white" style={{ height:420 }}>
-        <div className="w-48 bg-white border-r border-gray-100 shrink-0 py-3 hidden sm:block">
-          <div className="flex items-center gap-2 px-4 mb-5">
-            <img src="/logo.png" alt="Zirva" width="20" height="20" className="object-contain"/>
-            <span className="text-sm font-bold text-gray-900">Zirva</span>
+
+      {/* ── App shell ── */}
+      <div style={{ display:'flex', height:450, background:'#f5f4fb' }}>
+
+        {/* Sidebar */}
+        <div style={{ width:186, background:'#110e1e', display:'flex', flexDirection:'column', padding:'14px 10px', flexShrink:0 }}>
+          {/* Logo */}
+          <div style={{ display:'flex', alignItems:'center', gap:9, padding:'0 6px 14px', borderBottom:'1px solid rgba(255,255,255,0.07)', marginBottom:10 }}>
+            <div style={{ width:28, height:28, borderRadius:9, background:'linear-gradient(135deg,#534AB7,#7c3aed)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <span style={{ color:'#fff', fontSize:13, fontWeight:800 }}>Z</span>
+            </div>
+            <span style={{ color:'#fff', fontSize:13.5, fontWeight:700, letterSpacing:'-0.01em' }}>Zirva</span>
           </div>
+          {/* Nav */}
           {sideItems.map(({ icon: Icon, label, active }) => (
-            <div key={label} className={`flex items-center gap-2.5 mx-2 px-3 py-2 rounded-lg text-[11px] font-semibold mb-0.5 ${active ? 'bg-purple-light text-purple' : 'text-gray-400'}`}>
-              <Icon className="w-3.5 h-3.5 shrink-0"/><span className="truncate">{label}</span>
+            <div key={label} style={{
+              display:'flex', alignItems:'center', gap:9, padding:'7px 10px',
+              borderRadius:9, marginBottom:1,
+              background: active ? 'rgba(83,74,183,0.28)' : 'transparent',
+            }}>
+              <Icon style={{ width:14, height:14, color: active ? '#a78bfa' : '#4b5563', flexShrink:0 }}/>
+              <span style={{ fontSize:11, fontWeight: active ? 700 : 500, color: active ? '#c4b5fd' : '#6b6880' }}>{label}</span>
+              {active && <div style={{ marginLeft:'auto', width:5, height:5, borderRadius:'50%', background:'#7c3aed' }}/>}
             </div>
           ))}
         </div>
-        <div className="flex-1 bg-surface overflow-hidden flex flex-col">
-          <div className="bg-white border-b border-gray-100 px-4 py-2.5 flex items-center justify-between shrink-0">
+
+        {/* Main */}
+        <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+
+          {/* Topbar */}
+          <div style={{ background:'#fff', borderBottom:'1px solid #eeedf8', padding:'9px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
             <div>
-              <p className="text-[11px] font-semibold text-gray-900">{s.dash_welcome}</p>
-              <p className="text-[10px] text-gray-400">{s.dash_school}</p>
+              <p style={{ margin:0, fontSize:12, fontWeight:700, color:'#111827' }}>{s.dash_welcome}</p>
+              <p style={{ margin:'2px 0 0', fontSize:10, color:'#9ca3af' }}>{s.dash_school}</p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-teal animate-pulse"/>
-              <span className="text-[10px] text-teal font-semibold">Live</span>
-              <div className="w-7 h-7 bg-purple rounded-full flex items-center justify-center"><span className="text-white text-[10px] font-bold">A</span></div>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:5, background:'#f0fdf4', borderRadius:20, padding:'3px 10px', border:'1px solid #bbf7d0' }}>
+                <div style={{ width:6, height:6, borderRadius:'50%', background:'#22c55e' }}/>
+                <span style={{ fontSize:9.5, color:'#16a34a', fontWeight:700 }}>Live</span>
+              </div>
+              <div style={{ width:28, height:28, borderRadius:'50%', background:'linear-gradient(135deg,#534AB7,#7c3aed)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <span style={{ color:'#fff', fontSize:11, fontWeight:800 }}>A</span>
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-4 gap-2.5 p-3">
-            {[
-              { label:s.dash_students,   value:'342',  trend:'+12',   c:'purple' },
-              { label:s.dash_avg_grade,  value:'7.8',  trend:'↑0.4',  c:'teal'   },
-              { label:s.dash_attendance, value:'94%',  trend:'↑2.1%', c:'purple' },
-              { label:s.dash_ai,         value:'1.2k', trend:'+180',  c:'teal'   },
-            ].map(({ label, value, trend, c }) => (
-              <div key={label} className="bg-white rounded-lg p-2.5 border border-border-soft">
-                <p className="text-[9px] text-gray-400 truncate mb-0.5">{label}</p>
-                <p className="text-base font-bold text-gray-900 leading-tight">{value}</p>
-                <p className={`text-[9px] font-semibold ${c==='teal'?'text-teal':'text-purple'}`}>{trend}</p>
+
+          {/* Stats */}
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8, padding:'10px 12px 8px' }}>
+            {stats.map(({ label, value, trend, icon: Icon, color, bg }) => (
+              <div key={label} style={{ background:'#fff', borderRadius:11, padding:'10px 11px', border:'1px solid #eeedf8', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:7 }}>
+                  <p style={{ margin:0, fontSize:9, color:'#9ca3af', fontWeight:500 }}>{label}</p>
+                  <div style={{ width:22, height:22, borderRadius:7, background:bg, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Icon style={{ width:11, height:11, color }}/>
+                  </div>
+                </div>
+                <p style={{ margin:0, fontSize:18, fontWeight:800, color:'#111827', lineHeight:1 }}>{value}</p>
+                <p style={{ margin:'4px 0 0', fontSize:9, color, fontWeight:700 }}>{trend}</p>
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-2.5 px-3 pb-3 flex-1 min-h-0">
-            <div className="bg-white rounded-lg p-2.5 border border-border-soft overflow-hidden">
-              <p className="text-[10px] font-semibold text-gray-600 mb-2">{s.dash_timetable}</p>
-              {[
-                { time:'09:00', subj:s.dash_math,    rm:'301' },
-                { time:'10:30', subj:s.dash_physics, rm:'202' },
-                { time:'12:00', subj:s.dash_english, rm:'105' },
-              ].map(({ time, subj, rm }) => (
-                <div key={time} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
-                  <span className="text-[9px] text-gray-400 w-8 shrink-0">{time}</span>
-                  <div className="w-1.5 h-1.5 rounded-full bg-purple shrink-0"/>
-                  <span className="text-[10px] text-gray-700 flex-1 truncate">{subj}</span>
-                  <span className="text-[9px] text-gray-400">{rm}</span>
+
+          {/* Panels */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, padding:'0 12px 10px', flex:1, minHeight:0 }}>
+            {/* Timetable */}
+            <div style={{ background:'#fff', borderRadius:11, padding:'11px 13px', border:'1px solid #eeedf8', overflow:'hidden' }}>
+              <p style={{ margin:'0 0 9px', fontSize:10.5, fontWeight:700, color:'#374151' }}>{s.dash_timetable}</p>
+              {timetable.map(({ time, subj, rm, color }) => (
+                <div key={time} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 0', borderBottom:'1px solid #f5f4fb' }}>
+                  <span style={{ fontSize:9, color:'#9ca3af', width:32, flexShrink:0, fontVariantNumeric:'tabular-nums' }}>{time}</span>
+                  <div style={{ width:7, height:7, borderRadius:'50%', background:color, flexShrink:0 }}/>
+                  <span style={{ fontSize:10.5, color:'#374151', flex:1, fontWeight:500 }}>{subj}</span>
+                  <span style={{ fontSize:9, color:'#9ca3af', background:'#f5f4fb', borderRadius:5, padding:'2px 6px', fontWeight:600 }}>{rm}</span>
                 </div>
               ))}
             </div>
-            <div className="bg-white rounded-lg p-2.5 border border-border-soft overflow-hidden">
-              <p className="text-[10px] font-semibold text-gray-600 mb-2">{s.dash_activity}</p>
-              {[
-                { ev:s.dash_ev1, t:'2m',  ok:true  },
-                { ev:s.dash_ev2, t:'15m', ok:true  },
-                { ev:s.dash_ev3, t:'1h',  ok:false },
-              ].map(({ ev, t, ok }) => (
-                <div key={ev} className="flex items-start gap-2 py-1.5 border-b border-gray-50 last:border-0">
-                  <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${ok?'bg-teal-light':'bg-purple-light'}`}>
-                    <span className={`text-[8px] font-bold ${ok?'text-teal':'text-purple'}`}>{ok?'✓':'✉'}</span>
+            {/* Activity */}
+            <div style={{ background:'#fff', borderRadius:11, padding:'11px 13px', border:'1px solid #eeedf8', overflow:'hidden' }}>
+              <p style={{ margin:'0 0 9px', fontSize:10.5, fontWeight:700, color:'#374151' }}>{s.dash_activity}</p>
+              {activity.map(({ ev, t, color, bg }) => (
+                <div key={ev} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 0', borderBottom:'1px solid #f5f4fb' }}>
+                  <div style={{ width:20, height:20, borderRadius:'50%', background:bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <Check style={{ width:10, height:10, color }}/>
                   </div>
-                  <span className="text-[10px] text-gray-700 flex-1 truncate leading-tight pt-0.5">{ev}</span>
-                  <span className="text-[9px] text-gray-400 shrink-0">{t}</span>
+                  <span style={{ fontSize:10.5, color:'#374151', flex:1, fontWeight:500, lineHeight:1.3 }}>{ev}</span>
+                  <span style={{ fontSize:9, color:'#9ca3af', flexShrink:0 }}>{t}</span>
                 </div>
               ))}
             </div>
           </div>
+
         </div>
       </div>
     </div>
@@ -999,7 +1121,7 @@ function Hero({ s }) {
 
       {/* ── Content ── */}
       <div className="max-w-5xl mx-auto px-5 sm:px-10 flex flex-col items-center"
-        style={{ position:'relative', zIndex:10, paddingTop:'clamp(80px, 12vh, 130px)', paddingBottom:0 }}>
+        style={{ position:'relative', zIndex:10, paddingTop:'clamp(130px, 18vh, 200px)', paddingBottom:0 }}>
 
         {/* Headline */}
         <h1 style={{
@@ -1127,33 +1249,29 @@ function Hero({ s }) {
 /* ─── PARTNER BAR ─── */
 function PartnerBar({ s }) {
   const items = [
-    { name:'IBO Certified',  color:'#009FDA', url:'https://ibo.org' },
-    { name:'E-Gov.az',       color:'#0057A8', url:'https://e-gov.az' },
-    { name:'Microsoft 365',  color:'#D83B01', url:'https://microsoft.com/microsoft-365' },
-    { name:'Claude AI',      color:'#D4820A', url:'https://claude.ai' },
-    { name:'ISO 27001',      color:'#1D7A3A', url:'https://iso.org/standard/27001' },
-    { name:'ASAN Xidmət',    color:'#E31E24', url:'https://asan.gov.az' },
+    { name:'IBO Certified', color:'#009FDA', url:'https://ibo.org',        img:'/IB.png'        },
+    { name:'Microsoft',     color:'#D83B01', url:'https://microsoft.com',  img:'/MICROSOFT.png' },
+    { name:'Google',        color:'#4285F4', url:'https://google.com',     img:'/GOOGLE.png'    },
+    { name:'Anthropic',     color:'#C96442', url:'https://anthropic.com',  img:'/ANTHROPIC.png' },
   ]
   return (
     <div className="bg-white border-y border-gray-100 py-7">
       <div className="max-w-6xl mx-auto px-5 sm:px-8">
         <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-[0.22em] mb-5">{s.trust_title}</p>
-        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
-          {items.map(({ name, color, url }, i) => (
-            <div key={name} className="flex items-center gap-10">
-              {i > 0 && <div className="hidden sm:block w-px h-4 bg-gray-200"/>}
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="partner-item text-sm font-bold transition-colors duration-150"
-                style={{ color:'#9CA3AF', textDecoration:'none', '--brand': color }}
-              >{name}</a>
+        <div className="flex flex-wrap items-center justify-center gap-x-14 gap-y-4">
+          {items.map(({ name, url, img }, i) => (
+            <div key={name} className="flex items-center gap-14">
+              {i > 0 && <div className="hidden sm:block w-px h-5 bg-gray-200"/>}
+              <a href={url} target="_blank" rel="noopener noreferrer"
+                className="partner-item"
+                style={{ textDecoration:'none', transition:'filter .2s ease, opacity .2s ease' }}>
+                <img src={img} alt={name} style={{ height:120, width:'auto', objectFit:'contain', display:'block' }}/>
+              </a>
             </div>
           ))}
         </div>
       </div>
-      <style>{`.partner-item:hover { color: var(--brand) !important; }`}</style>
+      <style>{`.partner-item { filter: none; opacity: 1; } .partner-item:hover { filter: grayscale(100%); opacity: 0.45; }`}</style>
     </div>
   )
 }

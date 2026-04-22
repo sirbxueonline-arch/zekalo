@@ -14,31 +14,31 @@ export default function LandingNav({ s, lang, setLang }) {
   const keepDd  = ()     => clearTimeout(closeTimer.current)
 
   const solItems = [
-    { to:'/ib-pyp',             logo:'/pyp.png', accent:'#f59e0b', title:L==='az'?'IB İlk İllər (PYP)':L==='tr'?'IB İlk Yıllar (PYP)':'IB Primary Years (PYP)',   desc:L==='az'?'3–12 yaş · Kiçik şagirdlər':L==='tr'?'3–12 yaş · Küçük öğrenciler':'Ages 3–12 · Foundation learning' },
-    { to:'/ib-myp',             logo:'/myp.png', accent:'#ef4444', title:L==='az'?'IB Orta İllər (MYP)':L==='tr'?'IB Orta Yıllar (MYP)':'IB Middle Years (MYP)',   desc:L==='az'?'11–16 yaş · Birgə planlaşdırma':L==='tr'?'11–16 yaş · Ortak planlama':'Ages 11–16 · Collaborative planning' },
-    { to:'/ib-diploma',         logo:'/dp.png',  accent:'#3b82f6', title:L==='az'?'IB Diploma (DP)':L==='tr'?'IB Diploma (DP)':'IB Diploma (DP)',                  desc:L==='az'?'16–19 yaş · Tam DP dəstəyi':L==='tr'?'16–19 yaş · Tam DP desteği':'Ages 16–19 · Full DP support' },
-    { to:'/ib-career',          logo:'/cp.png',  accent:'#a855f7', title:L==='az'?'IB Karyera (CP)':L==='tr'?'IB Kariyer (CP)':'IB Career-Related (CP)',           desc:L==='az'?'16–19 yaş · Karyera yönümlü':L==='tr'?'16–19 yaş · Kariyer odaklı':'Ages 16–19 · Career-focused' },
-    { to:'/government-schools', icon:Building2,  accent:'#1D9E75', title:L==='az'?'Dövlət Məktəbləri':L==='tr'?'Devlet Okulları':'Government Schools',             desc:L==='az'?'Nazirlik inteqrasiyası':L==='tr'?'Bakanlık entegrasyonu':'Ministry integration' },
+    { to:'/ib-pyp',             logo:'/pyp.png', accent:'#f59e0b', title:L==='az'?'IB İlk İllər (PYP)':L==='tr'?'IB İlk Yıllar (PYP)':'IB Primary Years (PYP)',   desc:L==='az'?'3–12 yaş · Kiçik şagirdlər':L==='tr'?'3–12 yaş · Küçük öğrenciler':L==='ru'?'3–12 лет · Начальное обучение':'Ages 3–12 · Foundation learning' },
+    { to:'/ib-myp',             logo:'/myp.png', accent:'#ef4444', title:L==='az'?'IB Orta İllər (MYP)':L==='tr'?'IB Orta Yıllar (MYP)':'IB Middle Years (MYP)',   desc:L==='az'?'11–16 yaş · Birgə planlaşdırma':L==='tr'?'11–16 yaş · Ortak planlama':L==='ru'?'11–16 лет · Совместное планирование':'Ages 11–16 · Collaborative planning' },
+    { to:'/ib-diploma',         logo:'/dp.png',  accent:'#3b82f6', title:L==='az'?'IB Diploma (DP)':L==='tr'?'IB Diploma (DP)':'IB Diploma (DP)',                  desc:L==='az'?'16–19 yaş · Tam DP dəstəyi':L==='tr'?'16–19 yaş · Tam DP desteği':L==='ru'?'16–19 лет · Полная поддержка DP':'Ages 16–19 · Full DP support' },
+    { to:'/ib-career',          logo:'/cp.png',  accent:'#a855f7', title:L==='az'?'IB Karyera (CP)':L==='tr'?'IB Kariyer (CP)':L==='ru'?'IB Career-Related (CP)':'IB Career-Related (CP)',           desc:L==='az'?'16–19 yaş · Karyera yönümlü':L==='tr'?'16–19 yaş · Kariyer odaklı':L==='ru'?'16–19 лет · Карьерно-ориентированный':'Ages 16–19 · Career-focused' },
+    { to:'/government-schools', icon:Building2,  accent:'#1D9E75', title:L==='az'?'Dövlət Məktəbləri':L==='tr'?'Devlet Okulları':L==='ru'?'Государственные школы':'Government Schools',             desc:L==='az'?'Nazirlik inteqrasiyası':L==='tr'?'Bakanlık entegrasyonu':L==='ru'?'Интеграция с Министерством':'Ministry integration' },
   ]
   const resItems = [
-    { to:'/ceo-letter', icon:FileText,     accent:'#534AB7', title:L==='az'?'CEO Məktubu':L==='tr'?'CEO Mektubu':'CEO Letter',                  desc:L==='az'?'Zirva-nın vizyonu':L==='tr'?"Zirva'nın vizyonu":'Our vision & mission' },
-    { to:'/resources',  icon:BookOpen,     accent:'#534AB7', title:L==='az'?'Resurs Kitabxanası':L==='tr'?'Kaynak Kütüphanesi':'Resource Library',desc:L==='az'?'Bələdçilər & şablonlar':L==='tr'?'Rehberler & şablonlar':'Guides & templates' },
-    { to:'/blog',       icon:PenLine,      accent:'#534AB7', title:'Blog',                                                                        desc:L==='az'?'Məqalələr & yeniliklər':L==='tr'?'Makaleler & haberler':'Articles & updates' },
-    { to:'/contact',    icon:Star,         accent:'#534AB7', title:L==='az'?'Müştəri Rəyləri':L==='tr'?'Müşteri Görüşleri':'Customer Reviews',    desc:L==='az'?'Real istifadəçi hekayələri':L==='tr'?'Gerçek kullanıcı hikayeleri':'Real user stories' },
+    { to:'/ceo-letter', icon:FileText,     accent:'#534AB7', title:L==='az'?'CEO Məktubu':L==='tr'?'CEO Mektubu':L==='ru'?'Письмо CEO':'CEO Letter',                  desc:L==='az'?'Zirva-nın vizyonu':L==='tr'?"Zirva'nın vizyonu":L==='ru'?'Видение Zirva':'Our vision & mission' },
+    { to:'/resources',  icon:BookOpen,     accent:'#534AB7', title:L==='az'?'Resurs Kitabxanası':L==='tr'?'Kaynak Kütüphanesi':L==='ru'?'Библиотека ресурсов':'Resource Library',desc:L==='az'?'Bələdçilər & şablonlar':L==='tr'?'Rehberler & şablonlar':L==='ru'?'Руководства & шаблоны':'Guides & templates' },
+    { to:'/blog',       icon:PenLine,      accent:'#534AB7', title:'Blog',                                                                        desc:L==='az'?'Məqalələr & yeniliklər':L==='tr'?'Makaleler & haberler':L==='ru'?'Статьи & новости':'Articles & updates' },
+    { to:'/contact',    icon:Star,         accent:'#534AB7', title:L==='az'?'Müştəri Rəyləri':L==='tr'?'Müşteri Görüşleri':L==='ru'?'Отзывы клиентов':'Customer Reviews',    desc:L==='az'?'Real istifadəçi hekayələri':L==='tr'?'Gerçek kullanıcı hikayeleri':L==='ru'?'Реальные истории пользователей':'Real user stories' },
   ]
   const compItems = [
-    { to:'/about',    icon:Users,          accent:'#1D9E75', title:L==='az'?'Haqqımızda':L==='tr'?'Hakkımızda':'About Us',  desc:L==='az'?'Komanda & missiya':L==='tr'?'Ekip & misyon':'Team & mission' },
-    { to:'/careers',  icon:TrendingUp,     accent:'#1D9E75', title:L==='az'?'Karyera':L==='tr'?'Kariyer':'Careers',         desc:L==='az'?'Açıq vakansiyalar':L==='tr'?'Açık pozisyonlar':'Open positions' },
-    { to:'/partners', icon:HeartHandshake, accent:'#1D9E75', title:L==='az'?'Tərəfdaşlar':L==='tr'?'Ortaklar':'Partners',   desc:L==='az'?'Əməkdaşlıq imkanları':L==='tr'?'Ortaklık fırsatları':'Partnership opportunities' },
-    { to:'/contact',  icon:Mail,           accent:'#1D9E75', title:L==='az'?'Əlaqə':L==='tr'?'İletişim':'Contact',          desc:L==='az'?'Bizimlə əlaqə saxla':L==='tr'?'Bize ulaşın':'Get in touch' },
+    { to:'/about',    icon:Users,          accent:'#1D9E75', title:L==='az'?'Haqqımızda':L==='tr'?'Hakkımızda':L==='ru'?'О нас':'About Us',  desc:L==='az'?'Komanda & missiya':L==='tr'?'Ekip & misyon':L==='ru'?'Команда & миссия':'Team & mission' },
+    { to:'/careers',  icon:TrendingUp,     accent:'#1D9E75', title:L==='az'?'Karyera':L==='tr'?'Kariyer':L==='ru'?'Карьера':'Careers',         desc:L==='az'?'Açıq vakansiyalar':L==='tr'?'Açık pozisyonlar':L==='ru'?'Открытые вакансии':'Open positions' },
+    { to:'/partners', icon:HeartHandshake, accent:'#1D9E75', title:L==='az'?'Tərəfdaşlar':L==='tr'?'Ortaklar':L==='ru'?'Партнёры':'Partners',   desc:L==='az'?'Əməkdaşlıq imkanları':L==='tr'?'Ortaklık fırsatları':L==='ru'?'Возможности сотрудничества':'Partnership opportunities' },
+    { to:'/contact',  icon:Mail,           accent:'#1D9E75', title:L==='az'?'Əlaqə':L==='tr'?'İletişim':L==='ru'?'Контакты':'Contact',          desc:L==='az'?'Bizimlə əlaqə saxla':L==='tr'?'Bize ulaşın':L==='ru'?'Свяжитесь с нами':'Get in touch' },
   ]
 
   const navItems = [
     { label: s.nav_solutions, key: 'solutions' },
     { label: s.nav_features,  to:  '/features'  },
     { label: s.nav_zeka,      to:  '/zeka-ai'   },
-    { label: L==='az'?'Resurslar':L==='tr'?'Kaynaklar':'Resources', key: 'resources' },
-    { label: L==='az'?'Şirkət':L==='tr'?'Şirket':'Company', key: 'company' },
+    { label: L==='az'?'Resurslar':L==='tr'?'Kaynaklar':L==='ru'?'Ресурсы':'Resources', key: 'resources' },
+    { label: L==='az'?'Şirkət':L==='tr'?'Şirket':L==='ru'?'Компания':'Company', key: 'company' },
   ]
 
   const DdItem = ({ to, logo, icon: Icon, title, desc, accent = '#534AB7' }) => (
@@ -114,14 +114,14 @@ export default function LandingNav({ s, lang, setLang }) {
                   onMouseEnter={keepDd} onMouseLeave={closeDd}>
                   <div style={caretStyle}/>
                   <p style={{ fontSize:10, fontWeight:800, textTransform:'uppercase', letterSpacing:'0.1em', color:'#9ca3af', marginBottom:8, paddingLeft:4 }}>
-                    {L==='az'?'IB Proqramları':L==='tr'?'IB Programları':'IB Programmes'}
+                    {L==='az'?'IB Proqramları':L==='tr'?'IB Programları':L==='ru'?'IB Программы':'IB Programmes'}
                   </p>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:2 }}>
                     {solItems.slice(0,4).map(item => <DdItem key={item.to} {...item}/>)}
                   </div>
                   <div style={{ height:1, background:'rgba(0,0,0,0.06)', margin:'8px 0' }}/>
                   <p style={{ fontSize:10, fontWeight:800, textTransform:'uppercase', letterSpacing:'0.1em', color:'#9ca3af', marginBottom:6, paddingLeft:4 }}>
-                    {L==='az'?'Milli Kurikulum':L==='tr'?'Ulusal Müfredat':'National Curriculum'}
+                    {L==='az'?'Milli Kurikulum':L==='tr'?'Ulusal Müfredat':L==='ru'?'Национальная программа':'National Curriculum'}
                   </p>
                   <DdItem {...solItems[4]}/>
                 </div>
@@ -133,7 +133,7 @@ export default function LandingNav({ s, lang, setLang }) {
                   onMouseEnter={keepDd} onMouseLeave={closeDd}>
                   <div style={caretStyle}/>
                   <p style={{ fontSize:10, fontWeight:800, textTransform:'uppercase', letterSpacing:'0.1em', color:'#9ca3af', marginBottom:8, paddingLeft:4 }}>
-                    {L==='az'?'Resurslar':L==='tr'?'Kaynaklar':'Resources'}
+                    {L==='az'?'Resurslar':L==='tr'?'Kaynaklar':L==='ru'?'Ресурсы':'Resources'}
                   </p>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:2 }}>
                     {resItems.map(item => <DdItem key={item.to} {...item}/>)}
@@ -147,7 +147,7 @@ export default function LandingNav({ s, lang, setLang }) {
                   onMouseEnter={keepDd} onMouseLeave={closeDd}>
                   <div style={caretStyle}/>
                   <p style={{ fontSize:10, fontWeight:800, textTransform:'uppercase', letterSpacing:'0.1em', color:'#9ca3af', marginBottom:8, paddingLeft:4 }}>
-                    {L==='az'?'Şirkət':L==='tr'?'Şirket':'Company'}
+                    {L==='az'?'Şirkət':L==='tr'?'Şirket':L==='ru'?'Компания':'Company'}
                   </p>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:2 }}>
                     {compItems.map(item => <DdItem key={item.to+item.title} {...item}/>)}
@@ -161,7 +161,7 @@ export default function LandingNav({ s, lang, setLang }) {
         {/* Right actions */}
         <div className="hidden lg:flex items-center gap-1.5">
           <div className="flex items-center rounded-lg p-0.5 mr-2" style={{ background:'rgba(0,0,0,0.05)' }}>
-            {['az','tr','en'].map(l => (
+            {['az','tr','en','ru'].map(l => (
               <button key={l} onClick={() => setLang(l)}
                 className="px-2.5 py-1.5 rounded-md text-[11px] font-extrabold tracking-wide transition-all"
                 style={lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'}:{color:'#9ca3af'}}>
@@ -188,8 +188,8 @@ export default function LandingNav({ s, lang, setLang }) {
           <div className="space-y-0.5 mb-4">
             {[
               { label:s.nav_solutions, key:'solutions', items:solItems },
-              { label:L==='az'?'Resurslar':L==='tr'?'Kaynaklar':'Resources', key:'resources', items:resItems },
-              { label:L==='az'?'Şirkət':L==='tr'?'Şirket':'Company', key:'company', items:compItems },
+              { label:L==='az'?'Resurslar':L==='tr'?'Kaynaklar':L==='ru'?'Ресурсы':'Resources', key:'resources', items:resItems },
+              { label:L==='az'?'Şirkət':L==='tr'?'Şirket':L==='ru'?'Компания':'Company', key:'company', items:compItems },
             ].map(({ label, key, items }) => (
               <div key={key}>
                 <button onClick={() => setMobileOpen(mobileOpen===key?null:key)}
@@ -230,7 +230,7 @@ export default function LandingNav({ s, lang, setLang }) {
           </div>
           <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
             <div className="flex rounded-lg p-0.5" style={{ background:'rgba(0,0,0,0.06)' }}>
-              {['az','tr','en'].map(l=>(
+              {['az','tr','en','ru'].map(l=>(
                 <button key={l} onClick={()=>setLang(l)} className="px-3 py-1.5 rounded-md text-xs font-extrabold transition-all"
                   style={lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'}:{color:'#9ca3af'}}>
                   {l.toUpperCase()}

@@ -46,6 +46,19 @@ const STR = {
     cta_btn:'Demo Talep Et',
     footer:'© 2026 Zirva LLC',
   },
+  ru: {
+    nav_signin:'Войти', nav_contact:'Связаться',
+    hero_eyebrow:'Возможности',
+    hero_h1:'Всё, что нужно.',
+    hero_h2:'Ничего лишнего.',
+    hero_body:'От учебного плана до отчётов, от оценивания до AI-учителя — полный рабочий процесс на одной платформе.',
+    section_title:'Возможности платформы',
+    section_sub:'8 мощных модулей, 60+ функций.',
+    cta_h:'Хотите увидеть вживую?',
+    cta_sub:'Покажем всё в контексте вашей школы.',
+    cta_btn:'Заказать демо',
+    footer:'© 2026 Zirva LLC',
+  },
 }
 
 const FEATURES = {
@@ -78,6 +91,16 @@ const FEATURES = {
     { icon:Clock,         title:'Program Yönetimi',     desc:'Otomatik program oluşturucu',           items:['Otomatik oluşturucu','Çakışma tespiti','Vekâlet sistemi','Oda rezervasyonu'], accent:'#7c3aed' },
     { icon:Users,         title:'Öğrenci & Personel',  desc:'Profiller, portfolio, disiplin',        items:['Öğrenci profilleri','Öğretmen iş yükü','Disiplin yönetimi','Veli portalı'], accent:'#be185d' },
     { icon:Sparkles,      title:'Zeka AI',               desc:'AI destekli öğretim asistanı',          items:['AI ödev asistanı','Rapor oluşturucu','Kompozisyon geri bildirimi','Kişiselleştirilmiş öğrenme'], accent:'#6d28d9', wide:true },
+  ],
+  ru: [
+    { icon:BookOpen,       title:'Управление учебной программой', desc:'Совместное планирование, 600+ стандартов', items:['Совместное планирование','600+ встроенных стандартов','Инструменты соответствия','Интеграция IBIS'], accent:'#7c3aed', wide:true },
+    { icon:ClipboardCheck, title:'Оценивание',                   desc:'Поддержка IB + национальной системы',     items:['Критерии IB (A–D)','10-балльная система','Синхронизация в реальном времени','Аналитика учащихся'], accent:'#2563eb' },
+    { icon:Calendar,       title:'Посещаемость',                  desc:'Отметка в одно касание',                 items:['Отметка в одно касание','Уведомления родителям','Аналитика тенденций','Совместимость с E-Gov.az'], accent:'#059669' },
+    { icon:BarChart2,      title:'Отчёты & Аналитика',           desc:'Отчётность для Министерства + IB',        items:['Отчёты для Министерства','Экспорт E-Gov.az','PDF, Excel','Документация IB Audit'], accent:'#d97706', wide:true },
+    { icon:MessageSquare,  title:'Коммуникация',                  desc:'Общение учитель–родитель',               items:['Сообщения учитель–родитель','Система объявлений','События & уведомления','Многоязычная поддержка'], accent:'#0891b2' },
+    { icon:Clock,          title:'Управление расписанием',        desc:'Автоматический генератор расписания',    items:['Автогенератор','Обнаружение конфликтов','Система замен','Бронирование кабинетов'], accent:'#7c3aed' },
+    { icon:Users,          title:'Ученики & Персонал',           desc:'Профили, портфолио, дисциплина',         items:['Профили учащихся','Нагрузка учителей','Управление дисциплиной','Портал родителей'], accent:'#be185d' },
+    { icon:Sparkles,       title:'Зека AI',                       desc:'AI-ассистент для обучения',              items:['AI-помощник для домашних заданий','Генератор отчётов','Инструмент для эссе','Персонализированное обучение'], accent:'#6d28d9', wide:true },
   ],
 }
 
@@ -129,9 +152,9 @@ export default function Features() {
           {/* Quick stat chips */}
           <div style={{ display:'flex', justifyContent:'center', gap:12, flexWrap:'wrap' }}>
             {[
-              { n:'8', label: lang==='az'?'Modul':'Modules' },
-              { n:'60+', label: lang==='az'?'Xüsusiyyət':'Features' },
-              { n:'2', label: lang==='az'?'Kurikulum':'Curricula' },
+              { n:'8', label: lang==='az'?'Modul':lang==='ru'?'Модулей':'Modules' },
+              { n:'60+', label: lang==='az'?'Xüsusiyyət':lang==='ru'?'Функций':'Features' },
+              { n:'2', label: lang==='az'?'Kurikulum':lang==='ru'?'Программы':'Curricula' },
             ].map(({ n, label }) => (
               <div key={n} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 20px', borderRadius:99, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)' }}>
                 <span style={{ fontSize:18, fontWeight:800, color:'#a78bfa' }}>{n}</span>
