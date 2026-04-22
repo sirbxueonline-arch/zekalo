@@ -13,6 +13,7 @@ import { useLang } from '../contexts/LanguageContext'
 /* ─── translations ─── */
 const STR = {
   az: {
+    isAz: true,
     nav_solutions: 'Həllər', nav_features: 'Xüsusiyyətlər', nav_zeka: 'Zəka AI',
     nav_resources: 'Resurslar', nav_pricing: 'Paketlər', nav_signin: 'Daxil ol', nav_demo: 'Bizimlə Əlaqə',
     hero_h1a: 'Məktəbinizi', hero_h1b: 'növbəti pilləyə qaldırın',
@@ -90,6 +91,7 @@ const STR = {
     fc1:'Haqqımızda', fc2:'Karyera', fc3:'Partnyorlar', fc4:'Əlaqə',
   },
   en: {
+    isAz: false,
     nav_solutions: 'Solutions', nav_features: 'Features', nav_zeka: 'Zeka AI',
     nav_resources: 'Resources', nav_pricing: 'Explore Bundles', nav_signin: 'Sign In', nav_demo: 'Contact Us',
     hero_h1a: 'Run your school', hero_h1b: 'smarter with Zirva',
@@ -660,7 +662,7 @@ function FeatureVisual({ idx, s }) {
 
 /* ─── HERO ─── */
 function Hero({ s }) {
-  const isAz = s.nav_signin === 'Daxil ol'
+  const isAz = s.isAz
   return (
     <section style={{ background:'#060614', minHeight:'100vh', position:'relative', overflow:'hidden' }}>
 
@@ -914,7 +916,7 @@ function PartnerBar({ s }) {
 
 /* ─── WHAT WE DO ─── */
 function WhatWeDo({ s }) {
-  const isAz = s.nav_signin === 'Daxil ol'
+  const isAz = s.isAz
   const cols = [
     {
       icon: BookOpen, color: '#534AB7',
@@ -999,7 +1001,7 @@ function WhatWeDo({ s }) {
 
 /* ─── SOLUTIONS ─── */
 function Solutions({ s }) {
-  const isAz = s.nav_signin === 'Daxil ol'
+  const isAz = s.isAz
 
   const ibCards = [
     { logo:'/pyp.png', title:s.sol_pyp_t, desc:s.sol_pyp_d, age:'3–12',  accent:'#f59e0b', accent2:'#fbbf24', code:'PYP', to:'/ib-pyp' },
@@ -1142,7 +1144,7 @@ function Solutions({ s }) {
 
 /* ─── FEATURES ─── */
 function Features({ s }) {
-  const isAz = s.nav_signin === 'Daxil ol'
+  const isAz = s.isAz
   const grid = [
     { icon:BookOpen,      title:s.tab_curriculum, pts:[s.c1,s.c2,s.c3], color:'#534AB7' },
     { icon:PenLine,       title:s.tab_teaching,   pts:[s.t1,s.t2,s.t3], color:'#1D9E75' },
@@ -1199,7 +1201,7 @@ function Features({ s }) {
 
 /* ─── PRODUCT SHOWCASE ─── */
 function ProductShowcase({ s }) {
-  const isAz = s.nav_signin === 'Daxil ol'
+  const isAz = s.isAz
   const bullets = [
     { icon:BookOpen,  text:s.c1  },
     { icon:BarChart2, text:s.a1  },
@@ -1255,7 +1257,7 @@ function ProductShowcase({ s }) {
 
 /* ─── ZEKA AI ─── */
 function ZekaAI({ s }) {
-  const isAz = s.nav_signin === 'Daxil ol'
+  const isAz = s.isAz
   return (
     <section id="zeka" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
@@ -1367,7 +1369,7 @@ function ZekaAI({ s }) {
 
             {/* Input */}
             <div className="px-4 py-3 bg-white flex items-center gap-3" style={{ borderTop:'1px solid rgba(83,74,183,0.08)' }}>
-              <div className="flex-1 rounded-lg px-4 py-2.5 text-xs" style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.25)' }}>
+              <div className="flex-1 rounded-lg px-4 py-2.5 text-xs" style={{ background:'rgba(83,74,183,0.05)', border:'1px solid rgba(83,74,183,0.12)', color:'rgba(0,0,0,0.3)' }}>
                 Zəka AI ilə yazın...
               </div>
               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background:'#534AB7' }}>
@@ -1384,7 +1386,7 @@ function ZekaAI({ s }) {
 
 /* ─── COMPLIANCE ─── */
 function Compliance({ s }) {
-  const isAz = s.nav_signin === 'Daxil ol'
+  const isAz = s.isAz
   const cards = [
     { icon:Server,    title:s.s1t, desc:s.s1d, label:isAz?'AZ Serverləri':'AZ Servers', color:'#534AB7' },
     { icon:Shield,    title:s.s2t, desc:s.s2d, label:'ISO/IEC 27001',                   color:'#1D9E75' },
@@ -1425,7 +1427,7 @@ function Compliance({ s }) {
 
 /* ─── PILOT CTA ─── */
 function PilotCTA({ s }) {
-  const isAz = s.nav_signin === 'Daxil ol'
+  const isAz = s.isAz
   const perks = isAz ? [
     { icon:Zap,            label:'Tam giriş',       desc:'Bütün funksiyalar pilot mərhələsində açıqdır' },
     { icon:HeartHandshake, label:'Birgə inkişaf',   desc:'Rəyiniz platformanı birbaşa formalaşdırır'   },
@@ -1515,19 +1517,70 @@ function PilotCTA({ s }) {
   )
 }
 
+/* ─── TESTIMONIALS ─── */
+function Testimonials({ s }) {
+  const isAz = s.isAz
+  const quotes = [
+    { q:s.t1q, name:s.t1n, role:s.t1r, initials:'RA', color:'#534AB7', bg:'rgba(83,74,183,0.10)' },
+    { q:s.t2q, name:s.t2n, role:s.t2r, initials:'GH', color:'#1D9E75', bg:'rgba(29,158,117,0.10)' },
+    { q:s.t3q, name:s.t3n, role:s.t3r, initials:'NQ', color:'#534AB7', bg:'rgba(83,74,183,0.10)' },
+  ]
+  return (
+    <section className="py-28 bg-white">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        <div className="text-center mb-14">
+          <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">{s.test_badge}</p>
+          <h2 className="font-extrabold text-gray-900 mb-4"
+            style={{ fontSize:'clamp(1.9rem,4vw,3rem)', letterSpacing:'-0.025em', lineHeight:1.1 }}>
+            {s.test_title}
+          </h2>
+          <p className="text-gray-400 text-base font-medium max-w-md mx-auto">{s.test_sub}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {quotes.map(({ q, name, role, initials, color, bg }) => (
+            <div key={name} className="card-lift flex flex-col rounded-2xl p-8 border border-gray-100 bg-gray-50 cursor-default">
+              {/* Stars */}
+              <div className="flex gap-1 mb-6">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" style={{ color:'#f59e0b' }}/>
+                ))}
+              </div>
+              {/* Quote */}
+              <p className="text-gray-700 text-sm leading-relaxed font-medium flex-1 mb-8">{q}</p>
+              {/* Author */}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bold text-sm"
+                  style={{ background: bg, color }}>
+                  {initials}
+                </div>
+                <div>
+                  <p className="text-gray-900 text-sm font-bold leading-tight">{name}</p>
+                  <p className="text-gray-400 text-xs font-medium mt-0.5 leading-tight">{role}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /* ─── FOOTER ─── */
 function Footer({ s }) {
   return (
     <footer style={{ background:'#09091E' }}>
       <div className="h-px" style={{ background:'linear-gradient(90deg,transparent,rgba(83,74,183,0.55),rgba(29,158,117,0.35),transparent)' }}/>
       <div className="max-w-7xl mx-auto px-5 sm:px-8 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-12">
-          <div>
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+          {/* Brand — spans 2 on large screens */}
+          <div className="col-span-2 lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <ZirvaLogo size={28} invert/>
               <span className="text-lg font-bold text-white">Zirva</span>
             </div>
-            <p className="text-xs leading-relaxed mb-5" style={{ color:'rgba(255,255,255,0.35)' }}>{s.foot_tagline}</p>
+            <p className="text-xs leading-relaxed mb-5" style={{ color:'rgba(255,255,255,0.35)', maxWidth:220 }}>{s.foot_tagline}</p>
             <a href="mailto:hello@tryzirva.com" className="flex items-center gap-2 text-xs mb-2 hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>
               <Mail className="w-3.5 h-3.5 text-teal shrink-0"/>hello@tryzirva.com
             </a>
@@ -1535,6 +1588,7 @@ function Footer({ s }) {
               <Phone className="w-3.5 h-3.5 text-teal shrink-0"/>+994 99 110 66 00
             </a>
           </div>
+          {/* Programmes */}
           <div>
             <h4 className="text-white font-bold text-xs tracking-widest uppercase mb-5">{s.foot_col1}</h4>
             <ul className="space-y-3">
@@ -1549,10 +1603,30 @@ function Footer({ s }) {
               ))}
             </ul>
           </div>
+          {/* Resources */}
+          <div>
+            <h4 className="text-white font-bold text-xs tracking-widest uppercase mb-5">{s.foot_col2}</h4>
+            <ul className="space-y-3">
+              {[
+                { label:s.fr1, to:'/about'   },
+                { label:s.fr4, to:'/blog'    },
+                { label:s.fr6, to:'/contact' },
+                { label:s.fr7, to:'/contact' },
+              ].map(({ label, to }) => (
+                <li key={label}><Link to={to} className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>{label}</Link></li>
+              ))}
+            </ul>
+          </div>
+          {/* Company */}
           <div>
             <h4 className="text-white font-bold text-xs tracking-widest uppercase mb-5">{s.foot_col4}</h4>
             <ul className="space-y-3">
-              {[{ label:s.fc1,to:'/about' },{ label:s.fc2,to:'/careers' },{ label:s.fc3,to:'/partners' },{ label:s.fc4,to:'/contact' }].map(({ label, to }) => (
+              {[
+                { label:s.fc1, to:'/about'   },
+                { label:s.fc2, to:'/careers' },
+                { label:s.fc3, to:'/partners'},
+                { label:s.fc4, to:'/contact' },
+              ].map(({ label, to }) => (
                 <li key={label}><Link to={to} className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>{label}</Link></li>
               ))}
             </ul>
@@ -1585,6 +1659,7 @@ export default function Landing() {
       <ProductShowcase s={s}/>
       <ZekaAI s={s}/>
       <Compliance s={s}/>
+      <Testimonials s={s}/>
       <PilotCTA s={s}/>
       <Footer s={s}/>
     </div>
