@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, X, ChevronRight, BookOpen, FileText, PenLine, Star, Users, TrendingUp, HeartHandshake, Mail, Building2, ClipboardCheck, Calendar, BarChart2, MessageSquare, Clock, Sparkles, ArrowRight } from 'lucide-react'
 
@@ -7,19 +7,7 @@ export default function LandingNav({ s, lang, setLang }) {
   const [dropdown, setDropdown]     = useState(null)
   const [mobileOpen, setMobileOpen] = useState(null)
   const closeTimer = useRef(null)
-  const [langOpen, setLangOpen] = useState(false)
-  const langRef    = useRef(null)
-  const L = lang  // 'az' | 'tr' | 'en'
-
-  const FLAGS       = { az:'az', tr:'tr', en:'gb', ru:'ru' }
-  const LANG_LABELS = { az:'Azərbaycan', tr:'Türkçe', en:'English', ru:'Русский' }
-
-  useEffect(() => {
-    if (!langOpen) return
-    const fn = e => { if (!langRef.current?.contains(e.target)) setLangOpen(false) }
-    document.addEventListener('mousedown', fn)
-    return () => document.removeEventListener('mousedown', fn)
-  }, [langOpen])
+  const L = lang
 
   const openDd  = (name) => { clearTimeout(closeTimer.current); setDropdown(name) }
   const closeDd = ()     => { closeTimer.current = setTimeout(() => setDropdown(null), 150) }
@@ -101,7 +89,7 @@ export default function LandingNav({ s, lang, setLang }) {
       <div className="max-w-7xl mx-auto px-6 sm:px-10 flex items-center justify-between h-[68px]">
 
         {/* Brand */}
-        <Link to="/" style={{ display:'flex', alignItems:'center', gap:10, textDecoration:'none', flexShrink:0 }}>
+        <Link to="/" style={{ display:'flex', alignItems:'center', gap:10, textDecoration:'none', flex:1 }}>
           <img src="/logo.png" alt="Zirva" width={26} height={26} style={{ objectFit:'contain' }}/>
           <span style={{ fontSize:18, fontWeight:800, color:'#111827', letterSpacing:'-0.02em' }}>Zirva</span>
         </Link>
@@ -206,31 +194,7 @@ export default function LandingNav({ s, lang, setLang }) {
         </nav>
 
         {/* Right actions */}
-        <div className="hidden lg:flex items-center gap-1.5">
-          {/* Language flag dropdown */}
-          <div ref={langRef} style={{ position:'relative' }} className="mr-2">
-            <button onClick={() => setLangOpen(v => !v)}
-              style={{ display:'flex', alignItems:'center', gap:5, padding:'5px 7px 5px 6px', borderRadius:8, border:'1px solid rgba(0,0,0,0.08)', background: langOpen ? 'rgba(0,0,0,0.07)' : 'rgba(0,0,0,0.04)', cursor:'pointer', transition:'all .15s' }}
-              onMouseEnter={e => { if(!langOpen) e.currentTarget.style.background='rgba(0,0,0,0.07)' }}
-              onMouseLeave={e => { if(!langOpen) e.currentTarget.style.background='rgba(0,0,0,0.04)' }}>
-              <img src={`https://flagcdn.com/w40/${FLAGS[lang]}.png`} alt={lang} style={{ width:22, height:16, objectFit:'cover', borderRadius:3, display:'block' }}/>
-              <ChevronRight style={{ width:10, height:10, color:'#9ca3af', flexShrink:0, transform: langOpen ? 'rotate(-90deg)' : 'rotate(90deg)', transition:'transform .2s' }}/>
-            </button>
-            {langOpen && (
-              <div style={{ position:'absolute', top:'calc(100% + 8px)', right:0, zIndex:500, background:'#fff', borderRadius:12, border:'1px solid rgba(0,0,0,0.08)', boxShadow:'0 4px 6px -2px rgba(0,0,0,0.05), 0 12px 32px -4px rgba(0,0,0,0.14)', padding:5, minWidth:148 }}>
-                {['az','tr','en','ru'].map(l => (
-                  <button key={l} onClick={() => { setLang(l); setLangOpen(false) }}
-                    style={{ display:'flex', alignItems:'center', gap:9, width:'100%', padding:'7px 10px', borderRadius:8, border:'none', cursor:'pointer', textAlign:'left', background: lang===l ? 'rgba(83,74,183,0.08)' : 'transparent', transition:'background .12s' }}
-                    onMouseEnter={e => { if(lang!==l) e.currentTarget.style.background='rgba(0,0,0,0.04)' }}
-                    onMouseLeave={e => { if(lang!==l) e.currentTarget.style.background='transparent' }}>
-                    <img src={`https://flagcdn.com/w40/${FLAGS[l]}.png`} alt={l} style={{ width:22, height:16, objectFit:'cover', borderRadius:3, flexShrink:0 }}/>
-                    <span style={{ fontSize:12.5, fontWeight:700, color: lang===l ? '#534AB7' : '#374151' }}>{LANG_LABELS[l]}</span>
-                    {lang===l && <span style={{ marginLeft:'auto', width:6, height:6, borderRadius:'50%', background:'#534AB7', flexShrink:0 }}/>}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="hidden lg:flex items-center gap-1.5" style={{ flex:1, justifyContent:'flex-end' }}>
           <Link to="/daxil-ol" className="px-4 py-2 text-[13.5px] text-gray-500 hover:text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-all">{s.nav_signin}</Link>
           <Link to="/contact" className="inline-flex items-center text-white text-[13.5px] font-bold px-5 py-2.5 rounded-xl transition-all hover:-translate-y-px"
             style={{ background:'linear-gradient(135deg,#6056CC,#534AB7)', boxShadow:'0 2px 10px rgba(83,74,183,0.4)' }}>
@@ -282,20 +246,10 @@ export default function LandingNav({ s, lang, setLang }) {
               </div>
             ))}
           </div>
-          <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-1">
-              {['az','tr','en','ru'].map(l => (
-                <button key={l} onClick={() => setLang(l)}
-                  style={{ padding:'4px 5px', borderRadius:7, border:'none', cursor:'pointer', background: lang===l ? 'rgba(83,74,183,0.1)' : 'transparent', transition:'background .12s' }}>
-                  <img src={`https://flagcdn.com/w40/${FLAGS[l]}.png`} alt={l} style={{ width:24, height:17, objectFit:'cover', borderRadius:3, display:'block', opacity: lang===l ? 1 : 0.45 }}/>
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              <Link to="/daxil-ol" className="text-sm text-gray-500 font-semibold px-3 py-2">{s.nav_signin}</Link>
-              <Link to="/contact" className="text-white text-sm font-bold px-4 py-2 rounded-xl"
-                style={{ background:'linear-gradient(135deg,#6056CC,#534AB7)' }}>{s.nav_contact}</Link>
-            </div>
+          <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
+            <Link to="/daxil-ol" className="text-sm text-gray-500 font-semibold px-3 py-2">{s.nav_signin}</Link>
+            <Link to="/contact" className="text-white text-sm font-bold px-4 py-2 rounded-xl"
+              style={{ background:'linear-gradient(135deg,#6056CC,#534AB7)' }}>{s.nav_contact}</Link>
           </div>
         </div>
       )}
