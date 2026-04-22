@@ -13,7 +13,7 @@ import { useLang } from '../contexts/LanguageContext'
 /* ─── translations ─── */
 const STR = {
   az: {
-    isAz: true,
+    isAz: true, lang: 'az',
     nav_solutions: 'Həllər', nav_features: 'Xüsusiyyətlər', nav_zeka: 'Zəka AI',
     nav_resources: 'Resurslar', nav_pricing: 'Paketlər', nav_signin: 'Daxil ol', nav_demo: 'Bizimlə Əlaqə',
     hero_h1a: 'Məktəbinizi', hero_h1b: 'növbəti pilləyə qaldırın',
@@ -91,7 +91,7 @@ const STR = {
     fc1:'Haqqımızda', fc2:'Karyera', fc3:'Partnyorlar', fc4:'Əlaqə',
   },
   en: {
-    isAz: false,
+    isAz: false, lang: 'en',
     nav_solutions: 'Solutions', nav_features: 'Features', nav_zeka: 'Zeka AI',
     nav_resources: 'Resources', nav_pricing: 'Explore Bundles', nav_signin: 'Sign In', nav_demo: 'Contact Us',
     hero_h1a: 'Run your school', hero_h1b: 'smarter with Zirva',
@@ -170,7 +170,7 @@ const STR = {
     fc1:'About', fc2:'Careers', fc3:'Partners', fc4:'Contact',
   },
   tr: {
-    isAz: false,
+    isAz: false, lang: 'tr',
     nav_solutions: 'Çözümler', nav_features: 'Özellikler', nav_zeka: 'Zeka AI',
     nav_resources: 'Kaynaklar', nav_pricing: 'Paketler', nav_signin: 'Giriş yap', nav_demo: 'Bize Ulaşın',
     hero_h1a: 'Okulunuzu', hero_h1b: 'bir üst seviyeye taşıyın',
@@ -649,7 +649,7 @@ function FeatureVisual({ idx, s }) {
     <div className="space-y-2.5">
       <div className="flex items-center gap-2 bg-purple-light rounded-xl px-3 py-2.5 border border-purple/10">
         <div className="w-7 h-7 bg-purple rounded-full flex items-center justify-center shrink-0"><Sparkles className="w-3.5 h-3.5 text-white"/></div>
-        <div><p className="text-[9px] text-purple/60 font-medium">{s.tab_zeka}</p><p className="text-purple text-[10px] leading-snug font-medium">Əlbəttə! Gəl addım-addım izah edək...</p></div>
+        <div><p className="text-[9px] text-purple/60 font-medium">{s.tab_zeka}</p><p className="text-purple text-[10px] leading-snug font-medium">{s.lang==='az'?'Əlbəttə! Gəl addım-addım izah edək...':s.lang==='tr'?'Tabii! Adım adım açıklayalım...':'Of course! Let\'s go through this step by step...'}</p></div>
       </div>
       {[
         { label:'Quadratic equations',sub:'IB MYP · Mathematics',   pct:72 },
@@ -669,21 +669,21 @@ function FeatureVisual({ idx, s }) {
   if (idx === 1) return (
     <div className="space-y-2.5">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-gray-400 text-[10px] font-medium uppercase tracking-wide">Tapşırıqlar</span>
-        <span className="bg-purple-light text-purple text-[9px] font-semibold px-2 py-0.5 rounded-full">3 aktiv</span>
+        <span className="text-gray-400 text-[10px] font-medium uppercase tracking-wide">{s.lang==='az'?'Tapşırıqlar':s.lang==='tr'?'Ödevler':'Assignments'}</span>
+        <span className="bg-purple-light text-purple text-[9px] font-semibold px-2 py-0.5 rounded-full">{s.lang==='az'?'3 aktiv':s.lang==='tr'?'3 aktif':'3 active'}</span>
       </div>
       {[
-        { title:'Quadratic Equations – HW',subj:'Riyaziyyat',  due:'20 Apr',pct:68,c:'purple' },
-        { title:'Essay: Romeo & Juliet',   subj:'İngilis dili',due:'22 Apr',pct:42,c:'teal'   },
-        { title:'Lab Report – Titration',  subj:'Kimya',       due:'25 Apr',pct:85,c:'purple' },
+        { title:'Quadratic Equations – HW',subj:s.dash_math,  due:'20 Apr',pct:68,c:'purple' },
+        { title:'Essay: Romeo & Juliet',   subj:s.dash_english,due:'22 Apr',pct:42,c:'teal'   },
+        { title:'Lab Report – Titration',  subj:s.lang==='az'?'Kimya':s.lang==='tr'?'Kimya':'Chemistry', due:'25 Apr',pct:85,c:'purple' },
       ].map(({ title, subj, due, pct, c }) => (
         <div key={title} className="bg-white rounded-xl border border-border-soft p-3.5">
           <div className="flex items-start justify-between gap-2 mb-2">
-            <div><p className="text-gray-800 text-[11px] font-semibold leading-snug">{title}</p><p className="text-gray-400 text-[9px] mt-0.5">{subj} · Son tarix: {due}</p></div>
+            <div><p className="text-gray-800 text-[11px] font-semibold leading-snug">{title}</p><p className="text-gray-400 text-[9px] mt-0.5">{subj} · {s.lang==='az'?'Son tarix:':s.lang==='tr'?'Son tarih:':'Due:'} {due}</p></div>
             <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${c==='teal'?'bg-teal-light text-teal':'bg-purple-light text-purple'}`}>{pct}%</span>
           </div>
           <div className="h-1.5 bg-gray-100 rounded-full"><div className={`h-full rounded-full ${c==='teal'?'bg-teal':'bg-purple'}`} style={{ width:`${pct}%` }}/></div>
-          <p className="text-gray-400 text-[9px] mt-1">{pct}% təhvil verildi</p>
+          <p className="text-gray-400 text-[9px] mt-1">{pct}% {s.lang==='az'?'təhvil verildi':s.lang==='tr'?'teslim edildi':'submitted'}</p>
         </div>
       ))}
     </div>
@@ -692,7 +692,7 @@ function FeatureVisual({ idx, s }) {
     <div className="space-y-2.5">
       <div className="bg-white rounded-xl border border-border-soft p-3.5">
         <div className="flex items-center justify-between mb-3">
-          <div><p className="text-gray-800 text-[11px] font-semibold">Şagird Qiymət Cədvəli</p><p className="text-gray-400 text-[9px]">9A sinfi · Aprel 2025</p></div>
+          <div><p className="text-gray-800 text-[11px] font-semibold">{s.lang==='az'?'Şagird Qiymət Cədvəli':s.lang==='tr'?'Öğrenci Not Tablosu':'Student Grade Sheet'}</p><p className="text-gray-400 text-[9px]">9A · April 2025</p></div>
           <div className="flex gap-1">
             <span className="bg-surface border border-border-soft text-gray-500 text-[8px] font-semibold px-2 py-0.5 rounded-md">PDF</span>
             <span className="bg-surface border border-border-soft text-gray-500 text-[8px] font-semibold px-2 py-0.5 rounded-md">Excel</span>
@@ -700,7 +700,7 @@ function FeatureVisual({ idx, s }) {
         </div>
         <div className="space-y-1.5">
           <div className="grid grid-cols-4 text-[8px] text-gray-400 font-semibold uppercase tracking-wide pb-1 border-b border-gray-50">
-            <span>Şagird</span><span>Riyaziyyat</span><span>Fizika</span><span>Ortalama</span>
+            <span>{s.dash_students}</span><span>{s.dash_math}</span><span>{s.dash_physics}</span><span>{s.lang==='az'?'Ortalama':s.lang==='tr'?'Ortalama':'Average'}</span>
           </div>
           {[
             { n:'Aytən M.',m:'8',p:'7',avg:'7.5',c:'teal' },
@@ -719,11 +719,11 @@ function FeatureVisual({ idx, s }) {
       <div className="flex gap-2">
         <div className="flex-1 bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-teal/10 flex items-center justify-center shrink-0"><CheckCircle className="w-3.5 h-3.5 text-teal"/></div>
-          <div><p className="text-gray-700 text-[10px] font-medium">E-Gov.az ixracı</p><p className="text-teal text-[9px]">Hazır</p></div>
+          <div><p className="text-gray-700 text-[10px] font-medium">{s.lang==='az'?'E-Gov.az ixracı':s.lang==='tr'?'E-Gov.az dışa aktarma':'E-Gov.az export'}</p><p className="text-teal text-[9px]">{s.lang==='az'?'Hazır':s.lang==='tr'?'Hazır':'Ready'}</p></div>
         </div>
         <div className="flex-1 bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-purple/10 flex items-center justify-center shrink-0"><FileText className="w-3.5 h-3.5 text-purple"/></div>
-          <div><p className="text-gray-700 text-[10px] font-medium">IB Audit</p><p className="text-purple text-[9px]">Sənədlər hazır</p></div>
+          <div><p className="text-gray-700 text-[10px] font-medium">IB Audit</p><p className="text-purple text-[9px]">{s.lang==='az'?'Sənədlər hazır':s.lang==='tr'?'Belgeler hazır':'Docs ready'}</p></div>
         </div>
       </div>
     </div>
@@ -732,28 +732,28 @@ function FeatureVisual({ idx, s }) {
     <div className="space-y-2">
       <div className="bg-purple-light border border-purple/20 rounded-xl px-3.5 py-2.5 flex items-start gap-2.5">
         <div className="w-6 h-6 rounded-lg bg-purple flex items-center justify-center shrink-0 mt-0.5"><Bell className="w-3 h-3 text-white"/></div>
-        <div><p className="text-purple text-[10px] font-semibold">Məktəb Elanı</p><p className="text-purple/70 text-[9px] leading-snug mt-0.5">Yarımillik imtahanlar 12 May tarixindən başlayır.</p></div>
+        <div><p className="text-purple text-[10px] font-semibold">{s.lang==='az'?'Məktəb Elanı':s.lang==='tr'?'Okul Duyurusu':'School Notice'}</p><p className="text-purple/70 text-[9px] leading-snug mt-0.5">{s.lang==='az'?'Yarımillik imtahanlar 12 May tarixindən başlayır.':s.lang==='tr'?'Dönem sonu sınavları 12 Mayıs\'ta başlıyor.':'Mid-year exams start May 12.'}</p></div>
       </div>
       <div className="bg-white rounded-xl border border-border-soft p-3 space-y-2">
-        <p className="text-[9px] text-gray-400 font-medium uppercase tracking-wide mb-2">Müəllim → Valideyn</p>
+        <p className="text-[9px] text-gray-400 font-medium uppercase tracking-wide mb-2">{s.lang==='az'?'Müəllim → Valideyn':s.lang==='tr'?'Öğretmen → Veli':'Teacher → Parent'}</p>
         <div className="flex items-end gap-2">
           <div className="w-6 h-6 rounded-full bg-purple flex items-center justify-center text-white text-[8px] font-bold shrink-0">M</div>
           <div className="bg-surface rounded-xl rounded-bl-md px-3 py-2 max-w-[75%]">
-            <p className="text-gray-700 text-[10px] leading-snug">Aytənin riyaziyyat nəticəsi bu ay yaxşılaşıb. Təbriklər!</p>
+            <p className="text-gray-700 text-[10px] leading-snug">{s.lang==='az'?'Aytənin riyaziyyat nəticəsi bu ay yaxşılaşıb. Təbriklər!':s.lang==='tr'?'Ayten\'in matematik notu bu ay yükseldi. Tebrikler!':'Ayten\'s math score improved this month. Congrats!'}</p>
             <p className="text-gray-400 text-[8px] mt-1">09:42</p>
           </div>
         </div>
         <div className="flex items-end gap-2 flex-row-reverse">
           <div className="w-6 h-6 rounded-full bg-teal flex items-center justify-center text-white text-[8px] font-bold shrink-0">V</div>
           <div className="bg-teal-light rounded-xl rounded-br-md px-3 py-2 max-w-[75%]">
-            <p className="text-teal text-[10px] leading-snug">Çox sağ olun! Evdə də çox çalışır.</p>
+            <p className="text-teal text-[10px] leading-snug">{s.lang==='az'?'Çox sağ olun! Evdə də çox çalışır.':s.lang==='tr'?'Teşekkürler! Evde de çok çalışıyor.':'Thank you! She studies hard at home too.'}</p>
             <p className="text-teal/60 text-[8px] mt-1">09:55</p>
           </div>
         </div>
       </div>
       <div className="bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center justify-between">
-        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500 shrink-0"/><p className="text-gray-700 text-[10px] font-medium">3 oxunmamış mesaj</p></div>
-        <span className="text-purple text-[9px] font-semibold">Hamısına bax →</span>
+        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500 shrink-0"/><p className="text-gray-700 text-[10px] font-medium">{s.lang==='az'?'3 oxunmamış mesaj':s.lang==='tr'?'3 okunmamış mesaj':'3 unread messages'}</p></div>
+        <span className="text-purple text-[9px] font-semibold">{s.lang==='az'?'Hamısına bax →':s.lang==='tr'?'Tümünü gör →':'View all →'}</span>
       </div>
     </div>
   )
@@ -766,7 +766,7 @@ function FeatureVisual({ idx, s }) {
 
 /* ─── HERO ─── */
 function Hero({ s }) {
-  const isAz = s.isAz
+  const L = s.lang
   return (
     <section style={{ background:'#060614', minHeight:'100vh', position:'relative', overflow:'hidden' }}>
 
@@ -936,7 +936,7 @@ function Hero({ s }) {
                 <p style={{ fontSize:12.5, fontWeight:800, color:'#0d0d1a', lineHeight:1.2 }}>Zəka AI</p>
                 <p style={{ fontSize:11, fontWeight:600, color:'#1D9E75', display:'flex', alignItems:'center', gap:4, marginTop:3 }}>
                   <span style={{ width:5, height:5, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 6px rgba(34,197,94,0.6)', flexShrink:0 }}/>
-                  Aktiv · Hazır
+                  {L==='az' ? 'Aktiv · Hazır' : L==='tr' ? 'Aktif · Hazır' : 'Active · Ready'}
                 </p>
               </div>
             </div>
@@ -963,10 +963,12 @@ function Hero({ s }) {
                 <GraduationCap style={{ width:17, height:17, color:'#1D9E75' }}/>
               </div>
               <div>
-                <p style={{ fontSize:12.5, fontWeight:800, color:'#0d0d1a', lineHeight:1.2 }}>IB + Milli Kurikulum</p>
+                <p style={{ fontSize:12.5, fontWeight:800, color:'#0d0d1a', lineHeight:1.2 }}>
+                  {L==='az' ? 'IB + Milli Kurikulum' : L==='tr' ? 'IB + Ulusal Müfredat' : 'IB + National Curriculum'}
+                </p>
                 <p style={{ fontSize:11, fontWeight:600, color:'#534AB7', display:'flex', alignItems:'center', gap:4, marginTop:3 }}>
                   <Check style={{ width:10, height:10 }}/>
-                  Tam dəstəklənir
+                  {L==='az' ? 'Tam dəstəklənir' : L==='tr' ? 'Tam destekleniyor' : 'Fully supported'}
                 </p>
               </div>
             </div>
@@ -1021,39 +1023,51 @@ function PartnerBar({ s }) {
 /* ─── WHAT WE DO ─── */
 function WhatWeDo({ s }) {
   const ref = useFadeUp()
-  const isAz = s.isAz
+  const L = s.lang
   const cols = [
     {
       icon: BookOpen, color: '#534AB7',
-      eyebrow: isAz ? 'Kurikulum' : 'Curriculum',
-      title: isAz ? 'Tədris & Kurikulum' : 'Teaching & Curriculum',
-      body: isAz
+      eyebrow: L==='az' ? 'Kurikulum' : L==='tr' ? 'Müfredat' : 'Curriculum',
+      title:   L==='az' ? 'Tədris & Kurikulum' : L==='tr' ? 'Öğretim & Müfredat' : 'Teaching & Curriculum',
+      body:    L==='az'
         ? 'IB PYP, MYP, DP, CP və Azərbaycan milli kurikulumu — birgə planlaşdırma, 600+ standart, IBIS inteqrasiyası.'
+        : L==='tr'
+        ? 'IB PYP, MYP, DP, CP ve Azerbaycan ulusal müfredatı — ortak planlama, 600+ standart, IBIS entegrasyonu.'
         : 'IB PYP, MYP, DP, CP and national curriculum — collaborative planning, 600+ standards, IBIS integration.',
-      pts: isAz
+      pts: L==='az'
         ? ['Birgə kurikulum planlaması','600+ daxili standart','IBIS & E-Gov.az inteqrasiyası']
+        : L==='tr'
+        ? ['Ortak müfredat planlaması','600+ yerleşik standart','IBIS & E-Gov.az entegrasyonu']
         : ['Collaborative curriculum planning','600+ built-in standards','IBIS & E-Gov.az integration'],
     },
     {
       icon: BarChart2, color: '#1D9E75',
-      eyebrow: isAz ? 'Qiymətləndirmə' : 'Assessment',
-      title: isAz ? 'Qiymətləndirmə & Hesabat' : 'Assessment & Reporting',
-      body: isAz
+      eyebrow: L==='az' ? 'Qiymətləndirmə' : L==='tr' ? 'Değerlendirme' : 'Assessment',
+      title:   L==='az' ? 'Qiymətləndirmə & Hesabat' : L==='tr' ? 'Değerlendirme & Raporlama' : 'Assessment & Reporting',
+      body:    L==='az'
         ? 'IB kriteriyaları, milli 10-ballıq sistem, real vaxt sinxronizasiya, Nazirlik uyğunluqlu hesabatlar.'
+        : L==='tr'
+        ? 'IB kriter notlandırma, ulusal 10 puanlık sistem, gerçek zamanlı senkronizasyon, Bakanlık uyumlu raporlar.'
         : 'IB criteria grading, national 10-point scale, real-time sync, Ministry-compliant reports.',
-      pts: isAz
+      pts: L==='az'
         ? ['IB A–D kriteriya qiymətləndirməsi','Nazirlik uyğunluqlu hesabatlar','E-Gov.az avtomatik ixracı']
+        : L==='tr'
+        ? ['IB A–D kriter değerlendirmesi','Bakanlık uyumlu raporlar','Otomatik E-Gov.az dışa aktarma']
         : ['IB A–D criteria grading','Ministry-compliant reporting','Automatic E-Gov.az export'],
     },
     {
       icon: MessageSquare, color: '#534AB7',
-      eyebrow: isAz ? 'Kommunikasiya' : 'Communication',
-      title: isAz ? 'Kommunikasiya & AI' : 'Communication & AI',
-      body: isAz
+      eyebrow: L==='az' ? 'Kommunikasiya' : L==='tr' ? 'İletişim' : 'Communication',
+      title:   L==='az' ? 'Kommunikasiya & AI' : L==='tr' ? 'İletişim & AI' : 'Communication & AI',
+      body:    L==='az'
         ? 'Müəllim-valideyn real vaxt mesajlaşma, məktəb elanları, Zəka AI hesabat köməkçisi — üç dildə.'
+        : L==='tr'
+        ? 'Gerçek zamanlı öğretmen–veli mesajlaşma, okul duyuruları, Zeka AI rapor asistanı — üç dilde.'
         : 'Real-time teacher–parent messaging, school announcements, Zeka AI report assistant — in three languages.',
-      pts: isAz
+      pts: L==='az'
         ? ['Real vaxtda mesajlaşma','Məktəb miqyasında elanlar','Zəka AI — 3 dildə']
+        : L==='tr'
+        ? ['Gerçek zamanlı mesajlaşma','Okul genelinde duyurular','Zeka AI — 3 dil']
         : ['Real-time messaging','School-wide announcements','Zeka AI — 3 languages'],
     },
   ]
@@ -1063,16 +1077,18 @@ function WhatWeDo({ s }) {
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="max-w-2xl mb-16">
           <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">
-            {isAz ? 'Platforma' : 'Platform'}
+            {L==='az' ? 'Platforma' : L==='tr' ? 'Platform' : 'Platform'}
           </p>
           <h2 className="font-extrabold text-gray-900 leading-tight mb-5"
             style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em' }}>
-            {isAz ? 'Bir platforma.' : 'One platform.'}<br/>
-            <span style={{ color:'#534AB7' }}>{isAz ? 'Bütün məktəb əməliyyatları.' : 'Every school operation.'}</span>
+            {L==='az' ? 'Bir platforma.' : L==='tr' ? 'Tek platform.' : 'One platform.'}<br/>
+            <span style={{ color:'#534AB7' }}>{L==='az' ? 'Bütün məktəb əməliyyatları.' : L==='tr' ? 'Her okul operasyonu.' : 'Every school operation.'}</span>
           </h2>
           <p className="text-gray-500 text-base leading-relaxed font-medium">
-            {isAz
+            {L==='az'
               ? 'Zirva+ məktəb idarəetməsinin hər tərəfini — kurikulumdan kommunikasiyaya, qiymətləndirmədən AI köməkçisinə qədər — vahid platformada birləşdirir.'
+              : L==='tr'
+              ? 'Zirva+ okul yönetiminin her yönünü — müfredattan iletişime, değerlendirmeden AI asistanına kadar — tek sorunsuz platformda bir araya getirir.'
               : 'Zirva+ brings every aspect of school management — from curriculum to communication, assessment to AI — into one seamless platform.'}
           </p>
         </div>
@@ -1108,6 +1124,7 @@ function WhatWeDo({ s }) {
 function Solutions({ s }) {
   const ref = useFadeUp()
   const isAz = s.isAz
+  const L = s.lang
 
   const ibCards = [
     { logo:'/pyp.png', title:s.sol_pyp_t, desc:s.sol_pyp_d, age:'3–12',  accent:'#f59e0b', accent2:'#fbbf24', code:'PYP', to:'/ib-pyp' },
@@ -1122,7 +1139,7 @@ function Solutions({ s }) {
     { logo:'/myp.png',  alt:'IB Middle Years',   color:'#ef4444', to:'/ib-myp' },
     { logo:'/dp.png',   alt:'IB Diploma',        color:'#3b82f6', to:'/ib-diploma' },
     { logo:'/cp.png',   alt:'IB Career-Related', color:'#a855f7', to:'/ib-career' },
-    { logo:'/egov.png', alt:isAz?'Milli Kurikulum':'National Curriculum', color:'#1D9E75', to:'/government-schools' },
+    { logo:'/egov.png', alt:L==='az'?'Milli Kurikulum':L==='tr'?'Ulusal Müfredat':'National Curriculum', color:'#1D9E75', to:'/government-schools' },
   ]
 
   return (
@@ -1190,8 +1207,10 @@ function Solutions({ s }) {
           <div>
             <span className="inline-block text-xs font-bold uppercase tracking-widest mb-5 text-teal">{s.sol_badge}</span>
             <h2 style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', fontWeight:800, letterSpacing:'-0.025em', lineHeight:1.1, color:'#0f0f1a' }}>
-              {isAz
+              {L==='az'
                 ? <><span style={{ color:'#534AB7' }}>Hər kurikulum</span><br/>üçün hazırlanmış</>
+                : L==='tr'
+                ? <>Her müfredat için<br/><span style={{ color:'#534AB7' }}>hazırlanmış</span></>
                 : <>Built for<br/><span style={{ color:'#534AB7' }}>every curriculum</span></>}
             </h2>
           </div>
@@ -1234,7 +1253,7 @@ function Solutions({ s }) {
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-4 mt-auto" style={{ borderTop:'1px solid rgba(15,15,26,0.05)' }}>
                   <span style={{ fontSize:10.5, fontWeight:700, color:accent, letterSpacing:'0.12em', textTransform:'uppercase' }}>
-                    {isGov ? (isAz ? 'Dövlət' : 'National') : (isAz ? 'Ətraflı' : 'Learn more')}
+                    {isGov ? (L==='az' ? 'Dövlət' : L==='tr' ? 'Ulusal' : 'National') : (L==='az' ? 'Ətraflı' : L==='tr' ? 'Devamı' : 'Learn more')}
                   </span>
                   <ArrowRight className="sol-ib-arrow w-3.5 h-3.5" style={{ color:accent, opacity:.55 }}/>
                 </div>
@@ -1310,6 +1329,7 @@ function Features({ s }) {
 function ProductShowcase({ s }) {
   const ref = useFadeUp()
   const isAz = s.isAz
+  const L = s.lang
   const bullets = [
     { icon:BookOpen,  text:s.c1  },
     { icon:BarChart2, text:s.a1  },
@@ -1325,8 +1345,10 @@ function ProductShowcase({ s }) {
           <div>
             <h2 className="font-extrabold text-gray-900 leading-none mb-5"
               style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.03em' }}>
-              {isAz
+              {L==='az'
                 ? <>Hər şey<br/>bir yerdə,<br/><span style={{ color:'#1D9E75' }}>real vaxtda.</span></>
+                : L==='tr'
+                ? <>Her şey<br/>bir arada,<br/><span style={{ color:'#1D9E75' }}>gerçek zamanlı.</span></>
                 : <>Everything<br/>together,<br/><span style={{ color:'#1D9E75' }}>in real time.</span></>}
             </h2>
             <p className="text-gray-400 text-base leading-relaxed mb-10" style={{ maxWidth:380 }}>{s.feat_sub}</p>
@@ -1367,6 +1389,7 @@ function ProductShowcase({ s }) {
 function ZekaAI({ s }) {
   const ref = useFadeUp()
   const isAz = s.isAz
+  const L = s.lang
   return (
     <section ref={ref} id="zeka" className="fade-up py-24 bg-white">
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
@@ -1376,14 +1399,18 @@ function ZekaAI({ s }) {
           <div>
             <h2 className="font-extrabold text-gray-900 leading-none mb-5"
               style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.03em' }}>
-              {isAz
+              {L==='az'
                 ? <>Müəllimin<br/><span style={{ color:'#534AB7' }}>ən güclü köməkçisi</span></>
+                : L==='tr'
+                ? <>Öğretmenin<br/><span style={{ color:'#534AB7' }}>en güçlü aracı</span></>
                 : <>The teacher's<br/><span style={{ color:'#534AB7' }}>most powerful tool</span></>}
             </h2>
 
             <p className="text-gray-400 text-base leading-relaxed mb-10" style={{ maxWidth:380 }}>
-              {isAz
+              {L==='az'
                 ? 'Claude AI ilə gücləndirilmiş Zəka AI hesabat yazır, qiymətlər analiz edir, valideyn xülasələri hazırlayır — Azərbaycan, ingilis və rus dillərində.'
+                : L==='tr'
+                ? 'Claude AI ile güçlendirilmiş Zeka AI raporlar yazar, notları analiz eder, veli özetleri hazırlar — Azerbaycanca, İngilizce ve Rusça.'
                 : 'Powered by Claude AI, Zeka AI writes reports, analyses grades, and prepares parent summaries — in Azerbaijani, English, and Russian.'}
             </p>
 
@@ -1399,7 +1426,7 @@ function ZekaAI({ s }) {
             <Link to="/contact"
               className="inline-flex items-center gap-2 font-bold text-sm px-6 py-3 rounded-lg text-white transition-all hover:opacity-90"
               style={{ background:'#534AB7' }}>
-              {isAz ? 'Zəka AI ilə tanış ol' : 'Meet Zeka AI'} <ArrowRight className="w-4 h-4"/>
+              {L==='az' ? 'Zəka AI ilə tanış ol' : L==='tr' ? 'Zeka AI ile tanış ol' : 'Meet Zeka AI'} <ArrowRight className="w-4 h-4"/>
             </Link>
           </div>
 
@@ -1431,7 +1458,7 @@ function ZekaAI({ s }) {
             <div className="p-5 space-y-4" style={{ minHeight:300 }}>
               <div className="flex justify-end">
                 <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm bg-purple" style={{ maxWidth:240 }}>
-                  IB MYP kriteriyaları üzrə hesabat yaz
+                  {L==='az' ? 'IB MYP kriteriyaları üzrə hesabat yaz' : L==='tr' ? 'IB MYP kriterleri için rapor yaz' : 'Write an IB MYP criteria report'}
                 </div>
               </div>
 
@@ -1441,12 +1468,14 @@ function ZekaAI({ s }) {
                 </div>
                 <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3"
                   style={{ border:'1px solid rgba(83,74,183,0.10)', maxWidth:260 }}>
-                  <p className="text-sm font-semibold text-gray-800 mb-2">Hesabat hazırlanır...</p>
+                  <p className="text-sm font-semibold text-gray-800 mb-2">
+                    {L==='az' ? 'Hesabat hazırlanır...' : L==='tr' ? 'Rapor hazırlanıyor...' : 'Generating report...'}
+                  </p>
                   <div className="space-y-1.5">
                     {[
-                      { label:'A kriteriyas:', val:'6/8', c:'#534AB7' },
-                      { label:'B kriteriyas:', val:'7/8', c:'#1D9E75' },
-                      { label:'C kriteriyas:', val:'5/8', c:'#534AB7' },
+                      { label: L==='az'?'A kriteriyas:':L==='tr'?'A kriteri:':'Criterion A:', val:'6/8', c:'#534AB7' },
+                      { label: L==='az'?'B kriteriyas:':L==='tr'?'B kriteri:':'Criterion B:', val:'7/8', c:'#1D9E75' },
+                      { label: L==='az'?'C kriteriyas:':L==='tr'?'C kriteri:':'Criterion C:', val:'5/8', c:'#534AB7' },
                     ].map(({ label, val, c }) => (
                       <div key={label} className="flex items-center gap-2">
                         <Check className="w-3 h-3 shrink-0" style={{ color:c }}/>
@@ -1459,7 +1488,7 @@ function ZekaAI({ s }) {
 
               <div className="flex justify-end">
                 <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm bg-purple" style={{ maxWidth:240 }}>
-                  Valideyn üçün qısa xülasə yaz
+                  {L==='az' ? 'Valideyn üçün qısa xülasə yaz' : L==='tr' ? 'Veli için kısa özet yaz' : 'Write a short summary for parents'}
                 </div>
               </div>
 
@@ -1470,7 +1499,11 @@ function ZekaAI({ s }) {
                 <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3"
                   style={{ border:'1px solid rgba(83,74,183,0.10)', maxWidth:260 }}>
                   <p className="text-xs leading-relaxed text-gray-600">
-                    Şagirdiniz bu rüb əla nəticələr göstərdi. Xüsusilə B kriteriyasında yüksək bal aldı.
+                    {L==='az'
+                      ? 'Şagirdiniz bu rüb əla nəticələr göstərdi. Xüsusilə B kriteriyasında yüksək bal aldı.'
+                      : L==='tr'
+                      ? 'Öğrenciniz bu çeyrekte mükemmel sonuçlar gösterdi. Özellikle B kriterinde yüksek puan aldı.'
+                      : 'Your student showed excellent results this term. Especially strong in Criterion B.'}
                   </p>
                 </div>
               </div>
@@ -1479,7 +1512,7 @@ function ZekaAI({ s }) {
             {/* Input */}
             <div className="px-4 py-3 bg-white flex items-center gap-3" style={{ borderTop:'1px solid rgba(83,74,183,0.08)' }}>
               <div className="flex-1 rounded-lg px-4 py-2.5 text-xs" style={{ background:'rgba(83,74,183,0.05)', border:'1px solid rgba(83,74,183,0.12)', color:'rgba(0,0,0,0.3)' }}>
-                Zəka AI ilə yazın...
+                {L==='az' ? 'Zəka AI ilə yazın...' : L==='tr' ? 'Zeka AI ile yazın...' : 'Ask Zeka AI...'}
               </div>
               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background:'#534AB7' }}>
                 <ArrowRight className="w-4 h-4 text-white"/>
@@ -1496,12 +1529,12 @@ function ZekaAI({ s }) {
 /* ─── COMPLIANCE ─── */
 function Compliance({ s }) {
   const ref = useFadeUp()
-  const isAz = s.isAz
+  const L = s.lang
   const cards = [
-    { icon:Server,    title:s.s1t, desc:s.s1d, label:isAz?'AZ Serverləri':'AZ Servers', color:'#534AB7' },
-    { icon:Shield,    title:s.s2t, desc:s.s2d, label:'ISO/IEC 27001',                   color:'#1D9E75' },
-    { icon:Lock,      title:s.s3t, desc:s.s3d, label:isAz?'GDPR Uyğunluğu':'GDPR Compliant', color:'#534AB7' },
-    { icon:Users,     title:s.s4t, desc:s.s4d, label:'24/7',                             color:'#1D9E75' },
+    { icon:Server,    title:s.s1t, desc:s.s1d, label:L==='az'?'AZ Serverləri':L==='tr'?'AZ Sunucuları':'AZ Servers', color:'#534AB7' },
+    { icon:Shield,    title:s.s2t, desc:s.s2d, label:'ISO/IEC 27001',                                                color:'#1D9E75' },
+    { icon:Lock,      title:s.s3t, desc:s.s3d, label:L==='az'?'GDPR Uyğunluğu':L==='tr'?'GDPR Uyumlu':'GDPR Compliant', color:'#534AB7' },
+    { icon:Users,     title:s.s4t, desc:s.s4d, label:'24/7',                                                         color:'#1D9E75' },
   ]
 
   return (
@@ -1512,7 +1545,11 @@ function Compliance({ s }) {
             <p className="text-teal text-xs font-bold uppercase tracking-widest mb-4">{s.sec_badge}</p>
             <h2 className="font-extrabold text-gray-900 leading-tight"
               style={{ fontSize:'clamp(2rem,4vw,3rem)', letterSpacing:'-0.02em' }}>
-              {isAz ? <>Məlumatlarınız<br/><span style={{ color:'#1D9E75' }}>tam qorunur</span></> : <>Your data is<br/><span style={{ color:'#1D9E75' }}>fully protected</span></>}
+              {L==='az'
+                ? <>Məlumatlarınız<br/><span style={{ color:'#1D9E75' }}>tam qorunur</span></>
+                : L==='tr'
+                ? <>Verileriniz<br/><span style={{ color:'#1D9E75' }}>tam korunuyor</span></>
+                : <>Your data is<br/><span style={{ color:'#1D9E75' }}>fully protected</span></>}
             </h2>
           </div>
           <p className="text-gray-500 text-base leading-relaxed font-medium">{s.sec_sub}</p>
@@ -1537,11 +1574,15 @@ function Compliance({ s }) {
 
 /* ─── PILOT CTA ─── */
 function PilotCTA({ s }) {
-  const isAz = s.isAz
-  const perks = isAz ? [
+  const L = s.lang
+  const perks = L==='az' ? [
     { icon:Zap,            label:'Tam giriş',       desc:'Bütün funksiyalar pilot mərhələsində açıqdır' },
     { icon:HeartHandshake, label:'Birgə inkişaf',   desc:'Rəyiniz platformanı birbaşa formalaşdırır'   },
     { icon:Award,          label:'Prioritet dəstək',desc:'Komandamızla birbaşa əlaqə imkanı'            },
+  ] : L==='tr' ? [
+    { icon:Zap,            label:'Tam erişim',       desc:'Pilot sürecinde tüm özellikler açık'             },
+    { icon:HeartHandshake, label:'Ürünü şekillendir',desc:'Geri bildiriminiz geliştirmeyi doğrudan etkiler' },
+    { icon:Award,          label:'Öncelikli destek', desc:'Pilot boyunca ekibimizle doğrudan iletişim'      },
   ] : [
     { icon:Zap,            label:'Full access',       desc:'All features open during the pilot phase'       },
     { icon:HeartHandshake, label:'Shape the product', desc:'Your feedback directly influences development'  },
@@ -1576,15 +1617,19 @@ function PilotCTA({ s }) {
 
         {/* Headline */}
         <h2 style={{ fontSize:'clamp(2.4rem,6vw,5rem)', fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-0.03em', marginBottom:24 }}>
-          {isAz
+          {L==='az'
             ? <>Məktəbiniz<br/><span style={{ color:'#86efac' }}>gələcəyi formalaşdırsın</span></>
+            : L==='tr'
+            ? <>Okulunuz<br/><span style={{ color:'#86efac' }}>geleceği şekillendirsin</span></>
             : <>Your school could<br/><span style={{ color:'#86efac' }}>shape what's next</span></>}
         </h2>
 
         {/* Sub */}
         <p style={{ color:'rgba(255,255,255,0.5)', fontSize:15.5, lineHeight:1.7, maxWidth:420, margin:'0 auto 44px', fontWeight:400 }}>
-          {isAz
+          {L==='az'
             ? 'Azərbaycanda rəqəmsal məktəbin əsasını birlikdə quraq.'
+            : L==='tr'
+            ? "Azerbaycan'da dijital okul altyapısının temelini birlikte atalım."
             : 'Join our founding school cohort and help define the future of school management in Azerbaijan.'}
         </p>
 
@@ -1604,7 +1649,7 @@ function PilotCTA({ s }) {
           onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 14px 40px rgba(109,40,217,0.55)' }}
           onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 8px 32px rgba(109,40,217,0.45)' }}
         >
-          {isAz ? 'Müraciət et' : 'Apply now'} <ArrowRight style={{ width:15, height:15 }}/>
+          {L==='az' ? 'Müraciət et' : L==='tr' ? 'Başvur' : 'Apply now'} <ArrowRight style={{ width:15, height:15 }}/>
         </Link>
 
         {/* Perks */}
@@ -1662,89 +1707,6 @@ function Benefits({ s }) {
               <p className="text-gray-500 text-xs leading-relaxed">{desc}</p>
             </div>
           ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── FAQ ─── */
-function FAQ({ s }) {
-  const ref = useFadeUp()
-  const [open, setOpen] = useState(null)
-  const isAz = s.isAz
-  const lang = isAz ? 'az' : s.nav_signin === 'Giriş yap' ? 'tr' : 'en'
-
-  const items = {
-    az: [
-      { q:'Xidmət neçə müddətdə fəaliyyətə başlayır?', a:'Orta hesabla 2–4 həftə ərzində tam tətbiq tamamlanır. Pilot mərhələsindəki məktəblər adətən 1 həftə ərzində işə başlayır.' },
-      { q:'IB məktəbi deyilik — Zirva bizim üçündürmü?', a:'Bəli. Zirva həm IB, həm də Azərbaycan dövlət kurikulumu üçün xüsusi olaraq hazırlanmışdır. Dövlət məktəbləri üçün ayrıca rejim mövcuddur.' },
-      { q:'Mövcud sistemdən məlumatlarımızı necə köçürəcəyik?', a:'Komandamız hər məktəb üçün fərdi köçürmə planı hazırlayır. Excel, CSV və ya digər sistemlərdən məlumatları idxal edirik.' },
-      { q:'Mobil tətbiq varmı?', a:'Bəli, iOS və Android üçün tam funksiyalı mobil tətbiq mövcuddur. Müəllim, valideyn və şagird rolları tam dəstəklənir.' },
-      { q:'Zəka AI hansı dillərdə işləyir?', a:'Zəka AI Azərbaycan, ingilis və rus dillərini dəstəkləyir. Hesabat köməkçisi istənilən dildə çıxış yarada bilir.' },
-      { q:'Qiymətlər necədir?', a:'Qiymətlər məktəbin ölçüsünə və kurikulumuna görə fərqlənir. Pilot proqram çərçivəsində ilk tətbiq tam dəstəklə həyata keçirilir. Ətraflı məlumat üçün bizimlə əlaqə saxlayın.' },
-    ],
-    tr: [
-      { q:'Hizmet ne kadar sürede başlar?', a:'Ortalama 2–4 hafta içinde tam uygulama tamamlanır. Pilot programındaki okullar genellikle 1 haftada başlar.' },
-      { q:'IB okulu değiliz — Zirva bizim için mi?', a:'Evet. Zirva hem IB hem de Azerbaycan ulusal müfredatı için özel olarak tasarlanmıştır. Devlet okulları için ayrı bir mod mevcuttur.' },
-      { q:'Mevcut sistemimizden verileri nasıl taşıyacağız?', a:'Ekibimiz her okul için özel bir taşıma planı hazırlar. Excel, CSV veya diğer sistemlerden veri aktarımı yapılır.' },
-      { q:'Mobil uygulama var mı?', a:'Evet, iOS ve Android için tam özellikli mobil uygulama mevcuttur. Öğretmen, veli ve öğrenci rolleri tam desteklenmektedir.' },
-      { q:'Zeka AI hangi dillerde çalışır?', a:"Zeka AI Azerbaycanca, İngilizce ve Rusçayı destekler. Rapor asistanı istenen dilde çıktı üretebilir." },
-      { q:'Fiyatlandırma nasıl?', a:'Fiyatlar okulun büyüklüğüne ve müfredata göre değişir. Pilot program kapsamında ilk uygulama tam destekle gerçekleştirilir. Detaylı bilgi için bizimle iletişime geçin.' },
-    ],
-    en: [
-      { q:'How quickly can we get started?', a:'Full onboarding typically takes 2–4 weeks. Schools in our pilot programme are usually up and running within a week.' },
-      { q:"We're not an IB school — is Zirva for us?", a:'Yes. Zirva is purpose-built for both IB and the Azerbaijani national curriculum. There is a dedicated mode specifically for government schools.' },
-      { q:'How do we migrate data from our current system?', a:'Our team creates a custom migration plan for every school. We can import from Excel, CSV, or directly from other platforms.' },
-      { q:'Is there a mobile app?', a:'Yes — a fully-featured mobile app is available for iOS and Android, with complete support for teacher, parent, and student roles.' },
-      { q:'What languages does Zeka AI work in?', a:'Zeka AI supports Azerbaijani, English, and Russian. The report assistant can generate output in any of these languages.' },
-      { q:'How does pricing work?', a:'Pricing varies by school size and curriculum. Pilot-programme onboarding is fully supported from day one. Contact us for a tailored quote.' },
-    ],
-  }
-
-  const faqs = items[lang] || items.az
-
-  return (
-    <section ref={ref} className="fade-up py-24 bg-white">
-      <div className="max-w-3xl mx-auto px-5 sm:px-8">
-        <div className="text-center mb-14">
-          <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">
-            {isAz ? 'FAQ' : lang === 'tr' ? 'SSS' : 'FAQ'}
-          </p>
-          <h2 className="font-extrabold text-gray-900"
-            style={{ fontSize:'clamp(1.9rem,4vw,3rem)', letterSpacing:'-0.025em' }}>
-            {isAz ? 'Tez-Tez Soruşulan Suallar' : lang === 'tr' ? 'Sıkça Sorulan Sorular' : 'Frequently Asked Questions'}
-          </h2>
-        </div>
-
-        <div className="space-y-2">
-          {faqs.map((item, i) => (
-            <div key={i} className="border border-gray-100 rounded-2xl overflow-hidden">
-              <button
-                onClick={() => setOpen(open === i ? null : i)}
-                className="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors"
-              >
-                <span className="font-semibold text-gray-900 text-[15px] pr-4">{item.q}</span>
-                <ChevronRight
-                  className="w-4 h-4 shrink-0 text-gray-400 transition-transform duration-200"
-                  style={{ transform: open === i ? 'rotate(90deg)' : 'rotate(0deg)' }}
-                />
-              </button>
-              {open === i && (
-                <div className="px-6 pb-5 text-sm text-gray-500 leading-relaxed border-t border-gray-50">
-                  <div className="pt-4">{item.a}</div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center mt-10">
-          <Link to="/contact"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-purple hover:underline">
-            {isAz ? 'Başqa sualınız var?' : lang === 'tr' ? 'Başka sorunuz var mı?' : 'Still have questions?'}
-            <ArrowRight className="w-4 h-4"/>
-          </Link>
         </div>
       </div>
     </section>
@@ -1844,7 +1806,6 @@ export default function Landing() {
       <ZekaAI s={s}/>
       <Benefits s={s}/>
       <Compliance s={s}/>
-      <FAQ s={s}/>
       <PilotCTA s={s}/>
       <Footer s={s}/>
     </div>
