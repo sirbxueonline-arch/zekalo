@@ -195,11 +195,11 @@ export default function LandingNav({ s, lang, setLang }) {
 
         {/* Right actions */}
         <div className="hidden lg:flex items-center gap-1.5">
-          <div className="flex items-center rounded-lg p-0.5 mr-2" style={{ background:'rgba(0,0,0,0.05)' }}>
+          <div className="flex items-center rounded-md mr-2" style={{ background:'rgba(0,0,0,0.05)', padding:2 }}>
             {['az','tr','en','ru'].map(l => (
               <button key={l} onClick={() => setLang(l)}
-                className="px-2.5 py-1.5 rounded-md text-[11px] font-extrabold tracking-wide transition-all"
-                style={lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'}:{color:'#9ca3af'}}>
+                className="px-2 rounded text-[10px] font-extrabold tracking-wide transition-all"
+                style={{ padding:'2px 8px', ...(lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 3px rgba(0,0,0,0.10)'}:{color:'#b0b7c3'}) }}>
                 {l.toUpperCase()}
               </button>
             ))}
@@ -258,8 +258,8 @@ export default function LandingNav({ s, lang, setLang }) {
           <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
             <div className="flex rounded-lg p-0.5" style={{ background:'rgba(0,0,0,0.06)' }}>
               {['az','tr','en','ru'].map(l=>(
-                <button key={l} onClick={()=>setLang(l)} className="px-3 py-1.5 rounded-md text-xs font-extrabold transition-all"
-                  style={lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'}:{color:'#9ca3af'}}>
+                <button key={l} onClick={()=>setLang(l)} className="rounded text-[10px] font-extrabold transition-all"
+                  style={{ padding:'2px 8px', ...(lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 3px rgba(0,0,0,0.10)'}:{color:'#b0b7c3'}) }}>
                   {l.toUpperCase()}
                 </button>
               ))}
