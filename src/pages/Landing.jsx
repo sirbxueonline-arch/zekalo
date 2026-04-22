@@ -426,6 +426,12 @@ const globalStyles = `
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* ── Mobile overrides ── */
+  html { overflow-x: hidden; }
+  @media(max-width:639px){
+    .hero-section { min-height: unset !important; padding-bottom: 80px !important; }
+  }
 `
 
 /* ── Scroll fade-up hook ── */
@@ -606,7 +612,7 @@ function Nav({ s, lang, setLang }) {
           {/* Right actions */}
           <div className="hidden lg:flex items-center gap-1.5">
             <div className="flex items-center rounded-lg p-0.5 mr-1" style={{ background:'rgba(0,0,0,0.06)' }}>
-              {['az','tr','en'].map(l => (
+              {['az','tr','en','ru'].map(l => (
                 <button key={l} onClick={() => setLang(l)}
                   className="px-2.5 py-1.5 rounded-md text-[11px] font-extrabold tracking-wide transition-all duration-200"
                   style={lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'}:{color:'#9ca3af'}}>
@@ -782,7 +788,7 @@ function Nav({ s, lang, setLang }) {
             </div>
             <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
               <div className="flex items-center rounded-lg p-0.5" style={{ background:'rgba(0,0,0,0.06)' }}>
-                {['az','tr','en'].map(l => (
+                {['az','tr','en','ru'].map(l => (
                   <button key={l} onClick={() => setLang(l)}
                     className="px-3 py-1.5 rounded-md text-xs font-extrabold transition-all"
                     style={lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'}:{color:'#9ca3af'}}>
@@ -1125,7 +1131,7 @@ function FeatureVisual({ idx, s }) {
 function Hero({ s }) {
   const L = s.lang
   return (
-    <section style={{
+    <section className="hero-section" style={{
       minHeight:'100vh', position:'relative', overflow:'hidden',
     }}>
 
@@ -1214,8 +1220,8 @@ function Hero({ s }) {
           </Link>
         </div>
 
-        {/* Dashboard area */}
-        <div style={{ position:'relative', width:'100%', maxWidth:1000 }}>
+        {/* Dashboard area — hidden on small screens */}
+        <div className="hidden sm:block" style={{ position:'relative', width:'100%', maxWidth:1000 }}>
 
           {/* Purple glow behind mockup */}
           <div style={{ position:'absolute', bottom:-20, left:'10%', right:'10%', height:100,
@@ -1295,7 +1301,7 @@ function PartnerBar({ s }) {
               <a href={url} target="_blank" rel="noopener noreferrer"
                 className="partner-item"
                 style={{ textDecoration:'none', transition:'filter .2s ease, opacity .2s ease' }}>
-                <img src={img} alt={name} style={{ height:120, width:'auto', objectFit:'contain', display:'block' }}/>
+                <img src={img} alt={name} style={{ height:'clamp(55px,13vw,120px)', width:'auto', objectFit:'contain', display:'block' }}/>
               </a>
             </div>
           ))}
@@ -1625,7 +1631,7 @@ function ProductShowcase({ s }) {
   return (
     <section ref={ref} className="fade-up py-24" style={{ background:'#F7F7FB' }}>
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
 
           {/* Left */}
           <div>
@@ -1679,7 +1685,7 @@ function ZekaAI({ s }) {
   return (
     <section ref={ref} id="zeka" className="fade-up py-24 bg-white">
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
 
           {/* Left */}
           <div>
@@ -2081,7 +2087,7 @@ export default function Landing() {
   const { lang, setLang } = useLang()
   const s = STR[lang] || STR.az
   return (
-    <div className="min-h-screen antialiased">
+    <div className="min-h-screen antialiased" style={{ overflowX:'hidden' }}>
       {/* ── Fixed pill nav: always on top, gradient visible behind it ── */}
       <Nav s={s} lang={lang} setLang={setLang}/>
       {/* ── Gradient hero wrapper — mixed radial ── */}

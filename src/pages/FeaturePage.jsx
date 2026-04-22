@@ -265,12 +265,16 @@ export default function FeaturePage({ type }) {
         .fp-hl-item:hover { transform: translateY(-2px); }
         .fp-related-card { transition: transform .18s ease, box-shadow .18s ease; }
         .fp-related-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.1) !important; }
+        @media(max-width:767px){
+          .fp-body-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+          .fp-hero { padding-top: 80px !important; padding-bottom: 56px !important; }
+        }
       `}</style>
 
       <LandingNav s={s} lang={lang} setLang={setLang} />
 
       {/* ── Hero ── */}
-      <section style={{ position:'relative', overflow:'hidden', padding:'110px 24px 80px', textAlign:'center',
+      <section className="fp-hero" style={{ position:'relative', overflow:'hidden', padding:'110px 24px 80px', textAlign:'center',
         background:`radial-gradient(ellipse 80% 70% at 50% -10%, ${feature.glow} 0%, transparent 65%), #060614` }}>
         {/* Dot grid */}
         <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize:'32px 32px', WebkitMaskImage:'radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent)', maskImage:'radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent)', pointerEvents:'none' }}/>
@@ -306,7 +310,7 @@ export default function FeaturePage({ type }) {
 
       {/* ── Body ── */}
       <section style={{ padding:'80px 24px', background:'#f9fafb' }}>
-        <div style={{ maxWidth:900, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, alignItems:'start' }}>
+        <div className="fp-body-grid" style={{ maxWidth:900, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, alignItems:'start' }}>
           {/* Description */}
           <div>
             <p style={{ fontSize:'1.08rem', color:'#374151', lineHeight:1.8, margin:0 }}>{content.body}</p>

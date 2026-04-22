@@ -154,7 +154,7 @@ export default function Solutions() {
             <p style={{ fontSize:16, color:'#6b7280', fontWeight:500 }}>{s.programmes_sub}</p>
           </div>
 
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(340px,1fr))', gap:22 }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(min(340px,100%),1fr))', gap:22 }}>
             {cards.map((card) => {
               const IC = card.icon
               return (

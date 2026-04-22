@@ -254,14 +254,6 @@ export default function LandingNav({ s, lang, setLang }) {
                 )}
               </div>
             ))}
-            {[
-              { label:s.nav_zeka, to:'/zeka-ai' },
-            ].map(({ label, to }) => (
-              <Link key={label} to={to} onClick={() => setOpen(false)}
-                className="flex items-center py-3 px-3 text-[15px] text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors">
-                {label}
-              </Link>
-            ))}
           </div>
           <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
             <div className="flex rounded-lg p-0.5" style={{ background:'rgba(0,0,0,0.06)' }}>
