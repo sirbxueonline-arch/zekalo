@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import {
   BookOpen, Sparkles, MessageSquare, FileText, GraduationCap,
   Users, BarChart2, ArrowRight, Check, Shield, Globe, Menu, X,
-  Building2, Lock, Clock, Award, Bell, ClipboardList,
+  Building2, Lock, Clock, Award, Bell, ClipboardList, ClipboardCheck,
   PenLine, TrendingUp, Calendar, HeartHandshake, LayoutDashboard,
   Mail, HelpCircle, Layers, Star, Zap, CheckCircle, Sliders, Phone,
   Server, ChevronRight
@@ -481,10 +481,20 @@ function Nav({ s, lang, setLang }) {
     { to:'/partners', icon:HeartHandshake, accent:'#1D9E75', title:L==='az'?'Tərəfdaşlar':L==='tr'?'Ortaklar':'Partners',   desc:L==='az'?'Əməkdaşlıq imkanları':L==='tr'?'Ortaklık fırsatları':'Partnership opportunities' },
     { to:'/contact',  icon:Mail,           accent:'#1D9E75', title:L==='az'?'Əlaqə':L==='tr'?'İletişim':'Contact',          desc:L==='az'?'Bizimlə əlaqə saxla':L==='tr'?'Bize ulaşın':'Get in touch' },
   ]
+  const featItems = [
+    { to:'/features/curriculum',    icon:BookOpen,       accent:'#7c3aed', title:L==='az'?'Kurikulum İdarəetməsi':L==='tr'?'Müfredat Yönetimi':'Curriculum Management',  desc:L==='az'?'Birgə planlaşdırma, 600+ standart':L==='tr'?'Ortak planlama, 600+ standart':'Collaborative planning, 600+ standards' },
+    { to:'/features/assessment',    icon:ClipboardCheck, accent:'#2563eb', title:L==='az'?'Qiymətləndirmə & Jurnal':L==='tr'?'Değerlendirme & Not Defteri':'Assessment & Gradebook', desc:L==='az'?'IB + milli sistem dəstəyi':L==='tr'?'IB + ulusal sistem desteği':'IB + national system support' },
+    { to:'/features/attendance',    icon:Calendar,       accent:'#059669', title:L==='az'?'Davamiyyət':L==='tr'?'Devam Takibi':'Attendance',             desc:L==='az'?'Bir toxunuşla qeydiyyat':L==='tr'?'Tek dokunuşla kayıt':'One-tap registration' },
+    { to:'/features/reports',       icon:BarChart2,      accent:'#d97706', title:L==='az'?'Hesabatlar & Analitika':L==='tr'?'Raporlar & Analitik':'Reports & Analytics',   desc:L==='az'?'Nazirlik + IB hesabatları':L==='tr'?'Bakanlık + IB raporları':'Ministry + IB reporting' },
+    { to:'/features/communication', icon:MessageSquare,  accent:'#0891b2', title:L==='az'?'Kommunikasiya':L==='tr'?'İletişim':'Communication',            desc:L==='az'?'Müəllim-valideyn mesajlaşma':L==='tr'?'Öğretmen-veli mesajlaşma':'Teacher-parent messaging' },
+    { to:'/features/timetable',     icon:Clock,          accent:'#7c3aed', title:L==='az'?'Cədvəl İdarəetməsi':L==='tr'?'Program Yönetimi':'Timetable Management',       desc:L==='az'?'Avtomatik cədvəl generatoru':L==='tr'?'Otomatik program oluşturucu':'Auto timetable generator' },
+    { to:'/features/student-staff', icon:Users,          accent:'#be185d', title:L==='az'?'Şagird & Heyət':L==='tr'?'Öğrenci & Personel':'Student & Staff',              desc:L==='az'?'Profillər, portfolio, intizam':L==='tr'?'Profiller, portfolyo, disiplin':'Profiles, portfolio, discipline' },
+    { to:'/zeka-ai',                icon:Sparkles,       accent:'#6d28d9', title:L==='az'?'Zəka AI':L==='tr'?'Zeka AI':'Zeka AI',                           desc:L==='az'?'AI müəllim köməkçisi':L==='tr'?'AI öğretim asistanı':'AI teaching assistant' },
+  ]
 
   const navItems = [
     { label: s.nav_solutions, key: 'solutions' },
-    { label: s.nav_features,  to:  '/features'  },
+    { label: s.nav_features,  key: 'features'  },
     { label: s.nav_zeka,      to:  '/zeka-ai'   },
     { label: s.nav_resources, key: 'resources'  },
     { label: L==='az'?'Şirkət':L==='tr'?'Şirket':'Company', key: 'company' },
@@ -683,6 +693,35 @@ function Nav({ s, lang, setLang }) {
                 </div>
               )}
 
+              {/* Features */}
+              {dropdown==='features' && (
+                <div className="dd-animated" style={{
+                  background:'#fff', borderRadius:20,
+                  border:'1px solid rgba(0,0,0,0.07)',
+                  boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)',
+                  padding:'24px 20px 18px',
+                }}>
+                  <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
+                    {L==='az'?'Platform Xüsusiyyətləri':L==='tr'?'Platform Özellikleri':'Platform Features'}
+                  </p>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)' }}>
+                    {featItems.map(item => <DdItem key={item.to} {...item}/>)}
+                  </div>
+                  <div style={{ height:1, background:'rgba(0,0,0,0.06)', margin:'12px 0 10px' }}/>
+                  <Link to="/features" onClick={() => setDropdown(null)}
+                    style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', borderRadius:12, background:'rgba(124,58,237,0.05)', border:'1px solid rgba(124,58,237,0.1)', textDecoration:'none' }}>
+                    <span style={{ fontSize:12.5, fontWeight:700, color:'#7c3aed' }}>
+                      {L==='az'?'Bütün xüsusiyyətlərə bax →':L==='tr'?'Tüm özellikleri gör →':'View all features →'}
+                    </span>
+                    <div style={{ display:'flex', gap:4 }}>
+                      {['#7c3aed','#2563eb','#059669','#d97706','#0891b2','#be185d','#6d28d9'].map(c => (
+                        <div key={c} style={{ width:7, height:7, borderRadius:'50%', background:c, opacity:0.65 }}/>
+                      ))}
+                    </div>
+                  </Link>
+                </div>
+              )}
+
               {/* Company */}
               {dropdown==='company' && (
                 <div className="dd-animated" style={{
@@ -710,6 +749,7 @@ function Nav({ s, lang, setLang }) {
             <div className="space-y-0.5 mb-4">
               {[
                 { label:s.nav_solutions, key:'solutions', items:solItems },
+                { label:s.nav_features,  key:'features',  items:featItems },
                 { label:s.nav_resources, key:'resources', items:resItems },
                 { label:L==='az'?'Şirkət':L==='tr'?'Şirket':'Company', key:'company', items:compItems },
               ].map(({ label, key, items }) => (
@@ -741,8 +781,7 @@ function Nav({ s, lang, setLang }) {
                 </div>
               ))}
               {[
-                { label:s.nav_features, to:'/features' },
-                { label:s.nav_zeka,     to:'/zeka-ai'  },
+                { label:s.nav_zeka, to:'/zeka-ai' },
               ].map(({ label, to }) => (
                 <Link key={label} to={to} onClick={() => setOpen(false)}
                   className="flex items-center py-3 px-3 text-[15px] text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors">
