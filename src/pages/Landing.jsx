@@ -329,6 +329,15 @@ const globalStyles = `
     background-clip: text;
   }
 
+  /* ── Dropdown entry animation ── */
+  @keyframes ddIn {
+    from { opacity: 0; margin-top: -8px; }
+    to   { opacity: 1; margin-top: 0; }
+  }
+  .dd-animated {
+    animation: ddIn 0.17s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   /* ── Scroll-fade-up ── */
   .fade-up {
     opacity: 0;
@@ -358,129 +367,325 @@ function useFadeUp(threshold = 0.15) {
 
 /* ══════════════════════════════════════ NAV ══ */
 function Nav({ s, lang, setLang }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen]             = useState(false)
+  const [dropdown, setDropdown]     = useState(null)
+  const [mobileOpen, setMobileOpen] = useState(null)
+  const [scrolled, setScrolled]     = useState(false)
+  const closeTimer = useRef(null)
+  const L = s.lang
 
-  const links = [
-    { label: s.nav_solutions, to: '/solutions' },
-    { label: s.nav_features,  to: '/features'  },
-    { label: s.nav_zeka,      to: '/zeka-ai'   },
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 56)
+    window.addEventListener('scroll', fn, { passive:true })
+    return () => window.removeEventListener('scroll', fn)
+  }, [])
+
+  const openDd  = (name) => { clearTimeout(closeTimer.current); setDropdown(name) }
+  const closeDd = ()     => { closeTimer.current = setTimeout(() => setDropdown(null), 150) }
+  const keepDd  = ()     => clearTimeout(closeTimer.current)
+
+  const solItems = [
+    { to:'/ib-pyp',             logo:'/pyp.png', accent:'#f59e0b', title:L==='az'?'IB İlk İllər (PYP)':L==='tr'?'IB İlk Yıllar (PYP)':'IB Primary Years (PYP)',   desc:L==='az'?'3–12 yaş · Kiçik şagirdlər':L==='tr'?'3–12 yaş · Küçük öğrenciler':'Ages 3–12 · Foundation learning' },
+    { to:'/ib-myp',             logo:'/myp.png', accent:'#ef4444', title:L==='az'?'IB Orta İllər (MYP)':L==='tr'?'IB Orta Yıllar (MYP)':'IB Middle Years (MYP)',   desc:L==='az'?'11–16 yaş · Birgə planlaşdırma':L==='tr'?'11–16 yaş · Ortak planlama':'Ages 11–16 · Collaborative planning' },
+    { to:'/ib-diploma',         logo:'/dp.png',  accent:'#3b82f6', title:L==='az'?'IB Diploma (DP)':L==='tr'?'IB Diploma (DP)':'IB Diploma (DP)',                  desc:L==='az'?'16–19 yaş · Tam DP dəstəyi':L==='tr'?'16–19 yaş · Tam DP desteği':'Ages 16–19 · Full DP support' },
+    { to:'/ib-career',          logo:'/cp.png',  accent:'#a855f7', title:L==='az'?'IB Karyera (CP)':L==='tr'?'IB Kariyer (CP)':'IB Career-Related (CP)',           desc:L==='az'?'16–19 yaş · Karyera yönümlü':L==='tr'?'16–19 yaş · Kariyer odaklı':'Ages 16–19 · Career-focused' },
+    { to:'/government-schools', icon:Building2,  accent:'#1D9E75', title:L==='az'?'Dövlət Məktəbləri':L==='tr'?'Devlet Okulları':'Government Schools',             desc:L==='az'?'Nazirlik inteqrasiyası':L==='tr'?'Bakanlık entegrasyonu':'Ministry integration' },
   ]
+  const resItems = [
+    { to:'/ceo-letter', icon:FileText,     accent:'#534AB7', title:L==='az'?'CEO Məktubu':L==='tr'?'CEO Mektubu':'CEO Letter',                  desc:L==='az'?'Zirva-nın vizyonu':L==='tr'?'Zirva\'nın vizyonu':'Our vision & mission' },
+    { to:'/resources',  icon:BookOpen,     accent:'#534AB7', title:L==='az'?'Resurs Kitabxanası':L==='tr'?'Kaynak Kütüphanesi':'Resource Library',desc:L==='az'?'Bələdçilər & şablonlar':L==='tr'?'Rehberler & şablonlar':'Guides & templates' },
+    { to:'/blog',       icon:PenLine,      accent:'#534AB7', title:'Blog',                                                                        desc:L==='az'?'Məqalələr & yeniliklər':L==='tr'?'Makaleler & haberler':'Articles & updates' },
+    { to:'/contact',    icon:Star,         accent:'#534AB7', title:L==='az'?'Müştəri Rəyləri':L==='tr'?'Müşteri Görüşleri':'Customer Reviews',    desc:L==='az'?'Real istifadəçi hekayələri':L==='tr'?'Gerçek kullanıcı hikayeleri':'Real user stories' },
+  ]
+  const compItems = [
+    { to:'/about',    icon:Users,          accent:'#1D9E75', title:L==='az'?'Haqqımızda':L==='tr'?'Hakkımızda':'About Us',  desc:L==='az'?'Komanda & missiya':L==='tr'?'Ekip & misyon':'Team & mission' },
+    { to:'/careers',  icon:TrendingUp,     accent:'#1D9E75', title:L==='az'?'Karyera':L==='tr'?'Kariyer':'Careers',         desc:L==='az'?'Açıq vakansiyalar':L==='tr'?'Açık pozisyonlar':'Open positions' },
+    { to:'/partners', icon:HeartHandshake, accent:'#1D9E75', title:L==='az'?'Tərəfdaşlar':L==='tr'?'Ortaklar':'Partners',   desc:L==='az'?'Əməkdaşlıq imkanları':L==='tr'?'Ortaklık fırsatları':'Partnership opportunities' },
+    { to:'/contact',  icon:Mail,           accent:'#1D9E75', title:L==='az'?'Əlaqə':L==='tr'?'İletişim':'Contact',          desc:L==='az'?'Bizimlə əlaqə saxla':L==='tr'?'Bize ulaşın':'Get in touch' },
+  ]
+
+  const navItems = [
+    { label: s.nav_solutions, key: 'solutions' },
+    { label: s.nav_features,  to:  '/features'  },
+    { label: s.nav_zeka,      to:  '/zeka-ai'   },
+    { label: s.nav_resources, key: 'resources'  },
+    { label: L==='az'?'Şirkət':L==='tr'?'Şirket':'Company', key: 'company' },
+  ]
+
+  const DdItem = ({ to, logo, icon: Icon, title, desc, accent = '#534AB7' }) => (
+    <Link to={to} onClick={() => setDropdown(null)}
+      style={{
+        display:'flex', alignItems:'flex-start', gap:13, padding:'11px 12px',
+        borderRadius:16, textDecoration:'none',
+        transition:'background 0.15s ease',
+        background:'transparent',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = `${accent}0d` }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
+      {/* Icon with gradient tinted background */}
+      <div style={{
+        width:44, height:44, borderRadius:13, flexShrink:0,
+        background:`linear-gradient(135deg, ${accent}28, ${accent}10)`,
+        border:`1px solid ${accent}22`,
+        display:'flex', alignItems:'center', justifyContent:'center',
+        marginTop:1,
+      }}>
+        {logo
+          ? <img src={logo} alt={title} style={{ width:24, height:24, objectFit:'contain', mixBlendMode:'multiply' }}/>
+          : <Icon style={{ width:19, height:19, color:accent }}/>
+        }
+      </div>
+      <div>
+        <p style={{ fontSize:14, fontWeight:700, color:'#111827', lineHeight:1.3, marginBottom:3 }}>{title}</p>
+        <p style={{ fontSize:12, color:'#9ca3af', lineHeight:1.45, fontWeight:400 }}>{desc}</p>
+      </div>
+    </Link>
+  )
+
+  const ddStyle = {
+    position:'absolute', top:'calc(100% + 12px)', zIndex:300,
+    background:'#fff', borderRadius:22,
+    border:'1px solid rgba(0,0,0,0.07)',
+    boxShadow:'0 8px 10px -4px rgba(0,0,0,0.04), 0 24px 60px -8px rgba(0,0,0,0.16)',
+    padding:'16px 10px 10px',
+  }
+  const caretBase = {
+    position:'absolute', top:-7, width:13, height:13,
+    background:'#fff', border:'1px solid rgba(0,0,0,0.07)',
+    borderBottom:'none', borderRight:'none', transform:'rotate(45deg)',
+  }
 
   return (
     <>
       <style>{globalStyles}</style>
-      <header
-        className="sticky top-0 z-50 bg-white/95 backdrop-blur-2xl"
-        style={{ boxShadow: '0 0 0 1px rgba(0,0,0,0.055), 0 4px 24px rgba(0,0,0,0.05)' }}
-      >
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 flex items-center justify-between h-[72px]">
 
-          {/* ── Brand ── */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-            <ZirvaLogo size={28} />
-            <span className="text-[19px] font-extrabold text-gray-900 tracking-tight">Zirva</span>
+      {/* ── Outer wrapper: fixed, always floats in air ── */}
+      <header style={{
+        position:'fixed', top:0, left:0, right:0, zIndex:50,
+        padding: scrolled ? '8px 20px' : '10px 20px 0',
+        background:'transparent',
+        transition:'padding .3s ease',
+      }}>
+
+        {/* ── Inner pill — always pill-shaped, position:relative for mega menus ── */}
+        <div style={{
+          position:'relative',
+          maxWidth:1260, margin:'0 auto',
+          background:'rgba(255,255,255,0.94)',
+          backdropFilter:'blur(20px)',
+          WebkitBackdropFilter:'blur(20px)',
+          borderRadius: 999,
+          height: 62,
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          padding:'0 20px',
+          boxShadow: scrolled
+            ? '0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05)'
+            : '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12)',
+          border: scrolled ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.55)',
+          transition:'box-shadow .3s ease, border .3s ease',
+        }}>
+
+          {/* Brand */}
+          <Link to="/" className="flex items-center gap-2.5 shrink-0">
+            <ZirvaLogo size={27} />
+            <span className="text-[18px] font-extrabold text-gray-900 tracking-tight">Zirva</span>
           </Link>
 
-          {/* ── Center links ── */}
+          {/* Center nav — triggers only, panels rendered separately below */}
           <nav className="hidden lg:flex items-center gap-0.5">
-            {links.map(({ label, to }) => (
-              <Link
-                key={label} to={to}
-                className="relative px-4 py-2 text-[14px] text-gray-500 hover:text-gray-900 font-semibold rounded-lg transition-all duration-150 hover:bg-gray-100/80"
+            {navItems.map(({ label, to, key }) => (
+              <div key={label}
+                onMouseEnter={() => key ? openDd(key) : setDropdown(null)}
+                onMouseLeave={key ? closeDd : undefined}
               >
-                {label}
-              </Link>
+                {to ? (
+                  <Link to={to}
+                    className="flex items-center px-3.5 py-2 text-[13.5px] text-gray-600 hover:text-gray-900 font-semibold rounded-lg hover:bg-black/[0.05] transition-colors">
+                    {label}
+                  </Link>
+                ) : (
+                  <button
+                    className="flex items-center gap-1 px-3.5 py-2 text-[13.5px] font-semibold rounded-lg hover:bg-black/[0.05] transition-colors"
+                    style={{ color:dropdown===key?'#534AB7':'#4b5563', background:'transparent', border:'none', cursor:'pointer' }}>
+                    {label}
+                    <ChevronRight className="w-[11px] h-[11px] transition-transform duration-200"
+                      style={{ transform:dropdown===key?'rotate(-90deg)':'rotate(90deg)', color:dropdown===key?'#534AB7':'#9ca3af' }}/>
+                  </button>
+                )}
+              </div>
             ))}
           </nav>
 
-          {/* ── Right actions ── */}
+          {/* Right actions */}
           <div className="hidden lg:flex items-center gap-1.5">
-
-            {/* Language toggle */}
-            <div className="flex items-center rounded-lg p-0.5 mr-1" style={{ background: 'rgba(0,0,0,0.05)' }}>
-              {['az', 'tr', 'en'].map(l => (
-                <button
-                  key={l} onClick={() => setLang(l)}
+            <div className="flex items-center rounded-lg p-0.5 mr-1" style={{ background:'rgba(0,0,0,0.06)' }}>
+              {['az','tr','en'].map(l => (
+                <button key={l} onClick={() => setLang(l)}
                   className="px-2.5 py-1.5 rounded-md text-[11px] font-extrabold tracking-wide transition-all duration-200"
-                  style={lang === l
-                    ? { background: '#fff', color: '#534AB7', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }
-                    : { color: '#9ca3af' }
-                  }
-                >
+                  style={lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'}:{color:'#9ca3af'}}>
                   {l.toUpperCase()}
                 </button>
               ))}
             </div>
-
-            {/* Sign in */}
-            <Link
-              to="/daxil-ol"
-              className="px-4 py-2 text-[14px] text-gray-500 hover:text-gray-900 font-semibold rounded-lg hover:bg-gray-100/80 transition-all"
-            >
+            <Link to="/daxil-ol"
+              className="px-4 py-2 text-[13.5px] text-gray-500 hover:text-gray-900 font-semibold rounded-lg hover:bg-black/[0.05] transition-all">
               {s.nav_signin}
             </Link>
-
-            {/* CTA */}
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-1.5 text-white text-[14px] font-bold px-5 py-[10px] rounded-xl transition-all hover:-translate-y-px active:translate-y-0"
-              style={{
-                background: 'linear-gradient(135deg,#6056CC 0%,#534AB7 55%,#4A41A8 100%)',
-                boxShadow: '0 2px 10px rgba(83,74,183,0.45), 0 1px 2px rgba(0,0,0,0.1)',
-              }}
-            >
+            <Link to="/contact"
+              className="inline-flex items-center gap-1.5 text-white text-[13.5px] font-bold px-5 py-[10px] rounded-full transition-all hover:-translate-y-px"
+              style={{ background:'#1a0a3e', boxShadow:'0 2px 12px rgba(26,10,62,0.45)' }}>
               {s.nav_demo}
             </Link>
           </div>
 
           {/* Mobile toggle */}
-          <button
-            onClick={() => setOpen(v => !v)}
-            className="lg:hidden p-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
-          >
+          <button onClick={() => setOpen(v => !v)}
+            className="lg:hidden p-2 text-gray-600 rounded-lg hover:bg-black/[0.06] transition-colors">
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
+
+          {/* ── Mega menu panels — full pill width, ManageBac style ── */}
+          {dropdown && (
+            <div style={{ position:'absolute', top:'calc(100% + 10px)', left:0, right:0, zIndex:300 }}
+              onMouseEnter={keepDd} onMouseLeave={closeDd}>
+
+              {/* Solutions */}
+              {dropdown==='solutions' && (
+                <div className="dd-animated" style={{
+                  background:'#fff', borderRadius:20,
+                  border:'1px solid rgba(0,0,0,0.07)',
+                  boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)',
+                  padding:'28px 20px 20px',
+                }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:0 }}>
+                    {/* Col 1 */}
+                    <div style={{ paddingRight:20, borderRight:'1px solid rgba(0,0,0,0.06)' }}>
+                      <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
+                        {L==='az'?'IB Proqramları üçün':L==='tr'?'IB Programları için':'For IB Continuum'}
+                      </p>
+                      {solItems.slice(0,4).map(item => <DdItem key={item.to} {...item}/>)}
+                    </div>
+                    {/* Col 2 */}
+                    <div style={{ paddingLeft:20 }}>
+                      <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
+                        {L==='az'?'Milli Kurikulum':L==='tr'?'Ulusal Müfredat':'National Curriculum'}
+                      </p>
+                      <DdItem {...solItems[4]}/>
+                    </div>
+                  </div>
+                  <div style={{ height:1, background:'rgba(0,0,0,0.06)', margin:'16px 0 14px' }}/>
+                  <Link to="/features" onClick={() => setDropdown(null)}
+                    style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', borderRadius:12, background:'rgba(83,74,183,0.05)', border:'1px solid rgba(83,74,183,0.1)', textDecoration:'none' }}>
+                    <span style={{ fontSize:12.5, fontWeight:700, color:'#534AB7' }}>
+                      {L==='az'?'Bütün xüsusiyyətlərə bax →':L==='tr'?'Tüm özellikleri gör →':'Explore all features →'}
+                    </span>
+                    <div style={{ display:'flex', gap:4 }}>
+                      {['#f59e0b','#ef4444','#3b82f6','#a855f7','#1D9E75'].map(c => (
+                        <div key={c} style={{ width:7, height:7, borderRadius:'50%', background:c, opacity:0.7 }}/>
+                      ))}
+                    </div>
+                  </Link>
+                </div>
+              )}
+
+              {/* Resources */}
+              {dropdown==='resources' && (
+                <div className="dd-animated" style={{
+                  background:'#fff', borderRadius:20,
+                  border:'1px solid rgba(0,0,0,0.07)',
+                  boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)',
+                  padding:'24px 20px 18px',
+                }}>
+                  <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
+                    {L==='az'?'Resurslar':L==='tr'?'Kaynaklar':'Resources'}
+                  </p>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)' }}>
+                    {resItems.map(item => <DdItem key={item.to} {...item}/>)}
+                  </div>
+                </div>
+              )}
+
+              {/* Company */}
+              {dropdown==='company' && (
+                <div className="dd-animated" style={{
+                  background:'#fff', borderRadius:20,
+                  border:'1px solid rgba(0,0,0,0.07)',
+                  boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)',
+                  padding:'24px 20px 18px',
+                }}>
+                  <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
+                    {L==='az'?'Şirkət':L==='tr'?'Şirket':'Company'}
+                  </p>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)' }}>
+                    {compItems.map(item => <DdItem key={item.to+item.title} {...item}/>)}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* ── Mobile drawer ── */}
+        {/* Mobile drawer */}
         {open && (
-          <div className="lg:hidden bg-white/98 border-t border-gray-100 px-6 pt-4 pb-6">
-            <div className="space-y-0.5 mb-5">
-              {links.map(({ label, to }) => (
-                <Link
-                  key={label} to={to} onClick={() => setOpen(false)}
-                  className="flex items-center py-3 px-3 text-[15px] text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors"
-                >
+          <div style={{ maxWidth:1260, margin:'0 auto', marginTop:6 }}
+            className="lg:hidden bg-white rounded-2xl shadow-xl border border-gray-100 px-5 pt-3 pb-5">
+            <div className="space-y-0.5 mb-4">
+              {[
+                { label:s.nav_solutions, key:'solutions', items:solItems },
+                { label:s.nav_resources, key:'resources', items:resItems },
+                { label:L==='az'?'Şirkət':L==='tr'?'Şirket':'Company', key:'company', items:compItems },
+              ].map(({ label, key, items }) => (
+                <div key={key}>
+                  <button onClick={() => setMobileOpen(mobileOpen===key?null:key)}
+                    className="w-full flex items-center justify-between py-3 px-3 text-[15px] text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors">
+                    {label}
+                    <ChevronRight className="w-4 h-4 text-gray-400 transition-transform duration-200"
+                      style={{ transform:mobileOpen===key?'rotate(-90deg)':'rotate(90deg)' }}/>
+                  </button>
+                  {mobileOpen===key && (
+                    <div className="pl-3 pb-2 space-y-0.5">
+                      {items.map(item => (
+                        <Link key={item.to+item.title} to={item.to}
+                          onClick={() => { setOpen(false); setMobileOpen(null) }}
+                          className="flex items-center gap-2.5 py-2 px-3 text-[14px] text-gray-600 font-medium rounded-lg hover:bg-gray-50 transition-colors">
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                            style={{ background:`${item.accent||'#534AB7'}12` }}>
+                            {item.logo
+                              ? <img src={item.logo} alt={item.title} className="w-4 h-4 object-contain" style={{ mixBlendMode:'multiply' }}/>
+                              : item.icon && <item.icon className="w-3.5 h-3.5" style={{ color:item.accent||'#534AB7' }}/>
+                            }
+                          </div>
+                          {item.title}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {[
+                { label:s.nav_features, to:'/features' },
+                { label:s.nav_zeka,     to:'/zeka-ai'  },
+              ].map(({ label, to }) => (
+                <Link key={label} to={to} onClick={() => setOpen(false)}
+                  className="flex items-center py-3 px-3 text-[15px] text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors">
                   {label}
                 </Link>
               ))}
             </div>
-            <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
-              <div className="flex items-center rounded-lg p-0.5" style={{ background: 'rgba(0,0,0,0.06)' }}>
-                {['az', 'tr', 'en'].map(l => (
-                  <button
-                    key={l} onClick={() => setLang(l)}
+            <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
+              <div className="flex items-center rounded-lg p-0.5" style={{ background:'rgba(0,0,0,0.06)' }}>
+                {['az','tr','en'].map(l => (
+                  <button key={l} onClick={() => setLang(l)}
                     className="px-3 py-1.5 rounded-md text-xs font-extrabold transition-all"
-                    style={lang === l
-                      ? { background: '#fff', color: '#534AB7', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }
-                      : { color: '#9ca3af' }
-                    }
-                  >
+                    style={lang===l?{background:'#fff',color:'#534AB7',boxShadow:'0 1px 4px rgba(0,0,0,0.12)'}:{color:'#9ca3af'}}>
                     {l.toUpperCase()}
                   </button>
                 ))}
               </div>
               <div className="flex items-center gap-2">
-                <Link to="/daxil-ol" className="text-sm text-gray-500 font-semibold px-3 py-2">
-                  {s.nav_signin}
-                </Link>
-                <Link
-                  to="/contact"
-                  className="text-white text-sm font-bold px-5 py-2.5 rounded-xl"
-                  style={{ background: 'linear-gradient(135deg,#6056CC,#534AB7)', boxShadow: '0 2px 8px rgba(83,74,183,0.4)' }}
-                >
-                  {s.nav_demo}
-                </Link>
+                <Link to="/daxil-ol" className="text-sm text-gray-500 font-semibold px-3 py-2">{s.nav_signin}</Link>
+                <Link to="/contact" className="text-white text-sm font-bold px-4 py-2.5 rounded-full"
+                  style={{ background:'#1a0a3e' }}>{s.nav_demo}</Link>
               </div>
             </div>
           </div>
@@ -768,217 +973,150 @@ function FeatureVisual({ idx, s }) {
 function Hero({ s }) {
   const L = s.lang
   return (
-    <section style={{ background:'#060614', minHeight:'100vh', position:'relative', overflow:'hidden' }}>
+    <section style={{
+      minHeight:'100vh', position:'relative', overflow:'hidden',
+    }}>
 
-      {/* ── Multi-layer background ── */}
-      <div style={{ position:'absolute', inset:0, pointerEvents:'none' }}>
+      {/* Grain texture */}
+      <div style={{
+        position:'absolute', inset:0, pointerEvents:'none', zIndex:1,
+        backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+        backgroundSize:'180px 180px', opacity:0.055, mixBlendMode:'overlay',
+      }}/>
 
-        {/* Aurora blob — top-left purple */}
-        <div style={{
-          position:'absolute', top:'-22%', left:'-12%',
-          width:'70%', height:'80%',
-          background:'radial-gradient(ellipse at 40% 40%, rgba(99,75,215,0.24) 0%, transparent 65%)',
-        }}/>
+      {/* Top center highlight */}
+      <div style={{
+        position:'absolute', top:'-5%', left:'50%', transform:'translateX(-50%)',
+        width:'75%', height:'60%', pointerEvents:'none', zIndex:1,
+        background:'radial-gradient(ellipse 60% 45% at 50% 0%, rgba(255,255,255,0.14) 0%, transparent 70%)',
+      }}/>
 
-        {/* Aurora blob — top-right indigo */}
-        <div style={{
-          position:'absolute', top:'-15%', right:'-18%',
-          width:'60%', height:'70%',
-          background:'radial-gradient(ellipse at 60% 35%, rgba(65,50,190,0.18) 0%, transparent 62%)',
-        }}/>
-
-        {/* Center beam — tightest, most saturated */}
-        <div style={{
-          position:'absolute', top:0, left:'50%', transform:'translateX(-50%)',
-          width:'820px', height:'480px',
-          background:'radial-gradient(ellipse 55% 50% at 50% 0%, rgba(140,100,255,0.20) 0%, rgba(100,75,220,0.08) 55%, transparent 80%)',
-        }}/>
-
-        {/* Dot grid — masked to the lit area */}
-        <div style={{
-          position:'absolute', inset:0,
-          backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px)',
-          backgroundSize:'44px 44px',
-          WebkitMaskImage:'radial-gradient(ellipse 72% 52% at 50% 12%, black 0%, transparent 80%)',
-          maskImage:'radial-gradient(ellipse 72% 52% at 50% 12%, black 0%, transparent 80%)',
-        }}/>
-
-        {/* Grain noise texture — makes gradients feel premium, not flat */}
-        <div style={{
-          position:'absolute', inset:0,
-          backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-          backgroundRepeat:'repeat',
-          backgroundSize:'160px 160px',
-          opacity:0.035,
-          mixBlendMode:'overlay',
-        }}/>
-
-        {/* Bottom fade — smooth transition into the next section */}
-        <div style={{
-          position:'absolute', bottom:0, left:0, right:0,
-          height:'28%',
-          background:'linear-gradient(to top, #060614 0%, transparent 100%)',
-        }}/>
-      </div>
+      {/* Bottom fade */}
+      <div style={{
+        position:'absolute', bottom:0, left:0, right:0, height:'25%', zIndex:1, pointerEvents:'none',
+        background:'linear-gradient(to top, rgba(13,6,48,0.7) 0%, transparent 100%)',
+      }}/>
 
       {/* ── Content ── */}
-      <div
-        className="max-w-6xl mx-auto px-5 sm:px-10 flex flex-col items-center"
-        style={{ position:'relative', zIndex:10, paddingTop:100, paddingBottom:0 }}
-      >
+      <div className="max-w-5xl mx-auto px-5 sm:px-10 flex flex-col items-center"
+        style={{ position:'relative', zIndex:10, paddingTop:'clamp(80px, 12vh, 130px)', paddingBottom:0 }}>
 
-        {/* ── Headline ── */}
+        {/* Headline */}
         <h1 style={{
-          textAlign:'center',
-          fontWeight:800,
-          fontSize:'clamp(2.2rem, 6.5vw, 5.5rem)',
-          lineHeight:1.0,
-          letterSpacing:'-0.038em',
-          color:'#ffffff',
-          marginBottom:28,
-          maxWidth:'18ch',
+          textAlign:'center', fontWeight:800,
+          fontSize:'clamp(2.8rem, 6vw, 5.5rem)',
+          lineHeight:1.08, letterSpacing:'-0.03em',
+          color:'#ffffff', marginBottom:24, maxWidth:'20ch',
         }}>
           {s.hero_h1a}
-          {' '}
+          <br/>
           <span style={{
-            background:'linear-gradient(128deg, #c4b5fd 0%, #a78bfa 35%, #8b5cf6 65%, #6d28d9 100%)',
-            WebkitBackgroundClip:'text',
-            WebkitTextFillColor:'transparent',
-            backgroundClip:'text',
+            background:'linear-gradient(128deg, #ede9fe 0%, #c4b5fd 35%, #a78bfa 65%, #f0e6ff 100%)',
+            WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
           }}>
             {s.hero_h1b}
           </span>
         </h1>
 
-        {/* ── Sub-copy ── */}
+        {/* Sub-copy */}
         <p style={{
-          textAlign:'center',
-          color:'rgba(255,255,255,0.40)',
-          fontSize:16.5,
-          lineHeight:1.78,
-          maxWidth:500,
-          fontWeight:500,
-          marginBottom:40,
+          textAlign:'center', color:'rgba(255,255,255,0.6)',
+          fontSize:'clamp(15px, 1.8vw, 18px)', lineHeight:1.7,
+          maxWidth:520, fontWeight:400, marginBottom:44,
         }}>
           {s.hero_sub}
         </p>
 
-        {/* ── CTAs — features first (lower commitment), contact second ── */}
+        {/* CTAs — outlined first, solid dark second (ManageBac layout) */}
         <div style={{ display:'flex', gap:12, flexWrap:'wrap', justifyContent:'center', marginBottom:72 }}>
-          <Link
-            to="/features"
+          <Link to="/features"
             style={{
               display:'inline-flex', alignItems:'center', gap:8,
-              padding:'13px 28px', borderRadius:999,
-              background:'#ffffff', color:'#09090f',
-              fontWeight:700, fontSize:14.5,
-              textDecoration:'none', whiteSpace:'nowrap',
-              boxShadow:'0 0 0 1px rgba(255,255,255,0.15), 0 8px 28px rgba(255,255,255,0.07)',
-              transition:'transform .17s ease, box-shadow .17s ease',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 0 0 1px rgba(255,255,255,0.2), 0 12px 36px rgba(255,255,255,0.12)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 0 0 1px rgba(255,255,255,0.15), 0 8px 28px rgba(255,255,255,0.07)' }}
-          >
-            {s.hero_cta1} <ArrowRight style={{ width:15, height:15, flexShrink:0 }}/>
-          </Link>
-          <Link
-            to="/contact"
-            style={{
-              display:'inline-flex', alignItems:'center', gap:8,
-              padding:'13px 28px', borderRadius:999,
-              border:'1px solid rgba(255,255,255,0.11)',
-              color:'rgba(255,255,255,0.58)',
-              fontWeight:600, fontSize:14.5,
+              padding:'14px 34px', borderRadius:999,
+              border:'1.5px solid rgba(255,255,255,0.38)',
+              color:'rgba(255,255,255,0.92)',
+              fontWeight:600, fontSize:15.5,
               textDecoration:'none', whiteSpace:'nowrap',
               transition:'all .17s ease',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.2)'; e.currentTarget.style.color='#fff' }}
-            onMouseLeave={e => { e.currentTarget.style.background=''; e.currentTarget.style.borderColor='rgba(255,255,255,0.11)'; e.currentTarget.style.color='rgba(255,255,255,0.58)' }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.6)'; e.currentTarget.style.color='#fff' }}
+            onMouseLeave={e => { e.currentTarget.style.background=''; e.currentTarget.style.borderColor='rgba(255,255,255,0.38)'; e.currentTarget.style.color='rgba(255,255,255,0.92)' }}
           >
-            {s.hero_cta2}
+            {s.hero_cta1}
+          </Link>
+          <Link to="/contact"
+            style={{
+              display:'inline-flex', alignItems:'center', gap:8,
+              padding:'14px 34px', borderRadius:999,
+              background:'#160a36',
+              color:'#fff',
+              fontWeight:700, fontSize:15.5,
+              textDecoration:'none', whiteSpace:'nowrap',
+              boxShadow:'0 4px 20px rgba(10,5,30,0.5)',
+              transition:'all .17s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 28px rgba(10,5,30,0.6)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 4px 20px rgba(10,5,30,0.5)' }}
+          >
+            {s.hero_cta2} <ArrowRight style={{ width:15, height:15, flexShrink:0 }}/>
           </Link>
         </div>
 
-        {/* ── Dashboard area ── */}
-        <div style={{ position:'relative', width:'100%', maxWidth:980 }}>
+        {/* Dashboard area */}
+        <div style={{ position:'relative', width:'100%', maxWidth:1000 }}>
 
-          {/* Purple glow behind the mockup */}
-          <div style={{
-            position:'absolute',
-            bottom:-20, left:'10%', right:'10%',
-            height:100,
-            background:'rgba(83,74,183,0.55)',
-            filter:'blur(55px)',
-            borderRadius:'50%',
-          }}/>
+          {/* Purple glow behind mockup */}
+          <div style={{ position:'absolute', bottom:-20, left:'10%', right:'10%', height:100,
+            background:'rgba(83,74,183,0.6)', filter:'blur(55px)', borderRadius:'50%' }}/>
 
-          {/* ── Floating chip — left (Zeka AI) ── */}
+          {/* Floating chip — left */}
           <div className="float-a" style={{
-            position:'absolute', zIndex:20,
-            left:-12, top:44,
-            background:'rgba(255,255,255,0.88)',
-            backdropFilter:'blur(24px)',
-            WebkitBackdropFilter:'blur(24px)',
-            borderRadius:16,
-            padding:'12px 16px',
-            boxShadow:'0 20px 56px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.12)',
-            border:'1px solid rgba(255,255,255,0.65)',
+            position:'absolute', zIndex:20, left:-12, top:44,
+            background:'rgba(255,255,255,0.92)', backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
+            borderRadius:16, padding:'12px 16px',
+            boxShadow:'0 20px 56px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.1)',
+            border:'1px solid rgba(255,255,255,0.6)',
           }}>
             <div style={{ display:'flex', alignItems:'center', gap:11 }}>
-              <div style={{
-                width:38, height:38, borderRadius:10,
-                background:'rgba(83,74,183,0.10)',
-                display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
-              }}>
+              <div style={{ width:38, height:38, borderRadius:10, background:'rgba(83,74,183,0.10)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                 <Sparkles style={{ width:17, height:17, color:'#534AB7' }}/>
               </div>
               <div>
-                <p style={{ fontSize:12.5, fontWeight:800, color:'#0d0d1a', lineHeight:1.2 }}>Zəka AI</p>
-                <p style={{ fontSize:11, fontWeight:600, color:'#1D9E75', display:'flex', alignItems:'center', gap:4, marginTop:3 }}>
-                  <span style={{ width:5, height:5, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 6px rgba(34,197,94,0.6)', flexShrink:0 }}/>
-                  {L==='az' ? 'Aktiv · Hazır' : L==='tr' ? 'Aktif · Hazır' : 'Active · Ready'}
+                <p style={{ fontSize:12.5, fontWeight:800, color:'#0d0d1a', lineHeight:1.2, margin:0 }}>Zəka AI</p>
+                <p style={{ fontSize:11, fontWeight:600, color:'#1D9E75', display:'flex', alignItems:'center', gap:4, marginTop:3, margin:0 }}>
+                  <span style={{ width:5, height:5, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 6px rgba(34,197,94,0.6)', flexShrink:0, display:'inline-block' }}/>
+                  {L==='az'?'Aktiv · Hazır':L==='tr'?'Aktif · Hazır':'Active · Ready'}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* ── Floating chip — right (Curricula) ── */}
+          {/* Floating chip — right */}
           <div className="float-b" style={{
-            position:'absolute', zIndex:20,
-            right:-12, top:60,
-            background:'rgba(255,255,255,0.88)',
-            backdropFilter:'blur(24px)',
-            WebkitBackdropFilter:'blur(24px)',
-            borderRadius:16,
-            padding:'12px 16px',
-            boxShadow:'0 20px 56px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.12)',
-            border:'1px solid rgba(255,255,255,0.65)',
+            position:'absolute', zIndex:20, right:-12, top:60,
+            background:'rgba(255,255,255,0.92)', backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
+            borderRadius:16, padding:'12px 16px',
+            boxShadow:'0 20px 56px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.1)',
+            border:'1px solid rgba(255,255,255,0.6)',
           }}>
             <div style={{ display:'flex', alignItems:'center', gap:11 }}>
-              <div style={{
-                width:38, height:38, borderRadius:10,
-                background:'rgba(29,158,117,0.10)',
-                display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
-              }}>
+              <div style={{ width:38, height:38, borderRadius:10, background:'rgba(29,158,117,0.10)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                 <GraduationCap style={{ width:17, height:17, color:'#1D9E75' }}/>
               </div>
               <div>
-                <p style={{ fontSize:12.5, fontWeight:800, color:'#0d0d1a', lineHeight:1.2 }}>
-                  {L==='az' ? 'IB + Milli Kurikulum' : L==='tr' ? 'IB + Ulusal Müfredat' : 'IB + National Curriculum'}
+                <p style={{ fontSize:12.5, fontWeight:800, color:'#0d0d1a', lineHeight:1.2, margin:0 }}>
+                  {L==='az'?'IB + Milli Kurikulum':L==='tr'?'IB + Ulusal Müfredat':'IB + National Curriculum'}
                 </p>
-                <p style={{ fontSize:11, fontWeight:600, color:'#534AB7', display:'flex', alignItems:'center', gap:4, marginTop:3 }}>
+                <p style={{ fontSize:11, fontWeight:600, color:'#534AB7', display:'flex', alignItems:'center', gap:4, marginTop:3, margin:0 }}>
                   <Check style={{ width:10, height:10 }}/>
-                  {L==='az' ? 'Tam dəstəklənir' : L==='tr' ? 'Tam destekleniyor' : 'Fully supported'}
+                  {L==='az'?'Tam dəstəklənir':L==='tr'?'Tam destekleniyor':'Fully supported'}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Dashboard — perspective tilt */}
-          <div style={{ transform:'perspective(2000px) rotateX(3.5deg)', transformOrigin:'top center' }}>
-            <DashboardMockup s={s}/>
-          </div>
-
+          {/* Dashboard — flat, ManageBac style */}
+          <DashboardMockup s={s}/>
         </div>
 
       </div>
@@ -1796,8 +1934,19 @@ export default function Landing() {
   const s = STR[lang] || STR.az
   return (
     <div className="min-h-screen antialiased">
+      {/* ── Fixed pill nav: always on top, gradient visible behind it ── */}
       <Nav s={s} lang={lang} setLang={setLang}/>
-      <Hero s={s}/>
+      {/* ── Gradient hero wrapper — mixed radial ── */}
+      <div style={{
+        background:`
+          radial-gradient(ellipse 90% 80% at 15% 40%, #4c3bb5 0%, transparent 55%),
+          radial-gradient(ellipse 70% 70% at 85% 35%, #1a5c48 0%, transparent 50%),
+          radial-gradient(ellipse 80% 60% at 50% 100%, #2a1875 0%, transparent 50%),
+          #0a0620`,
+        position:'relative',
+      }}>
+        <Hero s={s}/>
+      </div>
       <PartnerBar s={s}/>
       <WhatWeDo s={s}/>
       <Solutions s={s}/>

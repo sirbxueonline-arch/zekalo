@@ -840,75 +840,247 @@ export default function InfoPage({ type: typeProp }) {
   // Premium layout for IB programme pages + government schools
   if (PROGRAMME_META[type]) return <ProgrammePage type={type} page={page} />
 
-  const accentBg   = page.color === 'teal' ? 'bg-teal'   : 'bg-purple'
-  const accentText = page.color === 'teal' ? 'text-teal'  : 'text-purple'
-  const accentLight = page.color === 'teal' ? 'bg-teal-light' : 'bg-purple-light'
+  // Gradient colours per page colour theme
+  const isPurple = page.color !== 'teal'
+  const heroGradient = isPurple
+    ? 'linear-gradient(155deg, #0d0630 0%, #2a1875 40%, #534AB7 100%)'
+    : 'linear-gradient(155deg, #0d3528 0%, #0e5c3f 40%, #1D9E75 100%)'
+  const accentColor  = isPurple ? '#534AB7' : '#1D9E75'
+  const accentLight  = isPurple ? 'rgba(83,74,183,0.12)' : 'rgba(29,158,117,0.12)'
+  const accentBorder = isPurple ? 'rgba(83,74,183,0.22)' : 'rgba(29,158,117,0.22)'
+  const accentShadow = isPurple ? 'rgba(83,74,183,0.35)' : 'rgba(29,158,117,0.35)'
+
+  const paragraphs = page.body.split('\n\n').filter(Boolean)
 
   return (
-    <div className="min-h-screen bg-surface">
-      {/* Nav strip */}
-      <div className="bg-white border-b border-gray-100 px-6 py-4">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">
-            <ArrowLeft className="w-4 h-4" />
+    <div style={{ minHeight:'100vh', background:'#F7F7FB', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif' }}>
+      <style>{`
+        @keyframes ip-fade-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        .ip-card   { animation: ip-fade-up .5s cubic-bezier(.22,1,.36,1) both .08s; }
+        .ip-cta-btn { transition: transform .2s ease, box-shadow .2s ease; }
+        .ip-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 32px -10px ${accentShadow} !important; }
+        .ip-cta-btn:active { transform: translateY(0); }
+        .ip-nav-cta { transition: all .2s ease; }
+        .ip-nav-cta:hover { opacity:.88; }
+        .ip-contact-link { transition: color .15s; }
+        .ip-contact-link:hover { text-decoration: underline; }
+      `}</style>
+
+      {/* ── Floating pill nav ── */}
+      <header style={{
+        position:'fixed', top:0, left:0, right:0, zIndex:50,
+        padding:'10px 20px 0',
+      }}>
+        <div style={{
+          maxWidth:1100, margin:'0 auto',
+          background:'rgba(255,255,255,0.95)',
+          backdropFilter:'blur(20px)',
+          WebkitBackdropFilter:'blur(20px)',
+          borderRadius:999,
+          height:60,
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          padding:'0 24px',
+          boxShadow:'0 4px 24px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04)',
+          border:'1px solid rgba(0,0,0,0.06)',
+        }}>
+          <Link to="/" style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none' }}>
+            <img src="/logo.png" alt="Zirva" style={{ height:26, display:'block' }}/>
+          </Link>
+          <Link to="/contact" className="ip-nav-cta" style={{
+            display:'inline-flex', alignItems:'center', gap:6,
+            padding:'9px 20px', borderRadius:999,
+            background:`linear-gradient(135deg, ${accentColor} 0%, ${isPurple ? '#7C3AED' : '#0e8f65'} 100%)`,
+            color:'#fff', fontSize:13, fontWeight:700, textDecoration:'none',
+            boxShadow:`0 4px 16px -6px ${accentShadow}`,
+          }}>
+            Contact Us
+          </Link>
+        </div>
+      </header>
+
+      {/* ── Rich dark gradient hero ── */}
+      <div style={{
+        background: heroGradient,
+        position:'relative', overflow:'hidden',
+        paddingTop:110, paddingBottom:72,
+      }}>
+        {/* Grain texture overlay */}
+        <div style={{
+          position:'absolute', inset:0, pointerEvents:'none',
+          backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")`,
+          backgroundRepeat:'repeat', backgroundSize:'300px 300px', opacity:1,
+        }}/>
+        {/* Subtle dot grid */}
+        <div style={{
+          position:'absolute', inset:0, pointerEvents:'none',
+          backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.13) 1px, transparent 1px)',
+          backgroundSize:'28px 28px',
+          WebkitMaskImage:'radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 90%)',
+          maskImage:'radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 90%)',
+        }}/>
+        {/* Soft radial glow */}
+        <div style={{
+          position:'absolute', top:'-30%', right:'-5%', width:560, height:560,
+          background:'radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 65%)',
+          borderRadius:'50%', pointerEvents:'none',
+        }}/>
+
+        <div style={{ maxWidth:780, margin:'0 auto', padding:'0 28px', position:'relative' }}>
+          <p style={{
+            fontSize:11, fontWeight:800, letterSpacing:'0.14em', textTransform:'uppercase',
+            color:'rgba(255,255,255,0.55)', marginBottom:18,
+          }}>
             Zirva
-          </Link>
-          <Link to="/contact" className="bg-purple text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-purple-dark transition-colors">
-            Bizimlə Əlaqə
-          </Link>
+          </p>
+          <h1 style={{
+            fontSize:'clamp(2.6rem,5.5vw,4rem)', fontWeight:800,
+            color:'#fff', letterSpacing:'-0.035em', lineHeight:1.07, marginBottom:16,
+          }}>
+            {page.title}
+          </h1>
+          <p style={{
+            fontSize:'clamp(1rem,1.8vw,1.2rem)', color:'rgba(255,255,255,0.65)',
+            fontWeight:500, lineHeight:1.6, maxWidth:560,
+          }}>
+            {page.subtitle}
+          </p>
         </div>
       </div>
 
-      {/* Hero */}
-      <div className={`${accentBg} px-6 py-16`}>
-        <div className="max-w-3xl mx-auto">
-          <h1 className="font-serif text-white text-4xl md:text-5xl mb-3 leading-tight">{page.title}</h1>
-          <p className="text-white/70 text-lg">{page.subtitle}</p>
-        </div>
-      </div>
+      {/* ── Content card ── */}
+      <div style={{ maxWidth:780, margin:'-24px auto 0', padding:'0 24px 80px', position:'relative' }}>
+        <div className="ip-card" style={{
+          background:'#fff', borderRadius:24,
+          padding:'clamp(32px,5vw,56px) clamp(28px,5vw,52px)',
+          boxShadow:'0 12px 48px -16px rgba(15,15,26,0.1), 0 2px 8px rgba(0,0,0,0.04)',
+          border:'1px solid rgba(15,15,26,0.05)',
+        }}>
+          {/* Page title inside card */}
+          <h2 style={{
+            fontSize:'1.45rem', fontWeight:800, color:'#111827',
+            letterSpacing:'-0.02em', marginBottom:28, lineHeight:1.25,
+          }}>
+            {page.title}
+          </h2>
 
-      {/* Content */}
-      <div className="max-w-3xl mx-auto px-6 py-16">
-        <div className="bg-white rounded-2xl border border-border-soft p-8 md:p-12 shadow-sm">
-          {page.body.split('\n\n').map((para, i) => (
-            <p key={i} className="text-gray-600 leading-relaxed mb-5 last:mb-0">{para}</p>
-          ))}
+          {/* Body text — paragraphs with left accent bar on first */}
+          <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
+            {paragraphs.map((para, i) => (
+              <div key={i} style={{ display:'flex', gap:16, alignItems:'flex-start' }}>
+                {i === 0 && (
+                  <div style={{
+                    width:4, minHeight:48, alignSelf:'stretch', borderRadius:4,
+                    background:`linear-gradient(180deg, ${accentColor} 0%, ${isPurple ? '#7C3AED' : '#0e8f65'} 100%)`,
+                    flexShrink:0, marginTop:2,
+                  }}/>
+                )}
+                <p style={{
+                  color:'#374151', fontSize:16, lineHeight:1.8, fontWeight:400,
+                  flex:1, margin:0,
+                }}>
+                  {para}
+                </p>
+              </div>
+            ))}
+          </div>
 
-          {page.isContact ? (
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <a href="mailto:hello@tryzirva.com"
-                className="flex items-center gap-3 p-4 rounded-xl bg-purple-light border border-purple/10 hover:border-purple/30 transition-colors group">
-                <div className="w-10 h-10 rounded-xl bg-purple flex items-center justify-center shrink-0">
-                  <Mail className="w-5 h-5 text-white" />
+          {/* Inline contact details if isContact page */}
+          {page.isContact && (
+            <div style={{ marginTop:36, display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+              <a href="mailto:hello@tryzirva.com" style={{
+                display:'flex', alignItems:'center', gap:12, padding:'16px 18px',
+                borderRadius:14, textDecoration:'none',
+                background:accentLight, border:`1px solid ${accentBorder}`,
+              }}>
+                <div style={{
+                  width:40, height:40, borderRadius:12, flexShrink:0,
+                  background:accentColor, display:'flex', alignItems:'center', justifyContent:'center',
+                }}>
+                  <Mail style={{ width:18, height:18, color:'#fff' }}/>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 mb-0.5">Email</p>
-                  <p className="text-sm font-semibold text-purple">hello@tryzirva.com</p>
+                  <p style={{ fontSize:11, color:'rgba(15,15,26,0.45)', fontWeight:700, marginBottom:2, textTransform:'uppercase', letterSpacing:'0.06em' }}>Email</p>
+                  <p style={{ fontSize:13.5, fontWeight:700, color:accentColor }}>hello@tryzirva.com</p>
                 </div>
               </a>
-              <a href="tel:+994502411442"
-                className="flex items-center gap-3 p-4 rounded-xl bg-teal-light border border-teal/10 hover:border-teal/30 transition-colors group">
-                <div className="w-10 h-10 rounded-xl bg-teal flex items-center justify-center shrink-0">
-                  <Phone className="w-5 h-5 text-white" />
+              <a href="tel:+994502411442" style={{
+                display:'flex', alignItems:'center', gap:12, padding:'16px 18px',
+                borderRadius:14, textDecoration:'none',
+                background:accentLight, border:`1px solid ${accentBorder}`,
+              }}>
+                <div style={{
+                  width:40, height:40, borderRadius:12, flexShrink:0,
+                  background:accentColor, display:'flex', alignItems:'center', justifyContent:'center',
+                }}>
+                  <Phone style={{ width:18, height:18, color:'#fff' }}/>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 mb-0.5">Telefon</p>
-                  <p className="text-sm font-semibold text-teal">+994 50 241 14 42</p>
+                  <p style={{ fontSize:11, color:'rgba(15,15,26,0.45)', fontWeight:700, marginBottom:2, textTransform:'uppercase', letterSpacing:'0.06em' }}>Phone</p>
+                  <p style={{ fontSize:13.5, fontWeight:700, color:accentColor }}>+994 50 241 14 42</p>
                 </div>
               </a>
             </div>
-          ) : (
-            <div className="mt-10 pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <Link to="/contact"
-                className="bg-purple text-white font-semibold px-6 py-3 rounded-xl hover:bg-purple-dark transition-colors text-sm shadow-lg shadow-purple/20">
-                Bizimlə Əlaqə
+          )}
+
+          {/* CTA row */}
+          {!page.isContact && (
+            <div style={{
+              marginTop:44, paddingTop:32,
+              borderTop:'1px solid rgba(15,15,26,0.06)',
+              display:'flex', flexWrap:'wrap', alignItems:'center', gap:16,
+            }}>
+              <Link to="/contact" className="ip-cta-btn" style={{
+                display:'inline-flex', alignItems:'center', gap:8,
+                padding:'12px 26px', borderRadius:12,
+                background:`linear-gradient(135deg, ${accentColor} 0%, ${isPurple ? '#7C3AED' : '#0e8f65'} 100%)`,
+                color:'#fff', fontSize:14, fontWeight:700, textDecoration:'none',
+                boxShadow:`0 8px 24px -8px ${accentShadow}`,
+              }}>
+                Contact Us <ArrowRight style={{ width:15, height:15 }}/>
               </Link>
-              <a href="mailto:hello@tryzirva.com"
-                className={`${accentText} text-sm font-semibold hover:underline`}>
+              <a href="mailto:hello@tryzirva.com" className="ip-contact-link" style={{
+                color:accentColor, fontSize:14, fontWeight:600, textDecoration:'none',
+              }}>
                 hello@tryzirva.com
               </a>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* ── Footer CTA strip ── */}
+      <div style={{
+        background:'linear-gradient(135deg, #09091E 0%, #12103a 100%)',
+        padding:'56px 28px',
+        position:'relative', overflow:'hidden',
+      }}>
+        {/* Subtle dot grid */}
+        <div style={{
+          position:'absolute', inset:0, pointerEvents:'none',
+          backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)',
+          backgroundSize:'24px 24px',
+          WebkitMaskImage:'radial-gradient(ellipse 70% 80% at 50% 50%, black 0%, transparent 90%)',
+          maskImage:'radial-gradient(ellipse 70% 80% at 50% 50%, black 0%, transparent 90%)',
+        }}/>
+        <div style={{ maxWidth:640, margin:'0 auto', textAlign:'center', position:'relative' }}>
+          <p style={{
+            fontSize:'clamp(1.5rem,3.5vw,2.2rem)', fontWeight:800,
+            color:'#fff', letterSpacing:'-0.025em', lineHeight:1.2, marginBottom:14,
+          }}>
+            Ready to see Zirva in action?
+          </p>
+          <p style={{ color:'rgba(255,255,255,0.5)', fontSize:15, fontWeight:400, lineHeight:1.6, marginBottom:32 }}>
+            Book a live demo and see how Zirva works for your school.
+          </p>
+          <Link to="/contact" className="ip-cta-btn" style={{
+            display:'inline-flex', alignItems:'center', gap:8,
+            padding:'14px 32px', borderRadius:12,
+            background:`linear-gradient(135deg, ${accentColor} 0%, ${isPurple ? '#7C3AED' : '#0e8f65'} 100%)`,
+            color:'#fff', fontSize:15, fontWeight:700, textDecoration:'none',
+            boxShadow:`0 8px 32px -8px ${accentShadow}`,
+          }}>
+            Get in touch <ArrowRight style={{ width:16, height:16 }}/>
+          </Link>
         </div>
       </div>
     </div>
