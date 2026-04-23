@@ -9,6 +9,7 @@ import {
   Server, ChevronRight
 } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
+import LandingNav from '../components/layout/LandingNav'
 
 /* ─── translations ─── */
 const STR = {
@@ -447,7 +448,7 @@ function useFadeUp(threshold = 0.15) {
   return ref
 }
 
-/* ══════════════════════════════════════ NAV ══ */
+/* ══════════════════════════════════════ NAV — moved to LandingNav.jsx ══ */
 function Nav({ s, lang, setLang }) {
   const [open, setOpen]             = useState(false)
   const [dropdown, setDropdown]     = useState(null)
@@ -2135,8 +2136,8 @@ export default function Landing() {
   const s = STR[lang] || STR.az
   return (
     <div className="min-h-screen antialiased" style={{ overflowX:'hidden' }}>
-      {/* ── Fixed pill nav: always on top, gradient visible behind it ── */}
-      <Nav s={s} lang={lang} setLang={setLang}/>
+      {/* ── Fixed pill nav ── */}
+      <LandingNav s={s} lang={lang} setLang={setLang}/>
       {/* ── Gradient hero wrapper — mixed radial ── */}
       <div style={{
         background:`
