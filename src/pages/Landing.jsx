@@ -2052,49 +2052,6 @@ function Benefits({ s }) {
   )
 }
 
-/* ─── TESTIMONIALS ─── */
-function Testimonials({ s }) {
-  const ref = useFadeUp()
-  const items = [
-    { quote:s.t1q, name:s.t1n, role:s.t1r, color:'#534AB7', initials:s.lang==='en'?'RA':'RƏ' },
-    { quote:s.t2q, name:s.t2n, role:s.t2r, color:'#1D9E75', initials:s.lang==='en'?'GH':'GH' },
-    { quote:s.t3q, name:s.t3n, role:s.t3r, color:'#534AB7', initials:s.lang==='en'?'NG':'NQ' },
-  ]
-  return (
-    <section ref={ref} className="fade-up py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="text-center mb-14">
-          <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">{s.test_badge}</p>
-          <h2 className="font-extrabold text-gray-900 mb-4"
-            style={{ fontSize:'clamp(1.9rem,4vw,3rem)', letterSpacing:'-0.025em' }}>
-            {s.test_title}
-          </h2>
-          <p className="text-gray-500 text-base font-medium max-w-md mx-auto">{s.test_sub}</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {items.map(({ quote, name, role, color, initials }) => (
-            <div key={name} className="flex flex-col gap-5 rounded-2xl p-8 border border-gray-100"
-              style={{ background:'#fafafa', boxShadow:'0 1px 4px rgba(0,0,0,0.04)' }}>
-              {/* Large quote mark */}
-              <div style={{ fontSize:48, lineHeight:0.8, fontWeight:800, color:`${color}18`, userSelect:'none' }}>"</div>
-              <p className="text-gray-700 text-sm leading-relaxed font-medium flex-1">{quote}</p>
-              <div className="flex items-center gap-3 pt-2" style={{ borderTop:'1px solid rgba(0,0,0,0.05)' }}>
-                <div style={{ width:38, height:38, borderRadius:'50%', background:`${color}12`, border:`1.5px solid ${color}25`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <span style={{ fontSize:11, fontWeight:800, color }}>{initials}</span>
-                </div>
-                <div>
-                  <p className="text-gray-900 text-sm font-bold" style={{ letterSpacing:'-0.01em' }}>{name}</p>
-                  <p className="text-gray-400 text-xs font-medium leading-tight mt-0.5">{role}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 /* ─── FOOTER ─── */
 function Footer({ s }) {
   return (
@@ -2198,7 +2155,6 @@ export default function Landing() {
       <ProductShowcase s={s}/>
       <ZekaAI s={s}/>
       <Benefits s={s}/>
-      <Testimonials s={s}/>
       <Compliance s={s}/>
       <PilotCTA s={s}/>
       <Footer s={s}/>
