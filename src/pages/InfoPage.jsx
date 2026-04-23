@@ -4,6 +4,14 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import emailjs from '@emailjs/browser'
 import { useLang } from '../contexts/LanguageContext'
+import LandingNav from '../components/layout/LandingNav'
+
+const NAV_S = {
+  az: { nav_solutions:'Həllər', nav_features:'Xüsusiyyətlər', nav_signin:'Daxil ol', nav_contact:'Bizimlə Əlaqə' },
+  en: { nav_solutions:'Solutions', nav_features:'Features', nav_signin:'Sign In', nav_contact:'Contact Us' },
+  tr: { nav_solutions:'Çözümler', nav_features:'Özellikler', nav_signin:'Giriş yap', nav_contact:'Bize Ulaşın' },
+  ru: { nav_solutions:'Решения', nav_features:'Возможности', nav_signin:'Войти', nav_contact:'Связаться' },
+}
 
 /* ─── Translations for programme pages and UI labels ─── */
 const T = {
@@ -486,7 +494,7 @@ For questions about these Terms, contact us at hello@tryzirva.com or write to Zi
 
 /* ─── CONTACT PAGE ─── */
 function ContactPage() {
-  const { lang } = useLang()
+  const { lang, setLang } = useLang()
   const ct = T[lang] || T.en
   const [form, setForm] = useState({ name:'', school:'', email:'', phone:'', message:'' })
   const [sent, setSent] = useState(false)
@@ -548,14 +556,7 @@ function ContactPage() {
         textarea { resize:vertical; scrollbar-width:thin; }
       `}</style>
 
-      {/* Nav */}
-      <nav style={{ padding:'20px 36px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(83,74,183,0.07)', background:'#fff' }}>
-        <Link to="/" style={{ display:'flex', alignItems:'center', gap:7, textDecoration:'none', color:'#9CA3AF', fontSize:13.5, fontWeight:600, transition:'color .15s' }}
-          onMouseOver={e=>e.currentTarget.style.color='#111'} onMouseOut={e=>e.currentTarget.style.color='#9CA3AF'}>
-          <ArrowLeft style={{ width:14, height:14 }}/> Zirva
-        </Link>
-        <img src="/logo.png" alt="Zirva" style={{ height:26 }}/>
-      </nav>
+      <LandingNav s={NAV_S[lang]||NAV_S.az} lang={lang} setLang={setLang} />
 
       {/* Main */}
       <div style={{ maxWidth:560, margin:'0 auto', padding:'60px 24px 80px' }}>
@@ -664,7 +665,7 @@ const RELATED_IB_BASE = [
 ]
 
 function ProgrammePage({ type }) {
-  const { lang } = useLang()
+  const { lang, setLang } = useLang()
   const t = T[lang] || T.en
   const meta = PROGRAMME_META[type]
   const accent = meta.accent
@@ -693,19 +694,7 @@ function ProgrammePage({ type }) {
         .pp-check-item:hover { background: rgba(0,0,0,0.02); }
       `}</style>
 
-      {/* Nav */}
-      <nav className="bg-white border-b border-gray-100 px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">
-            <ArrowLeft className="w-4 h-4" />
-            Zirva
-          </Link>
-          <Link to="/contact" className="text-xs font-bold px-4 py-2 rounded-lg transition-all pp-cta-btn"
-            style={{ background:`linear-gradient(135deg, ${accent}, ${accent2})`, color:'#fff', '--accent-shadow': `${accent}55` }}>
-            {t.ui_contact_us}
-          </Link>
-        </div>
-      </nav>
+      <LandingNav s={NAV_S[lang]||NAV_S.az} lang={lang} setLang={setLang} />
 
       {/* Hero */}
       <div className="relative overflow-hidden" style={{ background:`linear-gradient(135deg, ${accent} 0%, ${accent2} 100%)` }}>
@@ -881,6 +870,7 @@ function ProgrammePage({ type }) {
 export default function InfoPage({ type: typeProp }) {
   const { type: typeParam } = useParams()
   const type = typeProp || typeParam
+  const { lang, setLang } = useLang()
 
   if (type === 'contact') return <ContactPage />
 
@@ -913,7 +903,7 @@ export default function InfoPage({ type: typeProp }) {
   const paragraphs = page.body.split('\n\n').filter(Boolean)
 
   return (
-    <div style={{ minHeight:'100vh', background:'#F7F7FB', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif' }}>
+    <div style={{ minHeight:'100vh', background:'#F7F7FB' }}>
       <style>{`
         @keyframes ip-fade-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
         .ip-card   { animation: ip-fade-up .5s cubic-bezier(.22,1,.36,1) both .08s; }
@@ -926,43 +916,13 @@ export default function InfoPage({ type: typeProp }) {
         .ip-contact-link:hover { text-decoration: underline; }
       `}</style>
 
-      {/* ── Floating pill nav ── */}
-      <header style={{
-        position:'fixed', top:0, left:0, right:0, zIndex:50,
-        padding:'10px 20px 0',
-      }}>
-        <div style={{
-          maxWidth:1100, margin:'0 auto',
-          background:'rgba(255,255,255,0.95)',
-          backdropFilter:'blur(20px)',
-          WebkitBackdropFilter:'blur(20px)',
-          borderRadius:999,
-          height:60,
-          display:'flex', alignItems:'center', justifyContent:'space-between',
-          padding:'0 24px',
-          boxShadow:'0 4px 24px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04)',
-          border:'1px solid rgba(0,0,0,0.06)',
-        }}>
-          <Link to="/" style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none' }}>
-            <img src="/logo.png" alt="Zirva" style={{ height:26, display:'block' }}/>
-          </Link>
-          <Link to="/contact" className="ip-nav-cta" style={{
-            display:'inline-flex', alignItems:'center', gap:6,
-            padding:'9px 20px', borderRadius:999,
-            background:`linear-gradient(135deg, ${accentColor} 0%, ${isPurple ? '#7C3AED' : '#0e8f65'} 100%)`,
-            color:'#fff', fontSize:13, fontWeight:700, textDecoration:'none',
-            boxShadow:`0 4px 16px -6px ${accentShadow}`,
-          }}>
-            Contact Us
-          </Link>
-        </div>
-      </header>
+      <LandingNav s={NAV_S[lang]||NAV_S.az} lang={lang} setLang={setLang} />
 
       {/* ── Rich dark gradient hero ── */}
       <div style={{
         background: heroGradient,
         position:'relative', overflow:'hidden',
-        paddingTop:110, paddingBottom:72,
+        paddingTop:72, paddingBottom:72,
       }}>
         {/* Grain texture overlay */}
         <div style={{
