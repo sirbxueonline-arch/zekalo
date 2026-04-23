@@ -1,52 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- Homepage -->
-  <url>
-    <loc>https://tryzirva.com/</loc>
-    <lastmod>2026-04-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
+  <url><loc>https://tryzirva.com/</loc><lastmod>2026-04-23</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
 
-  <!-- Features overview -->
-  <url>
-    <loc>https://tryzirva.com/xususiyyetler</loc>
-    <lastmod>2026-04-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
+  <url><loc>https://tryzirva.com/features</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://tryzirva.com/solutions</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
 
-  <!-- Solutions -->
-  <url>
-    <loc>https://tryzirva.com/həllər</loc>
-    <lastmod>2026-04-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
+  <url><loc>https://tryzirva.com/features/curriculum</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tryzirva.com/features/assessment</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tryzirva.com/features/attendance</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tryzirva.com/features/reports</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tryzirva.com/features/communication</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tryzirva.com/features/timetable</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tryzirva.com/features/student-staff</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 
-  <!-- Zeka AI -->
-  <url>
-    <loc>https://tryzirva.com/zeka-ai</loc>
-    <lastmod>2026-04-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
+  <url><loc>https://tryzirva.com/ib-diploma</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://tryzirva.com/ib-career</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://tryzirva.com/ib-myp</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://tryzirva.com/ib-pyp</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://tryzirva.com/government-schools</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://tryzirva.com/mobile</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://tryzirva.com/online-exams</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
-  <!-- Demo request -->
-  <url>
-    <loc>https://tryzirva.com/demo</loc>
-    <lastmod>2026-04-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Login (optional — helps Google find auth entry) -->
-  <url>
-    <loc>https://tryzirva.com/daxil-ol</loc>
-    <lastmod>2026-04-23</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
+  <url><loc>https://tryzirva.com/about</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://tryzirva.com/contact</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://tryzirva.com/blog</loc><lastmod>2026-04-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://tryzirva.com/faq</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://tryzirva.com/reviews</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://tryzirva.com/careers</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://tryzirva.com/partners</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://tryzirva.com/events</loc><lastmod>2026-04-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://tryzirva.com/resources</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://tryzirva.com/help</loc><lastmod>2026-04-23</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://tryzirva.com/privacy</loc><lastmod>2026-04-23</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://tryzirva.com/terms</loc><lastmod>2026-04-23</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
 
 </urlset>
