@@ -8,7 +8,7 @@ import LandingNav from '../components/layout/LandingNav'
 
 const STR = {
   az: {
-    nav_signin:'Daxil ol', nav_contact:'Bizimlə Əlaqə',
+    nav_solutions:'Həllər', nav_features:'Xüsusiyyətlər', nav_signin:'Daxil ol', nav_contact:'Bizimlə Əlaqə',
     hero_eyebrow:'Xüsusiyyətlər',
     hero_h1:'Lazım olan hər şey.',
     hero_h2:'Lazım olmayan heç nə.',

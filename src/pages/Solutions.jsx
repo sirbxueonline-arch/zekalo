@@ -5,7 +5,7 @@ import LandingNav from '../components/layout/LandingNav'
 
 const STR = {
   az: {
-    nav_signin: 'Daxil ol', nav_contact: 'Bizimlə Əlaqə',
+    nav_solutions:'Həllər', nav_features:'Xüsusiyyətlər', nav_signin: 'Daxil ol', nav_contact: 'Bizimlə Əlaqə',
     hero_eyebrow: 'Həllər',
     hero_h1a: 'Hər məktəb üçün',
     hero_h1b: 'doğru həll',
@@ -19,7 +19,7 @@ const STR = {
     footer: '© 2026 Zirva LLC',
   },
   en: {
-    nav_signin: 'Sign In', nav_contact: 'Contact Us',
+    nav_solutions:'Solutions', nav_features:'Features', nav_signin: 'Sign In', nav_contact: 'Contact Us',
     hero_eyebrow: 'Solutions',
     hero_h1a: 'The right fit',
     hero_h1b: 'for every school',
@@ -33,7 +33,7 @@ const STR = {
     footer: '© 2026 Zirva LLC',
   },
   tr: {
-    nav_signin: 'Giriş yap', nav_contact: 'Bize Ulaşın',
+    nav_solutions:'Çözümler', nav_features:'Özellikler', nav_signin: 'Giriş yap', nav_contact: 'Bize Ulaşın',
     hero_eyebrow: 'Çözümler',
     hero_h1a: 'Her okul için',
     hero_h1b: 'doğru çözüm',
@@ -47,7 +47,7 @@ const STR = {
     footer: '© 2026 Zirva LLC',
   },
   ru: {
-    nav_signin: 'Войти', nav_contact: 'Связаться',
+    nav_solutions:'Решения', nav_features:'Возможности', nav_signin: 'Войти', nav_contact: 'Связаться',
     hero_eyebrow: 'Решения',
     hero_h1a: 'Правильное решение',
     hero_h1b: 'для каждой школы',

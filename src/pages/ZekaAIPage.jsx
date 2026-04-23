@@ -5,7 +5,7 @@ import LandingNav from '../components/layout/LandingNav'
 
 const STR = {
   az: {
-    nav_signin:'Daxil ol', nav_contact:'Bizimlə Əlaqə',
+    nav_solutions:'Həllər', nav_features:'Xüsusiyyətlər', nav_signin:'Daxil ol', nav_contact:'Bizimlə Əlaqə',
     hero_h1:'Zəka AI',
     hero_tag:'Şagirdlər öyrənir. Müəllimlər öyrədir.',
     hero_tag2:'Zəka hər ikisini gücləndirir.',
@@ -30,7 +30,7 @@ const STR = {
     footer:'© 2026 Zirva LLC',
   },
   en: {
-    nav_signin:'Sign In', nav_contact:'Contact Us',
+    nav_solutions:'Solutions', nav_features:'Features', nav_signin:'Sign In', nav_contact:'Contact Us',
     hero_h1:'Zeka AI',
     hero_tag:'Students learn. Teachers teach.',
     hero_tag2:'Zeka powers both.',
@@ -55,7 +55,7 @@ const STR = {
     footer:'© 2026 Zirva LLC',
   },
   tr: {
-    nav_signin:'Giriş yap', nav_contact:'Bize Ulaşın',
+    nav_solutions:'Çözümler', nav_features:'Özellikler', nav_signin:'Giriş yap', nav_contact:'Bize Ulaşın',
     hero_h1:'Zeka AI',
     hero_tag:'Öğrenciler öğrenir. Öğretmenler öğretir.',
     hero_tag2:'Zeka her ikisini güçlendirir.',
@@ -80,7 +80,7 @@ const STR = {
     footer:'© 2026 Zirva LLC',
   },
   ru: {
-    nav_signin:'Войти', nav_contact:'Связаться',
+    nav_solutions:'Решения', nav_features:'Возможности', nav_signin:'Войти', nav_contact:'Связаться',
     hero_h1:'Зека AI',
     hero_tag:'Ученики учатся. Учителя обучают.',
     hero_tag2:'Зека усиливает и то, и другое.',
