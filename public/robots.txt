@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Block authenticated/private routes
+Disallow: /dashboard
+Disallow: /muellim/
+Disallow: /admin/
+Disallow: /valideyn/
+Disallow: /superadmin/
+Disallow: /qeydiyyat
+Disallow: /sifremi-unutdum
+Disallow: /sifre-yenile
+Disallow: /dogrulama
+
+Sitemap: https://tryzirva.com/sitemap.xml
