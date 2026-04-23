@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { CheckCircle, Building2, ArrowRight, ArrowUpRight } from 'lucide-react'
+import { CheckCircle, Building2, ArrowRight, ArrowUpRight, LayoutGrid } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 import LandingNav from '../components/layout/LandingNav'
 
@@ -10,6 +10,12 @@ const STR = {
     hero_h1a: 'Hər məktəb üçün',
     hero_h1b: 'doğru həll',
     hero_sub: 'IB dünya məktəbləri və Azərbaycan dövlət məktəbləri üçün — hər kurikulum çərçivəsi dəstəklənir.',
+    hero_cta_demo: 'Demo Sifariş Et',
+    hero_cta_features: 'Bütün Xüsusiyyətlər',
+    stat1_n: '5', stat1_l: 'Proqram',
+    stat2_n: '600+', stat2_l: 'Standart',
+    stat3_n: 'E-Gov.az', stat3_l: 'İnteqrasiya',
+    stat4_n: 'IBIS', stat4_l: 'Sinxronizasiya',
     programmes_title: 'Dəstəklənən Proqramlar',
     programmes_sub: 'Kurikulumunuzu seçin, Zirva qalanını həll edir.',
     learn_more: 'Ətraflı bax',
@@ -24,6 +30,12 @@ const STR = {
     hero_h1a: 'The right fit',
     hero_h1b: 'for every school',
     hero_sub: 'Purpose-built modules for IB World Schools and Azerbaijani state schools — every curriculum framework supported.',
+    hero_cta_demo: 'Book a Demo',
+    hero_cta_features: 'All Features',
+    stat1_n: '5', stat1_l: 'Programmes',
+    stat2_n: '600+', stat2_l: 'Standards',
+    stat3_n: 'E-Gov.az', stat3_l: 'Integration',
+    stat4_n: 'IBIS', stat4_l: 'Sync',
     programmes_title: 'Supported Programmes',
     programmes_sub: 'Pick your curriculum. Zirva handles the rest.',
     learn_more: 'Learn more',
@@ -38,6 +50,12 @@ const STR = {
     hero_h1a: 'Her okul için',
     hero_h1b: 'doğru çözüm',
     hero_sub: 'IB dünya okulları ve Azerbaycan devlet okulları için — her müfredat çerçevesi desteklenmektedir.',
+    hero_cta_demo: 'Demo Talep Et',
+    hero_cta_features: 'Tüm Özellikler',
+    stat1_n: '5', stat1_l: 'Program',
+    stat2_n: '600+', stat2_l: 'Standart',
+    stat3_n: 'E-Gov.az', stat3_l: 'Entegrasyon',
+    stat4_n: 'IBIS', stat4_l: 'Senkronizasyon',
     programmes_title: 'Desteklenen Programlar',
     programmes_sub: 'Müfredatınızı seçin, gerisini Zirva halleder.',
     learn_more: 'Daha fazla',
@@ -52,6 +70,12 @@ const STR = {
     hero_h1a: 'Правильное решение',
     hero_h1b: 'для каждой школы',
     hero_sub: 'Специализированные модули для IB World Schools и государственных школ Азербайджана — поддерживаются все учебные программы.',
+    hero_cta_demo: 'Заказать демо',
+    hero_cta_features: 'Все функции',
+    stat1_n: '5', stat1_l: 'Программ',
+    stat2_n: '600+', stat2_l: 'Стандартов',
+    stat3_n: 'E-Gov.az', stat3_l: 'Интеграция',
+    stat4_n: 'IBIS', stat4_l: 'Синхронизация',
     programmes_title: 'Поддерживаемые программы',
     programmes_sub: 'Выберите программу. Zirva позаботится об остальном.',
     learn_more: 'Подробнее',
@@ -99,104 +123,208 @@ export default function Solutions() {
   const cards = CARDS[lang] || CARDS.az
 
   return (
-    <div style={{ background:'#fff' }}>
+    <div style={{ background: '#fff', fontFamily: 'inherit' }}>
       <style>{`
-        .sol-card { transition: transform .2s ease, box-shadow .2s ease; }
-        .sol-card:hover { transform: translateY(-6px); }
-        .sol-link { transition: gap .15s ease; }
-        .sol-link:hover { gap: 8px !important; }
+        .sol-row { transition: box-shadow .22s ease; }
+        .sol-row:hover { box-shadow: 0 8px 48px rgba(0,0,0,0.10) !important; }
+        .sol-cta-primary { transition: transform .17s ease, box-shadow .17s ease; }
+        .sol-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(109,40,217,0.55) !important; }
+        .sol-cta-ghost { transition: background .17s ease, color .17s ease; }
+        .sol-cta-ghost:hover { background: rgba(255,255,255,0.12) !important; }
+        .sol-learn { transition: gap .15s ease, opacity .15s ease; }
+        .sol-learn:hover { gap: 8px !important; }
+        @media (max-width: 767px) {
+          .sol-row-inner { flex-direction: column !important; }
+          .sol-row-inner.reverse { flex-direction: column !important; }
+          .sol-row-left, .sol-row-right { width: 100% !important; }
+        }
       `}</style>
 
       <LandingNav s={s} lang={lang} setLang={setLang} />
 
       {/* ── Hero ── */}
-      <section style={{ background:'#060614', position:'relative', overflow:'hidden', padding:'100px 24px 90px', textAlign:'center' }}>
-        <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize:'36px 36px', WebkitMaskImage:'radial-gradient(ellipse 80% 70% at 50% 50%, black, transparent)', maskImage:'radial-gradient(ellipse 80% 70% at 50% 50%, black, transparent)', pointerEvents:'none' }}/>
-        <div style={{ position:'absolute', top:'-20%', left:'-10%', width:'60%', height:'80%', background:'radial-gradient(ellipse, rgba(83,74,183,.28) 0%, transparent 65%)', pointerEvents:'none' }}/>
-        <div style={{ position:'absolute', top:'-10%', right:'-8%', width:'50%', height:'70%', background:'radial-gradient(ellipse, rgba(29,158,117,.14) 0%, transparent 65%)', pointerEvents:'none' }}/>
+      <section style={{ background: '#060614', position: 'relative', overflow: 'hidden', padding: '112px 24px 100px', textAlign: 'center' }}>
+        {/* Dot grid */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.045) 1px, transparent 1px)', backgroundSize: '36px 36px', WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 50%, black, transparent)', maskImage: 'radial-gradient(ellipse 80% 70% at 50% 50%, black, transparent)', pointerEvents: 'none' }} />
+        {/* Glow blobs */}
+        <div style={{ position: 'absolute', top: '-25%', left: '-12%', width: '65%', height: '90%', background: 'radial-gradient(ellipse, rgba(83,74,183,.32) 0%, transparent 65%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-15%', right: '-10%', width: '55%', height: '80%', background: 'radial-gradient(ellipse, rgba(29,158,117,.18) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
-        <div style={{ position:'relative', zIndex:1, maxWidth:760, margin:'0 auto' }}>
-          <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'5px 14px', borderRadius:99, border:'1px solid rgba(167,139,250,0.25)', background:'rgba(167,139,250,0.08)', marginBottom:24 }}>
-            <span style={{ width:5, height:5, borderRadius:'50%', background:'#a78bfa', display:'inline-block' }}/>
-            <span style={{ fontSize:12, fontWeight:700, color:'#a78bfa', letterSpacing:'0.06em', textTransform:'uppercase' }}>{s.hero_eyebrow}</span>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 800, margin: '0 auto' }}>
+          {/* Eyebrow */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 16px', borderRadius: 99, border: '1px solid rgba(167,139,250,0.28)', background: 'rgba(167,139,250,0.09)', marginBottom: 28 }}>
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#a78bfa', display: 'inline-block' }} />
+            <span style={{ fontSize: 11.5, fontWeight: 700, color: '#a78bfa', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{s.hero_eyebrow}</span>
           </div>
 
-          <h1 style={{ fontSize:'clamp(2.4rem,6vw,4.2rem)', fontWeight:800, lineHeight:1.08, letterSpacing:'-0.03em', marginBottom:20, color:'#fff' }}>
+          {/* Headline */}
+          <h1 style={{ fontSize: 'clamp(2.6rem,6.5vw,4.6rem)', fontWeight: 900, lineHeight: 1.06, letterSpacing: '-0.035em', marginBottom: 24, color: '#fff' }}>
             {s.hero_h1a}{' '}
-            <span style={{ background:'linear-gradient(128deg,#c4b5fd 0%,#a78bfa 40%,#818cf8 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+            <span style={{ background: 'linear-gradient(128deg,#c4b5fd 0%,#a78bfa 40%,#818cf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               {s.hero_h1b}
             </span>
           </h1>
-          <p style={{ fontSize:'clamp(1rem,2.2vw,1.15rem)', color:'rgba(255,255,255,0.55)', lineHeight:1.75, maxWidth:520, margin:'0 auto 44px' }}>
+
+          <p style={{ fontSize: 'clamp(1rem,2.2vw,1.18rem)', color: 'rgba(255,255,255,0.52)', lineHeight: 1.78, maxWidth: 540, margin: '0 auto 40px' }}>
             {s.hero_sub}
           </p>
 
+          {/* CTA Buttons */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 52 }}>
+            <Link to="/contact" className="sol-cta-primary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: 'linear-gradient(135deg,#7c3aed,#4f46e5)', color: '#fff', fontWeight: 700, fontSize: 14.5, padding: '13px 28px', borderRadius: 12, textDecoration: 'none', boxShadow: '0 8px 32px rgba(109,40,217,0.42)' }}>
+              {s.hero_cta_demo} <ArrowRight style={{ width: 15, height: 15 }} />
+            </Link>
+            <Link to="/features" className="sol-cta-ghost"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.85)', fontWeight: 600, fontSize: 14.5, padding: '13px 28px', borderRadius: 12, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.14)' }}>
+              {s.hero_cta_features} <ArrowUpRight style={{ width: 15, height: 15 }} />
+            </Link>
+          </div>
+
           {/* Programme logo strip */}
-          <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:16, flexWrap:'wrap' }}>
-            {['/pyp.png','/myp.png','/dp.png','/cp.png'].map((src,i) => (
-              <div key={i} style={{ width:52, height:52, borderRadius:14, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <img src={src} alt="" style={{ width:36, height:36, objectFit:'contain' }}/>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            {['/pyp.png', '/myp.png', '/dp.png', '/cp.png'].map((src, i) => (
+              <div key={i} style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.11)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}>
+                <img src={src} alt="" style={{ width: 38, height: 38, objectFit: 'contain' }} />
               </div>
             ))}
-            <div style={{ width:52, height:52, borderRadius:14, background:'rgba(29,158,117,0.12)', border:'1px solid rgba(29,158,117,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <Building2 style={{ width:22, height:22, color:'#34d399' }}/>
+            <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(29,158,117,0.14)', border: '1px solid rgba(29,158,117,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Building2 style={{ width: 24, height: 24, color: '#34d399' }} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Programme Cards ── */}
-      <section style={{ background:'#f9fafb', padding:'88px 24px' }}>
-        <div style={{ maxWidth:1200, margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:60 }}>
-            <h2 style={{ fontSize:'clamp(1.6rem,3vw,2.4rem)', fontWeight:800, color:'#0f0f1a', marginBottom:10, letterSpacing:'-0.025em' }}>{s.programmes_title}</h2>
-            <p style={{ fontSize:16, color:'#6b7280', fontWeight:500 }}>{s.programmes_sub}</p>
+      {/* ── Stats Bar ── */}
+      <div style={{ background: '#0d0d1f', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', padding: '0 24px' }}>
+          {[
+            { n: s.stat1_n, l: s.stat1_l },
+            { n: s.stat2_n, l: s.stat2_l },
+            { n: s.stat3_n, l: s.stat3_l },
+            { n: s.stat4_n, l: s.stat4_l },
+          ].map((stat, i) => (
+            <div key={i} style={{ padding: '28px 16px', textAlign: 'center', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
+              <div style={{ fontSize: 'clamp(1.2rem,2.5vw,1.7rem)', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>{stat.n}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.38)', fontWeight: 500, marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Programme Stacked Rows ── */}
+      <section style={{ background: '#f9fafb', padding: '96px 24px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          {/* Section heading */}
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
+            <h2 style={{ fontSize: 'clamp(1.7rem,3vw,2.5rem)', fontWeight: 900, color: '#0f0f1a', marginBottom: 12, letterSpacing: '-0.03em' }}>{s.programmes_title}</h2>
+            <p style={{ fontSize: 16.5, color: '#6b7280', fontWeight: 500 }}>{s.programmes_sub}</p>
           </div>
 
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(min(340px,100%),1fr))', gap:22 }}>
-            {cards.map((card) => {
+          {/* Rows */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {cards.map((card, idx) => {
               const IC = card.icon
+              const isReverse = idx % 2 === 1
               return (
-                <div key={card.name} className="sol-card" style={{
-                  background:'#fff', borderRadius:20,
-                  boxShadow:`0 2px 0 0 ${card.accent}40, 0 4px 24px rgba(0,0,0,0.06)`,
-                  border:`1px solid ${card.accent}20`,
-                  overflow:'hidden', display:'flex', flexDirection:'column',
-                }}>
-                  {/* Accent top bar */}
-                  <div style={{ height:4, background:`linear-gradient(90deg,${card.accent},${card.accent}99)` }}/>
-
-                  <div style={{ padding:'26px 26px 22px', flex:1, display:'flex', flexDirection:'column' }}>
-                    {/* Header row */}
-                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:18 }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                        {card.img
-                          ? <img src={card.img} alt={card.name} style={{ width:42, height:42, objectFit:'contain' }}/>
-                          : <div style={{ width:42, height:42, borderRadius:11, background:`${card.accent}18`, display:'flex', alignItems:'center', justifyContent:'center' }}><IC style={{ width:20, height:20, color:card.accent }}/></div>
-                        }
-                        <h3 style={{ fontSize:15.5, fontWeight:800, color:'#0f0f1a', lineHeight:1.3 }}>{card.name}</h3>
+                <div
+                  key={card.name}
+                  className="sol-row"
+                  style={{
+                    background: '#fff',
+                    borderRadius: 20,
+                    overflow: 'hidden',
+                    boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
+                    border: '1px solid rgba(0,0,0,0.06)',
+                    borderLeft: `4px solid ${card.accent}`,
+                  }}
+                >
+                  <div
+                    className={`sol-row-inner${isReverse ? ' reverse' : ''}`}
+                    style={{
+                      display: 'flex',
+                      flexDirection: isReverse ? 'row-reverse' : 'row',
+                      alignItems: 'stretch',
+                    }}
+                  >
+                    {/* Left panel: identity */}
+                    <div
+                      className="sol-row-left"
+                      style={{
+                        width: '38%',
+                        padding: '44px 40px',
+                        background: `linear-gradient(145deg, ${card.accent}08 0%, #fff 100%)`,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        borderRight: isReverse ? 'none' : '1px solid rgba(0,0,0,0.05)',
+                        borderLeft: isReverse ? '1px solid rgba(0,0,0,0.05)' : 'none',
+                      }}
+                    >
+                      {/* Icon */}
+                      <div style={{ marginBottom: 20 }}>
+                        {card.img ? (
+                          <div style={{ width: 80, height: 80, borderRadius: 20, background: `${card.accent}12`, border: `1px solid ${card.accent}25`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <img src={card.img} alt={card.name} style={{ width: 54, height: 54, objectFit: 'contain' }} />
+                          </div>
+                        ) : (
+                          <div style={{ width: 80, height: 80, borderRadius: 20, background: `${card.accent}14`, border: `1px solid ${card.accent}28`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <IC style={{ width: 34, height: 34, color: card.accent }} />
+                          </div>
+                        )}
                       </div>
-                      <span style={{ fontSize:11.5, fontWeight:700, color:card.accent, background:`${card.accent}12`, padding:'4px 10px', borderRadius:20, whiteSpace:'nowrap' }}>
-                        {card.ages}
-                      </span>
+
+                      {/* Name + age badge */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
+                        <h3 style={{ fontSize: 'clamp(1.05rem,1.8vw,1.25rem)', fontWeight: 800, color: '#0f0f1a', lineHeight: 1.25, margin: 0 }}>{card.name}</h3>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: card.accent, background: `${card.accent}14`, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap', alignSelf: 'flex-start', marginTop: 3 }}>
+                          {card.ages}
+                        </span>
+                      </div>
+
+                      <p style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.7, margin: '0 0 24px' }}>{card.desc}</p>
+
+                      <Link
+                        to={card.link}
+                        className="sol-learn"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13.5, fontWeight: 700, color: card.accent, textDecoration: 'none' }}
+                      >
+                        {s.learn_more} <ArrowRight style={{ width: 14, height: 14 }} />
+                      </Link>
                     </div>
 
-                    <p style={{ fontSize:13.5, color:'#6b7280', lineHeight:1.65, marginBottom:18 }}>{card.desc}</p>
-
-                    <ul style={{ listStyle:'none', padding:0, margin:'0 0 22px', display:'flex', flexDirection:'column', gap:8 }}>
-                      {card.features.map(f => (
-                        <li key={f} style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color:'#374151', fontWeight:500 }}>
-                          <span style={{ width:16, height:16, borderRadius:'50%', background:`${card.accent}18`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                            <CheckCircle style={{ width:10, height:10, color:card.accent }}/>
-                          </span>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <Link to={card.link} className="sol-link" style={{ marginTop:'auto', display:'inline-flex', alignItems:'center', gap:5, fontSize:13, fontWeight:700, color:card.accent, textDecoration:'none' }}>
-                      {s.learn_more} <ArrowRight style={{ width:13, height:13 }}/>
-                    </Link>
+                    {/* Right panel: features */}
+                    <div
+                      className="sol-row-right"
+                      style={{
+                        flex: 1,
+                        padding: '44px 40px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '16px 24px' }}>
+                        {card.features.map((f) => (
+                          <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                            <span style={{
+                              flexShrink: 0,
+                              marginTop: 2,
+                              width: 22,
+                              height: 22,
+                              borderRadius: '50%',
+                              background: `${card.accent}16`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>
+                              <CheckCircle style={{ width: 12, height: 12, color: card.accent }} />
+                            </span>
+                            <span style={{ fontSize: 14, color: '#374151', fontWeight: 600, lineHeight: 1.5 }}>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )
@@ -206,22 +334,23 @@ export default function Solutions() {
       </section>
 
       {/* ── CTA ── */}
-      <section style={{ background:'#060614', position:'relative', overflow:'hidden', padding:'96px 24px', textAlign:'center' }}>
-        <div style={{ position:'absolute', top:'-30%', left:'15%', width:'70%', height:'130%', background:'radial-gradient(ellipse, rgba(83,74,183,.22) 0%, transparent 65%)', pointerEvents:'none' }}/>
-        <div style={{ position:'relative', zIndex:1, maxWidth:580, margin:'0 auto' }}>
-          <h2 style={{ fontSize:'clamp(1.6rem,3.5vw,2.5rem)', fontWeight:800, color:'#fff', marginBottom:14, lineHeight:1.2, letterSpacing:'-0.025em' }}>{s.cta_h}</h2>
-          <p style={{ fontSize:16, color:'rgba(255,255,255,0.5)', marginBottom:36, lineHeight:1.7 }}>{s.cta_sub}</p>
-          <Link to="/contact"
-            style={{ display:'inline-flex', alignItems:'center', gap:9, background:'linear-gradient(135deg,#7c3aed,#4f46e5)', color:'#fff', fontWeight:700, fontSize:14.5, padding:'14px 30px', borderRadius:14, textDecoration:'none', boxShadow:'0 8px 32px rgba(109,40,217,0.45)' }}
-            onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 14px 40px rgba(109,40,217,0.55)'}}
-            onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='0 8px 32px rgba(109,40,217,0.45)'}}>
-            {s.cta_btn} <ArrowRight style={{ width:15, height:15 }}/>
+      <section style={{ background: '#060614', position: 'relative', overflow: 'hidden', padding: '104px 24px', textAlign: 'center' }}>
+        {/* Purple glow */}
+        <div style={{ position: 'absolute', top: '-40%', left: '10%', width: '80%', height: '160%', background: 'radial-gradient(ellipse, rgba(109,40,217,.28) 0%, transparent 60%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px', WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent)', maskImage: 'radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent)', pointerEvents: 'none' }} />
+
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 580, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 'clamp(1.7rem,3.5vw,2.6rem)', fontWeight: 900, color: '#fff', marginBottom: 16, lineHeight: 1.18, letterSpacing: '-0.03em' }}>{s.cta_h}</h2>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.48)', marginBottom: 40, lineHeight: 1.75 }}>{s.cta_sub}</p>
+          <Link to="/contact" className="sol-cta-primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'linear-gradient(135deg,#7c3aed,#4f46e5)', color: '#fff', fontWeight: 700, fontSize: 15, padding: '15px 32px', borderRadius: 14, textDecoration: 'none', boxShadow: '0 8px 32px rgba(109,40,217,0.45)' }}>
+            {s.cta_btn} <ArrowRight style={{ width: 16, height: 16 }} />
           </Link>
         </div>
       </section>
 
-      <footer style={{ background:'#060614', borderTop:'1px solid rgba(255,255,255,0.06)', padding:'20px 24px', textAlign:'center' }}>
-        <p style={{ color:'rgba(255,255,255,0.25)', fontSize:12.5 }}>{s.footer}</p>
+      <footer style={{ background: '#060614', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '22px 24px', textAlign: 'center' }}>
+        <p style={{ color: 'rgba(255,255,255,0.22)', fontSize: 12.5 }}>{s.footer}</p>
       </footer>
     </div>
   )
