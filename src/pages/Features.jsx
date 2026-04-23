@@ -156,11 +156,6 @@ export default function Features() {
         <div style={{ position: 'absolute', top: '-10%', right: '-8%', width: '50%', height: '70%', background: 'radial-gradient(ellipse, rgba(109,40,217,.20) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 820, margin: '0 auto' }}>
-          {/* Eyebrow */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 16px', borderRadius: 99, border: '1px solid rgba(167,139,250,0.28)', background: 'rgba(167,139,250,0.09)', marginBottom: 28 }}>
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#a78bfa', display: 'inline-block' }} />
-            <span style={{ fontSize: 11.5, fontWeight: 700, color: '#a78bfa', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{s.hero_eyebrow}</span>
-          </div>
 
           <h1 style={{ fontSize: 'clamp(2.6rem,6.5vw,4.6rem)', fontWeight: 900, color: '#fff', lineHeight: 1.06, letterSpacing: '-0.035em', marginBottom: 8 }}>
             {s.hero_h1}
