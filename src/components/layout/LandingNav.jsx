@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, ChevronRight, BookOpen, FileText, PenLine, Star, Users, TrendingUp, HeartHandshake, Mail, Building2, ClipboardCheck, Calendar, BarChart2, MessageSquare, Clock, Sparkles } from 'lucide-react'
+import { Menu, X, ChevronRight, BookOpen, FileText, PenLine, Star, Users, TrendingUp, HeartHandshake, Mail, Building2, ClipboardCheck, Calendar, BarChart2, MessageSquare, Clock, Sparkles, ArrowRight } from 'lucide-react'
 
 export default function LandingNav({ s, lang, setLang }) {
   const [open, setOpen]             = useState(false)
@@ -45,6 +45,8 @@ export default function LandingNav({ s, lang, setLang }) {
   ]
 
   const navItems = [
+    { label: s.nav_solutions, key: 'solutions' },
+    { label: s.nav_features,  key: 'features'  },
     { label: L==='az'?'Resurslar':L==='tr'?'Kaynaklar':L==='ru'?'Ресурсы':'Resources', key: 'resources' },
     { label: L==='az'?'Şirkət':L==='tr'?'Şirket':L==='ru'?'Kompaniya':'Company', key: 'company' },
   ]
@@ -132,6 +134,17 @@ export default function LandingNav({ s, lang, setLang }) {
                     {L==='az'?'Milli Kurikulum':L==='tr'?'Ulusal Müfredat':L==='ru'?'Национальная программа':'National Curriculum'}
                   </p>
                   <DdItem {...solItems[4]}/>
+                  <div style={{ marginTop:10, padding:'10px 10px 6px', borderTop:'1px solid rgba(0,0,0,0.06)' }}>
+                    <Link to="/solutions" onClick={() => setDropdown(null)}
+                      style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 10px', borderRadius:10, textDecoration:'none', transition:'background .15s', background:'rgba(29,158,117,0.05)' }}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(29,158,117,0.12)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(29,158,117,0.05)'}>
+                      <span style={{ fontSize:12.5, fontWeight:700, color:'#1D9E75' }}>
+                        {L==='az'?'Bütün həllər':L==='tr'?'Tüm çözümler':L==='ru'?'Все решения':'All solutions'}
+                      </span>
+                      <ArrowRight style={{ width:13, height:13, color:'#1D9E75' }}/>
+                    </Link>
+                  </div>
                 </div>
               )}
 
@@ -145,6 +158,17 @@ export default function LandingNav({ s, lang, setLang }) {
                   </p>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:2 }}>
                     {featItems.map(item => <DdItem key={item.to} {...item}/>)}
+                  </div>
+                  <div style={{ marginTop:10, padding:'10px 10px 6px', borderTop:'1px solid rgba(0,0,0,0.06)' }}>
+                    <Link to="/features" onClick={() => setDropdown(null)}
+                      style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 10px', borderRadius:10, textDecoration:'none', transition:'background .15s', background:'rgba(124,58,237,0.05)' }}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(124,58,237,0.1)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(124,58,237,0.05)'}>
+                      <span style={{ fontSize:12.5, fontWeight:700, color:'#7c3aed' }}>
+                        {L==='az'?'Bütün xüsusiyyətlər':L==='tr'?'Tüm özellikler':L==='ru'?'Все возможности':'All features'}
+                      </span>
+                      <ArrowRight style={{ width:13, height:13, color:'#7c3aed' }}/>
+                    </Link>
                   </div>
                 </div>
               )}
