@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { CheckCircle, Building2, ArrowRight, ArrowUpRight, LayoutGrid } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 import LandingNav from '../components/layout/LandingNav'
+import { useSEO } from '../hooks/useSEO'
 
 const STR = {
   az: {
@@ -121,7 +122,12 @@ export default function Solutions() {
   const { lang, setLang } = useLang()
   const s = STR[lang] || STR.az
   const cards = CARDS[lang] || CARDS.az
-
+  useSEO({
+    title: lang==='az' ? 'Həllər — IB və Milli Kurikulum Dəstəyi' : lang==='ru' ? 'Решения — IB и национальная программа' : lang==='tr' ? 'Çözümler — IB ve Ulusal Müfredat' : 'Solutions — IB & National Curriculum',
+    description: lang==='az' ? 'Zirva IB PYP, MYP, DP, CP və Azərbaycan milli kurikulumu dəstəkləyir. Hər məktəb üçün doğru həll.' : 'Zirva supports IB PYP, MYP, DP, CP and the Azerbaijani national curriculum. The right fit for every school.',
+    canonical: '/solutions',
+    keywords: 'IB school Azerbaijan, IB PYP MYP DP CP Azerbaijan, məktəb həlləri, school solutions Azerbaijan, dövlət məktəbi idarəetmə',
+  })
   return (
     <div style={{ background: '#fff', fontFamily: 'inherit' }}>
       <style>{`

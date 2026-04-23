@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 import LandingNav from '../components/layout/LandingNav'
+import { useSEO } from '../hooks/useSEO'
 
 const STR = {
   az: {
@@ -124,7 +125,12 @@ export default function Features() {
   const { lang, setLang } = useLang()
   const s = STR[lang] || STR.az
   const features = FEATURES[lang] || FEATURES.az
-
+  useSEO({
+    title: lang==='az' ? 'Xüsusiyyətlər — 8 Modul, 60+ Funksiya' : lang==='ru' ? 'Возможности — 8 модулей, 60+ функций' : lang==='tr' ? 'Özellikler — 8 Modül, 60+ Özellik' : 'Features — 8 Modules, 60+ Capabilities',
+    description: lang==='az' ? 'Kurikulum idarəetməsi, qiymətləndirmə, davamiyyət, hesabatlar, kommunikasiya, cədvəl, Zəka AI — hamısı bir platformada.' : 'Curriculum management, assessment, attendance, reports, communication, timetable, Zeka AI — all in one platform.',
+    canonical: '/features',
+    keywords: 'school management features, kurikulum idarəetməsi, məktəb xüsusiyyətləri, IB assessment platform, school attendance software Azerbaijan',
+  })
   return (
     <div style={{ background: '#fff', fontFamily: 'inherit' }}>
       <style>{`

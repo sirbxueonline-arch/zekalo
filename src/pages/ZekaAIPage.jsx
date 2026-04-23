@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { GraduationCap, BookOpen, LayoutDashboard, Sparkles, ArrowRight, Check, Zap } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 import LandingNav from '../components/layout/LandingNav'
+import { useSEO } from '../hooks/useSEO'
 
 const STR = {
   az: {
@@ -109,6 +110,12 @@ const STR = {
 export default function ZekaAIPage() {
   const { lang, setLang } = useLang()
   const s = STR[lang] || STR.az
+  useSEO({
+    title: lang==='az' ? 'Zəka AI — Süni İntellekt Müəllim Köməkçisi' : lang==='ru' ? 'Зека AI — ИИ-ассистент для учителей' : lang==='tr' ? 'Zeka AI — Yapay Zeka Öğretim Asistanı' : 'Zeka AI — AI Teaching Assistant',
+    description: lang==='az' ? 'Zəka AI şagirdlərə, müəllimlərə və adminlərə kömək edir. Hesabat generatoru, ev tapşırığı köməkçisi, şəxsiləşdirilmiş öyrənmə.' : 'Zeka AI helps students, teachers and admins. Report generator, homework assistant, personalised learning — powered by Claude AI.',
+    canonical: '/zeka-ai',
+    keywords: 'AI school assistant Azerbaijan, edtech AI, Zeka AI, məktəb süni intellekt, AI müəllim köməkçisi, school AI platform',
+  })
 
   const cards = [
     { icon:GraduationCap, title:s.c1, sub:s.c1_sub, features:s.c1f, accent:'#534AB7', bg:'rgba(83,74,183,0.07)', border:'rgba(83,74,183,0.18)' },

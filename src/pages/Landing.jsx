@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 import LandingNav from '../components/layout/LandingNav'
+import { useSEO } from '../hooks/useSEO'
 
 /* ─── translations ─── */
 const STR = {
@@ -2120,6 +2121,12 @@ function Footer({ s }) {
 export default function Landing() {
   const { lang, setLang } = useLang()
   const s = STR[lang] || STR.az
+  useSEO({
+    title: lang==='az' ? 'Azərbaycanın №1 Məktəb Platforması' : lang==='ru' ? 'Платформа №1 для школ Азербайджана' : lang==='tr' ? "Azerbaycan'ın №1 Okul Platforması" : "Azerbaijan's #1 School Platform",
+    description: lang==='az' ? 'Zirva — IB dünya məktəbləri və Azərbaycan dövlət məktəbləri üçün tam rəqəmsal həll. Kurikulum, davamiyyət, Zəka AI və daha çox.' : 'Zirva — complete digital school platform for IB World Schools and Azerbaijani state schools. Curriculum, attendance, Zeka AI and more.',
+    canonical: '/',
+    keywords: 'məktəb idarəetmə sistemi, school management Azerbaijan, edtech Azerbaijan, IB school platform Azerbaijan, rəqəmsal məktəb',
+  })
   return (
     <div className="min-h-screen antialiased" style={{ overflowX:'hidden' }}>
       {/* ── Fixed pill nav ── */}
