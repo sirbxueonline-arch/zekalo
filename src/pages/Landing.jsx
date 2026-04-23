@@ -1253,20 +1253,6 @@ function Hero({ s }) {
           </Link>
         </div>
 
-        {/* Mobile stats — shown on small screens in place of dashboard */}
-        <div className="sm:hidden w-full grid grid-cols-2 gap-3 mb-8 mt-2">
-          {[
-            { val:'4',   label:L==='az'?'IB Proqramı':L==='tr'?'IB Programı':L==='ru'?'IB Программы':'IB Programmes', color:'#a78bfa' },
-            { val:'50+', label:L==='az'?'İnteqrasiya':L==='tr'?'Entegrasyon':L==='ru'?'Интеграций':'Integrations',     color:'#60a5fa' },
-            { val:'24/7',label:L==='az'?'Dəstək':L==='tr'?'Destek':L==='ru'?'Поддержка':'Support',                    color:'#34d399' },
-            { val:'AZ',  label:L==='az'?'Yerli Hosting':L==='tr'?'Yerel Hosting':L==='ru'?'Локальный хостинг':'Local Hosting', color:'#fbbf24' },
-          ].map(({ val, label, color }) => (
-            <div key={label} style={{ background:'rgba(255,255,255,0.08)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', borderRadius:18, padding:'18px 16px', border:'1px solid rgba(255,255,255,0.12)' }}>
-              <p style={{ fontSize:26, fontWeight:800, color, lineHeight:1, marginBottom:5 }}>{val}</p>
-              <p style={{ fontSize:12, fontWeight:500, color:'rgba(255,255,255,0.58)' }}>{label}</p>
-            </div>
-          ))}
-        </div>
 
         {/* Dashboard area — hidden on small screens */}
         <div className="hidden sm:block" style={{ position:'relative', width:'100%', maxWidth:1000 }}>
