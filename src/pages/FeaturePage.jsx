@@ -225,7 +225,7 @@ export default function FeaturePage({ type }) {
 
   if (!feature) {
     return (
-      <div style={{ fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif", background:'#060614', minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', color:'#fff' }}>
+      <div style={{ background:'#060614', minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', color:'#fff' }}>
         <p style={{ fontSize:20, fontWeight:700, marginBottom:20 }}>{L.back.replace('←','').trim()} not found</p>
         <Link to="/features" style={{ color:'#a78bfa', fontWeight:600, fontSize:14 }}>{L.back}</Link>
       </div>
@@ -258,9 +258,8 @@ export default function FeaturePage({ type }) {
   const names = featureNames[lang] || featureNames.en
 
   return (
-    <div style={{ fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif", minHeight:'100vh', background:'#fff' }}>
+    <div style={{ minHeight:'100vh', background:'#fff' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         .fp-hl-item { transition: transform .15s ease, box-shadow .15s ease; }
         .fp-hl-item:hover { transform: translateY(-2px); }
         .fp-related-card { transition: transform .18s ease, box-shadow .18s ease; }

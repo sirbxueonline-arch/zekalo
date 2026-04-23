@@ -110,9 +110,8 @@ export default function Features() {
   const features = FEATURES[lang] || FEATURES.az
 
   return (
-    <div style={{ fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif", background:'#fff' }}>
+    <div style={{ background:'#fff' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         .feat-card { transition: transform .18s ease, box-shadow .18s ease; }
         .feat-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.1) !important; }
         @media(max-width:767px){

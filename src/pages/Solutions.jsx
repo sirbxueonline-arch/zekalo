@@ -99,9 +99,8 @@ export default function Solutions() {
   const cards = CARDS[lang] || CARDS.az
 
   return (
-    <div style={{ fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif", background:'#fff' }}>
+    <div style={{ background:'#fff' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         .sol-card { transition: transform .2s ease, box-shadow .2s ease; }
         .sol-card:hover { transform: translateY(-6px); }
         .sol-link { transition: gap .15s ease; }

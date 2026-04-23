@@ -16,7 +16,7 @@ const STR = {
     isAz: true, lang: 'az',
     nav_solutions: 'Həllər', nav_features: 'Xüsusiyyətlər', nav_zeka: 'Zəka AI',
     nav_resources: 'Resurslar', nav_pricing: 'Paketlər', nav_signin: 'Daxil ol', nav_demo: 'Bizimlə Əlaqə',
-    hero_h1a: 'Məktəbinizi', hero_h1b: 'növbəti pilləyə qaldırın',
+    hero_h1a: 'Azərbaycanda ilk', hero_h1b: 'çox-kurikulumlu məktəb platforması',
     hero_sub: 'Kurikulumdan hesabata, qiymətləndirmədən kommunikasiyaya — hər şey bir platformada.',
     hero_cta1: 'Xüsusiyyətlərə bax', hero_cta2: 'Bizimlə Əlaqə',
     dash_school: 'Zirva Beynəlxalq Məktəbi', dash_welcome: 'Xoş gəlmisiniz, Admin',
@@ -94,7 +94,7 @@ const STR = {
     isAz: false, lang: 'en',
     nav_solutions: 'Solutions', nav_features: 'Features', nav_zeka: 'Zeka AI',
     nav_resources: 'Resources', nav_pricing: 'Explore Bundles', nav_signin: 'Sign In', nav_demo: 'Contact Us',
-    hero_h1a: 'Run your school', hero_h1b: 'smarter with Zirva',
+    hero_h1a: "Azerbaijan's first", hero_h1b: 'multi-curriculum school platform',
     hero_sub: 'Curriculum to reporting, assessment to communication — everything your school needs, in one platform.',
     hero_cta1: 'Explore Features', hero_cta2: 'Contact Us',
     dash_school: 'Zirva International School', dash_welcome: 'Welcome back, Admin',
@@ -173,7 +173,7 @@ const STR = {
     isAz: false, lang: 'tr',
     nav_solutions: 'Çözümler', nav_features: 'Özellikler', nav_zeka: 'Zeka AI',
     nav_resources: 'Kaynaklar', nav_pricing: 'Paketler', nav_signin: 'Giriş yap', nav_demo: 'Bize Ulaşın',
-    hero_h1a: 'Okulunuzu', hero_h1b: 'bir üst seviyeye taşıyın',
+    hero_h1a: "Azerbaycan'ın ilk", hero_h1b: 'çok müfredatlı okul platforması',
     hero_sub: 'Müfredattan raporlamaya, değerlendirmeden iletişime — okulunuzun ihtiyacı olan her şey tek platformda.',
     hero_cta1: 'Özelliklere bak', hero_cta2: 'Bize Ulaşın',
     dash_school: 'Zirva Uluslararası Okulu', dash_welcome: 'Hoş geldiniz, Yönetici',
@@ -251,7 +251,7 @@ const STR = {
     isAz: false, lang: 'ru',
     nav_solutions: 'Решения', nav_features: 'Возможности', nav_zeka: 'Зека AI',
     nav_resources: 'Ресурсы', nav_pricing: 'Тарифы', nav_signin: 'Войти', nav_demo: 'Связаться',
-    hero_h1a: 'Управляйте школой', hero_h1b: 'умнее с Zirva',
+    hero_h1a: 'Первая в Азербайджане', hero_h1b: 'мультикуррикулярная платформа',
     hero_sub: 'От учебного плана до отчётов, от оценивания до коммуникации — всё необходимое в одной платформе.',
     hero_cta1: 'Возможности', hero_cta2: 'Связаться',
     dash_school: 'Международная школа Zirva', dash_welcome: 'Добро пожаловать, Администратор',
@@ -337,9 +337,7 @@ function ZirvaLogo({ size = 32, invert = false }) {
 
 /* ─── Styles ─── */
 const globalStyles = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-  body, * { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+  body, * { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 
   @keyframes floatY {
     0%, 100% { transform: translateY(0); }
@@ -835,26 +833,80 @@ function DashboardMockup({ s }) {
       <div style={{ display:'flex', height:450, background:'#f5f4fb' }}>
 
         {/* Sidebar */}
-        <div style={{ width:186, background:'#110e1e', display:'flex', flexDirection:'column', padding:'14px 10px', flexShrink:0 }}>
+        <div style={{ width:186, background:'#0f0c1b', display:'flex', flexDirection:'column', flexShrink:0 }}>
           {/* Logo */}
-          <div style={{ display:'flex', alignItems:'center', gap:9, padding:'0 6px 14px', borderBottom:'1px solid rgba(255,255,255,0.07)', marginBottom:10 }}>
-            <div style={{ width:28, height:28, borderRadius:9, background:'linear-gradient(135deg,#534AB7,#7c3aed)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          <div style={{ padding:'13px 14px 12px', borderBottom:'1px solid rgba(255,255,255,0.06)', display:'flex', alignItems:'center', gap:9, flexShrink:0 }}>
+            <div style={{ width:29, height:29, borderRadius:9, background:'linear-gradient(135deg,#534AB7,#7c3aed)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
               <span style={{ color:'#fff', fontSize:13, fontWeight:800 }}>Z</span>
             </div>
-            <span style={{ color:'#fff', fontSize:13.5, fontWeight:700, letterSpacing:'-0.01em' }}>Zirva</span>
-          </div>
-          {/* Nav */}
-          {sideItems.map(({ icon: Icon, label, active }) => (
-            <div key={label} style={{
-              display:'flex', alignItems:'center', gap:9, padding:'7px 10px',
-              borderRadius:9, marginBottom:1,
-              background: active ? 'rgba(83,74,183,0.28)' : 'transparent',
-            }}>
-              <Icon style={{ width:14, height:14, color: active ? '#a78bfa' : '#4b5563', flexShrink:0 }}/>
-              <span style={{ fontSize:11, fontWeight: active ? 700 : 500, color: active ? '#c4b5fd' : '#6b6880' }}>{label}</span>
-              {active && <div style={{ marginLeft:'auto', width:5, height:5, borderRadius:'50%', background:'#7c3aed' }}/>}
+            <div>
+              <p style={{ margin:0, color:'#fff', fontSize:13, fontWeight:700, lineHeight:1, letterSpacing:'-0.01em' }}>Zirva</p>
+              <p style={{ margin:'2px 0 0', color:'rgba(255,255,255,0.22)', fontSize:8, fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase' }}>School Platform</p>
             </div>
-          ))}
+          </div>
+
+          {/* Nav */}
+          <div style={{ flex:1, padding:'8px 8px 4px' }}>
+            {/* Section: Main */}
+            <p style={{ margin:'4px 0 5px', fontSize:7.5, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:'rgba(255,255,255,0.18)', padding:'0 8px' }}>
+              {s.lang==='az'?'Əsas':s.lang==='tr'?'Ana Menü':s.lang==='ru'?'Главное':'Main'}
+            </p>
+            {[
+              { icon:LayoutDashboard, label:'Dashboard', active:true },
+              { icon:BookOpen, label:s.tab_curriculum, active:false },
+              { icon:ClipboardCheck, label:s.tab_assessment, active:false },
+              { icon:Calendar, label:s.tab_attendance, active:false },
+            ].map(({ icon:Icon, label, active }) => (
+              <div key={label} style={{
+                display:'flex', alignItems:'center', gap:8, padding:'7px 10px',
+                borderRadius:8, marginBottom:1.5, position:'relative', overflow:'hidden',
+                background: active ? 'rgba(83,74,183,0.22)' : 'transparent',
+                border: active ? '1px solid rgba(83,74,183,0.18)' : '1px solid transparent',
+              }}>
+                {active && <div style={{ position:'absolute', left:0, top:0, bottom:0, width:3, background:'linear-gradient(to bottom,#a78bfa,#6d28d9)', borderRadius:'0 2px 2px 0' }}/>}
+                <Icon style={{ width:13, height:13, color: active ? '#a78bfa' : 'rgba(255,255,255,0.28)', flexShrink:0, marginLeft: active ? 5 : 0 }}/>
+                <span style={{ fontSize:11, fontWeight: active ? 600 : 400, color: active ? '#ddd6fe' : 'rgba(255,255,255,0.38)' }}>{label}</span>
+              </div>
+            ))}
+
+            {/* Divider */}
+            <div style={{ height:1, background:'rgba(255,255,255,0.05)', margin:'8px 2px' }}/>
+
+            {/* Section: More */}
+            <p style={{ margin:'4px 0 5px', fontSize:7.5, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:'rgba(255,255,255,0.18)', padding:'0 8px' }}>
+              {s.lang==='az'?'Əlaqə':s.lang==='tr'?'İletişim':s.lang==='ru'?'Связь':'Comms'}
+            </p>
+            {[
+              { icon:MessageSquare, label:s.tab_comms },
+              { icon:FileText, label:s.lang==='az'?'Hesabatlar':s.lang==='tr'?'Raporlar':s.lang==='ru'?'Отчёты':'Reports' },
+            ].map(({ icon:Icon, label }) => (
+              <div key={label} style={{ display:'flex', alignItems:'center', gap:8, padding:'7px 10px', borderRadius:8, marginBottom:1.5 }}>
+                <Icon style={{ width:13, height:13, color:'rgba(255,255,255,0.25)', flexShrink:0 }}/>
+                <span style={{ fontSize:11, fontWeight:400, color:'rgba(255,255,255,0.35)' }}>{label}</span>
+              </div>
+            ))}
+
+            {/* Zeka AI pill */}
+            <div style={{ margin:'8px 0 0', padding:'7px 10px', borderRadius:9, background:'linear-gradient(135deg,rgba(83,74,183,0.28),rgba(124,58,237,0.16))', border:'1px solid rgba(124,58,237,0.22)', display:'flex', alignItems:'center', gap:8 }}>
+              <Sparkles style={{ width:12, height:12, color:'#a78bfa', flexShrink:0 }}/>
+              <span style={{ fontSize:11, fontWeight:600, color:'#c4b5fd', flex:1 }}>{s.tab_zeka}</span>
+              <span style={{ fontSize:7, fontWeight:800, color:'#a78bfa', letterSpacing:'0.05em', textTransform:'uppercase', background:'rgba(124,58,237,0.25)', padding:'2px 5px', borderRadius:4, flexShrink:0 }}>AI</span>
+            </div>
+          </div>
+
+          {/* User profile */}
+          <div style={{ padding:'10px', borderTop:'1px solid rgba(255,255,255,0.06)', flexShrink:0 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:9, padding:'7px 8px', borderRadius:9, background:'rgba(255,255,255,0.04)' }}>
+              <div style={{ width:26, height:26, borderRadius:'50%', background:'linear-gradient(135deg,#534AB7,#7c3aed)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <span style={{ color:'#fff', fontSize:11, fontWeight:800 }}>A</span>
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <p style={{ margin:0, fontSize:10, fontWeight:600, color:'rgba(255,255,255,0.75)', lineHeight:1.1 }}>Admin</p>
+                <p style={{ margin:0, fontSize:8, color:'rgba(255,255,255,0.28)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>admin@zirva.az</p>
+              </div>
+              <ChevronRight style={{ width:10, height:10, color:'rgba(255,255,255,0.18)', flexShrink:0 }}/>
+            </div>
+          </div>
         </div>
 
         {/* Main */}
@@ -1198,6 +1250,21 @@ function Hero({ s }) {
           >
             {s.hero_cta2} <ArrowRight style={{ width:15, height:15, flexShrink:0 }}/>
           </Link>
+        </div>
+
+        {/* Mobile stats — shown on small screens in place of dashboard */}
+        <div className="sm:hidden w-full grid grid-cols-2 gap-3 mb-8 mt-2">
+          {[
+            { val:'4',   label:L==='az'?'IB Proqramı':L==='tr'?'IB Programı':L==='ru'?'IB Программы':'IB Programmes', color:'#a78bfa' },
+            { val:'50+', label:L==='az'?'İnteqrasiya':L==='tr'?'Entegrasyon':L==='ru'?'Интеграций':'Integrations',     color:'#60a5fa' },
+            { val:'24/7',label:L==='az'?'Dəstək':L==='tr'?'Destek':L==='ru'?'Поддержка':'Support',                    color:'#34d399' },
+            { val:'AZ',  label:L==='az'?'Yerli Hosting':L==='tr'?'Yerel Hosting':L==='ru'?'Локальный хостинг':'Local Hosting', color:'#fbbf24' },
+          ].map(({ val, label, color }) => (
+            <div key={label} style={{ background:'rgba(255,255,255,0.08)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', borderRadius:18, padding:'18px 16px', border:'1px solid rgba(255,255,255,0.12)' }}>
+              <p style={{ fontSize:26, fontWeight:800, color, lineHeight:1, marginBottom:5 }}>{val}</p>
+              <p style={{ fontSize:12, fontWeight:500, color:'rgba(255,255,255,0.58)' }}>{label}</p>
+            </div>
+          ))}
         </div>
 
         {/* Dashboard area — hidden on small screens */}
@@ -1985,6 +2052,49 @@ function Benefits({ s }) {
   )
 }
 
+/* ─── TESTIMONIALS ─── */
+function Testimonials({ s }) {
+  const ref = useFadeUp()
+  const items = [
+    { quote:s.t1q, name:s.t1n, role:s.t1r, color:'#534AB7', initials:s.lang==='en'?'RA':'RƏ' },
+    { quote:s.t2q, name:s.t2n, role:s.t2r, color:'#1D9E75', initials:s.lang==='en'?'GH':'GH' },
+    { quote:s.t3q, name:s.t3n, role:s.t3r, color:'#534AB7', initials:s.lang==='en'?'NG':'NQ' },
+  ]
+  return (
+    <section ref={ref} className="fade-up py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        <div className="text-center mb-14">
+          <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">{s.test_badge}</p>
+          <h2 className="font-extrabold text-gray-900 mb-4"
+            style={{ fontSize:'clamp(1.9rem,4vw,3rem)', letterSpacing:'-0.025em' }}>
+            {s.test_title}
+          </h2>
+          <p className="text-gray-500 text-base font-medium max-w-md mx-auto">{s.test_sub}</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {items.map(({ quote, name, role, color, initials }) => (
+            <div key={name} className="flex flex-col gap-5 rounded-2xl p-8 border border-gray-100"
+              style={{ background:'#fafafa', boxShadow:'0 1px 4px rgba(0,0,0,0.04)' }}>
+              {/* Large quote mark */}
+              <div style={{ fontSize:48, lineHeight:0.8, fontWeight:800, color:`${color}18`, userSelect:'none' }}>"</div>
+              <p className="text-gray-700 text-sm leading-relaxed font-medium flex-1">{quote}</p>
+              <div className="flex items-center gap-3 pt-2" style={{ borderTop:'1px solid rgba(0,0,0,0.05)' }}>
+                <div style={{ width:38, height:38, borderRadius:'50%', background:`${color}12`, border:`1.5px solid ${color}25`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <span style={{ fontSize:11, fontWeight:800, color }}>{initials}</span>
+                </div>
+                <div>
+                  <p className="text-gray-900 text-sm font-bold" style={{ letterSpacing:'-0.01em' }}>{name}</p>
+                  <p className="text-gray-400 text-xs font-medium leading-tight mt-0.5">{role}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /* ─── FOOTER ─── */
 function Footer({ s }) {
   return (
@@ -2088,6 +2198,7 @@ export default function Landing() {
       <ProductShowcase s={s}/>
       <ZekaAI s={s}/>
       <Benefits s={s}/>
+      <Testimonials s={s}/>
       <Compliance s={s}/>
       <PilotCTA s={s}/>
       <Footer s={s}/>

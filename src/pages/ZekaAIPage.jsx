@@ -123,9 +123,8 @@ export default function ZekaAIPage() {
   ]
 
   return (
-    <div style={{ fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif", background:'#fff' }}>
+    <div style={{ background:'#fff' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
         .zk-card { transition: transform .2s ease, box-shadow .2s ease; }

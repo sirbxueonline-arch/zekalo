@@ -10,8 +10,8 @@ export default {
         'border-soft': '#e8e6f8',
       },
       fontFamily: {
-        serif: ['"DM Serif Display"', 'Georgia', 'serif'],
-        sans: ['Inter', 'sans-serif'],
+        serif: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
       },
     },
   },
