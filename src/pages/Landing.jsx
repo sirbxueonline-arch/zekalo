@@ -656,10 +656,10 @@ function Nav({ s, lang, setLang }) {
                     </div>
                   </div>
                   <div style={{ height:1, background:'rgba(0,0,0,0.06)', margin:'16px 0 14px' }}/>
-                  <Link to="/features" onClick={() => setDropdown(null)}
-                    style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', borderRadius:12, background:'rgba(83,74,183,0.05)', border:'1px solid rgba(83,74,183,0.1)', textDecoration:'none' }}>
-                    <span style={{ fontSize:12.5, fontWeight:700, color:'#534AB7' }}>
-                      {L==='az'?'Bütün xüsusiyyətlərə bax →':L==='tr'?'Tüm özellikleri gör →':'Explore all features →'}
+                  <Link to="/solutions" onClick={() => setDropdown(null)}
+                    style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', borderRadius:12, background:'rgba(29,158,117,0.05)', border:'1px solid rgba(29,158,117,0.12)', textDecoration:'none' }}>
+                    <span style={{ fontSize:12.5, fontWeight:700, color:'#1D9E75' }}>
+                      {L==='az'?'Bütün həllər':L==='tr'?'Tüm çözümler':L==='ru'?'Все решения':'All solutions'}
                     </span>
                     <div style={{ display:'flex', gap:4 }}>
                       {['#f59e0b','#ef4444','#3b82f6','#a855f7','#1D9E75'].map(c => (
@@ -705,7 +705,7 @@ function Nav({ s, lang, setLang }) {
                   <Link to="/features" onClick={() => setDropdown(null)}
                     style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', borderRadius:12, background:'rgba(124,58,237,0.05)', border:'1px solid rgba(124,58,237,0.1)', textDecoration:'none' }}>
                     <span style={{ fontSize:12.5, fontWeight:700, color:'#7c3aed' }}>
-                      {L==='az'?'Bütün xüsusiyyətlərə bax →':L==='tr'?'Tüm özellikleri gör →':'View all features →'}
+                      {L==='az'?'Bütün xüsusiyyətlər':L==='tr'?'Tüm özellikler':L==='ru'?'Все возможности':'All features'}
                     </span>
                     <div style={{ display:'flex', gap:4 }}>
                       {['#7c3aed','#2563eb','#059669','#d97706','#0891b2','#be185d','#6d28d9'].map(c => (
