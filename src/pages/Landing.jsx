@@ -1327,22 +1327,20 @@ function PartnerBar({ s }) {
   ]
   const track = [...items, ...items, ...items]
   return (
-    <div style={{ background:'#0a0620', borderBottom:'1px solid rgba(255,255,255,0.07)', padding:'28px 0 32px' }}>
-      <p style={{ textAlign:'center', fontSize:10, color:'rgba(255,255,255,0.3)', fontWeight:700, letterSpacing:'0.22em', textTransform:'uppercase', marginBottom:22 }}>
+    <div style={{ background:'#fff', borderTop:'1px solid #f0f0f0', borderBottom:'1px solid #f0f0f0', padding:'28px 0 32px' }}>
+      <p style={{ textAlign:'center', fontSize:10, color:'#aaa', fontWeight:700, letterSpacing:'0.22em', textTransform:'uppercase', marginBottom:24 }}>
         {s.trust_title}
       </p>
       <div style={{ position:'relative', overflow:'hidden' }}>
-        {/* Left fade */}
-        <div style={{ position:'absolute', left:0, top:0, bottom:0, width:120, zIndex:2, background:'linear-gradient(to right, #0a0620, transparent)', pointerEvents:'none' }}/>
-        {/* Right fade */}
-        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:120, zIndex:2, background:'linear-gradient(to left, #0a0620, transparent)', pointerEvents:'none' }}/>
-        <div style={{ display:'flex', alignItems:'center', gap:64, animation:'partnerScroll 22s linear infinite', width:'max-content' }}>
+        <div style={{ position:'absolute', left:0, top:0, bottom:0, width:100, zIndex:2, background:'linear-gradient(to right, #fff, transparent)', pointerEvents:'none' }}/>
+        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:100, zIndex:2, background:'linear-gradient(to left, #fff, transparent)', pointerEvents:'none' }}/>
+        <div style={{ display:'flex', alignItems:'center', gap:72, animation:'partnerScroll 28s linear infinite', width:'max-content' }}>
           {track.map(({ name, url, img }, i) => (
             <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-              style={{ flexShrink:0, textDecoration:'none', opacity:0.65, transition:'opacity .2s ease, filter .2s ease', filter:'grayscale(1) brightness(1.8)' }}
-              onMouseEnter={e => { e.currentTarget.style.opacity='1'; e.currentTarget.style.filter='grayscale(0) brightness(1)' }}
-              onMouseLeave={e => { e.currentTarget.style.opacity='0.65'; e.currentTarget.style.filter='grayscale(1) brightness(1.8)' }}>
-              <img src={img} alt={name} style={{ height:32, width:'auto', objectFit:'contain', display:'block' }}/>
+              style={{ flexShrink:0, textDecoration:'none', opacity:0.75, transition:'opacity .2s ease' }}
+              onMouseEnter={e => e.currentTarget.style.opacity='1'}
+              onMouseLeave={e => e.currentTarget.style.opacity='0.75'}>
+              <img src={img} alt={name} style={{ height:52, width:'auto', objectFit:'contain', display:'block' }}/>
             </a>
           ))}
         </div>
