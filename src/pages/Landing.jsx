@@ -1320,29 +1320,34 @@ function Hero({ s }) {
 /* ─── PARTNER BAR ─── */
 function PartnerBar({ s }) {
   const items = [
-    { name:'IBO Certified', color:'#009FDA', url:'https://ibo.org',        img:'/IB.png'        },
-    { name:'Microsoft',     color:'#D83B01', url:'https://microsoft.com',  img:'/MICROSOFT.png' },
-    { name:'Google',        color:'#4285F4', url:'https://google.com',     img:'/GOOGLE.png'    },
-    { name:'Anthropic',     color:'#C96442', url:'https://anthropic.com',  img:'/ANTHROPIC.png' },
+    { name:'IBO Certified', url:'https://ibo.org',       img:'/IB.png'        },
+    { name:'Microsoft',     url:'https://microsoft.com', img:'/MICROSOFT.png' },
+    { name:'Google',        url:'https://google.com',    img:'/GOOGLE.png'    },
+    { name:'Anthropic',     url:'https://anthropic.com', img:'/ANTHROPIC.png' },
   ]
+  const track = [...items, ...items, ...items]
   return (
-    <div className="bg-white border-y border-gray-100 py-7">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8">
-        <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-[0.22em] mb-5">{s.trust_title}</p>
-        <div className="flex flex-wrap items-center justify-center gap-x-14 gap-y-4">
-          {items.map(({ name, url, img }, i) => (
-            <div key={name} className="flex items-center gap-14">
-              {i > 0 && <div className="hidden sm:block w-px h-5 bg-gray-200"/>}
-              <a href={url} target="_blank" rel="noopener noreferrer"
-                className="partner-item"
-                style={{ textDecoration:'none', transition:'filter .2s ease, opacity .2s ease' }}>
-                <img src={img} alt={name} style={{ height:'clamp(55px,13vw,120px)', width:'auto', objectFit:'contain', display:'block' }}/>
-              </a>
-            </div>
+    <div style={{ background:'#0a0620', borderBottom:'1px solid rgba(255,255,255,0.07)', padding:'28px 0 32px' }}>
+      <p style={{ textAlign:'center', fontSize:10, color:'rgba(255,255,255,0.3)', fontWeight:700, letterSpacing:'0.22em', textTransform:'uppercase', marginBottom:22 }}>
+        {s.trust_title}
+      </p>
+      <div style={{ position:'relative', overflow:'hidden' }}>
+        {/* Left fade */}
+        <div style={{ position:'absolute', left:0, top:0, bottom:0, width:120, zIndex:2, background:'linear-gradient(to right, #0a0620, transparent)', pointerEvents:'none' }}/>
+        {/* Right fade */}
+        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:120, zIndex:2, background:'linear-gradient(to left, #0a0620, transparent)', pointerEvents:'none' }}/>
+        <div style={{ display:'flex', alignItems:'center', gap:64, animation:'partnerScroll 22s linear infinite', width:'max-content' }}>
+          {track.map(({ name, url, img }, i) => (
+            <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+              style={{ flexShrink:0, textDecoration:'none', opacity:0.55, transition:'opacity .2s ease', filter:'brightness(0) invert(1)' }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '0.55'}>
+              <img src={img} alt={name} style={{ height:32, width:'auto', objectFit:'contain', display:'block' }}/>
+            </a>
           ))}
         </div>
       </div>
-      <style>{`.partner-item { filter: none; opacity: 1; } .partner-item:hover { filter: grayscale(100%); opacity: 0.45; }`}</style>
+      <style>{`@keyframes partnerScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-33.333%)} }`}</style>
     </div>
   )
 }
