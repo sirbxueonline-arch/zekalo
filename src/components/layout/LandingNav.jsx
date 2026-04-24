@@ -97,17 +97,19 @@ export default function LandingNav({ s, lang, setLang, dark = false }) {
       <header style={{ position:'fixed', top:0, left:0, right:0, zIndex:50, padding: scrolled ? '8px 20px' : '10px 20px 0', background:'transparent', transition:'padding .3s ease' }}>
         <div style={{ position:'relative', maxWidth:1260, margin:'0 auto',
           background: dark
-            ? (scrolled ? 'rgba(10,6,32,0.82)' : 'rgba(255,255,255,0.07)')
+            ? (scrolled ? 'rgba(10,6,32,0.75)' : 'transparent')
             : 'rgba(255,255,255,0.94)',
-          backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', borderRadius:999, height:62,
+          backdropFilter: dark ? (scrolled ? 'blur(20px)' : 'none') : 'blur(20px)',
+          WebkitBackdropFilter: dark ? (scrolled ? 'blur(20px)' : 'none') : 'blur(20px)',
+          borderRadius:999, height:62,
           display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px',
           boxShadow: dark
-            ? (scrolled ? '0 4px 32px rgba(0,0,0,0.5)' : 'none')
-            : (scrolled ? '0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05)' : '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12)'),
+            ? (scrolled ? '0 4px 32px rgba(0,0,0,0.4)' : 'none')
+            : (scrolled ? '0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.08)' : '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12)'),
           border: dark
-            ? '1px solid rgba(255,255,255,0.12)'
+            ? (scrolled ? '1px solid rgba(255,255,255,0.1)' : 'none')
             : (scrolled ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.55)'),
-          transition:'background .3s ease, box-shadow .3s ease, border .3s ease' }}>
+          transition:'background .3s ease, box-shadow .3s ease, border .3s ease, backdrop-filter .3s ease' }}>
 
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2.5 flex-1" style={{ textDecoration:'none' }}>
