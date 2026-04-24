@@ -11,7 +11,7 @@ function ZirvaLogo({ size = 27 }) {
   return <img src="/logo.png" alt="Zirva" width={size} height={size} className="object-contain" />
 }
 
-export default function LandingNav({ s, lang, setLang }) {
+export default function LandingNav({ s, lang, setLang, dark = false }) {
   const [open, setOpen]             = useState(false)
   const [dropdown, setDropdown]     = useState(null)
   const [mobileOpen, setMobileOpen] = useState(null)
@@ -95,12 +95,24 @@ export default function LandingNav({ s, lang, setLang }) {
       `}</style>
 
       <header style={{ position:'fixed', top:0, left:0, right:0, zIndex:50, padding: scrolled ? '8px 20px' : '10px 20px 0', background:'transparent', transition:'padding .3s ease' }}>
-        <div style={{ position:'relative', maxWidth:1260, margin:'0 auto', background:'rgba(255,255,255,0.94)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', borderRadius:999, height:62, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px', boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05)' : '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12)', border: scrolled ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.55)', transition:'box-shadow .3s ease, border .3s ease' }}>
+        <div style={{ position:'relative', maxWidth:1260, margin:'0 auto',
+          background: dark
+            ? (scrolled ? 'rgba(10,6,32,0.82)' : 'rgba(255,255,255,0.07)')
+            : 'rgba(255,255,255,0.94)',
+          backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', borderRadius:999, height:62,
+          display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px',
+          boxShadow: dark
+            ? (scrolled ? '0 4px 32px rgba(0,0,0,0.5)' : 'none')
+            : (scrolled ? '0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05)' : '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12)'),
+          border: dark
+            ? '1px solid rgba(255,255,255,0.12)'
+            : (scrolled ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.55)'),
+          transition:'background .3s ease, box-shadow .3s ease, border .3s ease' }}>
 
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2.5 flex-1" style={{ textDecoration:'none' }}>
             <ZirvaLogo size={27} />
-            <span style={{ fontSize:18, fontWeight:800, color:'#111827', letterSpacing:'-0.02em' }}>Zirva</span>
+            <span style={{ fontSize:18, fontWeight:800, color: dark ? '#fff' : '#111827', letterSpacing:'-0.02em' }}>Zirva</span>
           </Link>
 
           {/* Desktop nav */}
@@ -112,11 +124,11 @@ export default function LandingNav({ s, lang, setLang }) {
                     {label}
                   </Link>
                 ) : (
-                  <button className="flex items-center gap-1 px-3.5 py-2 text-[13.5px] font-semibold rounded-lg hover:bg-black/[0.05] transition-colors"
-                    style={{ color:dropdown===key?'#534AB7':'#4b5563', background:'transparent', border:'none', cursor:'pointer' }}>
+                  <button className={`flex items-center gap-1 px-3.5 py-2 text-[13.5px] font-semibold rounded-lg transition-colors ${dark ? 'hover:bg-white/[0.08]' : 'hover:bg-black/[0.05]'}`}
+                    style={{ color: dark ? (dropdown===key?'#c4b5fd':'rgba(255,255,255,0.8)') : (dropdown===key?'#534AB7':'#4b5563'), background:'transparent', border:'none', cursor:'pointer' }}>
                     {label}
                     <ChevronRight className="w-[11px] h-[11px] transition-transform duration-200"
-                      style={{ transform:dropdown===key?'rotate(-90deg)':'rotate(90deg)', color:dropdown===key?'#534AB7':'#9ca3af' }}/>
+                      style={{ transform:dropdown===key?'rotate(-90deg)':'rotate(90deg)', color: dark ? (dropdown===key?'#c4b5fd':'rgba(255,255,255,0.4)') : (dropdown===key?'#534AB7':'#9ca3af') }}/>
                   </button>
                 )}
               </div>
@@ -125,7 +137,7 @@ export default function LandingNav({ s, lang, setLang }) {
 
           {/* Right actions */}
           <div className="hidden lg:flex items-center gap-1.5" style={{ flex:1, justifyContent:'flex-end' }}>
-            <Link to="/daxil-ol" className="px-4 py-2 text-[13.5px] text-gray-500 hover:text-gray-900 font-semibold rounded-lg hover:bg-black/[0.05] transition-all" style={{ textDecoration:'none' }}>
+            <Link to="/daxil-ol" className={`px-4 py-2 text-[13.5px] font-semibold rounded-lg transition-all ${dark ? 'hover:bg-white/[0.08]' : 'hover:text-gray-900 hover:bg-black/[0.05]'}`} style={{ textDecoration:'none', color: dark ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
               {navSignin}
             </Link>
             <Link to="/contact" className="inline-flex items-center gap-1.5 text-white text-[13.5px] font-bold px-5 py-[10px] rounded-full transition-all hover:-translate-y-px"
