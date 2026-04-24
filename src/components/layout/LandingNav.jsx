@@ -294,8 +294,8 @@ export default function LandingNav({ s, lang, setLang, dark = false }) {
         )}
       </header>
 
-      {/* Spacer so page content isn't hidden under fixed nav */}
-      <div style={{ height:82 }} />
+      {/* Spacer so page content isn't hidden under fixed nav — skip on dark/overlay pages */}
+      {!dark && <div style={{ height:82 }} />}
     </>
   )
 }
