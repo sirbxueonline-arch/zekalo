@@ -2130,7 +2130,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen antialiased" style={{ overflowX:'hidden' }}>
       {/* ── Fixed pill nav ── */}
-      <LandingNav s={s} lang={lang} setLang={setLang} dark/>
+      <LandingNav s={s} lang={lang} setLang={setLang}/>
       {/* ── Gradient hero wrapper — mixed radial ── */}
       <div style={{
         background:`
