@@ -1339,9 +1339,9 @@ function PartnerBar({ s }) {
         <div style={{ display:'flex', alignItems:'center', gap:64, animation:'partnerScroll 22s linear infinite', width:'max-content' }}>
           {track.map(({ name, url, img }, i) => (
             <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-              style={{ flexShrink:0, textDecoration:'none', opacity:0.55, transition:'opacity .2s ease', filter:'brightness(0) invert(1)' }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '1'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '0.55'}>
+              style={{ flexShrink:0, textDecoration:'none', opacity:0.65, transition:'opacity .2s ease, filter .2s ease', filter:'grayscale(1) brightness(1.8)' }}
+              onMouseEnter={e => { e.currentTarget.style.opacity='1'; e.currentTarget.style.filter='grayscale(0) brightness(1)' }}
+              onMouseLeave={e => { e.currentTarget.style.opacity='0.65'; e.currentTarget.style.filter='grayscale(1) brightness(1.8)' }}>
               <img src={img} alt={name} style={{ height:32, width:'auto', objectFit:'contain', display:'block' }}/>
             </a>
           ))}
