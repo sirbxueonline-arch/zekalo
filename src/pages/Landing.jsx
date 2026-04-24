@@ -1340,7 +1340,7 @@ function PartnerBar({ s }) {
               style={{ flexShrink:0, textDecoration:'none', opacity:0.75, transition:'opacity .2s ease' }}
               onMouseEnter={e => e.currentTarget.style.opacity='1'}
               onMouseLeave={e => e.currentTarget.style.opacity='0.75'}>
-              <img src={img} alt={name} style={{ height:52, width:'auto', objectFit:'contain', display:'block' }}/>
+              <img src={img} alt={name} style={{ height:80, width:'auto', objectFit:'contain', display:'block' }}/>
             </a>
           ))}
         </div>
