@@ -44,8 +44,8 @@ Bu, nümayiş layihəsi deyil. Bu, işləyən, istehsal (production) hazır bir 
 |---|---|
 | Pilot həcmi | 5–10 məktəb |
 | Pilot müddəti | 4 ay |
-| Zirvanın pilot xərci | Pilot mərhələsi üçün tam ödənişsiz |
-| Nazirliyin pilot xərci | Heç bir maliyyə öhdəliyi tələb olunmur |
+| Zirvanın pilot xərci | ~10,000 AZN (Zirvanın öz investisiyası) |
+| Nazirliyin pilot xərci | 0 AZN |
 | Hədəf istifadəçi sayı (pilot) | 500–2,000 |
 | AI köməkçisi (Zəka) | Daxildir |
 | Pilot sonrası genişlənmə potensialı | Azərbaycanın bütün ~4,700 məktəbi |
