@@ -44,8 +44,8 @@ Bu, nümayiş layihəsi deyil. Bu, işləyən, istehsal (production) hazır bir 
 |---|---|
 | Pilot həcmi | 5–10 məktəb |
 | Pilot müddəti | 4 ay |
-| Zirvanın xərci | Sıfır — tam pulsuz |
-| Nazirliyin xərci | Sıfır |
+| Zirvanın pilot xərci | Pilot mərhələsi üçün tam ödənişsiz |
+| Nazirliyin pilot xərci | Heç bir maliyyə öhdəliyi tələb olunmur |
 | Hədəf istifadəçi sayı (pilot) | 500–2,000 |
 | AI köməkçisi (Zəka) | Daxildir |
 | Pilot sonrası genişlənmə potensialı | Azərbaycanın bütün ~4,700 məktəbi |
@@ -463,14 +463,31 @@ Yalnız tələb olunan: Nazirliyin pilot məktəblərini seçməsi və rəsmi ol
 
 ### 13.2 Genişlənmiş Pilot (Mərhələ 2) və Milli Tətbiq (Mərhələ 3) Qiymətləndirməsi
 
-Mərhələ 1 pilotunun uğurlu nəticəsi əsasında Mərhələ 2 üçün qiymət modeli Nazirlik ilə birgə işlənib hazırlanacaq. Pilot sonrası qiymətləndirmə aşağıdakı prinsiplərə əsaslanacaq:
+Mərhələ 1 pilotunun uğurlu tamamlanmasından sonra Mərhələ 2 və Mərhələ 3 üçün aşağıdakı illik abunə qiymət modeli tətbiq ediləcəkdir. Bütün qiymətlər Azərbaycan Manatı (AZN) ilə göstərilmişdir.
 
-- Azərbaycan dövlət büdcəsi realiyalarına uyğun qiymət modeli
-- İstifadəçi başına aylıq sabit qiymət (per-user/per-month)
-- Nazirlik miqyası üçün xüsusi indirim strukturu
-- Dövlət müqaviləsi prosedurlarına uyğun sənədləşdirmə
+**Məktəb Ölçüsünə Görə İllik Abunə Qiymətləri:**
 
-Konkret qiymətlər bu mərhələdə müəyyən edilməmişdir. Pilot nəticələri qiymət müzakirəsinin yeganə əsasını təşkil edəcək.
+| Məktəb Kateqoriyası | Şagird Sayı | İllik Qiymət (AZN) | Daxil Olanlar |
+|---|---|---|---|
+| Kiçik Məktəb | 1 – 300 şagird | **2,400 AZN/il** | Bütün modullar + Zəka AI + texniki dəstək |
+| Orta Məktəb | 301 – 800 şagird | **5,000 AZN/il** | Bütün modullar + Zəka AI + texniki dəstək + aylıq hesabat |
+| Böyük Məktəb | 801 – 1,500 şagird | **8,000 AZN/il** | Bütün modullar + Zəka AI + prioritet dəstək + aylıq hesabat |
+| Böyük Şəhər Məktəbi | 1,500+ şagird | **10,000 AZN/il** | Bütün modullar + Zəka AI + xüsusi mühasib + aylıq hesabat |
+
+**Nazirlik Miqyaslı Tətbiq (Mərhələ 3 — 4,700+ məktəb) üçün Toplu Razılaşma:**
+
+Milli miqyaslı tətbiq üçün Nazirlik ilə ayrıca çərçivə müqaviləsi bağlanacaq. Gözlənilən orta qiymət:
+
+| Göstərici | Dəyər |
+|---|---|
+| Orta illik qiymət (məktəb başına) | ~3,500 AZN/il |
+| Ümumi illik dəyər (4,700 məktəb) | ~16.45 milyon AZN/il |
+| Şagird başına aylıq xərc | ~0.76 AZN/şagird/ay |
+| Müəllim başına aylıq xərc | ~1.94 AZN/müəllim/ay |
+
+Qiymət modelinə daxildir: bütün yeniləmələr, Zəka AI tutoru, texniki dəstək, Nazirlik analitika paneli, tədris materialları, məktəb personalının illik təlimi.
+
+Dövlət müqaviləsi prosedurlarına tam uyğun sənədləşdirmə və açıq tender prosesi tələb olunduğu halda Zirva bu prosedura tam uyğun şəkildə iştirak etməyə hazırdır.
 
 ---
 
