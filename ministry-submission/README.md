@@ -34,7 +34,7 @@ ministry-submission/
 | 1 | Technical Documentation | `en/01-technical-documentation.md` | `az/01-texniki-senedlesdirme.md` | System architecture, tech stack, DB schema, role model, AI tutor, dual-curriculum support, deployment topology, scalability |
 | 2 | Security Architecture | `en/02-security-architecture.md` | `az/02-tehlukesizlik-arxitekturasi.md` | Auth, RBAC, RLS policies, session management, encryption, audit logging, threat model, incident response |
 | 3 | Data Protection | `en/03-data-protection.md` | `az/03-melumatlarin-qorunmasi.md` | AZ Law №461-IQ compliance, data residency disclosure (Seoul → EU migration plan), parental consent, third-party data handling, child AI safety |
-| 4 | Pilot Proposal | `en/04-pilot-proposal.md` | `az/04-pilot-teklifi.md` | 5–10 school pilot across Bakı/regional/rural, 4-month plan, success metrics, risk register, scale-up roadmap |
+| 4 | Pilot Proposal | `en/04-pilot-proposal.md` | `az/04-pilot-teklifi.md` | 1-school pilot, 4-month plan, success metrics, risk register, scale-up roadmap |
 
 ---
 
