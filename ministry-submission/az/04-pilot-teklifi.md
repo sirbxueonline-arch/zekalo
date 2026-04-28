@@ -44,8 +44,8 @@ Bu, nümayiş layihəsi deyil. Bu, işləyən, istehsal (production) hazır bir 
 |---|---|
 | Pilot həcmi | 5–10 məktəb |
 | Pilot müddəti | 4 ay |
-| Zirvanın pilot xərci | ~10,000 AZN (Zirvanın öz investisiyası) |
-| Nazirliyin pilot xərci | 0 AZN |
+| Zirvanın pilot xərci | 0 AZN |
+| Nazirliyin pilot xərci | 8,000 AZN (4 ay, 5–10 məktəb) |
 | Hədəf istifadəçi sayı (pilot) | 500–2,000 |
 | AI köməkçisi (Zəka) | Daxildir |
 | Pilot sonrası genişlənmə potensialı | Azərbaycanın bütün ~4,700 məktəbi |
@@ -455,11 +455,11 @@ Bu, Azərbaycanın digər MDB ölkələrinin əksəriyyətinin hələ sahib olma
 
 ### 13.1 Pilot Mərhələsi
 
-**Pilot proqramı Azərbaycan Respublikası Elm və Təhsil Nazirliyinə və pilot məktəblərinə tam pulsuz təqdim edilir.**
+**Pilot proqramının ümumi dəyəri: 8,000 AZN** (4 ay ərzində 5–10 məktəb üçün).
 
-Bu, Zirvanın investisiyasıdır — Nazirlik üçün risk yoxdur. Pilot üçün heç bir büdcə ayrılması, satınalma prosesi, müqavilə danışıqları tələb olunmur.
+Bu məbləğ platformanın qurulmasını, müəllim və inzibatçılara təlimi, texniki dəstəyi, Zəka AI tutoru xidmətini və aylıq hesabatları əhatə edir. Pilot üçün ayrılmış büdcə dövlət satınalma prosedurlarına uyğun rəsmiləşdiriləcək.
 
-Yalnız tələb olunan: Nazirliyin pilot məktəblərini seçməsi və rəsmi olaraq proqrama cəlb etməsi.
+Pilot sonrası illik abunə qiymətləri Bölmə 13.2-də göstərilmişdir.
 
 ### 13.2 Genişlənmiş Pilot (Mərhələ 2) və Milli Tətbiq (Mərhələ 3) Qiymətləndirməsi
 
