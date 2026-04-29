@@ -11,111 +11,101 @@ import { PageSpinner } from './components/ui/Spinner'
 import AppLayout from './components/layout/AppLayout'
 import ErrorBoundary from './components/ui/ErrorBoundary'
 
-// Landing page
+// Landing page — eager (first paint)
 import Landing from './pages/Landing'
-import Demo from './pages/Demo'
 import InfoPage from './pages/InfoPage'
 import Solutions from './pages/Solutions'
 import Features from './pages/Features'
 import FeaturePage from './pages/FeaturePage'
 import ZekaAIPage from './pages/ZekaAIPage'
 
-// Auth pages
-import Login from './pages/auth/Login'
-import SignUp from './pages/auth/SignUp'
-import ForgotPassword from './pages/auth/ForgotPassword'
-import ResetPassword from './pages/auth/ResetPassword'
-import Verify from './pages/auth/Verify'
+// Auth pages — lazy
+const Login            = lazy(() => import('./pages/auth/Login'))
+const SignUp           = lazy(() => import('./pages/auth/SignUp'))
+const ForgotPassword   = lazy(() => import('./pages/auth/ForgotPassword'))
+const ResetPassword    = lazy(() => import('./pages/auth/ResetPassword'))
+const Verify           = lazy(() => import('./pages/auth/Verify'))
 
-// Student pages
-import StudentDashboard from './pages/student/Dashboard'
-import StudentZeka from './pages/student/Zeka'
-import StudentGrades from './pages/student/Grades'
-import StudentAttendance from './pages/student/Attendance'
-import StudentAssignments from './pages/student/Assignments'
-import StudentMessages from './pages/student/Messages'
-import StudentProfile from './pages/student/Profile'
-import StudentExams from './pages/student/Exams'
-import StudentHomework from './pages/student/Homework'
-import StudentProgress from './pages/student/Progress'
+// Student pages — lazy
+const StudentDashboard   = lazy(() => import('./pages/student/Dashboard'))
+const StudentZeka        = lazy(() => import('./pages/student/Zeka'))
+const StudentGrades      = lazy(() => import('./pages/student/Grades'))
+const StudentAttendance  = lazy(() => import('./pages/student/Attendance'))
+const StudentAssignments = lazy(() => import('./pages/student/Assignments'))
+const StudentMessages    = lazy(() => import('./pages/student/Messages'))
+const StudentProfile     = lazy(() => import('./pages/student/Profile'))
+const StudentExams       = lazy(() => import('./pages/student/Exams'))
+const StudentHomework    = lazy(() => import('./pages/student/Homework'))
+const StudentProgress    = lazy(() => import('./pages/student/Progress'))
+const StudentPortfolio   = lazy(() => import('./pages/student/Portfolio'))
 
-// Teacher pages
-import TeacherDashboard from './pages/teacher/Dashboard'
-import Gradebook from './pages/teacher/Gradebook'
-import AttendanceRegister from './pages/teacher/AttendanceRegister'
-import TeacherZeka from './pages/teacher/Zeka'
-import TeacherAssignments from './pages/teacher/Assignments'
-import TeacherMessages from './pages/teacher/Messages'
-import TeacherReports from './pages/teacher/Reports'
-import TeacherAnalytics from './pages/teacher/Analytics'
-import TeacherTimetable from './pages/teacher/Timetable'
-import TeacherProfile from './pages/teacher/Profile'
-import TeacherExams from './pages/teacher/Exams'
-import TeacherDiscipline from './pages/teacher/Discipline'
-import TeacherConversations from './pages/teacher/Conversations'
+// Teacher pages — lazy
+const TeacherDashboard   = lazy(() => import('./pages/teacher/Dashboard'))
+const Gradebook          = lazy(() => import('./pages/teacher/Gradebook'))
+const AttendanceRegister = lazy(() => import('./pages/teacher/AttendanceRegister'))
+const TeacherZeka        = lazy(() => import('./pages/teacher/Zeka'))
+const TeacherAssignments = lazy(() => import('./pages/teacher/Assignments'))
+const TeacherMessages    = lazy(() => import('./pages/teacher/Messages'))
+const TeacherReports     = lazy(() => import('./pages/teacher/Reports'))
+const TeacherAnalytics   = lazy(() => import('./pages/teacher/Analytics'))
+const TeacherTimetable   = lazy(() => import('./pages/teacher/Timetable'))
+const TeacherProfile     = lazy(() => import('./pages/teacher/Profile'))
+const TeacherExams       = lazy(() => import('./pages/teacher/Exams'))
+const TeacherDiscipline  = lazy(() => import('./pages/teacher/Discipline'))
+const TeacherConversations = lazy(() => import('./pages/teacher/Conversations'))
+const TeacherUnitPlanner = lazy(() => import('./pages/teacher/UnitPlanner'))
+const TeacherClasses     = lazy(() => import('./pages/teacher/Classes'))
 
-// Parent pages
-import ParentDashboard from './pages/parent/Dashboard'
-import ParentGrades from './pages/parent/Grades'
-import ParentAttendance from './pages/parent/Attendance'
-import ParentAssignments from './pages/parent/Assignments'
-import ParentMessages from './pages/parent/Messages'
-import ParentNotifications from './pages/parent/Notifications'
-import ParentProfile from './pages/parent/Profile'
-import ParentExams from './pages/parent/Exams'
-import ParentConversations from './pages/parent/Conversations'
-import ParentProgress from './pages/parent/Progress'
+// Parent pages — lazy
+const ParentDashboard    = lazy(() => import('./pages/parent/Dashboard'))
+const ParentGrades       = lazy(() => import('./pages/parent/Grades'))
+const ParentAttendance   = lazy(() => import('./pages/parent/Attendance'))
+const ParentAssignments  = lazy(() => import('./pages/parent/Assignments'))
+const ParentMessages     = lazy(() => import('./pages/parent/Messages'))
+const ParentNotifications = lazy(() => import('./pages/parent/Notifications'))
+const ParentProfile      = lazy(() => import('./pages/parent/Profile'))
+const ParentExams        = lazy(() => import('./pages/parent/Exams'))
+const ParentConversations = lazy(() => import('./pages/parent/Conversations'))
+const ParentProgress     = lazy(() => import('./pages/parent/Progress'))
 
-// Admin pages
-import AdminDashboard from './pages/admin/Dashboard'
-import AdminStudents from './pages/admin/Students'
-import AdminTeachers from './pages/admin/Teachers'
-import AdminParents from './pages/admin/Parents'
-import AdminClasses from './pages/admin/Classes'
-import AdminGradebook from './pages/admin/Gradebook'
-import AdminTimetable from './pages/admin/Timetable'
-import AdminReports from './pages/admin/Reports'
-import AdminAnalytics from './pages/admin/Analytics'
-import AdminMessages from './pages/admin/Messages'
-import AdminEvents from './pages/admin/Events'
-import AdminExams from './pages/admin/Exams'
-import AdminDiscipline from './pages/admin/Discipline'
-import AdminSubstitutions from './pages/admin/Substitutions'
-import AdminReportCards from './pages/admin/ReportCards'
-import AdminStudentProgress from './pages/admin/StudentProgress'
-import IBPanel from './pages/admin/IBPanel'
-import Ministry from './pages/admin/Ministry'
-import AdminSettings from './pages/admin/Settings'
-import AdminSubjects from './pages/admin/Subjects'
-
-// New admin pages (lazy loaded)
-const AdminCAS             = lazy(() => import('./pages/admin/CAS'))
-const AdminAdmissions      = lazy(() => import('./pages/admin/Admissions'))
-const AdminLeaveRequests   = lazy(() => import('./pages/admin/LeaveRequests'))
-const AdminRoomBooking     = lazy(() => import('./pages/admin/RoomBooking'))
-const AdminLibrary         = lazy(() => import('./pages/admin/Library'))
-const AdminSurveys         = lazy(() => import('./pages/admin/Surveys'))
+// Admin pages — lazy
+const AdminDashboard      = lazy(() => import('./pages/admin/Dashboard'))
+const AdminStudents       = lazy(() => import('./pages/admin/Students'))
+const AdminTeachers       = lazy(() => import('./pages/admin/Teachers'))
+const AdminParents        = lazy(() => import('./pages/admin/Parents'))
+const AdminClasses        = lazy(() => import('./pages/admin/Classes'))
+const AdminGradebook      = lazy(() => import('./pages/admin/Gradebook'))
+const AdminTimetable      = lazy(() => import('./pages/admin/Timetable'))
+const AdminReports        = lazy(() => import('./pages/admin/Reports'))
+const AdminAnalytics      = lazy(() => import('./pages/admin/Analytics'))
+const AdminMessages       = lazy(() => import('./pages/admin/Messages'))
+const AdminEvents         = lazy(() => import('./pages/admin/Events'))
+const AdminExams          = lazy(() => import('./pages/admin/Exams'))
+const AdminDiscipline     = lazy(() => import('./pages/admin/Discipline'))
+const AdminSubstitutions  = lazy(() => import('./pages/admin/Substitutions'))
+const AdminReportCards    = lazy(() => import('./pages/admin/ReportCards'))
+const AdminStudentProgress = lazy(() => import('./pages/admin/StudentProgress'))
+const IBPanel             = lazy(() => import('./pages/admin/IBPanel'))
+const Ministry            = lazy(() => import('./pages/admin/Ministry'))
+const AdminSettings       = lazy(() => import('./pages/admin/Settings'))
+const AdminSubjects       = lazy(() => import('./pages/admin/Subjects'))
+const AdminCAS            = lazy(() => import('./pages/admin/CAS'))
+const AdminAdmissions     = lazy(() => import('./pages/admin/Admissions'))
+const AdminLeaveRequests  = lazy(() => import('./pages/admin/LeaveRequests'))
+const AdminRoomBooking    = lazy(() => import('./pages/admin/RoomBooking'))
+const AdminLibrary        = lazy(() => import('./pages/admin/Library'))
+const AdminSurveys        = lazy(() => import('./pages/admin/Surveys'))
 const AdminCollegeCounseling = lazy(() => import('./pages/admin/CollegeCounseling'))
-const AdminPTConferences   = lazy(() => import('./pages/admin/PTConferences'))
+const AdminPTConferences  = lazy(() => import('./pages/admin/PTConferences'))
 
-// New teacher pages (lazy loaded)
-const TeacherUnitPlanner   = lazy(() => import('./pages/teacher/UnitPlanner'))
-const TeacherClasses       = lazy(() => import('./pages/teacher/Classes'))
-
-// New student pages (lazy loaded)
-const StudentPortfolio     = lazy(() => import('./pages/student/Portfolio'))
-
-// Shared pages
-import SharedCalendar from './pages/shared/Calendar'
-
-// Super Admin pages
-import SuperAdminDashboard from './pages/superadmin/Dashboard'
-import SuperAdminSchools from './pages/superadmin/Schools'
-
-// System pages
-import NotFound from './pages/system/NotFound'
-import ServerError from './pages/system/ServerError'
-import Maintenance from './pages/system/Maintenance'
+// Shared & system — lazy
+const SharedCalendar      = lazy(() => import('./pages/shared/Calendar'))
+const SuperAdminDashboard = lazy(() => import('./pages/superadmin/Dashboard'))
+const SuperAdminSchools   = lazy(() => import('./pages/superadmin/Schools'))
+const NotFound            = lazy(() => import('./pages/system/NotFound'))
+const ServerError         = lazy(() => import('./pages/system/ServerError'))
+const Maintenance         = lazy(() => import('./pages/system/Maintenance'))
+const Demo                = lazy(() => import('./pages/Demo'))
 
 function PublicOnlyRoute({ children }) {
   const { user, profile, loading } = useAuth()
@@ -154,6 +144,7 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <ErrorBoundary>
+      <Suspense fallback={<PageSpinner />}>
       <Routes>
         {/* Public routes */}
         <Route path="/daxil-ol" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
@@ -176,7 +167,7 @@ export default function App() {
           <Route path="/mesajlar" element={<StudentMessages />} />
           <Route path="/tedbirler" element={<SharedCalendar />} />
           <Route path="/profil" element={<StudentProfile />} />
-          <Route path="/portfolio" element={<Suspense fallback={<PageSpinner />}><StudentPortfolio /></Suspense>} />
+          <Route path="/portfolio" element={<StudentPortfolio />} />
         </Route>
 
         {/* Teacher routes */}
@@ -195,8 +186,8 @@ export default function App() {
           <Route path="/muellim/cedvel" element={<TeacherTimetable />} />
           <Route path="/muellim/tedbirler" element={<SharedCalendar />} />
           <Route path="/muellim/profil" element={<TeacherProfile />} />
-          <Route path="/muellim/vahid-plan" element={<Suspense fallback={<PageSpinner />}><TeacherUnitPlanner /></Suspense>} />
-          <Route path="/muellim/sinifler" element={<Suspense fallback={<PageSpinner />}><TeacherClasses /></Suspense>} />
+          <Route path="/muellim/vahid-plan" element={<TeacherUnitPlanner />} />
+          <Route path="/muellim/sinifler" element={<TeacherClasses />} />
         </Route>
 
         {/* Parent routes */}
@@ -236,14 +227,14 @@ export default function App() {
           <Route path="/admin/nazirlik" element={<Ministry />} />
           <Route path="/admin/fenler" element={<AdminSubjects />} />
           <Route path="/admin/parametrler" element={<AdminSettings />} />
-          <Route path="/admin/cas" element={<Suspense fallback={<PageSpinner />}><AdminCAS /></Suspense>} />
-          <Route path="/admin/kabul" element={<Suspense fallback={<PageSpinner />}><AdminAdmissions /></Suspense>} />
-          <Route path="/admin/izin" element={<Suspense fallback={<PageSpinner />}><AdminLeaveRequests /></Suspense>} />
-          <Route path="/admin/oda-rezerv" element={<Suspense fallback={<PageSpinner />}><AdminRoomBooking /></Suspense>} />
-          <Route path="/admin/kitabxana" element={<Suspense fallback={<PageSpinner />}><AdminLibrary /></Suspense>} />
-          <Route path="/admin/anket" element={<Suspense fallback={<PageSpinner />}><AdminSurveys /></Suspense>} />
-          <Route path="/admin/kollec" element={<Suspense fallback={<PageSpinner />}><AdminCollegeCounseling /></Suspense>} />
-          <Route path="/admin/ptc" element={<Suspense fallback={<PageSpinner />}><AdminPTConferences /></Suspense>} />
+          <Route path="/admin/cas" element={<AdminCAS />} />
+          <Route path="/admin/kabul" element={<AdminAdmissions />} />
+          <Route path="/admin/izin" element={<AdminLeaveRequests />} />
+          <Route path="/admin/oda-rezerv" element={<AdminRoomBooking />} />
+          <Route path="/admin/kitabxana" element={<AdminLibrary />} />
+          <Route path="/admin/anket" element={<AdminSurveys />} />
+          <Route path="/admin/kollec" element={<AdminCollegeCounseling />} />
+          <Route path="/admin/ptc" element={<AdminPTConferences />} />
         </Route>
 
         {/* Super Admin routes */}
@@ -301,6 +292,7 @@ export default function App() {
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
       </ErrorBoundary>
     </BrowserRouter>
   )
