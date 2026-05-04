@@ -11,7 +11,7 @@ function ZirvaLogo({ size = 27 }) {
   return <img src="/logo.png" alt="Zirva" width={size} height={size} className="object-contain" />
 }
 
-export default function LandingNav({ s, lang, setLang, dark = false }) {
+export default function LandingNav({ s, lang, setLang, dark = false, lightHero = false }) {
   const [open, setOpen]             = useState(false)
   const [dropdown, setDropdown]     = useState(null)
   const [mobileOpen, setMobileOpen] = useState(null)
@@ -98,17 +98,31 @@ export default function LandingNav({ s, lang, setLang, dark = false }) {
         <div style={{ position:'relative', maxWidth:1260, margin:'0 auto',
           background: dark
             ? (scrolled ? 'rgba(10,6,32,0.75)' : 'transparent')
-            : 'rgba(255,255,255,0.94)',
-          backdropFilter: dark ? (scrolled ? 'blur(20px)' : 'none') : 'blur(20px)',
-          WebkitBackdropFilter: dark ? (scrolled ? 'blur(20px)' : 'none') : 'blur(20px)',
+            : lightHero
+              ? (scrolled ? 'rgba(248,247,251,0.82)' : 'transparent')
+              : 'rgba(255,255,255,0.94)',
+          backdropFilter: dark
+            ? (scrolled ? 'blur(20px)' : 'none')
+            : lightHero
+              ? (scrolled ? 'blur(20px)' : 'none')
+              : 'blur(20px)',
+          WebkitBackdropFilter: dark
+            ? (scrolled ? 'blur(20px)' : 'none')
+            : lightHero
+              ? (scrolled ? 'blur(20px)' : 'none')
+              : 'blur(20px)',
           borderRadius:999, height:62,
           display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px',
           boxShadow: dark
             ? (scrolled ? '0 4px 32px rgba(0,0,0,0.4)' : 'none')
-            : (scrolled ? '0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.08)' : '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12)'),
+            : lightHero
+              ? (scrolled ? '0 4px 24px rgba(83,74,183,0.1), 0 1px 4px rgba(0,0,0,0.05)' : 'none')
+              : (scrolled ? '0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.08)' : '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12)'),
           border: dark
             ? (scrolled ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.18)')
-            : (scrolled ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.55)'),
+            : lightHero
+              ? (scrolled ? '1px solid rgba(83,74,183,0.12)' : '1px solid transparent')
+              : (scrolled ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.55)'),
           transition:'background .3s ease, box-shadow .3s ease, border .3s ease, backdrop-filter .3s ease' }}>
 
           {/* Brand */}
@@ -294,8 +308,8 @@ export default function LandingNav({ s, lang, setLang, dark = false }) {
         )}
       </header>
 
-      {/* Spacer so page content isn't hidden under fixed nav — skip on dark/overlay pages */}
-      {!dark && <div style={{ height:82 }} />}
+      {/* Spacer so page content isn't hidden under fixed nav — skip on overlay pages */}
+      {!dark && !lightHero && <div style={{ height:82 }} />}
     </>
   )
 }
