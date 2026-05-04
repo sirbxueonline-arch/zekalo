@@ -427,49 +427,86 @@ const globalStyles = `
     transform: translateY(0);
   }
 
-  /* ── Pastel blob base ── */
-  .hero-blob {
+  /* ── Pastel blob keyframes ── */
+  @keyframes bd1 {
+    0%   { transform: translate(0,     0)    scale(1);    }
+    33%  { transform: translate(6vw,  -5vh)  scale(1.08); }
+    66%  { transform: translate(-4vw,  4vh)  scale(0.94); }
+    100% { transform: translate(5vw,   3vh)  scale(1.05); }
+  }
+  @keyframes bd2 {
+    0%   { transform: translate(0,    0)    scale(1);    }
+    40%  { transform: translate(-6vw,  4vh)  scale(1.07); }
+    100% { transform: translate(4vw,  -6vh)  scale(0.95); }
+  }
+  @keyframes bd3 {
+    0%   { transform: translate(0,    0)    scale(1);    }
+    50%  { transform: translate(5vw,   5vh)  scale(1.09); }
+    100% { transform: translate(-5vw, -4vh)  scale(0.93); }
+  }
+  @keyframes bd4 {
+    0%   { transform: translate(0,    0)    scale(1);    }
+    45%  { transform: translate(-5vw, -4vh)  scale(1.06); }
+    100% { transform: translate(5vw,   6vh)  scale(0.95); }
+  }
+  @keyframes bd5 {
+    0%   { transform: translate(0,    0)    scale(1);    }
+    35%  { transform: translate(7vw,  -5vh)  scale(1.07); }
+    70%  { transform: translate(-3vw,  4vh)  scale(0.96); }
+    100% { transform: translate(4vw,  -2vh)  scale(1.04); }
+  }
+  @keyframes bd6 {
+    0%   { transform: translate(0,    0)    scale(1);    }
+    50%  { transform: translate(-4vw, -6vh)  scale(1.06); }
+    100% { transform: translate(6vw,   3vh)  scale(0.94); }
+  }
+
+  /* ── Per-blob classes — everything self-contained ── */
+  .hb1, .hb2, .hb3, .hb4, .hb5, .hb6 {
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
     will-change: transform;
   }
-
-  @keyframes blobDrift1 {
-    0%   { transform: translate(0,    0)    scale(1);    }
-    33%  { transform: translate(3vw, -4vh)  scale(1.05); }
-    66%  { transform: translate(-2vw, 3vh)  scale(0.97); }
-    100% { transform: translate(4vw,  2vh)  scale(1.03); }
+  .hb1 {
+    width: 80vw; height: 70vh; top: -15%; left: -12%;
+    background: radial-gradient(ellipse at center, rgba(184,192,255,0.9) 0%, transparent 65%);
+    filter: blur(70px);
+    animation: bd1 18s ease-in-out infinite alternate;
   }
-  @keyframes blobDrift2 {
-    0%   { transform: translate(0,    0)    scale(1);    }
-    40%  { transform: translate(-4vw, 3vh)  scale(1.04); }
-    100% { transform: translate(2vw, -5vh)  scale(0.97); }
+  .hb2 {
+    width: 70vw; height: 65vh; top: -10%; right: -12%;
+    background: radial-gradient(ellipse at center, rgba(200,230,224,0.85) 0%, transparent 65%);
+    filter: blur(75px);
+    animation: bd2 14s ease-in-out -5s infinite alternate;
   }
-  @keyframes blobDrift3 {
-    0%   { transform: translate(0,    0)    scale(1);    }
-    50%  { transform: translate(2vw,  2vh)  scale(1.06); }
-    100% { transform: translate(-3vw,-3vh)  scale(0.95); }
+  .hb3 {
+    width: 90vw; height: 80vh; top: 15%; left: 8%;
+    background: radial-gradient(ellipse at center, rgba(232,236,255,0.8) 0%, transparent 65%);
+    filter: blur(65px);
+    animation: bd3 20s ease-in-out -8s infinite alternate;
   }
-  @keyframes blobDrift4 {
-    0%   { transform: translate(0,    0)    scale(1);    }
-    45%  { transform: translate(-3vw,-2vh)  scale(1.03); }
-    100% { transform: translate(3vw,  4vh)  scale(0.97); }
+  .hb4 {
+    width: 65vw; height: 60vh; bottom: -8%; right: -5%;
+    background: radial-gradient(ellipse at center, rgba(245,230,216,0.88) 0%, transparent 65%);
+    filter: blur(70px);
+    animation: bd4 16s ease-in-out -3s infinite alternate;
   }
-  @keyframes blobDrift5 {
-    0%   { transform: translate(0,    0)    scale(1);    }
-    35%  { transform: translate(4vw, -3vh)  scale(1.05); }
-    70%  { transform: translate(-1vw, 2vh)  scale(0.98); }
-    100% { transform: translate(2vw, -1vh)  scale(1.02); }
+  .hb5 {
+    width: 75vw; height: 68vh; bottom: -12%; left: -8%;
+    background: radial-gradient(ellipse at center, rgba(184,192,255,0.75) 0%, transparent 65%);
+    filter: blur(80px);
+    animation: bd5 22s ease-in-out -11s infinite alternate;
   }
-  @keyframes blobDrift6 {
-    0%   { transform: translate(0,    0)    scale(1);    }
-    50%  { transform: translate(-2vw,-4vh)  scale(1.04); }
-    100% { transform: translate(3vw,  2vh)  scale(0.96); }
+  .hb6 {
+    width: 60vw; height: 55vh; bottom: 5%; left: 20%;
+    background: radial-gradient(ellipse at center, rgba(200,230,224,0.7) 0%, transparent 65%);
+    filter: blur(60px);
+    animation: bd6 17s ease-in-out -7s infinite alternate;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-blob { animation-play-state: paused !important; }
+    .hb1,.hb2,.hb3,.hb4,.hb5,.hb6 { animation-play-state: paused !important; }
   }
 
   /* ── Mobile overrides ── */
@@ -1216,48 +1253,12 @@ function Hero({ s }) {
 
       {/* ── Animated pastel blobs ── */}
       <div aria-hidden="true" style={{ position:'absolute', inset:0, zIndex:0, overflow:'hidden' }}>
-        {/* Blob 1 — periwinkle, upper-left */}
-        <div className="hero-blob" style={{
-          width:'95vw', height:'85vh', top:'-22%', left:'-18%',
-          background:'radial-gradient(ellipse at center, rgba(184,192,255,0.78) 0%, transparent 70%)',
-          filter:'blur(120px)', opacity:0.78,
-          animation:'blobDrift1 55s ease-in-out 0s infinite alternate',
-        }}/>
-        {/* Blob 2 — soft mint, upper-right */}
-        <div className="hero-blob" style={{
-          width:'82vw', height:'72vh', top:'-12%', right:'-18%',
-          background:'radial-gradient(ellipse at center, rgba(200,230,224,0.72) 0%, transparent 70%)',
-          filter:'blur(130px)', opacity:0.72,
-          animation:'blobDrift2 48s ease-in-out -14s infinite alternate',
-        }}/>
-        {/* Blob 3 — pale blue-white, centre */}
-        <div className="hero-blob" style={{
-          width:'110vw', height:'95vh', top:'8%', left:'5%',
-          background:'radial-gradient(ellipse at center, rgba(232,236,255,0.62) 0%, transparent 70%)',
-          filter:'blur(110px)', opacity:0.62,
-          animation:'blobDrift3 62s ease-in-out -22s infinite alternate',
-        }}/>
-        {/* Blob 4 — warm peach, lower-right */}
-        <div className="hero-blob" style={{
-          width:'78vw', height:'68vh', bottom:'-12%', right:'-8%',
-          background:'radial-gradient(ellipse at center, rgba(245,230,216,0.72) 0%, transparent 70%)',
-          filter:'blur(120px)', opacity:0.72,
-          animation:'blobDrift4 44s ease-in-out -8s infinite alternate',
-        }}/>
-        {/* Blob 5 — lavender, lower-left */}
-        <div className="hero-blob" style={{
-          width:'88vw', height:'78vh', bottom:'-18%', left:'-12%',
-          background:'radial-gradient(ellipse at center, rgba(184,192,255,0.62) 0%, transparent 70%)',
-          filter:'blur(140px)', opacity:0.62,
-          animation:'blobDrift5 58s ease-in-out -36s infinite alternate',
-        }}/>
-        {/* Blob 6 — mint, centre-bottom */}
-        <div className="hero-blob" style={{
-          width:'72vw', height:'62vh', bottom:'2%', left:'18%',
-          background:'radial-gradient(ellipse at center, rgba(200,230,224,0.55) 0%, transparent 70%)',
-          filter:'blur(100px)', opacity:0.55,
-          animation:'blobDrift6 51s ease-in-out -26s infinite alternate',
-        }}/>
+        <div className="hb1"/>
+        <div className="hb2"/>
+        <div className="hb3"/>
+        <div className="hb4"/>
+        <div className="hb5"/>
+        <div className="hb6"/>
       </div>
 
       {/* SVG noise / grain overlay — film-bokeh softness */}
