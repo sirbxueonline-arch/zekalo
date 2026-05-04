@@ -1227,7 +1227,7 @@ function Hero({ s }) {
 
       {/* ── Content ── */}
       <div className="max-w-5xl mx-auto px-5 sm:px-10 flex flex-col items-center"
-        style={{ position:'relative', zIndex:10, paddingTop:'clamp(72px, 10vh, 120px)', paddingBottom:0 }}>
+        style={{ position:'relative', zIndex:10, paddingTop:'clamp(140px, 20vh, 220px)', paddingBottom:0 }}>
 
         {/* Headline */}
         <h1 style={{
