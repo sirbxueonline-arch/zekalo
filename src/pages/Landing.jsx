@@ -433,9 +433,6 @@ const globalStyles = `
     border-radius: 50%;
     pointer-events: none;
     will-change: transform;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
   }
 
   @keyframes blobDrift1 {
@@ -1224,42 +1221,42 @@ function Hero({ s }) {
           width:'95vw', height:'85vh', top:'-22%', left:'-18%',
           background:'radial-gradient(ellipse at center, rgba(184,192,255,0.78) 0%, transparent 70%)',
           filter:'blur(120px)', opacity:0.78,
-          animationName:'blobDrift1', animationDuration:'55s', animationDelay:'0s',
+          animation:'blobDrift1 55s ease-in-out 0s infinite alternate',
         }}/>
         {/* Blob 2 — soft mint, upper-right */}
         <div className="hero-blob" style={{
           width:'82vw', height:'72vh', top:'-12%', right:'-18%',
           background:'radial-gradient(ellipse at center, rgba(200,230,224,0.72) 0%, transparent 70%)',
           filter:'blur(130px)', opacity:0.72,
-          animationName:'blobDrift2', animationDuration:'48s', animationDelay:'-14s',
+          animation:'blobDrift2 48s ease-in-out -14s infinite alternate',
         }}/>
         {/* Blob 3 — pale blue-white, centre */}
         <div className="hero-blob" style={{
           width:'110vw', height:'95vh', top:'8%', left:'5%',
           background:'radial-gradient(ellipse at center, rgba(232,236,255,0.62) 0%, transparent 70%)',
           filter:'blur(110px)', opacity:0.62,
-          animationName:'blobDrift3', animationDuration:'62s', animationDelay:'-22s',
+          animation:'blobDrift3 62s ease-in-out -22s infinite alternate',
         }}/>
         {/* Blob 4 — warm peach, lower-right */}
         <div className="hero-blob" style={{
           width:'78vw', height:'68vh', bottom:'-12%', right:'-8%',
           background:'radial-gradient(ellipse at center, rgba(245,230,216,0.72) 0%, transparent 70%)',
           filter:'blur(120px)', opacity:0.72,
-          animationName:'blobDrift4', animationDuration:'44s', animationDelay:'-8s',
+          animation:'blobDrift4 44s ease-in-out -8s infinite alternate',
         }}/>
         {/* Blob 5 — lavender, lower-left */}
         <div className="hero-blob" style={{
           width:'88vw', height:'78vh', bottom:'-18%', left:'-12%',
           background:'radial-gradient(ellipse at center, rgba(184,192,255,0.62) 0%, transparent 70%)',
           filter:'blur(140px)', opacity:0.62,
-          animationName:'blobDrift5', animationDuration:'58s', animationDelay:'-36s',
+          animation:'blobDrift5 58s ease-in-out -36s infinite alternate',
         }}/>
         {/* Blob 6 — mint, centre-bottom */}
         <div className="hero-blob" style={{
           width:'72vw', height:'62vh', bottom:'2%', left:'18%',
           background:'radial-gradient(ellipse at center, rgba(200,230,224,0.55) 0%, transparent 70%)',
           filter:'blur(100px)', opacity:0.55,
-          animationName:'blobDrift6', animationDuration:'51s', animationDelay:'-26s',
+          animation:'blobDrift6 51s ease-in-out -26s infinite alternate',
         }}/>
       </div>
 
