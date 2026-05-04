@@ -1176,6 +1176,7 @@ const BLOB_CSS = `
   .hb4{width:60vw;height:55vh;bottom:-5%;right:-5%;background:radial-gradient(ellipse at center,rgba(248,220,200,1) 0%,rgba(248,220,200,0) 70%);filter:blur(50px);animation:bd4 15s ease-in-out -2s infinite alternate;}
   .hb5{width:70vw;height:62vh;bottom:-10%;left:-5%;background:radial-gradient(ellipse at center,rgba(200,185,255,1) 0%,rgba(200,185,255,0) 70%);filter:blur(60px);animation:bd5 21s ease-in-out -10s infinite alternate;}
   .hb6{width:55vw;height:50vh;bottom:8%;left:22%;background:radial-gradient(ellipse at center,rgba(170,230,210,1) 0%,rgba(170,230,210,0) 70%);filter:blur(40px);animation:bd6 18s ease-in-out -6s infinite alternate;}
+  @keyframes textGradient{0%{background-position:0% center}100%{background-position:200% center}}
   @media(prefers-reduced-motion:reduce){.hb1,.hb2,.hb3,.hb4,.hb5,.hb6{animation-play-state:paused!important}}
 `
 
@@ -1222,7 +1223,7 @@ function Hero({ s }) {
       {/* Bottom fade — blends into white PartnerBar */}
       <div style={{
         position:'absolute', bottom:0, left:0, right:0, height:'28%', zIndex:3, pointerEvents:'none',
-        background:'linear-gradient(to top, #f8f7fb 0%, transparent 100%)',
+        background:'linear-gradient(to top, rgba(248,247,251,0.95) 0%, transparent 100%)',
       }}/>
 
       {/* ── Content ── */}
@@ -1239,8 +1240,10 @@ function Hero({ s }) {
           {s.hero_h1a}
           <br/>
           <span style={{
-            background:'linear-gradient(128deg, #534AB7 0%, #7c3aed 45%, #1D9E75 100%)',
+            background:'linear-gradient(128deg, #534AB7 0%, #7c3aed 35%, #1D9E75 65%, #534AB7 100%)',
+            backgroundSize:'200% auto',
             WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
+            animation:'textGradient 4s linear infinite',
           }}>
             {s.hero_h1b}
           </span>
@@ -2173,10 +2176,22 @@ export default function Landing() {
     <div className="min-h-screen antialiased" style={{ overflowX:'hidden' }}>
       {/* ── Fixed pill nav ── */}
       <LandingNav s={s} lang={lang} setLang={setLang} lightHero/>
-      {/* ── Pastel ribbon hero wrapper ── */}
-      <div style={{ background:'#f8f7fb', position:'relative' }}>
+      {/* ── Animated gradient hero wrapper ── */}
+      <div style={{
+        position:'relative',
+        background:'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)',
+        backgroundSize:'400% 400%',
+        animation:'heroGradient 12s ease infinite',
+      }}>
         <Hero s={s}/>
       </div>
+      <style>{`
+        @keyframes heroGradient {
+          0%   { background-position: 0% 50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
       <PartnerBar s={s}/>
       <WhatWeDo s={s}/>
       <Solutions s={s}/>
