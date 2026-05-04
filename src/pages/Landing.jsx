@@ -2134,15 +2134,25 @@ export default function Landing() {
     <div className="min-h-screen antialiased" style={{ overflowX:'hidden' }}>
       {/* ── Fixed pill nav ── */}
       <LandingNav s={s} lang={lang} setLang={setLang} dark/>
-      {/* ── Gradient hero wrapper — mixed radial ── */}
-      <div style={{
-        background:`
-          radial-gradient(ellipse 90% 80% at 15% 40%, #4c3bb5 0%, transparent 55%),
-          radial-gradient(ellipse 70% 70% at 85% 35%, #1a5c48 0%, transparent 50%),
-          radial-gradient(ellipse 80% 60% at 50% 100%, #2a1875 0%, transparent 50%),
-          #0a0620`,
-        position:'relative',
-      }}>
+      {/* ── Video hero wrapper ── */}
+      <div style={{ position:'relative', overflow:'hidden' }}>
+        {/* Background video */}
+        <video
+          autoPlay muted loop playsInline
+          style={{
+            position:'absolute', inset:0,
+            width:'100%', height:'100%',
+            objectFit:'cover',
+            zIndex:0,
+          }}
+        >
+          <source src="/hero-bg.mp4" type="video/mp4"/>
+        </video>
+        {/* Dark overlay so text stays readable */}
+        <div style={{
+          position:'absolute', inset:0, zIndex:1,
+          background:'rgba(8,4,24,0.45)',
+        }}/>
         <Hero s={s}/>
       </div>
       <PartnerBar s={s}/>
