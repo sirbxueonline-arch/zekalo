@@ -92,38 +92,60 @@ export default function LandingNav({ s, lang, setLang, dark = false, lightHero =
       <style>{`
         @keyframes ddIn { from{opacity:0;margin-top:-8px} to{opacity:1;margin-top:0} }
         .dd-animated { animation: ddIn 0.17s cubic-bezier(0.22,1,0.36,1) both; }
+
+        /* Liquid glass pill */
+        .liq-glass {
+          background: linear-gradient(135deg,rgba(255,255,255,0.38) 0%,rgba(255,255,255,0.18) 100%);
+          backdrop-filter: blur(40px) saturate(2.2) brightness(1.08);
+          -webkit-backdrop-filter: blur(40px) saturate(2.2) brightness(1.08);
+          border: 1px solid rgba(255,255,255,0.55);
+          box-shadow:
+            inset 0 1.5px 0 rgba(255,255,255,0.85),
+            inset 0 -1px 0 rgba(180,180,220,0.2),
+            0 8px 32px rgba(140,120,220,0.13),
+            0 2px 8px rgba(0,0,0,0.06);
+        }
+        .liq-glass-scrolled {
+          background: linear-gradient(135deg,rgba(255,255,255,0.72) 0%,rgba(248,247,251,0.62) 100%);
+          backdrop-filter: blur(40px) saturate(2) brightness(1.04);
+          -webkit-backdrop-filter: blur(40px) saturate(2) brightness(1.04);
+          border: 1px solid rgba(255,255,255,0.7);
+          box-shadow:
+            inset 0 1.5px 0 rgba(255,255,255,0.9),
+            inset 0 -1px 0 rgba(180,180,220,0.15),
+            0 8px 32px rgba(140,120,220,0.1),
+            0 2px 8px rgba(0,0,0,0.07);
+        }
+        /* Specular gleam strip at top of pill */
+        .liq-glass::before, .liq-glass-scrolled::before {
+          content:'';
+          position:absolute;
+          inset:0;
+          border-radius:999px;
+          background: linear-gradient(to bottom,rgba(255,255,255,0.55) 0%,rgba(255,255,255,0) 40%);
+          pointer-events:none;
+        }
       `}</style>
 
       <header style={{ position:'fixed', top:0, left:0, right:0, zIndex:50, padding: scrolled ? '8px 20px' : '10px 20px 0', background:'transparent', transition:'padding .3s ease' }}>
-        <div style={{ position:'relative', maxWidth:1260, margin:'0 auto',
-          background: dark
-            ? (scrolled ? 'rgba(10,6,32,0.75)' : 'transparent')
-            : lightHero
-              ? (scrolled ? 'rgba(248,247,251,0.82)' : 'transparent')
+        <div className={lightHero ? (scrolled ? 'liq-glass-scrolled' : 'liq-glass') : ''}
+          style={{ position:'relative', maxWidth:1260, margin:'0 auto',
+          ...(!lightHero ? {
+            background: dark
+              ? (scrolled ? 'rgba(10,6,32,0.75)' : 'transparent')
               : 'rgba(255,255,255,0.94)',
-          backdropFilter: dark
-            ? (scrolled ? 'blur(20px)' : 'none')
-            : lightHero
-              ? (scrolled ? 'blur(20px)' : 'none')
-              : 'blur(20px)',
-          WebkitBackdropFilter: dark
-            ? (scrolled ? 'blur(20px)' : 'none')
-            : lightHero
-              ? (scrolled ? 'blur(20px)' : 'none')
-              : 'blur(20px)',
+            backdropFilter: dark ? (scrolled ? 'blur(20px)' : 'none') : 'blur(20px)',
+            WebkitBackdropFilter: dark ? (scrolled ? 'blur(20px)' : 'none') : 'blur(20px)',
+            boxShadow: dark
+              ? (scrolled ? '0 4px 32px rgba(0,0,0,0.4)' : 'none')
+              : (scrolled ? '0 4px 24px rgba(0,0,0,0.13)' : '0 1px 3px rgba(0,0,0,0.06),0 8px 32px rgba(0,0,0,0.12)'),
+            border: dark
+              ? (scrolled ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.18)')
+              : (scrolled ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.55)'),
+          } : {}),
           borderRadius:999, height:62,
           display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px',
-          boxShadow: dark
-            ? (scrolled ? '0 4px 32px rgba(0,0,0,0.4)' : 'none')
-            : lightHero
-              ? (scrolled ? '0 4px 24px rgba(83,74,183,0.1), 0 1px 4px rgba(0,0,0,0.05)' : 'none')
-              : (scrolled ? '0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.08)' : '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12)'),
-          border: dark
-            ? (scrolled ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.18)')
-            : lightHero
-              ? (scrolled ? '1px solid rgba(83,74,183,0.12)' : '1px solid transparent')
-              : (scrolled ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.55)'),
-          transition:'background .3s ease, box-shadow .3s ease, border .3s ease, backdrop-filter .3s ease' }}>
+          transition:'all .35s ease' }}>
 
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2.5 flex-1" style={{ textDecoration:'none' }}>

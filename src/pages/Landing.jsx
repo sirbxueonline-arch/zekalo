@@ -1162,31 +1162,43 @@ function FeatureVisual({ idx, s }) {
 ══════════════════════════════════════════════════════════ */
 
 /* ─── HERO ─── */
+const BLOB_CSS = `
+  @keyframes bd1{0%{transform:translate(0,0) scale(1)}33%{transform:translate(8vw,-6vh) scale(1.1)}66%{transform:translate(-5vw,5vh) scale(0.92)}100%{transform:translate(6vw,4vh) scale(1.06)}}
+  @keyframes bd2{0%{transform:translate(0,0) scale(1)}40%{transform:translate(-7vw,5vh) scale(1.09)}100%{transform:translate(5vw,-7vh) scale(0.93)}}
+  @keyframes bd3{0%{transform:translate(0,0) scale(1)}50%{transform:translate(6vw,6vh) scale(1.11)}100%{transform:translate(-6vw,-5vh) scale(0.91)}}
+  @keyframes bd4{0%{transform:translate(0,0) scale(1)}45%{transform:translate(-6vw,-5vh) scale(1.08)}100%{transform:translate(6vw,7vh) scale(0.93)}}
+  @keyframes bd5{0%{transform:translate(0,0) scale(1)}35%{transform:translate(8vw,-6vh) scale(1.09)}70%{transform:translate(-4vw,5vh) scale(0.94)}100%{transform:translate(5vw,-3vh) scale(1.06)}}
+  @keyframes bd6{0%{transform:translate(0,0) scale(1)}50%{transform:translate(-5vw,-7vh) scale(1.08)}100%{transform:translate(7vw,4vh) scale(0.92)}}
+  .hb1,.hb2,.hb3,.hb4,.hb5,.hb6{position:absolute;border-radius:50%;pointer-events:none;will-change:transform;}
+  .hb1{width:75vw;height:65vh;top:-10%;left:-10%;background:radial-gradient(ellipse at center,rgba(184,192,255,1) 0%,rgba(184,192,255,0) 70%);filter:blur(50px);animation:bd1 16s ease-in-out infinite alternate;}
+  .hb2{width:65vw;height:60vh;top:-8%;right:-10%;background:radial-gradient(ellipse at center,rgba(180,225,215,1) 0%,rgba(180,225,215,0) 70%);filter:blur(55px);animation:bd2 13s ease-in-out -4s infinite alternate;}
+  .hb3{width:85vw;height:75vh;top:20%;left:5%;background:radial-gradient(ellipse at center,rgba(210,220,255,1) 0%,rgba(210,220,255,0) 70%);filter:blur(45px);animation:bd3 19s ease-in-out -7s infinite alternate;}
+  .hb4{width:60vw;height:55vh;bottom:-5%;right:-5%;background:radial-gradient(ellipse at center,rgba(248,220,200,1) 0%,rgba(248,220,200,0) 70%);filter:blur(50px);animation:bd4 15s ease-in-out -2s infinite alternate;}
+  .hb5{width:70vw;height:62vh;bottom:-10%;left:-5%;background:radial-gradient(ellipse at center,rgba(200,185,255,1) 0%,rgba(200,185,255,0) 70%);filter:blur(60px);animation:bd5 21s ease-in-out -10s infinite alternate;}
+  .hb6{width:55vw;height:50vh;bottom:8%;left:22%;background:radial-gradient(ellipse at center,rgba(170,230,210,1) 0%,rgba(170,230,210,0) 70%);filter:blur(40px);animation:bd6 18s ease-in-out -6s infinite alternate;}
+  @media(prefers-reduced-motion:reduce){.hb1,.hb2,.hb3,.hb4,.hb5,.hb6{animation-play-state:paused!important}}
+`
+
 function Hero({ s }) {
   const L = s.lang
+
+  useEffect(() => {
+    const id = 'zirva-hero-blob-css'
+    if (document.getElementById(id)) return
+    const el = document.createElement('style')
+    el.id = id
+    el.textContent = BLOB_CSS
+    document.head.appendChild(el)
+    return () => { try { document.head.removeChild(el) } catch(_){} }
+  }, [])
+
   return (
     <section className="hero-section" style={{
       minHeight:'100vh', position:'relative', overflow:'hidden',
     }}>
-      <style>{`
-        @keyframes bd1{0%{transform:translate(0,0) scale(1)}33%{transform:translate(6vw,-5vh) scale(1.08)}66%{transform:translate(-4vw,4vh) scale(0.94)}100%{transform:translate(5vw,3vh) scale(1.05)}}
-        @keyframes bd2{0%{transform:translate(0,0) scale(1)}40%{transform:translate(-6vw,4vh) scale(1.07)}100%{transform:translate(4vw,-6vh) scale(0.95)}}
-        @keyframes bd3{0%{transform:translate(0,0) scale(1)}50%{transform:translate(5vw,5vh) scale(1.09)}100%{transform:translate(-5vw,-4vh) scale(0.93)}}
-        @keyframes bd4{0%{transform:translate(0,0) scale(1)}45%{transform:translate(-5vw,-4vh) scale(1.06)}100%{transform:translate(5vw,6vh) scale(0.95)}}
-        @keyframes bd5{0%{transform:translate(0,0) scale(1)}35%{transform:translate(7vw,-5vh) scale(1.07)}70%{transform:translate(-3vw,4vh) scale(0.96)}100%{transform:translate(4vw,-2vh) scale(1.04)}}
-        @keyframes bd6{0%{transform:translate(0,0) scale(1)}50%{transform:translate(-4vw,-6vh) scale(1.06)}100%{transform:translate(6vw,3vh) scale(0.94)}}
-        .hb1,.hb2,.hb3,.hb4,.hb5,.hb6{position:absolute;border-radius:50%;pointer-events:none;will-change:transform}
-        .hb1{width:80vw;height:70vh;top:-15%;left:-12%;background:radial-gradient(ellipse at center,rgba(184,192,255,.9) 0%,transparent 65%);filter:blur(70px);animation:bd1 18s ease-in-out infinite alternate}
-        .hb2{width:70vw;height:65vh;top:-10%;right:-12%;background:radial-gradient(ellipse at center,rgba(200,230,224,.85) 0%,transparent 65%);filter:blur(75px);animation:bd2 14s ease-in-out -5s infinite alternate}
-        .hb3{width:90vw;height:80vh;top:15%;left:8%;background:radial-gradient(ellipse at center,rgba(232,236,255,.8) 0%,transparent 65%);filter:blur(65px);animation:bd3 20s ease-in-out -8s infinite alternate}
-        .hb4{width:65vw;height:60vh;bottom:-8%;right:-5%;background:radial-gradient(ellipse at center,rgba(245,230,216,.88) 0%,transparent 65%);filter:blur(70px);animation:bd4 16s ease-in-out -3s infinite alternate}
-        .hb5{width:75vw;height:68vh;bottom:-12%;left:-8%;background:radial-gradient(ellipse at center,rgba(184,192,255,.75) 0%,transparent 65%);filter:blur(80px);animation:bd5 22s ease-in-out -11s infinite alternate}
-        .hb6{width:60vw;height:55vh;bottom:5%;left:20%;background:radial-gradient(ellipse at center,rgba(200,230,224,.7) 0%,transparent 65%);filter:blur(60px);animation:bd6 17s ease-in-out -7s infinite alternate}
-        @media(prefers-reduced-motion:reduce){.hb1,.hb2,.hb3,.hb4,.hb5,.hb6{animation-play-state:paused!important}}
-      `}</style>
 
       {/* ── Animated pastel blobs ── */}
-      <div aria-hidden="true" style={{ position:'absolute', inset:0, zIndex:0, overflow:'hidden' }}>
+      <div aria-hidden="true" style={{ position:'absolute', inset:0, zIndex:0 }}>
         <div className="hb1"/>
         <div className="hb2"/>
         <div className="hb3"/>
