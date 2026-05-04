@@ -1169,10 +1169,24 @@ function Hero({ s }) {
       minHeight:'100vh', position:'relative', overflow:'hidden',
     }}>
 
-      {/* Bottom fade into white sections below */}
+      {/* Grain texture */}
       <div style={{
-        position:'absolute', bottom:0, left:0, right:0, height:'22%', zIndex:1, pointerEvents:'none',
-        background:'linear-gradient(to top, rgba(10,6,32,0.85) 0%, transparent 100%)',
+        position:'absolute', inset:0, pointerEvents:'none', zIndex:1,
+        backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+        backgroundSize:'180px 180px', opacity:0.055, mixBlendMode:'overlay',
+      }}/>
+
+      {/* Top center highlight */}
+      <div style={{
+        position:'absolute', top:'-5%', left:'50%', transform:'translateX(-50%)',
+        width:'75%', height:'60%', pointerEvents:'none', zIndex:1,
+        background:'radial-gradient(ellipse 60% 45% at 50% 0%, rgba(255,255,255,0.14) 0%, transparent 70%)',
+      }}/>
+
+      {/* Bottom fade */}
+      <div style={{
+        position:'absolute', bottom:0, left:0, right:0, height:'25%', zIndex:1, pointerEvents:'none',
+        background:'linear-gradient(to top, rgba(13,6,48,0.7) 0%, transparent 100%)',
       }}/>
 
       {/* ── Content ── */}
@@ -1185,7 +1199,6 @@ function Hero({ s }) {
           fontSize:'clamp(2.8rem, 6vw, 5.5rem)',
           lineHeight:1.08, letterSpacing:'-0.03em',
           color:'#ffffff', marginBottom:24, maxWidth:'20ch',
-          textShadow:'0 2px 32px rgba(0,0,0,0.9), 0 1px 8px rgba(0,0,0,0.7)',
         }}>
           {s.hero_h1a}
           <br/>
@@ -1199,10 +1212,9 @@ function Hero({ s }) {
 
         {/* Sub-copy */}
         <p style={{
-          textAlign:'center', color:'rgba(255,255,255,0.82)',
+          textAlign:'center', color:'rgba(255,255,255,0.6)',
           fontSize:'clamp(15px, 1.8vw, 18px)', lineHeight:1.7,
           maxWidth:520, fontWeight:400, marginBottom:44,
-          textShadow:'0 1px 16px rgba(0,0,0,0.8)',
         }}>
           {s.hero_sub}
         </p>
@@ -2122,27 +2134,15 @@ export default function Landing() {
     <div className="min-h-screen antialiased" style={{ overflowX:'hidden' }}>
       {/* ── Fixed pill nav ── */}
       <LandingNav s={s} lang={lang} setLang={setLang} dark/>
-      {/* ── Video hero wrapper ── */}
-      <div style={{ position:'relative', overflow:'hidden' }}>
-        {/* Background video */}
-        <video
-          autoPlay muted loop playsInline
-          style={{
-            position:'absolute', inset:0,
-            width:'100%', height:'100%',
-            objectFit:'cover',
-            zIndex:0,
-            filter:'saturate(1.4) brightness(1.05) contrast(1.05)',
-            willChange:'transform',
-          }}
-        >
-          <source src="/hero-bg.mp4" type="video/mp4"/>
-        </video>
-        {/* Dark overlay for text legibility */}
-        <div style={{
-          position:'absolute', inset:0, zIndex:1,
-          background:'linear-gradient(to bottom, rgba(4,2,14,0.72) 0%, rgba(4,2,14,0.55) 60%, rgba(4,2,14,0.82) 100%)',
-        }}/>
+      {/* ── Gradient hero wrapper — mixed radial ── */}
+      <div style={{
+        background:`
+          radial-gradient(ellipse 90% 80% at 15% 40%, #4c3bb5 0%, transparent 55%),
+          radial-gradient(ellipse 70% 70% at 85% 35%, #1a5c48 0%, transparent 50%),
+          radial-gradient(ellipse 80% 60% at 50% 100%, #2a1875 0%, transparent 50%),
+          #0a0620`,
+        position:'relative',
+      }}>
         <Hero s={s}/>
       </div>
       <PartnerBar s={s}/>
