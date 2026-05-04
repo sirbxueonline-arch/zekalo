@@ -1185,7 +1185,7 @@ function Hero({ s }) {
           fontSize:'clamp(2.8rem, 6vw, 5.5rem)',
           lineHeight:1.08, letterSpacing:'-0.03em',
           color:'#ffffff', marginBottom:24, maxWidth:'20ch',
-          textShadow:'0 2px 24px rgba(0,0,0,0.55)',
+          textShadow:'0 2px 32px rgba(0,0,0,0.9), 0 1px 8px rgba(0,0,0,0.7)',
         }}>
           {s.hero_h1a}
           <br/>
@@ -1202,7 +1202,7 @@ function Hero({ s }) {
           textAlign:'center', color:'rgba(255,255,255,0.82)',
           fontSize:'clamp(15px, 1.8vw, 18px)', lineHeight:1.7,
           maxWidth:520, fontWeight:400, marginBottom:44,
-          textShadow:'0 1px 12px rgba(0,0,0,0.5)',
+          textShadow:'0 1px 16px rgba(0,0,0,0.8)',
         }}>
           {s.hero_sub}
         </p>
@@ -2138,10 +2138,10 @@ export default function Landing() {
         >
           <source src="/hero-bg.mp4" type="video/mp4"/>
         </video>
-        {/* Subtle dark overlay — just enough for text legibility */}
+        {/* Dark overlay for text legibility */}
         <div style={{
           position:'absolute', inset:0, zIndex:1,
-          background:'rgba(6,3,18,0.28)',
+          background:'linear-gradient(to bottom, rgba(4,2,14,0.72) 0%, rgba(4,2,14,0.55) 60%, rgba(4,2,14,0.82) 100%)',
         }}/>
         <Hero s={s}/>
       </div>
