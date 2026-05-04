@@ -427,6 +427,54 @@ const globalStyles = `
     transform: translateY(0);
   }
 
+  /* ── Pastel blob base ── */
+  .hero-blob {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    will-change: transform;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+  }
+
+  @keyframes blobDrift1 {
+    0%   { transform: translate(0,    0)    scale(1);    }
+    33%  { transform: translate(3vw, -4vh)  scale(1.05); }
+    66%  { transform: translate(-2vw, 3vh)  scale(0.97); }
+    100% { transform: translate(4vw,  2vh)  scale(1.03); }
+  }
+  @keyframes blobDrift2 {
+    0%   { transform: translate(0,    0)    scale(1);    }
+    40%  { transform: translate(-4vw, 3vh)  scale(1.04); }
+    100% { transform: translate(2vw, -5vh)  scale(0.97); }
+  }
+  @keyframes blobDrift3 {
+    0%   { transform: translate(0,    0)    scale(1);    }
+    50%  { transform: translate(2vw,  2vh)  scale(1.06); }
+    100% { transform: translate(-3vw,-3vh)  scale(0.95); }
+  }
+  @keyframes blobDrift4 {
+    0%   { transform: translate(0,    0)    scale(1);    }
+    45%  { transform: translate(-3vw,-2vh)  scale(1.03); }
+    100% { transform: translate(3vw,  4vh)  scale(0.97); }
+  }
+  @keyframes blobDrift5 {
+    0%   { transform: translate(0,    0)    scale(1);    }
+    35%  { transform: translate(4vw, -3vh)  scale(1.05); }
+    70%  { transform: translate(-1vw, 2vh)  scale(0.98); }
+    100% { transform: translate(2vw, -1vh)  scale(1.02); }
+  }
+  @keyframes blobDrift6 {
+    0%   { transform: translate(0,    0)    scale(1);    }
+    50%  { transform: translate(-2vw,-4vh)  scale(1.04); }
+    100% { transform: translate(3vw,  2vh)  scale(0.96); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-blob { animation-play-state: paused !important; }
+  }
+
   /* ── Mobile overrides ── */
   html { overflow-x: hidden; }
   @media(max-width:639px){
@@ -1169,41 +1217,85 @@ function Hero({ s }) {
       minHeight:'100vh', position:'relative', overflow:'hidden',
     }}>
 
-      {/* Grain texture */}
-      <div style={{
-        position:'absolute', inset:0, pointerEvents:'none', zIndex:1,
-        backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-        backgroundSize:'180px 180px', opacity:0.055, mixBlendMode:'overlay',
-      }}/>
+      {/* ── Animated pastel blobs ── */}
+      <div aria-hidden="true" style={{ position:'absolute', inset:0, zIndex:0, overflow:'hidden' }}>
+        {/* Blob 1 — periwinkle, upper-left */}
+        <div className="hero-blob" style={{
+          width:'95vw', height:'85vh', top:'-22%', left:'-18%',
+          background:'radial-gradient(ellipse at center, rgba(184,192,255,0.78) 0%, transparent 70%)',
+          filter:'blur(120px)', opacity:0.78,
+          animationName:'blobDrift1', animationDuration:'55s', animationDelay:'0s',
+        }}/>
+        {/* Blob 2 — soft mint, upper-right */}
+        <div className="hero-blob" style={{
+          width:'82vw', height:'72vh', top:'-12%', right:'-18%',
+          background:'radial-gradient(ellipse at center, rgba(200,230,224,0.72) 0%, transparent 70%)',
+          filter:'blur(130px)', opacity:0.72,
+          animationName:'blobDrift2', animationDuration:'48s', animationDelay:'-14s',
+        }}/>
+        {/* Blob 3 — pale blue-white, centre */}
+        <div className="hero-blob" style={{
+          width:'110vw', height:'95vh', top:'8%', left:'5%',
+          background:'radial-gradient(ellipse at center, rgba(232,236,255,0.62) 0%, transparent 70%)',
+          filter:'blur(110px)', opacity:0.62,
+          animationName:'blobDrift3', animationDuration:'62s', animationDelay:'-22s',
+        }}/>
+        {/* Blob 4 — warm peach, lower-right */}
+        <div className="hero-blob" style={{
+          width:'78vw', height:'68vh', bottom:'-12%', right:'-8%',
+          background:'radial-gradient(ellipse at center, rgba(245,230,216,0.72) 0%, transparent 70%)',
+          filter:'blur(120px)', opacity:0.72,
+          animationName:'blobDrift4', animationDuration:'44s', animationDelay:'-8s',
+        }}/>
+        {/* Blob 5 — lavender, lower-left */}
+        <div className="hero-blob" style={{
+          width:'88vw', height:'78vh', bottom:'-18%', left:'-12%',
+          background:'radial-gradient(ellipse at center, rgba(184,192,255,0.62) 0%, transparent 70%)',
+          filter:'blur(140px)', opacity:0.62,
+          animationName:'blobDrift5', animationDuration:'58s', animationDelay:'-36s',
+        }}/>
+        {/* Blob 6 — mint, centre-bottom */}
+        <div className="hero-blob" style={{
+          width:'72vw', height:'62vh', bottom:'2%', left:'18%',
+          background:'radial-gradient(ellipse at center, rgba(200,230,224,0.55) 0%, transparent 70%)',
+          filter:'blur(100px)', opacity:0.55,
+          animationName:'blobDrift6', animationDuration:'51s', animationDelay:'-26s',
+        }}/>
+      </div>
 
-      {/* Top center highlight */}
-      <div style={{
-        position:'absolute', top:'-5%', left:'50%', transform:'translateX(-50%)',
-        width:'75%', height:'60%', pointerEvents:'none', zIndex:1,
-        background:'radial-gradient(ellipse 60% 45% at 50% 0%, rgba(255,255,255,0.14) 0%, transparent 70%)',
-      }}/>
+      {/* SVG noise / grain overlay — film-bokeh softness */}
+      <svg aria-hidden="true" style={{
+        position:'absolute', inset:0, width:'100%', height:'100%',
+        zIndex:2, opacity:0.06, mixBlendMode:'overlay', pointerEvents:'none',
+      }}>
+        <filter id="hero-noise">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+          <feColorMatrix type="saturate" values="0"/>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#hero-noise)"/>
+      </svg>
 
-      {/* Bottom fade */}
+      {/* Bottom fade — blends into white PartnerBar */}
       <div style={{
-        position:'absolute', bottom:0, left:0, right:0, height:'25%', zIndex:1, pointerEvents:'none',
-        background:'linear-gradient(to top, rgba(13,6,48,0.7) 0%, transparent 100%)',
+        position:'absolute', bottom:0, left:0, right:0, height:'28%', zIndex:3, pointerEvents:'none',
+        background:'linear-gradient(to top, #f8f7fb 0%, transparent 100%)',
       }}/>
 
       {/* ── Content ── */}
       <div className="max-w-5xl mx-auto px-5 sm:px-10 flex flex-col items-center"
-        style={{ position:'relative', zIndex:10, paddingTop:'clamp(130px, 18vh, 200px)', paddingBottom:0 }}>
+        style={{ position:'relative', zIndex:10, paddingTop:'clamp(72px, 10vh, 120px)', paddingBottom:0 }}>
 
         {/* Headline */}
         <h1 style={{
           textAlign:'center', fontWeight:800,
           fontSize:'clamp(2.8rem, 6vw, 5.5rem)',
           lineHeight:1.08, letterSpacing:'-0.03em',
-          color:'#ffffff', marginBottom:24, maxWidth:'20ch',
+          color:'#1a1a2e', marginBottom:24, maxWidth:'20ch',
         }}>
           {s.hero_h1a}
           <br/>
           <span style={{
-            background:'linear-gradient(128deg, #ede9fe 0%, #c4b5fd 35%, #a78bfa 65%, #f0e6ff 100%)',
+            background:'linear-gradient(128deg, #534AB7 0%, #7c3aed 45%, #1D9E75 100%)',
             WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
           }}>
             {s.hero_h1b}
@@ -1212,27 +1304,30 @@ function Hero({ s }) {
 
         {/* Sub-copy */}
         <p style={{
-          textAlign:'center', color:'rgba(255,255,255,0.6)',
+          textAlign:'center', color:'#64748b',
           fontSize:'clamp(15px, 1.8vw, 18px)', lineHeight:1.7,
           maxWidth:520, fontWeight:400, marginBottom:44,
         }}>
           {s.hero_sub}
         </p>
 
-        {/* CTAs — outlined first, solid dark second (ManageBac layout) */}
+        {/* CTAs */}
         <div style={{ display:'flex', gap:12, flexWrap:'wrap', justifyContent:'center', marginBottom:72 }}>
           <Link to="/features"
             style={{
               display:'inline-flex', alignItems:'center', gap:8,
               padding:'14px 34px', borderRadius:999,
-              border:'1.5px solid rgba(255,255,255,0.38)',
-              color:'rgba(255,255,255,0.92)',
+              background:'rgba(255,255,255,0.55)',
+              backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)',
+              border:'1.5px solid rgba(83,74,183,0.22)',
+              color:'#1a1a2e',
               fontWeight:600, fontSize:15.5,
               textDecoration:'none', whiteSpace:'nowrap',
               transition:'all .17s ease',
+              boxShadow:'0 2px 16px rgba(83,74,183,0.08)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.6)'; e.currentTarget.style.color='#fff' }}
-            onMouseLeave={e => { e.currentTarget.style.background=''; e.currentTarget.style.borderColor='rgba(255,255,255,0.38)'; e.currentTarget.style.color='rgba(255,255,255,0.92)' }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.85)'; e.currentTarget.style.borderColor='rgba(83,74,183,0.45)' }}
+            onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.55)'; e.currentTarget.style.borderColor='rgba(83,74,183,0.22)' }}
           >
             {s.hero_cta1}
           </Link>
@@ -1240,15 +1335,15 @@ function Hero({ s }) {
             style={{
               display:'inline-flex', alignItems:'center', gap:8,
               padding:'14px 34px', borderRadius:999,
-              background:'#160a36',
+              background:'linear-gradient(135deg, #534AB7 0%, #7c3aed 100%)',
               color:'#fff',
               fontWeight:700, fontSize:15.5,
               textDecoration:'none', whiteSpace:'nowrap',
-              boxShadow:'0 4px 20px rgba(10,5,30,0.5)',
+              boxShadow:'0 4px 24px rgba(83,74,183,0.38)',
               transition:'all .17s ease',
             }}
-            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 28px rgba(10,5,30,0.6)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 4px 20px rgba(10,5,30,0.5)' }}
+            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 32px rgba(83,74,183,0.5)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 4px 24px rgba(83,74,183,0.38)' }}
           >
             {s.hero_cta2} <ArrowRight style={{ width:15, height:15, flexShrink:0 }}/>
           </Link>
@@ -1258,9 +1353,9 @@ function Hero({ s }) {
         {/* Dashboard area — hidden on small screens */}
         <div className="hidden sm:block" style={{ position:'relative', width:'100%', maxWidth:1000 }}>
 
-          {/* Purple glow behind mockup */}
+          {/* Soft glow behind mockup */}
           <div style={{ position:'absolute', bottom:-20, left:'10%', right:'10%', height:100,
-            background:'rgba(83,74,183,0.6)', filter:'blur(55px)', borderRadius:'50%' }}/>
+            background:'rgba(83,74,183,0.18)', filter:'blur(55px)', borderRadius:'50%' }}/>
 
           {/* Floating chip — left */}
           <div className="float-a" style={{
@@ -2133,16 +2228,9 @@ export default function Landing() {
   return (
     <div className="min-h-screen antialiased" style={{ overflowX:'hidden' }}>
       {/* ── Fixed pill nav ── */}
-      <LandingNav s={s} lang={lang} setLang={setLang} dark/>
-      {/* ── Gradient hero wrapper — mixed radial ── */}
-      <div style={{
-        background:`
-          radial-gradient(ellipse 90% 80% at 15% 40%, #4c3bb5 0%, transparent 55%),
-          radial-gradient(ellipse 70% 70% at 85% 35%, #1a5c48 0%, transparent 50%),
-          radial-gradient(ellipse 80% 60% at 50% 100%, #2a1875 0%, transparent 50%),
-          #0a0620`,
-        position:'relative',
-      }}>
+      <LandingNav s={s} lang={lang} setLang={setLang}/>
+      {/* ── Pastel ribbon hero wrapper ── */}
+      <div style={{ background:'#f8f7fb', position:'relative' }}>
         <Hero s={s}/>
       </div>
       <PartnerBar s={s}/>
