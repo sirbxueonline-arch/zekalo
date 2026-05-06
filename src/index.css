@@ -241,3 +241,120 @@
 @media (prefers-reduced-motion: reduce) {
   .hb1,.hb2,.hb3,.hb4,.hb5,.hb6 { animation-play-state: paused !important; }
 }
+
+/* ── Pastel design tokens ── */
+:root {
+  --pastel-periwinkle: #7c6ee0;
+  --pastel-mint: #5db8a3;
+  --pastel-peach: #e8a87c;
+  --pastel-blue: #6b9dde;
+  --pastel-bg: #f8f7fb;
+  --pastel-bg-blue: #eef0ff;
+  --pastel-bg-mint: #eef5f2;
+  --pastel-bg-peach: #fdf5ee;
+  --slate-text: #1a1a2e;
+  --slate-muted: #64748b;
+}
+
+/* ── Liquid glass card ── */
+.liquid-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 100%);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgba(255,255,255,0.65);
+  border-radius: 24px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.85),
+    0 4px 24px rgba(140,120,200,0.08),
+    0 1px 3px rgba(0,0,0,0.03);
+  transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .35s ease;
+}
+.liquid-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255,255,255,0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.95),
+    0 16px 40px rgba(140,120,200,0.16),
+    0 4px 12px rgba(0,0,0,0.04);
+}
+
+/* ── Pastel section blob — single gentle accent for content sections ── */
+.section-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+/* ── Pastel pill icon background ── */
+.pastel-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.pastel-icon::before {
+  content:''; position:absolute; inset:0;
+  background: linear-gradient(135deg, currentColor 0%, transparent 100%);
+  opacity: 0.15;
+}
+
+/* ── Solid pastel CTA ── */
+.btn-pastel {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14.5px;
+  text-decoration: none;
+  background: linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    0 8px 24px rgba(124,110,224,0.3),
+    0 2px 6px rgba(93,184,163,0.2);
+  transition: transform .2s ease, box-shadow .25s ease;
+}
+.btn-pastel:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    0 12px 32px rgba(124,110,224,0.4),
+    0 3px 8px rgba(93,184,163,0.25);
+}
+
+.btn-ghost-pastel {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 26px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14.5px;
+  text-decoration: none;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #1a1a2e;
+  border: 1px solid rgba(124,110,224,0.25);
+  transition: all .2s ease;
+}
+.btn-ghost-pastel:hover {
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(124,110,224,0.45);
+  transform: translateY(-1px);
+}
+
+/* ── Section title accent — pastel gradient text ── */
+.pastel-text {
+  background: linear-gradient(128deg, #7c6ee0 0%, #5db8a3 50%, #e8a87c 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textGradient 6s linear infinite;
+}
+
+@keyframes textGradient {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}

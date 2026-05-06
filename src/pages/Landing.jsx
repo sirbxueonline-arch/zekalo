@@ -1369,20 +1369,20 @@ function PartnerBar({ s }) {
   ]
   const track = [...items, ...items, ...items]
   return (
-    <div style={{ background:'#fff', borderTop:'1px solid #f0f0f0', borderBottom:'1px solid #f0f0f0', padding:'28px 0 32px' }}>
-      <p style={{ textAlign:'center', fontSize:10, color:'#aaa', fontWeight:700, letterSpacing:'0.22em', textTransform:'uppercase', marginBottom:24 }}>
+    <div style={{ position:'relative', padding:'40px 0 48px' }}>
+      <p style={{ textAlign:'center', fontSize:10.5, color:'#94a3b8', fontWeight:700, letterSpacing:'0.24em', textTransform:'uppercase', marginBottom:28 }}>
         {s.trust_title}
       </p>
       <div style={{ position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', left:0, top:0, bottom:0, width:100, zIndex:2, background:'linear-gradient(to right, #fff, transparent)', pointerEvents:'none' }}/>
-        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:100, zIndex:2, background:'linear-gradient(to left, #fff, transparent)', pointerEvents:'none' }}/>
-        <div style={{ display:'flex', alignItems:'center', gap:72, animation:'partnerScroll 28s linear infinite', width:'max-content' }}>
+        <div style={{ position:'absolute', left:0, top:0, bottom:0, width:140, zIndex:2, background:'linear-gradient(to right, #f8f7fb, transparent)', pointerEvents:'none' }}/>
+        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:140, zIndex:2, background:'linear-gradient(to left, #f8f7fb, transparent)', pointerEvents:'none' }}/>
+        <div style={{ display:'flex', alignItems:'center', gap:84, animation:'partnerScroll 32s linear infinite', width:'max-content' }}>
           {track.map(({ name, url, img }, i) => (
             <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-              style={{ flexShrink:0, textDecoration:'none', opacity:0.75, transition:'opacity .2s ease' }}
-              onMouseEnter={e => e.currentTarget.style.opacity='1'}
-              onMouseLeave={e => e.currentTarget.style.opacity='0.75'}>
-              <img src={img} alt={name} style={{ height:80, width:'auto', objectFit:'contain', display:'block' }}/>
+              style={{ flexShrink:0, textDecoration:'none', opacity:0.65, transition:'opacity .25s ease, transform .25s ease', filter:'grayscale(0.3)' }}
+              onMouseEnter={e => { e.currentTarget.style.opacity='1'; e.currentTarget.style.filter='grayscale(0)' }}
+              onMouseLeave={e => { e.currentTarget.style.opacity='0.65'; e.currentTarget.style.filter='grayscale(0.3)' }}>
+              <img src={img} alt={name} style={{ height:72, width:'auto', objectFit:'contain', display:'block' }}/>
             </a>
           ))}
         </div>
@@ -1444,19 +1444,22 @@ function WhatWeDo({ s }) {
     },
   ]
 
+  // Override colors to pastel rotation
+  const pastelColors = ['#7c6ee0', '#5db8a3', '#e8a87c']
+  const pastelCols = cols.map((c, i) => ({ ...c, color: pastelColors[i] }))
+
   return (
-    <section ref={ref} className="fade-up py-28 bg-white">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+    <section ref={ref} className="fade-up py-28" style={{ position:'relative' }}>
+      {/* subtle pastel blobs */}
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
         <div className="max-w-2xl mb-16">
-          <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">
-            {L==='az' ? 'Platforma' : L==='tr' ? 'Platform' : 'Platform'}
-          </p>
-          <h2 className="font-extrabold text-gray-900 leading-tight mb-5"
-            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em' }}>
+          <h2 className="font-extrabold leading-tight mb-5"
+            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.025em', color:'#1a1a2e' }}>
             {L==='az' ? 'Bir platforma.' : L==='tr' ? 'Tek platform.' : 'One platform.'}<br/>
-            <span style={{ color:'#534AB7' }}>{L==='az' ? 'Bütün məktəb əməliyyatları.' : L==='tr' ? 'Her okul operasyonu.' : 'Every school operation.'}</span>
+            <span className="pastel-text">{L==='az' ? 'Bütün məktəb əməliyyatları.' : L==='tr' ? 'Her okul operasyonu.' : 'Every school operation.'}</span>
           </h2>
-          <p className="text-gray-500 text-base leading-relaxed font-medium">
+          <p className="text-base leading-relaxed font-normal" style={{ color:'#64748b' }}>
             {L==='az'
               ? 'Zirva+ məktəb idarəetməsinin hər tərəfini — kurikulumdan kommunikasiyaya, qiymətləndirmədən AI köməkçisinə qədər — vahid platformada birləşdirir.'
               : L==='tr'
@@ -1465,19 +1468,21 @@ function WhatWeDo({ s }) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {cols.map(({ icon: Icon, color, eyebrow, title, body, pts }) => (
-            <div key={title} className="card-lift bg-gray-50 border border-gray-100 rounded-2xl p-8 group cursor-default">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-6" style={{ background:`${color}14` }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {pastelCols.map(({ icon: Icon, color, eyebrow, title, body, pts }) => (
+            <div key={title} className="liquid-card p-8 cursor-default">
+              <div className="w-12 h-12 flex items-center justify-center mb-6" style={{
+                background:`linear-gradient(135deg, ${color}25 0%, ${color}10 100%)`,
+                borderRadius:14, border:`1px solid ${color}30`,
+              }}>
                 <Icon className="w-5 h-5" style={{ color }}/>
               </div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color }}>{eyebrow}</p>
-              <h3 className="font-bold text-gray-900 text-xl mb-3 leading-tight" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed mb-6 font-medium">{body}</p>
-              <ul className="space-y-2">
+              <h3 className="font-bold text-xl mb-3 leading-tight" style={{ letterSpacing:'-0.015em', color:'#1a1a2e' }}>{title}</h3>
+              <p className="text-sm leading-relaxed mb-6" style={{ color:'#64748b' }}>{body}</p>
+              <ul className="space-y-2.5">
                 {pts.map(p => (
-                  <li key={p} className="flex items-center gap-2.5 text-sm text-gray-600 font-medium">
-                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background:`${color}18` }}>
+                  <li key={p} className="flex items-center gap-2.5 text-sm font-medium" style={{ color:'#475569' }}>
+                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background:`${color}20` }}>
                       <Check className="w-2.5 h-2.5" style={{ color }}/>
                     </div>
                     {p}
@@ -1515,119 +1520,69 @@ function Solutions({ s }) {
   ]
 
   return (
-    <section ref={ref} id="solutions" className="fade-up py-28 bg-white">
+    <section ref={ref} id="solutions" className="fade-up py-28" style={{ position:'relative' }}>
       {/* SVG filter: remove white background from images */}
       <svg width="0" height="0" style={{ position:'absolute' }} aria-hidden="true">
         <defs>
           <filter id="zirvaRemoveWhite" colorInterpolationFilters="sRGB">
-            {/* alpha = 1 - min(R,G,B) — white → transparent, colors preserved */}
-            <feColorMatrix type="matrix" values="
-              1 0 0 0 0
-              0 1 0 0 0
-              0 0 1 0 0
-              -1 0 0 0 1" result="stepA"/>
-            <feColorMatrix in="SourceGraphic" type="matrix" values="
-              1 0 0 0 0
-              0 1 0 0 0
-              0 0 1 0 0
-              0 -1 0 0 1" result="stepB"/>
-            <feColorMatrix in="SourceGraphic" type="matrix" values="
-              1 0 0 0 0
-              0 1 0 0 0
-              0 0 1 0 0
-              0 0 -1 0 1" result="stepC"/>
-            {/* intersect the three channel-alphas by taking darkest (min) */}
+            <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -1 0 0 0 1" result="stepA"/>
+            <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 -1 0 0 1" result="stepB"/>
+            <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 -1 0 1" result="stepC"/>
             <feBlend in="stepA" in2="stepB" mode="darken" result="ab"/>
             <feBlend in="ab"    in2="stepC" mode="darken"/>
           </filter>
         </defs>
       </svg>
-      <style>{`
-        @keyframes solFloat { 0%,100% { transform:translate(0,0) } 50% { transform:translate(2%,-1%) } }
-        @keyframes solPulse { 0%,100% { opacity:.25 } 50% { opacity:.5 } }
-        @keyframes solShine {
-          0% { transform: translateX(-120%) skewX(-20deg) }
-          100% { transform: translateX(260%) skewX(-20deg) }
-        }
-        .sol-pill { transition: all .25s cubic-bezier(.22,1,.36,1); }
-        .sol-pill:hover { transform: translateX(-4px); }
-        .sol-cpill { transition: all .3s cubic-bezier(.22,1,.36,1); position: relative; overflow: hidden; }
-        .sol-cpill:hover { transform: translateY(-3px); box-shadow: 0 14px 28px -12px var(--cpill-glow, rgba(255,255,255,0.15)); border-color: var(--cpill-border-hover, rgba(255,255,255,0.2)) !important; }
-        .sol-cpill:hover .sol-cpill-glow { opacity: 1 !important; }
-        .sol-cpill:hover .sol-cpill-shine { animation: solShine 1s cubic-bezier(.22,1,.36,1); }
-        .sol-cpill:hover .sol-cpill-arrow { opacity: 1; transform: translateX(2px); }
-        .sol-cpill-glow { transition: opacity .3s ease; }
-        .sol-cpill-arrow { transition: all .3s ease; opacity: 0; }
-        .sol-cpill-shine {
-          position:absolute; top:-30%; left:0; width:35%; height:160%;
-          background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-          pointer-events:none;
-        }
-        .sol-ib-card { transition: all .35s cubic-bezier(.22,1,.36,1); position:relative; }
-        .sol-ib-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -20px var(--accent-shadow, rgba(15,15,26,0.2)) !important; }
-        .sol-ib-card:hover .sol-ib-accent { opacity: 1 !important; transform: scale(1.04); }
-        .sol-ib-card:hover .sol-ib-arrow { transform: translateX(3px); opacity:1 !important; }
-        .sol-ib-card .sol-ib-accent { transition: all .35s cubic-bezier(.22,1,.36,1); }
-        .sol-ib-card .sol-ib-arrow { transition: all .3s ease; }
-        .sol-gov-card { transition: all .3s cubic-bezier(.22,1,.36,1); }
-        .sol-gov-card:hover { transform: translateY(-2px); box-shadow: 0 15px 35px -15px rgba(29,158,117,0.25); }
-      `}</style>
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+
+      {/* Pastel blob accents */}
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
 
         {/* ── Header ── */}
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-14">
           <div>
-            <span className="inline-block text-xs font-bold uppercase tracking-widest mb-5 text-teal">{s.sol_badge}</span>
-            <h2 style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', fontWeight:800, letterSpacing:'-0.025em', lineHeight:1.1, color:'#0f0f1a' }}>
+            <h2 style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', fontWeight:800, letterSpacing:'-0.025em', lineHeight:1.1, color:'#1a1a2e' }}>
               {L==='az'
-                ? <><span style={{ color:'#534AB7' }}>Hər kurikulum</span><br/>üçün hazırlanmış</>
+                ? <><span className="pastel-text">Hər kurikulum</span><br/>üçün hazırlanmış</>
                 : L==='tr'
-                ? <>Her müfredat için<br/><span style={{ color:'#534AB7' }}>hazırlanmış</span></>
-                : <>Built for<br/><span style={{ color:'#534AB7' }}>every curriculum</span></>}
+                ? <>Her müfredat için<br/><span className="pastel-text">hazırlanmış</span></>
+                : <>Built for<br/><span className="pastel-text">every curriculum</span></>}
             </h2>
           </div>
-          <p className="text-gray-500 text-base leading-relaxed font-medium max-w-sm">{s.sol_sub}</p>
+          <p className="text-base leading-relaxed font-normal max-w-sm" style={{ color:'#64748b' }}>{s.sol_sub}</p>
         </div>
 
         {/* ── IB + Government programmes ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
           {ibCards.map(({ logo, icon:Icon, title, desc, age, accent, accent2, to, isGov }) => (
-            <Link key={title} to={to} className="sol-ib-card rounded-2xl p-7 relative overflow-hidden flex no-underline"
-              style={{
-                background:'#fff',
-                border:'1px solid rgba(15,15,26,0.06)',
-                boxShadow:'0 1px 0 rgba(15,15,26,0.02)',
-                '--accent-shadow': `${accent}40`,
-                textDecoration:'none',
-              }}>
-              {/* Top accent bar */}
-              <div className="sol-ib-accent" style={{ position:'absolute', top:0, left:0, right:0, height:3, background:`linear-gradient(90deg, ${accent}, ${accent2})`, opacity:.6 }}/>
-              {/* Corner glow */}
-              <div className="sol-ib-accent" style={{ position:'absolute', top:-40, right:-40, width:140, height:140, background:`radial-gradient(circle, ${accent}18 0%, transparent 65%)`, borderRadius:'50%', opacity:.4, pointerEvents:'none' }}/>
+            <Link key={title} to={to} className="liquid-card p-6 relative overflow-hidden flex flex-col no-underline"
+              style={{ textDecoration:'none' }}>
+              {/* Top accent bar — softer */}
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:`linear-gradient(90deg, ${accent}, ${accent2})`, opacity:.7, borderRadius:'24px 24px 0 0' }}/>
+              {/* Soft corner glow */}
+              <div style={{ position:'absolute', top:-30, right:-30, width:120, height:120, background:`radial-gradient(circle, ${accent}25 0%, transparent 70%)`, borderRadius:'50%', pointerEvents:'none' }}/>
 
               <div className="relative flex flex-col h-full">
-                {/* Top row: logo/icon */}
                 <div className="mb-5">
                   {logo ? (
-                    <div className="rounded-xl p-2 inline-flex" style={{ background:`${accent}08` }}>
-                      <img src={logo} alt={title} className="h-10 w-auto object-contain" style={{ mixBlendMode:'multiply' }}/>
+                    <div className="rounded-xl p-2.5 inline-flex" style={{ background:`linear-gradient(135deg, ${accent}15, ${accent}05)`, border:`1px solid ${accent}20` }}>
+                      <img src={logo} alt={title} className="h-9 w-auto object-contain" style={{ mixBlendMode:'multiply' }}/>
                     </div>
                   ) : (
-                    <div className="rounded-xl flex items-center justify-center" style={{ width:52, height:52, background:`linear-gradient(135deg, ${accent}18, ${accent2}08)`, border:`1px solid ${accent}22` }}>
+                    <div className="rounded-xl flex items-center justify-center" style={{ width:48, height:48, background:`linear-gradient(135deg, ${accent}25, ${accent2}10)`, border:`1px solid ${accent}30` }}>
                       <Icon style={{ width:22, height:22, color:accent }}/>
                     </div>
                   )}
                 </div>
 
-                <h3 className="font-bold text-gray-900 text-base mb-2 leading-snug" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed font-medium mb-0 flex-1">{desc}</p>
+                <h3 className="font-bold text-base mb-2 leading-snug" style={{ letterSpacing:'-0.01em', color:'#1a1a2e' }}>{title}</h3>
+                <p className="text-sm leading-relaxed mb-4 flex-1" style={{ color:'#64748b' }}>{desc}</p>
 
-                {/* Footer */}
-                <div className="flex items-center justify-between pt-4 mt-auto" style={{ borderTop:'1px solid rgba(15,15,26,0.05)' }}>
-                  <span style={{ fontSize:10.5, fontWeight:700, color:accent, letterSpacing:'0.12em', textTransform:'uppercase' }}>
+                <div className="flex items-center justify-between pt-3 mt-auto" style={{ borderTop:'1px solid rgba(124,110,224,0.1)' }}>
+                  <span style={{ fontSize:10.5, fontWeight:700, color:accent, letterSpacing:'0.14em', textTransform:'uppercase' }}>
                     {isGov ? (L==='az' ? 'Dövlət' : L==='tr' ? 'Ulusal' : 'National') : (L==='az' ? 'Ətraflı' : L==='tr' ? 'Devamı' : 'Learn more')}
                   </span>
-                  <ArrowRight className="sol-ib-arrow w-3.5 h-3.5" style={{ color:accent, opacity:.55 }}/>
+                  <ArrowRight className="w-3.5 h-3.5" style={{ color:accent }}/>
                 </div>
               </div>
             </Link>
@@ -1642,43 +1597,43 @@ function Solutions({ s }) {
 /* ─── FEATURES ─── */
 function Features({ s }) {
   const ref = useFadeUp()
-  const isAz = s.isAz
+  const palette = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde', '#7c6ee0', '#5db8a3']
   const grid = [
-    { icon:BookOpen,      title:s.tab_curriculum, pts:[s.c1,s.c2,s.c3], color:'#534AB7' },
-    { icon:PenLine,       title:s.tab_teaching,   pts:[s.t1,s.t2,s.t3], color:'#1D9E75' },
-    { icon:BarChart2,     title:s.tab_assessment, pts:[s.a1,s.a2,s.a3], color:'#534AB7' },
-    { icon:FileText,      title:s.tab_reports,    pts:[s.r1,s.r2,s.r3], color:'#1D9E75' },
-    { icon:ClipboardList, title:s.tab_attendance, pts:[s.at1,s.at2,s.at3], color:'#534AB7' },
-    { icon:MessageSquare, title:s.tab_comms,      pts:[s.co1,s.co2,s.co3], color:'#1D9E75' },
+    { icon:BookOpen,      title:s.tab_curriculum, pts:[s.c1,s.c2,s.c3], color:palette[0] },
+    { icon:PenLine,       title:s.tab_teaching,   pts:[s.t1,s.t2,s.t3], color:palette[1] },
+    { icon:BarChart2,     title:s.tab_assessment, pts:[s.a1,s.a2,s.a3], color:palette[2] },
+    { icon:FileText,      title:s.tab_reports,    pts:[s.r1,s.r2,s.r3], color:palette[3] },
+    { icon:ClipboardList, title:s.tab_attendance, pts:[s.at1,s.at2,s.at3], color:palette[4] },
+    { icon:MessageSquare, title:s.tab_comms,      pts:[s.co1,s.co2,s.co3], color:palette[5] },
   ]
 
   return (
-    <section ref={ref} id="features" className="fade-up py-28 bg-white">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="text-center mb-14">
-          <p className="text-purple text-xs font-bold uppercase tracking-widest mb-4">{s.feat_badge}</p>
-          <h2 className="font-extrabold text-gray-900 mb-5"
-            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em' }}>
-            {s.feat_title} <span style={{ color:'#534AB7' }}>{s.feat_title_b}</span>
+    <section ref={ref} id="features" className="fade-up py-28" style={{ position:'relative' }}>
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
+        <div className="text-center mb-16">
+          <h2 className="font-extrabold mb-5"
+            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.025em', color:'#1a1a2e' }}>
+            {s.feat_title} <span className="pastel-text">{s.feat_title_b}</span>
           </h2>
-          <p className="text-gray-500 text-base max-w-xl mx-auto leading-relaxed font-medium">{s.feat_sub}</p>
+          <p className="text-base max-w-xl mx-auto leading-relaxed" style={{ color:'#64748b' }}>{s.feat_sub}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14">
           {grid.map(({ icon:Icon, title, pts, color }) => (
-            <div key={title} className="card-lift bg-gray-50 rounded-2xl p-7 border border-gray-100 cursor-default group">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-200"
-                style={{ background:`${color}12` }}>
+            <div key={title} className="liquid-card p-7 cursor-default group">
+              <div className="w-12 h-12 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300"
+                style={{ background:`linear-gradient(135deg, ${color}25, ${color}10)`, borderRadius:14, border:`1px solid ${color}25` }}>
                 <Icon className="w-5 h-5" style={{ color }}/>
               </div>
-              <h3 className="font-bold text-gray-900 text-lg mb-4 leading-snug" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
+              <h3 className="font-bold text-lg mb-4 leading-snug" style={{ letterSpacing:'-0.015em', color:'#1a1a2e' }}>{title}</h3>
               <ul className="space-y-2.5">
                 {pts.map(p => (
                   <li key={p} className="flex items-start gap-2.5">
-                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background:`${color}16` }}>
+                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background:`${color}20` }}>
                       <Check className="w-2.5 h-2.5" style={{ color }}/>
                     </div>
-                    <span className="text-gray-500 text-sm leading-relaxed font-medium">{p}</span>
+                    <span className="text-sm leading-relaxed" style={{ color:'#64748b' }}>{p}</span>
                   </li>
                 ))}
               </ul>
@@ -1687,8 +1642,7 @@ function Features({ s }) {
         </div>
 
         <div className="text-center">
-          <Link to="/contact"
-            className="inline-flex items-center gap-2 bg-purple text-white font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg shadow-purple/25 hover:shadow-xl hover:shadow-purple/35 hover:-translate-y-0.5 transition-all">
+          <Link to="/contact" className="btn-pastel">
             {s.feat_cta} <ArrowRight className="w-4 h-4"/>
           </Link>
         </div>
@@ -1709,42 +1663,42 @@ function ProductShowcase({ s }) {
     { icon:Clock,     text:s.at1 },
   ]
   return (
-    <section ref={ref} className="fade-up py-24" style={{ background:'#F7F7FB' }}>
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+    <section ref={ref} className="fade-up py-28" style={{ position:'relative' }}>
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
           {/* Left */}
           <div>
-            <h2 className="font-extrabold text-gray-900 leading-none mb-5"
-              style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.03em' }}>
+            <h2 className="font-extrabold leading-tight mb-6"
+              style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.03em', color:'#1a1a2e' }}>
               {L==='az'
-                ? <>Hər şey<br/>bir yerdə,<br/><span style={{ color:'#1D9E75' }}>real vaxtda.</span></>
+                ? <>Hər şey<br/>bir yerdə,<br/><span className="pastel-text">real vaxtda.</span></>
                 : L==='tr'
-                ? <>Her şey<br/>bir arada,<br/><span style={{ color:'#1D9E75' }}>gerçek zamanlı.</span></>
-                : <>Everything<br/>together,<br/><span style={{ color:'#1D9E75' }}>in real time.</span></>}
+                ? <>Her şey<br/>bir arada,<br/><span className="pastel-text">gerçek zamanlı.</span></>
+                : <>Everything<br/>together,<br/><span className="pastel-text">in real time.</span></>}
             </h2>
-            <p className="text-gray-400 text-base leading-relaxed mb-10" style={{ maxWidth:380 }}>{s.feat_sub}</p>
-            <ul className="space-y-4 mb-12">
+            <p className="text-base leading-relaxed mb-10" style={{ maxWidth:400, color:'#64748b' }}>{s.feat_sub}</p>
+            <ul className="space-y-3.5 mb-12">
               {bullets.map(({ icon:Icon, text }) => (
                 <li key={text} className="flex items-center gap-3">
-                  <Check className="w-4 h-4 shrink-0" style={{ color:'#1D9E75' }}/>
-                  <span className="text-gray-600 text-sm font-medium">{text}</span>
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background:'rgba(93,184,163,0.2)' }}>
+                    <Check className="w-3 h-3" style={{ color:'#5db8a3' }}/>
+                  </div>
+                  <span className="text-sm font-medium" style={{ color:'#475569' }}>{text}</span>
                 </li>
               ))}
             </ul>
-            <Link to="/contact"
-              className="inline-flex items-center gap-2 font-bold text-sm px-6 py-3 rounded-lg text-white transition-all hover:opacity-90"
-              style={{ background:'#1D9E75' }}>
+            <Link to="/contact" className="btn-pastel">
               {s.feat_cta} <ArrowRight className="w-4 h-4"/>
             </Link>
           </div>
 
           {/* Right */}
-          <div className="bg-white rounded-3xl overflow-hidden"
-            style={{ border:'1px solid rgba(0,0,0,0.06)', boxShadow:'0 2px 40px rgba(0,0,0,0.06)' }}>
-            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom:'1px solid rgba(0,0,0,0.05)' }}>
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{s.tab_assessment}</span>
-              <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background:'rgba(29,158,117,0.1)', color:'#1D9E75' }}>IB MYP · 9A</span>
+          <div className="liquid-card overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom:'1px solid rgba(124,110,224,0.1)' }}>
+              <span className="text-xs font-bold uppercase tracking-widest" style={{ color:'#94a3b8', letterSpacing:'0.18em' }}>{s.tab_assessment}</span>
+              <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background:'rgba(93,184,163,0.15)', color:'#5db8a3' }}>IB MYP · 9A</span>
             </div>
             <div className="p-6">
               <FeatureVisual idx={2} s={s}/>
@@ -1762,23 +1716,26 @@ function ZekaAI({ s }) {
   const ref = useFadeUp()
   const isAz = s.isAz
   const L = s.lang
+  const periwinkle = '#7c6ee0'
+  const mint = '#5db8a3'
   return (
-    <section ref={ref} id="zeka" className="fade-up py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+    <section ref={ref} id="zeka" className="fade-up py-28" style={{ position:'relative' }}>
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
           {/* Left */}
           <div>
-            <h2 className="font-extrabold text-gray-900 leading-none mb-5"
-              style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.03em' }}>
+            <h2 className="font-extrabold leading-tight mb-6"
+              style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.03em', color:'#1a1a2e' }}>
               {L==='az'
-                ? <>Müəllimin<br/><span style={{ color:'#534AB7' }}>ən güclü köməkçisi</span></>
+                ? <>Müəllimin<br/><span className="pastel-text">ən güclü köməkçisi</span></>
                 : L==='tr'
-                ? <>Öğretmenin<br/><span style={{ color:'#534AB7' }}>en güçlü aracı</span></>
-                : <>The teacher's<br/><span style={{ color:'#534AB7' }}>most powerful tool</span></>}
+                ? <>Öğretmenin<br/><span className="pastel-text">en güçlü aracı</span></>
+                : <>The teacher's<br/><span className="pastel-text">most powerful tool</span></>}
             </h2>
 
-            <p className="text-gray-400 text-base leading-relaxed mb-10" style={{ maxWidth:380 }}>
+            <p className="text-base leading-relaxed mb-10" style={{ maxWidth:400, color:'#64748b' }}>
               {L==='az'
                 ? 'Claude AI ilə gücləndirilmiş Zəka AI hesabat yazır, qiymətlər analiz edir, valideyn xülasələri hazırlayır — Azərbaycan, ingilis və rus dillərində.'
                 : L==='tr'
@@ -1786,72 +1743,71 @@ function ZekaAI({ s }) {
                 : 'Powered by Claude AI, Zeka AI writes reports, analyses grades, and prepares parent summaries — in Azerbaijani, English, and Russian.'}
             </p>
 
-            <ul className="space-y-4 mb-12">
+            <ul className="space-y-3.5 mb-12">
               {[s.z3, s.z2, s.z4, s.z1].map(item => (
                 <li key={item} className="flex items-center gap-3">
-                  <Check className="w-4 h-4 shrink-0 text-purple"/>
-                  <span className="text-gray-600 text-sm font-medium">{item}</span>
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background:`${periwinkle}25` }}>
+                    <Check className="w-3 h-3" style={{ color:periwinkle }}/>
+                  </div>
+                  <span className="text-sm font-medium" style={{ color:'#475569' }}>{item}</span>
                 </li>
               ))}
             </ul>
 
-            <Link to="/contact"
-              className="inline-flex items-center gap-2 font-bold text-sm px-6 py-3 rounded-lg text-white transition-all hover:opacity-90"
-              style={{ background:'#534AB7' }}>
+            <Link to="/contact" className="btn-pastel">
               {L==='az' ? 'Zəka AI ilə tanış ol' : L==='tr' ? 'Zeka AI ile tanış ol' : 'Meet Zeka AI'} <ArrowRight className="w-4 h-4"/>
             </Link>
           </div>
 
-          {/* Right: chat card */}
-          <div className="rounded-3xl overflow-hidden"
-            style={{ background:'#F7F7FB', border:'1px solid rgba(83,74,183,0.10)', boxShadow:'0 2px 40px rgba(83,74,183,0.08)' }}>
+          {/* Right: liquid glass chat card */}
+          <div className="liquid-card overflow-hidden">
 
             {/* Header */}
-            <div className="flex items-center gap-3 px-5 py-4 bg-white" style={{ borderBottom:'1px solid rgba(83,74,183,0.08)' }}>
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-purple">
+            <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom:'1px solid rgba(124,110,224,0.12)', background:'rgba(255,255,255,0.5)' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background:`linear-gradient(135deg, ${periwinkle}, ${mint})`, boxShadow:`0 4px 12px ${periwinkle}40` }}>
                 <Sparkles className="w-4 h-4 text-white"/>
               </div>
               <div>
-                <p className="text-sm font-bold text-gray-900">Zəka AI</p>
-                <p className="text-[11px] font-medium flex items-center gap-1.5 text-teal">
-                  <span className="w-1.5 h-1.5 rounded-full inline-block bg-teal"/>
+                <p className="text-sm font-bold" style={{ color:'#1a1a2e' }}>Zəka AI</p>
+                <p className="text-[11px] font-medium flex items-center gap-1.5" style={{ color:mint }}>
+                  <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background:mint, boxShadow:`0 0 6px ${mint}` }}/>
                   Online
                 </p>
               </div>
               <div className="ml-auto">
                 <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
-                  style={{ background:'rgba(83,74,183,0.08)', color:'#534AB7' }}>
+                  style={{ background:`${periwinkle}15`, color:periwinkle, border:`1px solid ${periwinkle}25` }}>
                   Claude AI
                 </span>
               </div>
             </div>
 
             {/* Messages */}
-            <div className="p-5 space-y-4" style={{ minHeight:300 }}>
+            <div className="p-5 space-y-4" style={{ minHeight:300, background:'rgba(255,255,255,0.3)' }}>
               <div className="flex justify-end">
-                <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm bg-purple" style={{ maxWidth:240 }}>
+                <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm" style={{ maxWidth:240, background:`linear-gradient(135deg, ${periwinkle}, ${mint})`, boxShadow:`0 4px 16px ${periwinkle}30` }}>
                   {L==='az' ? 'IB MYP kriteriyaları üzrə hesabat yaz' : L==='tr' ? 'IB MYP kriterleri için rapor yaz' : 'Write an IB MYP criteria report'}
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 bg-purple">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background:`linear-gradient(135deg, ${periwinkle}, ${mint})` }}>
                   <Sparkles className="w-3.5 h-3.5 text-white"/>
                 </div>
-                <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3"
-                  style={{ border:'1px solid rgba(83,74,183,0.10)', maxWidth:260 }}>
-                  <p className="text-sm font-semibold text-gray-800 mb-2">
+                <div className="rounded-2xl rounded-tl-sm px-4 py-3"
+                  style={{ background:'rgba(255,255,255,0.85)', backdropFilter:'blur(12px)', border:`1px solid ${periwinkle}15`, maxWidth:260 }}>
+                  <p className="text-sm font-semibold mb-2" style={{ color:'#1a1a2e' }}>
                     {L==='az' ? 'Hesabat hazırlanır...' : L==='tr' ? 'Rapor hazırlanıyor...' : 'Generating report...'}
                   </p>
                   <div className="space-y-1.5">
                     {[
-                      { label: L==='az'?'A kriteriyas:':L==='tr'?'A kriteri:':'Criterion A:', val:'6/8', c:'#534AB7' },
-                      { label: L==='az'?'B kriteriyas:':L==='tr'?'B kriteri:':'Criterion B:', val:'7/8', c:'#1D9E75' },
-                      { label: L==='az'?'C kriteriyas:':L==='tr'?'C kriteri:':'Criterion C:', val:'5/8', c:'#534AB7' },
+                      { label: L==='az'?'A kriteriyas:':L==='tr'?'A kriteri:':'Criterion A:', val:'6/8', c:periwinkle },
+                      { label: L==='az'?'B kriteriyas:':L==='tr'?'B kriteri:':'Criterion B:', val:'7/8', c:mint },
+                      { label: L==='az'?'C kriteriyas:':L==='tr'?'C kriteri:':'Criterion C:', val:'5/8', c:'#e8a87c' },
                     ].map(({ label, val, c }) => (
                       <div key={label} className="flex items-center gap-2">
                         <Check className="w-3 h-3 shrink-0" style={{ color:c }}/>
-                        <span className="text-xs text-gray-500">{label} <strong style={{ color:c }}>{val}</strong></span>
+                        <span className="text-xs" style={{ color:'#64748b' }}>{label} <strong style={{ color:c }}>{val}</strong></span>
                       </div>
                     ))}
                   </div>
@@ -1859,18 +1815,18 @@ function ZekaAI({ s }) {
               </div>
 
               <div className="flex justify-end">
-                <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm bg-purple" style={{ maxWidth:240 }}>
+                <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm" style={{ maxWidth:240, background:`linear-gradient(135deg, ${periwinkle}, ${mint})`, boxShadow:`0 4px 16px ${periwinkle}30` }}>
                   {L==='az' ? 'Valideyn üçün qısa xülasə yaz' : L==='tr' ? 'Veli için kısa özet yaz' : 'Write a short summary for parents'}
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 bg-purple">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background:`linear-gradient(135deg, ${periwinkle}, ${mint})` }}>
                   <Sparkles className="w-3.5 h-3.5 text-white"/>
                 </div>
-                <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3"
-                  style={{ border:'1px solid rgba(83,74,183,0.10)', maxWidth:260 }}>
-                  <p className="text-xs leading-relaxed text-gray-600">
+                <div className="rounded-2xl rounded-tl-sm px-4 py-3"
+                  style={{ background:'rgba(255,255,255,0.85)', backdropFilter:'blur(12px)', border:`1px solid ${periwinkle}15`, maxWidth:260 }}>
+                  <p className="text-xs leading-relaxed" style={{ color:'#475569' }}>
                     {L==='az'
                       ? 'Şagirdiniz bu rüb əla nəticələr göstərdi. Xüsusilə B kriteriyasında yüksək bal aldı.'
                       : L==='tr'
@@ -1882,11 +1838,11 @@ function ZekaAI({ s }) {
             </div>
 
             {/* Input */}
-            <div className="px-4 py-3 bg-white flex items-center gap-3" style={{ borderTop:'1px solid rgba(83,74,183,0.08)' }}>
-              <div className="flex-1 rounded-lg px-4 py-2.5 text-xs" style={{ background:'rgba(83,74,183,0.05)', border:'1px solid rgba(83,74,183,0.12)', color:'rgba(0,0,0,0.3)' }}>
+            <div className="px-4 py-3 flex items-center gap-3" style={{ borderTop:`1px solid ${periwinkle}12`, background:'rgba(255,255,255,0.5)' }}>
+              <div className="flex-1 rounded-lg px-4 py-2.5 text-xs" style={{ background:'rgba(124,110,224,0.06)', border:`1px solid ${periwinkle}20`, color:'#94a3b8' }}>
                 {L==='az' ? 'Zəka AI ilə yazın...' : L==='tr' ? 'Zeka AI ile yazın...' : 'Ask Zeka AI...'}
               </div>
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background:'#534AB7' }}>
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background:`linear-gradient(135deg, ${periwinkle}, ${mint})`, boxShadow:`0 4px 12px ${periwinkle}40` }}>
                 <ArrowRight className="w-4 h-4 text-white"/>
               </div>
             </div>
@@ -1909,33 +1865,40 @@ function Compliance({ s }) {
     { icon:Users,     title:s.s4t, desc:s.s4d, label:'24/7',                                                         color:'#1D9E75' },
   ]
 
+  // Re-color compliance cards in pastel rotation
+  const palette = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde']
+  const pastelCards = cards.map((c, i) => ({ ...c, color: palette[i] }))
+
   return (
-    <section ref={ref} className="fade-up py-28" style={{ background:'#F6F6FC' }}>
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-end mb-14">
+    <section ref={ref} className="fade-up py-28" style={{ position:'relative' }}>
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-end mb-16">
           <div>
-            <p className="text-teal text-xs font-bold uppercase tracking-widest mb-4">{s.sec_badge}</p>
-            <h2 className="font-extrabold text-gray-900 leading-tight"
-              style={{ fontSize:'clamp(2rem,4vw,3rem)', letterSpacing:'-0.02em' }}>
+            <h2 className="font-extrabold leading-tight"
+              style={{ fontSize:'clamp(2rem,4vw,3rem)', letterSpacing:'-0.025em', color:'#1a1a2e' }}>
               {L==='az'
-                ? <>Məlumatlarınız<br/><span style={{ color:'#1D9E75' }}>tam qorunur</span></>
+                ? <>Məlumatlarınız<br/><span className="pastel-text">tam qorunur</span></>
                 : L==='tr'
-                ? <>Verileriniz<br/><span style={{ color:'#1D9E75' }}>tam korunuyor</span></>
-                : <>Your data is<br/><span style={{ color:'#1D9E75' }}>fully protected</span></>}
+                ? <>Verileriniz<br/><span className="pastel-text">tam korunuyor</span></>
+                : <>Your data is<br/><span className="pastel-text">fully protected</span></>}
             </h2>
           </div>
-          <p className="text-gray-500 text-base leading-relaxed font-medium">{s.sec_sub}</p>
+          <p className="text-base leading-relaxed" style={{ color:'#64748b' }}>{s.sec_sub}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {cards.map(({ icon:Icon, title, desc, label, color }) => (
-            <div key={title} className="card-lift bg-white rounded-2xl p-7 border border-gray-100 cursor-default group">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200"
-                style={{ background:`${color}12` }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {pastelCards.map(({ icon:Icon, title, desc, label, color }) => (
+            <div key={title} className="liquid-card p-7 cursor-default group">
+              <div className="w-12 h-12 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300"
+                style={{ background:`linear-gradient(135deg, ${color}25, ${color}10)`, borderRadius:14, border:`1px solid ${color}25` }}>
                 <Icon className="w-5 h-5" style={{ color }}/>
               </div>
-              <h3 className="font-bold text-gray-900 text-base mb-2.5" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed font-medium">{desc}</p>
+              <h3 className="font-bold text-base mb-2.5 leading-snug" style={{ letterSpacing:'-0.015em', color:'#1a1a2e' }}>{title}</h3>
+              <p className="text-sm leading-relaxed" style={{ color:'#64748b' }}>{desc}</p>
+              <span className="inline-block mt-4 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full" style={{ background:`${color}15`, color, letterSpacing:'0.14em' }}>
+                {label}
+              </span>
             </div>
           ))}
         </div>
@@ -1962,42 +1925,21 @@ function PilotCTA({ s }) {
   ]
 
   return (
-    <section style={{ background:'#060614', position:'relative', overflow:'hidden' }} className="py-36">
-
-      {/* ── Background (mirrors Hero) ── */}
-      <div style={{ position:'absolute', inset:0, pointerEvents:'none' }}>
-        <div style={{ position:'absolute', top:'-30%', left:'-10%', width:'65%', height:'80%', background:'radial-gradient(ellipse at 40% 40%, rgba(99,75,215,0.20) 0%, transparent 65%)' }}/>
-        <div style={{ position:'absolute', top:'-20%', right:'-15%', width:'55%', height:'70%', background:'radial-gradient(ellipse at 60% 35%, rgba(65,50,190,0.14) 0%, transparent 62%)' }}/>
-        <div style={{ position:'absolute', bottom:'-10%', left:'20%', right:'20%', height:'50%', background:'radial-gradient(ellipse at 50% 80%, rgba(83,74,183,0.13) 0%, transparent 65%)' }}/>
-        <div style={{
-          position:'absolute', inset:0,
-          backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
-          backgroundSize:'44px 44px',
-          WebkitMaskImage:'radial-gradient(ellipse 70% 60% at 50% 50%, black 0%, transparent 80%)',
-          maskImage:'radial-gradient(ellipse 70% 60% at 50% 50%, black 0%, transparent 80%)',
-        }}/>
-        <div style={{
-          position:'absolute', inset:0,
-          backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-          backgroundSize:'160px 160px', opacity:0.03, mixBlendMode:'overlay',
-        }}/>
-      </div>
-
+    <section className="py-36" style={{ position:'relative' }}>
       {/* ── Content ── */}
       <div className="max-w-5xl mx-auto px-5 sm:px-10 text-center" style={{ position:'relative', zIndex:10 }}>
 
-
         {/* Headline */}
-        <h2 style={{ fontSize:'clamp(2.4rem,6vw,5rem)', fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-0.03em', marginBottom:24 }}>
+        <h2 style={{ fontSize:'clamp(2.4rem,6vw,5rem)', fontWeight:800, color:'#1a1a2e', lineHeight:1.05, letterSpacing:'-0.03em', marginBottom:24 }}>
           {L==='az'
-            ? <>Məktəbiniz<br/><span style={{ color:'#86efac' }}>gələcəyi formalaşdırsın</span></>
+            ? <>Məktəbiniz<br/><span className="pastel-text">gələcəyi formalaşdırsın</span></>
             : L==='tr'
-            ? <>Okulunuz<br/><span style={{ color:'#86efac' }}>geleceği şekillendirsin</span></>
-            : <>Your school could<br/><span style={{ color:'#86efac' }}>shape what's next</span></>}
+            ? <>Okulunuz<br/><span className="pastel-text">geleceği şekillendirsin</span></>
+            : <>Your school could<br/><span className="pastel-text">shape what's next</span></>}
         </h2>
 
         {/* Sub */}
-        <p style={{ color:'rgba(255,255,255,0.5)', fontSize:15.5, lineHeight:1.7, maxWidth:420, margin:'0 auto 44px', fontWeight:400 }}>
+        <p style={{ color:'#64748b', fontSize:16.5, lineHeight:1.7, maxWidth:480, margin:'0 auto 44px', fontWeight:400 }}>
           {L==='az'
             ? 'Azərbaycanda rəqəmsal məktəbin əsasını birlikdə quraq.'
             : L==='tr'
@@ -2005,38 +1947,32 @@ function PilotCTA({ s }) {
             : 'Join our founding school cohort and help define the future of school management in Azerbaijan.'}
         </p>
 
-        {/* CTA */}
-        <Link
-          to="/contact"
-          style={{
-            display:'inline-flex', alignItems:'center', gap:9,
-            padding:'14px 30px', borderRadius:14,
-            background:'linear-gradient(135deg,#7c3aed,#4f46e5)',
-            color:'#fff',
-            fontWeight:700, fontSize:14.5,
-            textDecoration:'none',
-            boxShadow:'0 8px 32px rgba(109,40,217,0.45)',
-            transition:'transform .17s ease, box-shadow .17s ease',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 14px 40px rgba(109,40,217,0.55)' }}
-          onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 8px 32px rgba(109,40,217,0.45)' }}
-        >
-          {L==='az' ? 'Müraciət et' : L==='tr' ? 'Başvur' : 'Apply now'} <ArrowRight style={{ width:15, height:15 }}/>
-        </Link>
+        {/* CTAs */}
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <Link to="/contact" className="btn-pastel">
+            {L==='az' ? 'Müraciət et' : L==='tr' ? 'Başvur' : 'Apply now'} <ArrowRight className="w-4 h-4"/>
+          </Link>
+          <Link to="/about" className="btn-ghost-pastel">
+            {L==='az' ? 'Daha çox' : L==='tr' ? 'Daha fazla' : 'Learn more'}
+          </Link>
+        </div>
 
         {/* Perks */}
-        <div style={{ display:'flex', justifyContent:'center', flexWrap:'wrap', gap:'32px 48px', marginTop:56 }}>
-          {perks.map(({ icon:Icon, label, desc }) => (
-            <div key={label} style={{ display:'flex', alignItems:'flex-start', gap:14, maxWidth:220, textAlign:'left' }}>
-              <div style={{ width:36, height:36, borderRadius:10, background:'rgba(124,58,237,0.22)', border:'1px solid rgba(124,58,237,0.3)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
-                <Icon style={{ width:16, height:16, color:'#c4b5fd' }}/>
+        <div style={{ display:'flex', justifyContent:'center', flexWrap:'wrap', gap:'24px', marginTop:64 }}>
+          {perks.map(({ icon:Icon, label, desc }, i) => {
+            const c = ['#7c6ee0', '#5db8a3', '#e8a87c'][i]
+            return (
+              <div key={label} className="liquid-card" style={{ padding:'20px 22px', display:'flex', alignItems:'flex-start', gap:14, maxWidth:280, textAlign:'left' }}>
+                <div style={{ width:40, height:40, borderRadius:12, background:`linear-gradient(135deg, ${c}25, ${c}10)`, border:`1px solid ${c}30`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <Icon style={{ width:18, height:18, color:c }}/>
+                </div>
+                <div>
+                  <p style={{ fontWeight:700, color:'#1a1a2e', fontSize:14, marginBottom:4 }}>{label}</p>
+                  <p style={{ color:'#64748b', fontSize:12.5, lineHeight:1.6, fontWeight:400 }}>{desc}</p>
+                </div>
               </div>
-              <div>
-                <p style={{ fontWeight:700, color:'rgba(255,255,255,0.9)', fontSize:13.5, marginBottom:4 }}>{label}</p>
-                <p style={{ color:'rgba(255,255,255,0.38)', fontSize:12.5, lineHeight:1.6, fontWeight:400 }}>{desc}</p>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
       </div>
@@ -2047,36 +1983,33 @@ function PilotCTA({ s }) {
 /* ─── BENEFITS ─── */
 function Benefits({ s }) {
   const ref = useFadeUp()
-  const cards = [
-    { icon:Zap,            title:s.b1t, desc:s.b1d, color:'#534AB7' },
-    { icon:Users,          title:s.b2t, desc:s.b2d, color:'#1D9E75' },
-    { icon:GraduationCap,  title:s.b3t, desc:s.b3d, color:'#534AB7' },
-    { icon:Sliders,        title:s.b4t, desc:s.b4d, color:'#1D9E75' },
-    { icon:Layers,         title:s.b5t, desc:s.b5d, color:'#534AB7' },
-    { icon:Award,          title:s.b6t, desc:s.b6d, color:'#1D9E75' },
-    { icon:CheckCircle,    title:s.b7t, desc:s.b7d, color:'#534AB7' },
-    { icon:Clock,          title:s.b8t, desc:s.b8d, color:'#1D9E75' },
-  ]
+  const palette = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde']
+  const icons = [Zap, Users, GraduationCap, Sliders, Layers, Award, CheckCircle, Clock]
+  const titles = [s.b1t, s.b2t, s.b3t, s.b4t, s.b5t, s.b6t, s.b7t, s.b8t]
+  const descs = [s.b1d, s.b2d, s.b3d, s.b4d, s.b5d, s.b6d, s.b7d, s.b8d]
+  const cards = icons.map((Icon, i) => ({
+    icon: Icon, title: titles[i], desc: descs[i], color: palette[i % palette.length],
+  }))
   return (
-    <section ref={ref} className="fade-up py-24" style={{ background:'#F7F7FB' }}>
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="text-center mb-14">
-          <p className="text-teal text-xs font-bold uppercase tracking-widest mb-4">{s.ben_badge}</p>
-          <h2 className="font-extrabold text-gray-900 mb-4"
-            style={{ fontSize:'clamp(1.9rem,4vw,3rem)', letterSpacing:'-0.025em' }}>
+    <section ref={ref} className="fade-up py-28" style={{ position:'relative' }}>
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
+        <div className="text-center mb-16">
+          <h2 className="font-extrabold mb-4"
+            style={{ fontSize:'clamp(1.9rem,4vw,3rem)', letterSpacing:'-0.025em', color:'#1a1a2e' }}>
             {s.ben_title}
           </h2>
-          <p className="text-gray-500 text-base font-medium max-w-md mx-auto">{s.ben_sub}</p>
+          <p className="text-base max-w-md mx-auto" style={{ color:'#64748b' }}>{s.ben_sub}</p>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {cards.map(({ icon:Icon, title, desc, color }) => (
-            <div key={title} className="card-lift bg-white rounded-2xl p-6 border border-gray-100 cursor-default">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                style={{ background:`${color}12` }}>
+            <div key={title} className="liquid-card p-6 cursor-default">
+              <div className="w-11 h-11 flex items-center justify-center mb-4"
+                style={{ background:`linear-gradient(135deg, ${color}25, ${color}10)`, borderRadius:13, border:`1px solid ${color}25` }}>
                 <Icon className="w-5 h-5" style={{ color }}/>
               </div>
-              <h3 className="font-bold text-gray-900 text-sm mb-1.5" style={{ letterSpacing:'-0.01em' }}>{title}</h3>
-              <p className="text-gray-500 text-xs leading-relaxed">{desc}</p>
+              <h3 className="font-bold text-sm mb-1.5 leading-snug" style={{ letterSpacing:'-0.015em', color:'#1a1a2e' }}>{title}</h3>
+              <p className="text-xs leading-relaxed" style={{ color:'#64748b' }}>{desc}</p>
             </div>
           ))}
         </div>
@@ -2088,27 +2021,36 @@ function Benefits({ s }) {
 /* ─── FOOTER ─── */
 function Footer({ s }) {
   return (
-    <footer style={{ background:'#09091E' }}>
-      <div className="h-px" style={{ background:'linear-gradient(90deg,transparent,rgba(83,74,183,0.55),rgba(29,158,117,0.35),transparent)' }}/>
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 py-16">
+    <footer style={{ background:'#0f0a23', position:'relative', overflow:'hidden' }}>
+      {/* Soft pastel gleam at top edge */}
+      <div className="h-px" style={{ background:'linear-gradient(90deg, transparent, rgba(184,192,255,0.35), rgba(200,230,224,0.4), rgba(245,230,216,0.3), transparent)' }}/>
+      {/* Subtle pastel glow accents */}
+      <div style={{ position:'absolute', top:'-30%', left:'-10%', width:'45%', height:'80%', background:'radial-gradient(ellipse at center, rgba(124,110,224,0.18) 0%, transparent 60%)', pointerEvents:'none' }}/>
+      <div style={{ position:'absolute', bottom:'-30%', right:'-10%', width:'40%', height:'70%', background:'radial-gradient(ellipse at center, rgba(93,184,163,0.12) 0%, transparent 60%)', pointerEvents:'none' }}/>
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 py-20" style={{ position:'relative', zIndex:1 }}>
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           {/* Brand — spans 2 on large screens */}
           <div className="col-span-2 lg:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <ZirvaLogo size={28} invert/>
-              <span className="text-lg font-bold text-white">Zirva</span>
+            <div className="flex items-center gap-2.5 mb-5">
+              <ZirvaLogo size={30} invert/>
+              <span className="text-lg font-bold" style={{ color:'#fff', letterSpacing:'-0.02em' }}>Zirva</span>
             </div>
-            <p className="text-xs leading-relaxed mb-5" style={{ color:'rgba(255,255,255,0.35)', maxWidth:220 }}>{s.foot_tagline}</p>
-            <a href="mailto:hello@tryzirva.com" className="flex items-center gap-2 text-xs mb-2 hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>
-              <Mail className="w-3.5 h-3.5 text-teal shrink-0"/>hello@tryzirva.com
+            <p className="text-sm leading-relaxed mb-6" style={{ color:'rgba(255,255,255,0.5)', maxWidth:280 }}>{s.foot_tagline}</p>
+            <a href="mailto:hello@tryzirva.com" className="flex items-center gap-2.5 text-xs mb-2.5 transition-colors" style={{ color:'rgba(255,255,255,0.55)' }}
+              onMouseEnter={e => e.currentTarget.style.color='#b8c0ff'}
+              onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.55)'}>
+              <Mail className="w-3.5 h-3.5 shrink-0" style={{ color:'#b8c0ff' }}/>hello@tryzirva.com
             </a>
-            <a href="tel:+994991106600" className="flex items-center gap-2 text-xs hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>
-              <Phone className="w-3.5 h-3.5 text-teal shrink-0"/>+994 99 110 66 00
+            <a href="tel:+994991106600" className="flex items-center gap-2.5 text-xs transition-colors" style={{ color:'rgba(255,255,255,0.55)' }}
+              onMouseEnter={e => e.currentTarget.style.color='#c8e6e0'}
+              onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.55)'}>
+              <Phone className="w-3.5 h-3.5 shrink-0" style={{ color:'#c8e6e0' }}/>+994 99 110 66 00
             </a>
           </div>
           {/* Programmes */}
           <div>
-            <h4 className="text-white font-bold text-xs tracking-widest uppercase mb-5">{s.foot_col1}</h4>
+            <h4 className="font-bold text-[11px] tracking-widest uppercase mb-5" style={{ color:'#fff', letterSpacing:'0.18em' }}>{s.foot_col1}</h4>
             <ul className="space-y-3">
               {[
                 { label:s.fl1, to:'/ib-pyp' },
@@ -2117,13 +2059,15 @@ function Footer({ s }) {
                 { label:s.fl4, to:'/ib-career' },
                 { label:s.fl5, to:'/government-schools' },
               ].map(({ label, to }) => (
-                <li key={label}><Link to={to} className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>{label}</Link></li>
+                <li key={label}><Link to={to} className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.5)' }}
+                  onMouseEnter={e => e.currentTarget.style.color='#b8c0ff'}
+                  onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.5)'}>{label}</Link></li>
               ))}
             </ul>
           </div>
           {/* Resources */}
           <div>
-            <h4 className="text-white font-bold text-xs tracking-widest uppercase mb-5">{s.foot_col2}</h4>
+            <h4 className="font-bold text-[11px] tracking-widest uppercase mb-5" style={{ color:'#fff', letterSpacing:'0.18em' }}>{s.foot_col2}</h4>
             <ul className="space-y-3">
               {[
                 { label:s.fr1, to:'/about'   },
@@ -2131,13 +2075,15 @@ function Footer({ s }) {
                 { label:s.fr6, to:'/contact' },
                 { label:s.fr7, to:'/faq' },
               ].map(({ label, to }) => (
-                <li key={label}><Link to={to} className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>{label}</Link></li>
+                <li key={label}><Link to={to} className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.5)' }}
+                  onMouseEnter={e => e.currentTarget.style.color='#c8e6e0'}
+                  onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.5)'}>{label}</Link></li>
               ))}
             </ul>
           </div>
           {/* Company */}
           <div>
-            <h4 className="text-white font-bold text-xs tracking-widest uppercase mb-5">{s.foot_col4}</h4>
+            <h4 className="font-bold text-[11px] tracking-widest uppercase mb-5" style={{ color:'#fff', letterSpacing:'0.18em' }}>{s.foot_col4}</h4>
             <ul className="space-y-3">
               {[
                 { label:s.fc1, to:'/about'   },
@@ -2145,16 +2091,22 @@ function Footer({ s }) {
                 { label:s.fc3, to:'/partners'},
                 { label:s.fc4, to:'/contact' },
               ].map(({ label, to }) => (
-                <li key={label}><Link to={to} className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.45)' }}>{label}</Link></li>
+                <li key={label}><Link to={to} className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.5)' }}
+                  onMouseEnter={e => e.currentTarget.style.color='#f5e6d8'}
+                  onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.5)'}>{label}</Link></li>
               ))}
             </ul>
           </div>
         </div>
-        <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3" style={{ borderColor:'rgba(255,255,255,0.06)' }}>
-          <span className="text-xs font-medium" style={{ color:'rgba(255,255,255,0.2)' }}>© 2026 Zirva LLC. {s.foot_rights}</span>
+        <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3" style={{ borderColor:'rgba(255,255,255,0.08)' }}>
+          <span className="text-xs font-medium" style={{ color:'rgba(255,255,255,0.3)' }}>© 2026 Zirva LLC. {s.foot_rights}</span>
           <div className="flex gap-5">
-            <Link to="/privacy" className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.35)' }}>{s.foot_privacy}</Link>
-            <Link to="/terms"   className="text-xs font-medium hover:text-white transition-colors" style={{ color:'rgba(255,255,255,0.35)' }}>{s.foot_terms}</Link>
+            <Link to="/privacy" className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.4)' }}
+              onMouseEnter={e => e.currentTarget.style.color='#b8c0ff'}
+              onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.4)'}>{s.foot_privacy}</Link>
+            <Link to="/terms" className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.4)' }}
+              onMouseEnter={e => e.currentTarget.style.color='#b8c0ff'}
+              onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.4)'}>{s.foot_terms}</Link>
           </div>
         </div>
       </div>
@@ -2192,15 +2144,32 @@ export default function Landing() {
           100% { background-position: 0% 50%; }
         }
       `}</style>
-      <PartnerBar s={s}/>
-      <WhatWeDo s={s}/>
-      <Solutions s={s}/>
-      <Features s={s}/>
-      <ProductShowcase s={s}/>
-      <ZekaAI s={s}/>
-      <Benefits s={s}/>
-      <Compliance s={s}/>
-      <PilotCTA s={s}/>
+      {/* ── Continuous content canvas — shared base + drifting page-level blobs ── */}
+      <div style={{ position:'relative', background:'#f8f7fb', overflow:'hidden' }}>
+        {/* Page-level blobs that drift across all section boundaries */}
+        <div aria-hidden="true" style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:0 }}>
+          <div style={{ position:'absolute', width:'70vw', height:'1200px', top:'8%',  left:'-15%', background:'radial-gradient(ellipse at center, rgba(184,192,255,0.55) 0%, rgba(184,192,255,0) 70%)', filter:'blur(80px)', borderRadius:'50%' }}/>
+          <div style={{ position:'absolute', width:'65vw', height:'1100px', top:'25%', right:'-12%', background:'radial-gradient(ellipse at center, rgba(200,230,224,0.5) 0%, rgba(200,230,224,0) 70%)', filter:'blur(80px)', borderRadius:'50%' }}/>
+          <div style={{ position:'absolute', width:'70vw', height:'1300px', top:'48%', left:'-10%', background:'radial-gradient(ellipse at center, rgba(245,230,216,0.5) 0%, rgba(245,230,216,0) 70%)', filter:'blur(85px)', borderRadius:'50%' }}/>
+          <div style={{ position:'absolute', width:'60vw', height:'1100px', top:'68%', right:'-15%', background:'radial-gradient(ellipse at center, rgba(232,236,255,0.55) 0%, rgba(232,236,255,0) 70%)', filter:'blur(80px)', borderRadius:'50%' }}/>
+          <div style={{ position:'absolute', width:'70vw', height:'1200px', top:'88%', left:'-12%', background:'radial-gradient(ellipse at center, rgba(184,192,255,0.45) 0%, rgba(184,192,255,0) 70%)', filter:'blur(85px)', borderRadius:'50%' }}/>
+        </div>
+
+        {/* Sections render on top of the shared canvas */}
+        <div style={{ position:'relative', zIndex:1 }}>
+          <PartnerBar s={s}/>
+          <WhatWeDo s={s}/>
+          <Solutions s={s}/>
+          <Features s={s}/>
+          <ProductShowcase s={s}/>
+          <ZekaAI s={s}/>
+          <Benefits s={s}/>
+          <Compliance s={s}/>
+          <PilotCTA s={s}/>
+        </div>
+        {/* Soft fade into dark footer */}
+        <div style={{ position:'absolute', bottom:0, left:0, right:0, height:160, zIndex:1, pointerEvents:'none', background:'linear-gradient(to bottom, transparent 0%, rgba(15,10,35,0.18) 100%)' }}/>
+      </div>
       <Footer s={s}/>
     </div>
   )

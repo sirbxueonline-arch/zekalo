@@ -93,6 +93,32 @@ export default function LandingNav({ s, lang, setLang, dark = false, lightHero =
         @keyframes ddIn { from{opacity:0;margin-top:-8px} to{opacity:1;margin-top:0} }
         .dd-animated { animation: ddIn 0.17s cubic-bezier(0.22,1,0.36,1) both; }
 
+        /* Liquid glass dropdown panel — sibling of the pill, so backdrop-filter blurs the real page */
+        .dd-glass {
+          position: relative;
+          background: linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(248,247,251,0.55) 100%);
+          backdrop-filter: blur(48px) saturate(2.4) brightness(1.06);
+          -webkit-backdrop-filter: blur(48px) saturate(2.4) brightness(1.06);
+          border-radius: 22px;
+          border: 1px solid rgba(255,255,255,0.75);
+          box-shadow:
+            inset 0 1.5px 0 rgba(255,255,255,0.95),
+            inset 0 -1px 0 rgba(180,180,220,0.18),
+            0 14px 44px rgba(140,120,220,0.18),
+            0 4px 12px rgba(0,0,0,0.08);
+          overflow: hidden;
+        }
+        /* Specular gleam strip — same as header */
+        .dd-glass::before {
+          content:'';
+          position:absolute;
+          inset:0;
+          border-radius:22px;
+          background: linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 40%);
+          pointer-events:none;
+        }
+        .dd-glass > * { position: relative; }
+
         /* Liquid glass pill */
         .liq-glass {
           background: linear-gradient(135deg,rgba(255,255,255,0.38) 0%,rgba(255,255,255,0.18) 100%);
@@ -128,8 +154,9 @@ export default function LandingNav({ s, lang, setLang, dark = false, lightHero =
       `}</style>
 
       <header style={{ position:'fixed', top:0, left:0, right:0, zIndex:50, padding: scrolled ? '8px 20px' : '10px 20px 0', background:'transparent', transition:'padding .3s ease' }}>
+        <div style={{ maxWidth:1260, margin:'0 auto', position:'relative' }}>
         <div className={lightHero ? (scrolled ? 'liq-glass-scrolled' : 'liq-glass') : ''}
-          style={{ position:'relative', maxWidth:1260, margin:'0 auto',
+          style={{ position:'relative',
           ...(!lightHero ? {
             background: dark
               ? (scrolled ? 'rgba(10,6,32,0.75)' : 'transparent')
@@ -188,30 +215,31 @@ export default function LandingNav({ s, lang, setLang, dark = false, lightHero =
           <button onClick={() => setOpen(v => !v)} className="lg:hidden p-2 text-gray-600 rounded-lg hover:bg-black/[0.06] transition-colors">
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
+        </div>
 
-          {/* Mega menu panels */}
+        {/* Mega menu panels — sibling of pill so backdrop-filter can blur the page underneath */}
           {dropdown && (
             <div style={{ position:'absolute', top:'calc(100% + 10px)', left:0, right:0, zIndex:300 }}
               onMouseEnter={keepDd} onMouseLeave={closeDd}>
 
               {/* Solutions */}
               {dropdown==='solutions' && (
-                <div className="dd-animated" style={{ background:'#fff', borderRadius:20, border:'1px solid rgba(0,0,0,0.07)', boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)', padding:'28px 20px 20px' }}>
+                <div className="dd-animated dd-glass" style={{ padding:'28px 20px 20px' }}>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:0 }}>
-                    <div style={{ paddingRight:20, borderRight:'1px solid rgba(0,0,0,0.06)' }}>
-                      <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
+                    <div style={{ paddingRight:20, borderRight:'1px solid rgba(255,255,255,0.55)' }}>
+                      <p style={{ fontSize:13.5, fontWeight:700, color:'#1a1a2e', marginBottom:12, paddingLeft:12 }}>
                         {L==='az'?'IB Proqramları üçün':L==='tr'?'IB Programları için':L==='ru'?'IB Программы':'For IB Continuum'}
                       </p>
                       {solItems.slice(0,4).map(item => <DdItem key={item.to} {...item}/>)}
                     </div>
                     <div style={{ paddingLeft:20 }}>
-                      <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
+                      <p style={{ fontSize:13.5, fontWeight:700, color:'#1a1a2e', marginBottom:12, paddingLeft:12 }}>
                         {L==='az'?'Milli Kurikulum':L==='tr'?'Ulusal Müfredat':L==='ru'?'Национальная программа':'National Curriculum'}
                       </p>
                       <DdItem {...solItems[4]}/>
                     </div>
                   </div>
-                  <div style={{ height:1, background:'rgba(0,0,0,0.06)', margin:'16px 0 14px' }}/>
+                  <div style={{ height:1, background:'rgba(255,255,255,0.55)', margin:'16px 0 14px' }}/>
                   <Link to="/solutions" onClick={() => setDropdown(null)}
                     style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', borderRadius:12, background:'rgba(29,158,117,0.05)', border:'1px solid rgba(29,158,117,0.12)', textDecoration:'none' }}
                     onMouseEnter={e=>e.currentTarget.style.background='rgba(29,158,117,0.12)'}
@@ -230,14 +258,14 @@ export default function LandingNav({ s, lang, setLang, dark = false, lightHero =
 
               {/* Features */}
               {dropdown==='features' && (
-                <div className="dd-animated" style={{ background:'#fff', borderRadius:20, border:'1px solid rgba(0,0,0,0.07)', boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)', padding:'24px 20px 18px' }}>
-                  <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
+                <div className="dd-animated dd-glass" style={{ padding:'24px 20px 18px' }}>
+                  <p style={{ fontSize:13.5, fontWeight:700, color:'#1a1a2e', marginBottom:12, paddingLeft:12 }}>
                     {L==='az'?'Platform Xüsusiyyətləri':L==='tr'?'Platform Özellikleri':L==='ru'?'Возможности платформы':'Platform Features'}
                   </p>
                   <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)' }}>
                     {featItems.map(item => <DdItem key={item.to} {...item}/>)}
                   </div>
-                  <div style={{ height:1, background:'rgba(0,0,0,0.06)', margin:'12px 0 10px' }}/>
+                  <div style={{ height:1, background:'rgba(255,255,255,0.55)', margin:'12px 0 10px' }}/>
                   <Link to="/features" onClick={() => setDropdown(null)}
                     style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', borderRadius:12, background:'rgba(124,58,237,0.05)', border:'1px solid rgba(124,58,237,0.1)', textDecoration:'none' }}
                     onMouseEnter={e=>e.currentTarget.style.background='rgba(124,58,237,0.1)'}
@@ -256,8 +284,8 @@ export default function LandingNav({ s, lang, setLang, dark = false, lightHero =
 
               {/* Resources */}
               {dropdown==='resources' && (
-                <div className="dd-animated" style={{ background:'#fff', borderRadius:20, border:'1px solid rgba(0,0,0,0.07)', boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)', padding:'24px 20px 18px' }}>
-                  <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
+                <div className="dd-animated dd-glass" style={{ padding:'24px 20px 18px' }}>
+                  <p style={{ fontSize:13.5, fontWeight:700, color:'#1a1a2e', marginBottom:12, paddingLeft:12 }}>
                     {L==='az'?'Resurslar':L==='tr'?'Kaynaklar':L==='ru'?'Ресурсы':'Resources'}
                   </p>
                   <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)' }}>
@@ -268,8 +296,8 @@ export default function LandingNav({ s, lang, setLang, dark = false, lightHero =
 
               {/* Company */}
               {dropdown==='company' && (
-                <div className="dd-animated" style={{ background:'#fff', borderRadius:20, border:'1px solid rgba(0,0,0,0.07)', boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)', padding:'24px 20px 18px' }}>
-                  <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
+                <div className="dd-animated dd-glass" style={{ padding:'24px 20px 18px' }}>
+                  <p style={{ fontSize:13.5, fontWeight:700, color:'#1a1a2e', marginBottom:12, paddingLeft:12 }}>
                     {L==='az'?'Şirkət':L==='tr'?'Şirket':L==='ru'?'Компания':'Company'}
                   </p>
                   <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)' }}>

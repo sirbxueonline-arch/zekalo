@@ -7,8 +7,8 @@ import LandingNav from '../components/layout/LandingNav'
 const FEATURES = {
   curriculum: {
     icon: BookOpen,
-    accent: '#7c3aed',
-    glow: 'rgba(124,58,237,0.35)',
+    accent: '#7c6ee0',
+    glow: 'rgba(184,192,255,0.55)',
     en: {
       title: 'Curriculum Management',
       subtitle: 'Collaborative planning built for IB and national schools',
@@ -36,8 +36,8 @@ const FEATURES = {
   },
   assessment: {
     icon: ClipboardCheck,
-    accent: '#2563eb',
-    glow: 'rgba(37,99,235,0.35)',
+    accent: '#6b9dde',
+    glow: 'rgba(232,236,255,0.6)',
     en: {
       title: 'Assessment & Gradebook',
       subtitle: 'IB criteria and national 10-point grading, unified',
@@ -65,8 +65,8 @@ const FEATURES = {
   },
   attendance: {
     icon: Calendar,
-    accent: '#059669',
-    glow: 'rgba(5,150,105,0.35)',
+    accent: '#5db8a3',
+    glow: 'rgba(200,230,224,0.6)',
     en: {
       title: 'Attendance',
       subtitle: 'One-tap recording with instant parent notifications',
@@ -94,8 +94,8 @@ const FEATURES = {
   },
   reports: {
     icon: BarChart2,
-    accent: '#d97706',
-    glow: 'rgba(217,119,6,0.35)',
+    accent: '#e8a87c',
+    glow: 'rgba(245,230,216,0.6)',
     en: {
       title: 'Reports & Analytics',
       subtitle: 'Ministry-ready reports and IB audit docs in one click',
@@ -123,8 +123,8 @@ const FEATURES = {
   },
   communication: {
     icon: MessageSquare,
-    accent: '#0891b2',
-    glow: 'rgba(8,145,178,0.35)',
+    accent: '#5db8a3',
+    glow: 'rgba(200,230,224,0.6)',
     en: {
       title: 'Communication',
       subtitle: 'Real-time messaging between teachers, parents and students',
@@ -152,8 +152,8 @@ const FEATURES = {
   },
   timetable: {
     icon: Clock,
-    accent: '#7c3aed',
-    glow: 'rgba(124,58,237,0.35)',
+    accent: '#7c6ee0',
+    glow: 'rgba(184,192,255,0.55)',
     en: {
       title: 'Timetable Management',
       subtitle: 'Automatic timetable generation with conflict detection',
@@ -181,8 +181,8 @@ const FEATURES = {
   },
   'student-staff': {
     icon: Users,
-    accent: '#be185d',
-    glow: 'rgba(190,24,93,0.35)',
+    accent: '#e8a87c',
+    glow: 'rgba(245,230,216,0.6)',
     en: {
       title: 'Student & Staff Management',
       subtitle: 'Profiles, portfolios, workload and discipline in one place',
@@ -225,9 +225,9 @@ export default function FeaturePage({ type }) {
 
   if (!feature) {
     return (
-      <div style={{ background:'#060614', minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', color:'#fff' }}>
+      <div style={{ background:'#f8f7fb', minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', color:'#1a1a2e' }}>
         <p style={{ fontSize:20, fontWeight:700, marginBottom:20 }}>{L.back.replace('←','').trim()} not found</p>
-        <Link to="/features" style={{ color:'#a78bfa', fontWeight:600, fontSize:14 }}>{L.back}</Link>
+        <Link to="/features" style={{ color:'#7c6ee0', fontWeight:600, fontSize:14 }}>{L.back}</Link>
       </div>
     )
   }
@@ -257,72 +257,109 @@ export default function FeaturePage({ type }) {
   }
   const names = featureNames[lang] || featureNames.en
 
+  // Split title for pastel-text accent on the last word
+  const titleWords = content.title.split(' ')
+  const titleLead = titleWords.slice(0, -1).join(' ')
+  const titleTail = titleWords[titleWords.length - 1]
+
   return (
-    <div style={{ minHeight:'100vh', background:'#fff' }}>
+    <div style={{ minHeight:'100vh', background:'#f8f7fb' }}>
       <style>{`
-        .fp-hl-item { transition: transform .15s ease, box-shadow .15s ease; }
+        @keyframes heroGradient {
+          0%   { background-position: 0% 50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .fp-hl-item { transition: transform .2s ease, box-shadow .25s ease; }
         .fp-hl-item:hover { transform: translateY(-2px); }
-        .fp-related-card { transition: transform .18s ease, box-shadow .18s ease; }
-        .fp-related-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.1) !important; }
+        .fp-related-card { transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s ease; }
+        .fp-related-card:hover { transform: translateY(-4px); }
         @media(max-width:767px){
           .fp-body-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
-          .fp-hero { padding-top: 80px !important; padding-bottom: 56px !important; }
+          .fp-hero { padding-top: 110px !important; padding-bottom: 70px !important; }
         }
       `}</style>
 
-      <LandingNav s={s} lang={lang} setLang={setLang} />
+      <LandingNav s={s} lang={lang} setLang={setLang} lightHero />
 
       {/* ── Hero ── */}
-      <section className="fp-hero" style={{ position:'relative', overflow:'hidden', padding:'110px 24px 80px', textAlign:'center',
-        background:`radial-gradient(ellipse 80% 70% at 50% -10%, ${feature.glow} 0%, transparent 65%), #060614` }}>
-        {/* Dot grid */}
-        <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize:'32px 32px', WebkitMaskImage:'radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent)', maskImage:'radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent)', pointerEvents:'none' }}/>
+      <section className="fp-hero" style={{
+        position:'relative',
+        overflow:'hidden',
+        padding:'140px 24px 110px',
+        textAlign:'center',
+        background: 'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)',
+        backgroundSize: '400% 400%',
+        animation: 'heroGradient 12s ease infinite',
+      }}>
+        {/* Drifting pastel blobs */}
+        <div className="hb1" />
+        <div className="hb2" />
+        <div className="hb4" />
+        <div className="hb6" />
 
-        <div style={{ position:'relative', zIndex:1, maxWidth:700, margin:'0 auto' }}>
-          {/* Back link */}
-          <Link to="/features" style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:12.5, fontWeight:600, color:'rgba(255,255,255,0.45)', marginBottom:28, textDecoration:'none', transition:'color .15s' }}
-            onMouseEnter={e=>e.currentTarget.style.color='rgba(255,255,255,0.8)'}
-            onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.45)'}>
-            {L.back}
-          </Link>
-
-          {/* Icon badge */}
-          <div style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:64, height:64, borderRadius:18, background:`${accent}20`, border:`1px solid ${accent}40`, marginBottom:24 }}>
-            <Icon style={{ width:28, height:28, color:accent }}/>
+        <div style={{ position:'relative', zIndex:1, maxWidth:760, margin:'0 auto' }}>
+          {/* Back link — its own line, left-aligned */}
+          <div style={{ textAlign:'left', marginBottom:28 }}>
+            <Link to="/features" style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:13, fontWeight:600, color:'#64748b', textDecoration:'none', transition:'color .15s' }}
+              onMouseEnter={e=>e.currentTarget.style.color='#1a1a2e'}
+              onMouseLeave={e=>e.currentTarget.style.color='#64748b'}>
+              {L.back}
+            </Link>
           </div>
 
-          <h1 style={{ fontSize:'clamp(2.2rem,5vw,3.6rem)', fontWeight:800, color:'#fff', lineHeight:1.1, letterSpacing:'-0.03em', marginBottom:16 }}>
-            {content.title}
+          {/* Icon badge */}
+          <div style={{
+            display:'inline-flex', alignItems:'center', justifyContent:'center',
+            width:68, height:68, borderRadius:20,
+            background:'rgba(255,255,255,0.7)',
+            backdropFilter:'blur(20px) saturate(1.6)',
+            WebkitBackdropFilter:'blur(20px) saturate(1.6)',
+            border:`1px solid ${accent}40`,
+            boxShadow:`inset 0 1px 0 rgba(255,255,255,0.85), 0 8px 28px ${accent}25`,
+            marginBottom:26,
+          }}>
+            <Icon style={{ width:30, height:30, color:accent }}/>
+          </div>
+
+          <h1 style={{ fontSize:'clamp(2.4rem,5.5vw,3.8rem)', fontWeight:800, color:'#1a1a2e', lineHeight:1.08, letterSpacing:'-0.03em', marginBottom:18 }}>
+            {titleLead && <>{titleLead} </>}
+            <span className="pastel-text">{titleTail}</span>
           </h1>
-          <p style={{ fontSize:'clamp(1rem,2vw,1.15rem)', color:'rgba(255,255,255,0.55)', lineHeight:1.75, maxWidth:520, margin:'0 auto 36px' }}>
+          <p style={{ fontSize:'clamp(1.05rem,2vw,1.2rem)', color:'#64748b', lineHeight:1.7, maxWidth:560, margin:'0 auto 38px' }}>
             {content.subtitle}
           </p>
 
-          <Link to="/contact"
-            style={{ display:'inline-flex', alignItems:'center', gap:8, background:`linear-gradient(135deg,${accent},${accent}cc)`, color:'#fff', fontWeight:700, fontSize:14, padding:'12px 26px', borderRadius:12, textDecoration:'none', boxShadow:`0 6px 24px ${accent}55`, transition:'transform .15s ease' }}
-            onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
-            onMouseLeave={e=>e.currentTarget.style.transform=''}>
+          <Link to="/contact" className="btn-pastel">
             {L.cta_btn} <ArrowRight style={{ width:14, height:14 }}/>
           </Link>
         </div>
       </section>
 
       {/* ── Body ── */}
-      <section style={{ padding:'80px 24px', background:'#f9fafb' }}>
-        <div className="fp-body-grid" style={{ maxWidth:900, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, alignItems:'start' }}>
+      <section style={{ position:'relative', padding:'100px 24px', background:'#f8f7fb', overflow:'hidden' }}>
+        <div className="section-blob" style={{ width:520, height:520, top:'-10%', left:'-10%', background:`radial-gradient(circle, ${feature.glow} 0%, transparent 70%)` }}/>
+        <div className="section-blob" style={{ width:460, height:460, bottom:'-15%', right:'-8%', background:'radial-gradient(circle, rgba(232,236,255,0.55) 0%, transparent 70%)' }}/>
+
+        <div className="fp-body-grid" style={{ position:'relative', zIndex:1, maxWidth:1040, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:56, alignItems:'start' }}>
           {/* Description */}
-          <div>
-            <p style={{ fontSize:'1.08rem', color:'#374151', lineHeight:1.8, margin:0 }}>{content.body}</p>
+          <div className="liquid-card" style={{ padding:'36px 36px' }}>
+            <p style={{ fontSize:'1.08rem', color:'#1a1a2e', lineHeight:1.85, margin:0 }}>{content.body}</p>
           </div>
 
           {/* Highlights */}
-          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
             {content.highlights.map((hl, i) => (
-              <div key={i} className="fp-hl-item" style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 16px', background:'#fff', borderRadius:12, border:'1px solid #f0f0f5', boxShadow:'0 1px 4px rgba(0,0,0,0.04)' }}>
-                <span style={{ width:22, height:22, borderRadius:'50%', background:`${accent}15`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <Check style={{ width:11, height:11, color:accent, strokeWidth:3 }}/>
+              <div key={i} className="fp-hl-item liquid-card" style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 18px', borderRadius:16 }}>
+                <span style={{
+                  width:26, height:26, borderRadius:'50%',
+                  background:`linear-gradient(135deg, ${accent}30, ${accent}15)`,
+                  border:`1px solid ${accent}40`,
+                  display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+                }}>
+                  <Check style={{ width:13, height:13, color:accent, strokeWidth:3 }}/>
                 </span>
-                <span style={{ fontSize:13.5, fontWeight:600, color:'#1f2937' }}>{hl}</span>
+                <span style={{ fontSize:14, fontWeight:600, color:'#1a1a2e' }}>{hl}</span>
               </div>
             ))}
           </div>
@@ -330,36 +367,51 @@ export default function FeaturePage({ type }) {
       </section>
 
       {/* ── CTA strip ── */}
-      <section style={{ background:'#060614', padding:'80px 24px', textAlign:'center', position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', top:'-40%', left:'20%', width:'60%', height:'130%', background:`radial-gradient(ellipse, ${feature.glow} 0%, transparent 65%)`, pointerEvents:'none' }}/>
-        <div style={{ position:'relative', zIndex:1, maxWidth:520, margin:'0 auto' }}>
-          <h2 style={{ fontSize:'clamp(1.5rem,3vw,2.2rem)', fontWeight:800, color:'#fff', marginBottom:12, letterSpacing:'-0.02em' }}>{L.cta_h}</h2>
-          <p style={{ fontSize:15, color:'rgba(255,255,255,0.45)', marginBottom:32, lineHeight:1.7 }}>{L.cta_sub}</p>
-          <Link to="/contact"
-            style={{ display:'inline-flex', alignItems:'center', gap:8, background:`linear-gradient(135deg,${accent},${accent}cc)`, color:'#fff', fontWeight:700, fontSize:14, padding:'13px 28px', borderRadius:13, textDecoration:'none', boxShadow:`0 6px 24px ${accent}55`, transition:'transform .15s ease' }}
-            onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
-            onMouseLeave={e=>e.currentTarget.style.transform=''}>
-            {L.cta_btn} <ArrowRight style={{ width:14, height:14 }}/>
-          </Link>
+      <section style={{ position:'relative', padding:'100px 24px', textAlign:'center', overflow:'hidden',
+        background:'linear-gradient(135deg, #eef0ff 0%, #f8f7fb 50%, #eef5f2 100%)' }}>
+        <div className="section-blob" style={{ width:600, height:600, top:'-30%', left:'50%', transform:'translateX(-50%)', background:`radial-gradient(circle, ${feature.glow} 0%, transparent 70%)` }}/>
+
+        <div style={{ position:'relative', zIndex:1, maxWidth:580, margin:'0 auto' }}>
+          <h2 style={{ fontSize:'clamp(1.75rem,3.4vw,2.5rem)', fontWeight:800, color:'#1a1a2e', marginBottom:14, letterSpacing:'-0.02em' }}>
+            <span className="pastel-text">{L.cta_h}</span>
+          </h2>
+          <p style={{ fontSize:15.5, color:'#64748b', marginBottom:34, lineHeight:1.7 }}>{L.cta_sub}</p>
+          <div style={{ display:'inline-flex', gap:12, flexWrap:'wrap', justifyContent:'center' }}>
+            <Link to="/contact" className="btn-pastel">
+              {L.cta_btn} <ArrowRight style={{ width:14, height:14 }}/>
+            </Link>
+            <Link to="/features" className="btn-ghost-pastel">
+              {L.related}
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* ── Related features ── */}
-      <section style={{ padding:'72px 24px 80px', background:'#fff' }}>
-        <div style={{ maxWidth:960, margin:'0 auto' }}>
-          <h3 style={{ fontSize:'1.3rem', fontWeight:800, color:'#0f0f1a', marginBottom:32, letterSpacing:'-0.015em' }}>{L.related}</h3>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:16 }}>
+      <section style={{ padding:'90px 24px 110px', background:'#f8f7fb' }}>
+        <div style={{ maxWidth:1040, margin:'0 auto' }}>
+          <h3 style={{ fontSize:'1.5rem', fontWeight:800, color:'#1a1a2e', marginBottom:32, letterSpacing:'-0.02em', textAlign:'center' }}>
+            {L.related}
+          </h3>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:18 }}>
             {otherFeatures.map(([slug, feat]) => {
               const FeatIcon = feat.icon
               return (
-                <Link key={slug} to={`/features/${slug}`} className="fp-related-card"
-                  style={{ display:'flex', flexDirection:'column', gap:12, padding:'20px', borderRadius:16, border:'1px solid #f0f0f5', background:'#fafafa', textDecoration:'none', boxShadow:'0 1px 4px rgba(0,0,0,0.04)' }}>
-                  <div style={{ width:40, height:40, borderRadius:12, background:`${feat.accent}14`, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <FeatIcon style={{ width:18, height:18, color:feat.accent }}/>
+                <Link key={slug} to={`/features/${slug}`} className="fp-related-card liquid-card"
+                  style={{ display:'flex', flexDirection:'column', gap:14, padding:'22px', textDecoration:'none' }}>
+                  <div style={{
+                    width:44, height:44, borderRadius:14,
+                    background:`linear-gradient(135deg, ${feat.accent}25, ${feat.accent}10)`,
+                    border:`1px solid ${feat.accent}30`,
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                  }}>
+                    <FeatIcon style={{ width:20, height:20, color:feat.accent }}/>
                   </div>
                   <div>
-                    <p style={{ fontSize:13.5, fontWeight:700, color:'#1f2937', margin:'0 0 4px' }}>{names[slug] || slug}</p>
-                    <p style={{ fontSize:12, color:'#9ca3af', margin:0, fontWeight:500 }}>{L.view} →</p>
+                    <p style={{ fontSize:14, fontWeight:700, color:'#1a1a2e', margin:'0 0 4px' }}>{names[slug] || slug}</p>
+                    <p style={{ fontSize:12.5, color:'#64748b', margin:0, fontWeight:500, display:'inline-flex', alignItems:'center', gap:4 }}>
+                      {L.view} <ArrowRight style={{ width:11, height:11 }}/>
+                    </p>
                   </div>
                 </Link>
               )
@@ -368,8 +420,8 @@ export default function FeaturePage({ type }) {
         </div>
       </section>
 
-      <footer style={{ background:'#060614', borderTop:'1px solid rgba(255,255,255,0.06)', padding:'20px 24px', textAlign:'center' }}>
-        <p style={{ color:'rgba(255,255,255,0.25)', fontSize:12.5 }}>© 2026 Zirva LLC</p>
+      <footer style={{ background:'#f8f7fb', borderTop:'1px solid rgba(124,110,224,0.1)', padding:'24px', textAlign:'center' }}>
+        <p style={{ color:'#64748b', fontSize:13, margin:0 }}>© 2026 Zirva LLC</p>
       </footer>
     </div>
   )
