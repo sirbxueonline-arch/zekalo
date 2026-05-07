@@ -105,18 +105,13 @@ COMMIT;
 --  a fresh profile row automatically.
 --
 --  Storage files (uploaded avatars, attachments, portfolio):
---    Supabase blocks direct DELETE FROM storage.objects to
---    prevent orphaned files. To clear storage:
+--    On Supabase Cloud you do NOT own the storage tables, so
+--    SQL cannot delete from them. Use the dashboard:
 --
---    Option A — UI:
---      Supabase → Storage → open each bucket (avatars/
---      attachments/portfolio) → select all → Delete.
+--      Supabase → Storage → open each bucket (avatars /
+--      attachments / portfolio) → select all → Delete.
 --
---    Option B — temporarily disable the protect trigger and
---      run the deletion, then re-enable. Run the block below
---      ONLY if you know what you're doing:
---
---      ALTER TABLE storage.objects DISABLE TRIGGER protect_delete;
---      DELETE FROM storage.objects WHERE true;
---      ALTER TABLE storage.objects ENABLE TRIGGER protect_delete;
+--    For most resets you can skip this — once auth.users is
+--    empty, nobody can access those files anyway and they
+--    don't affect app behaviour.
 -- ============================================================
