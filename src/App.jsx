@@ -22,10 +22,8 @@ function HostGuard() {
   const { loading, user } = useAuth()
   useEffect(() => {
     if (!isProductionHost()) return
-    // Don't redirect while the auth-handoff hash (#zauth=...) is being consumed
-    // or while the auth context is still initialising — otherwise we bounce
-    // an already-arriving session to the wrong host.
-    if (typeof window !== 'undefined' && window.location.hash.startsWith('#zauth=')) return
+    // Wait for auth context to finish initialising so we don't bounce a
+    // freshly-arrived authenticated user back to the marketing host.
     if (loading) return
 
     const host = getCurrentHost()

@@ -30,23 +30,11 @@ export default function Login() {
     if (!user || !profile) return
     const d = { student:'/dashboard', teacher:'/muellim/dashboard', parent:'/valideyn/dashboard', admin:'/admin/dashboard', super_admin:'/superadmin/dashboard' }
     const dest = d[profile.role] || '/dashboard'
-
-    // If we're on the marketing host in production, hop to the app host and
-    // hand the session over via URL hash (localStorage is per-origin).
+    // Auth session is now stored in a cookie on `.tryzirva.com` so it's
+    // automatically shared with app.tryzirva.com. Just hop hosts.
     if (typeof window !== 'undefined' && window.location.hostname === 'tryzirva.com') {
-      let cancelled = false
-      ;(async () => {
-        const { data } = await supabase.auth.getSession()
-        if (cancelled) return
-        const session = data?.session
-        let url = 'https://app.tryzirva.com' + dest
-        if (session?.access_token && session?.refresh_token) {
-          const payload = btoa(JSON.stringify({ at: session.access_token, rt: session.refresh_token }))
-          url += '#zauth=' + encodeURIComponent(payload)
-        }
-        window.location.replace(url)
-      })()
-      return () => { cancelled = true }
+      window.location.replace('https://app.tryzirva.com' + dest)
+      return
     }
     navigate(dest, { replace: true })
   }, [user, profile, navigate])
