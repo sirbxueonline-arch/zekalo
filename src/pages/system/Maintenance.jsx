@@ -1,12 +1,25 @@
 export default function Maintenance() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-surface px-4">
-      <h1 className="font-serif text-3xl mb-2">
-        <span className="text-gray-900">Zir</span>
-        <span className="text-purple">va</span>
-      </h1>
-      <h2 className="font-serif text-2xl text-gray-900 mt-6 mb-2">Texniki xidmət</h2>
-      <p className="text-sm text-gray-500">Zirva yenilənir. Tezliklə geri qayıdacağıq.</p>
+    <div style={{
+      minHeight:'100vh', position:'relative', overflow:'hidden',
+      display:'flex', alignItems:'center', justifyContent:'center',
+      padding:'24px',
+      background:'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)',
+      backgroundSize:'400% 400%',
+      animation:'heroGradient 12s ease infinite',
+    }}>
+      <div className="hb1"/><div className="hb2"/><div className="hb4"/><div className="hb6"/>
+
+      <div className="liquid-card" style={{ position:'relative', zIndex:1, padding:'56px 48px', textAlign:'center', maxWidth:480 }}>
+        <h1 style={{ fontSize:32, fontWeight:800, marginBottom:24, letterSpacing:'-0.02em' }}>
+          <span style={{ color:'#1a1a2e' }}>Zir</span>
+          <span className="pastel-text">va</span>
+        </h1>
+        <h2 style={{ fontSize:22, fontWeight:700, color:'#1a1a2e', marginBottom:10, letterSpacing:'-0.015em' }}>Texniki xidmət</h2>
+        <p style={{ fontSize:14, color:'#64748b', lineHeight:1.6 }}>
+          Zirva yenilənir. Tezliklə geri qayıdacağıq.
+        </p>
+      </div>
     </div>
   )
 }

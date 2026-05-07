@@ -101,60 +101,145 @@ export default function Topbar({ title, onMenuClick }) {
 
   return (
     <header
-      className="sticky top-0 z-30 h-14 flex items-center justify-between px-4 lg:px-6 gap-4"
+      className="sticky top-0 z-30 h-16 flex items-center justify-between px-4 lg:px-6 gap-4"
       style={{
-        background: '#fff',
-        borderBottom: '1px solid #e5e7eb',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        background: 'rgba(255,255,255,0.65)',
+        backdropFilter: 'blur(24px) saturate(1.6)',
+        WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+        borderBottom: '1px solid rgba(255,255,255,0.6)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.85), 0 1px 12px rgba(140,120,200,0.05)',
       }}
     >
       {/* Left: hamburger + breadcrumb */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
         <button
           onClick={onMenuClick}
-          className="lg:hidden text-gray-500 hover:text-gray-900 p-1.5 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
+          className="lg:hidden p-2 rounded-xl transition-colors flex-shrink-0"
+          style={{ color: '#64748b', background: 'rgba(255,255,255,0.5)' }}
+          aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs font-medium text-gray-400 hidden sm:block">Zirva</span>
-          <span className="text-gray-300 hidden sm:block">/</span>
-          <h1 className="text-sm font-semibold text-gray-800 truncate">{title}</h1>
+          <span className="text-xs font-medium hidden sm:block" style={{ color: '#94a3b8' }}>Zirva</span>
+          <span className="hidden sm:block" style={{ color: '#cbd5e1' }}>/</span>
+          <h1 className="text-sm font-semibold truncate" style={{ color: '#1a1a2e' }}>{title}</h1>
+        </div>
+
+        {/* Search bar — hidden on mobile, glass pill */}
+        <div className="hidden md:flex ml-4 relative" style={{ minWidth: 220, maxWidth: 320 }}>
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ width: 14, height: 14, color: '#94a3b8' }}
+          />
+          <input
+            type="text"
+            placeholder="Axtar..."
+            aria-label="Axtarış"
+            className="topbar-search w-full text-[13px]"
+            style={{
+              background: 'rgba(255,255,255,0.6)',
+              border: '1px solid rgba(124,110,224,0.2)',
+              borderRadius: '999px',
+              padding: '8px 16px 8px 38px',
+              color: '#1a1a2e',
+              outline: 'none',
+              transition: 'all 0.2s ease',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+            }}
+            onFocus={e => {
+              e.currentTarget.style.borderColor = 'rgba(124,110,224,0.4)'
+              e.currentTarget.style.background = 'rgba(255,255,255,0.85)'
+              e.currentTarget.style.boxShadow = '0 0 0 4px rgba(124,110,224,0.08)'
+            }}
+            onBlur={e => {
+              e.currentTarget.style.borderColor = 'rgba(124,110,224,0.2)'
+              e.currentTarget.style.background = 'rgba(255,255,255,0.6)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          />
+          <style>{`
+            .topbar-search::placeholder { color: #94a3b8; }
+          `}</style>
         </div>
       </div>
 
       {/* Right: actions */}
-      <div className="flex items-center gap-1 flex-shrink-0">
+      <div className="flex items-center gap-2 flex-shrink-0">
 
         {/* Notification bell */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={toggleDropdown}
-            className="relative rounded-lg w-9 h-9 flex items-center justify-center transition-colors"
+            className="relative rounded-xl w-10 h-10 flex items-center justify-center"
             style={{
-              color: showDropdown ? '#7c3aed' : '#6b7280',
-              background: showDropdown ? '#f3f0ff' : 'transparent',
+              color: showDropdown ? '#7c6ee0' : '#64748b',
+              background: showDropdown
+                ? 'linear-gradient(135deg, rgba(124,110,224,0.15), rgba(93,184,163,0.10))'
+                : 'rgba(255,255,255,0.5)',
+              border: showDropdown ? '1px solid rgba(124,110,224,0.25)' : '1px solid rgba(255,255,255,0.6)',
+              transition: 'all 0.2s ease',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
             }}
-            onMouseEnter={e => { if (!showDropdown) { e.currentTarget.style.background='#f9fafb'; e.currentTarget.style.color='#374151' } }}
-            onMouseLeave={e => { if (!showDropdown) { e.currentTarget.style.background='transparent'; e.currentTarget.style.color='#6b7280' } }}
+            onMouseEnter={e => {
+              if (!showDropdown) {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.8)'
+                e.currentTarget.style.color = '#1a1a2e'
+              }
+            }}
+            onMouseLeave={e => {
+              if (!showDropdown) {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.5)'
+                e.currentTarget.style.color = '#64748b'
+              }
+            }}
             aria-label="Bildirişlər"
           >
             <Bell className="w-[17px] h-[17px]" />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center ring-2 ring-white">
+              <span
+                className="absolute top-1 right-1 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(135deg, #7c6ee0 0%, #6b9dde 100%)',
+                  boxShadow: '0 2px 6px rgba(124,110,224,0.4), inset 0 1px 0 rgba(255,255,255,0.4)',
+                  border: '2px solid rgba(255,255,255,0.85)',
+                }}
+              >
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </button>
 
           {showDropdown && (
-            <div className="absolute right-0 top-[calc(100%+8px)] w-80 sm:w-[360px] bg-white rounded-xl border border-gray-100 shadow-xl z-50 overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <div
+              className="absolute right-0 top-[calc(100%+10px)] w-80 sm:w-[360px] z-50 overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.78) 100%)',
+                backdropFilter: 'blur(24px) saturate(1.6)',
+                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+                border: '1px solid rgba(255,255,255,0.7)',
+                borderRadius: '20px',
+                boxShadow:
+                  'inset 0 1px 0 rgba(255,255,255,0.95), 0 16px 40px rgba(140,120,200,0.18), 0 4px 12px rgba(0,0,0,0.04)',
+              }}
+            >
+              <div
+                className="flex items-center justify-between px-4 py-3"
+                style={{ borderBottom: '1px solid rgba(124,110,224,0.10)' }}
+              >
                 <div className="flex items-center gap-2">
-                  <Bell className="w-4 h-4 text-purple-600" />
-                  <h3 className="text-sm font-semibold text-gray-900">Bildirişlər</h3>
+                  <Bell className="w-4 h-4" style={{ color: '#7c6ee0' }} />
+                  <h3 className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>Bildirişlər</h3>
                   {unreadCount > 0 && (
-                    <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-red-100 text-red-700 text-[11px] font-bold">
+                    <span
+                      className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full text-[11px] font-bold"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(124,110,224,0.18), rgba(93,184,163,0.12))',
+                        color: '#7c6ee0',
+                      }}
+                    >
                       {unreadCount}
                     </span>
                   )}
@@ -163,13 +248,29 @@ export default function Topbar({ title, onMenuClick }) {
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllRead}
-                      className="text-xs text-purple-600 hover:text-purple-800 font-medium flex items-center gap-1 px-2 py-1 rounded-md hover:bg-purple-50 transition-colors"
+                      className="text-xs font-medium flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-colors"
+                      style={{ color: '#7c6ee0' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.10)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
                     >
                       <CheckCheck className="w-3.5 h-3.5" />
                       Hamısını oxu
                     </button>
                   )}
-                  <button onClick={() => setShowDropdown(false)} className="p-1 text-gray-400 hover:text-gray-700 rounded-md hover:bg-gray-100 transition-colors">
+                  <button
+                    onClick={() => setShowDropdown(false)}
+                    className="p-1.5 rounded-lg transition-colors"
+                    style={{ color: '#94a3b8' }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.color = '#1a1a2e'
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.7)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.color = '#94a3b8'
+                      e.currentTarget.style.background = 'transparent'
+                    }}
+                    aria-label="Close"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -178,31 +279,66 @@ export default function Topbar({ title, onMenuClick }) {
               <div className="overflow-y-auto max-h-[360px]">
                 {notifsLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <div className="w-6 h-6 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+                    <div
+                      className="w-6 h-6 border-2 rounded-full animate-spin"
+                      style={{ borderColor: 'rgba(124,110,224,0.18)', borderTopColor: '#7c6ee0' }}
+                    />
                   </div>
                 ) : notifications.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-14 text-center">
-                    <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mb-3">
-                      <Bell className="w-5 h-5 text-gray-300" />
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center mb-3"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(124,110,224,0.10), rgba(93,184,163,0.08))',
+                      }}
+                    >
+                      <Bell className="w-5 h-5" style={{ color: '#7c6ee0', opacity: 0.6 }} />
                     </div>
-                    <p className="text-sm text-gray-400">Bildiriş yoxdur</p>
+                    <p className="text-sm" style={{ color: '#94a3b8' }}>Bildiriş yoxdur</p>
                   </div>
                 ) : (
-                  <ul className="divide-y divide-gray-50">
-                    {notifications.map(n => (
+                  <ul style={{ borderColor: 'rgba(124,110,224,0.06)' }}>
+                    {notifications.map((n, idx) => (
                       <li
                         key={n.id}
-                        className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-gray-50 ${!n.read ? 'bg-purple-50/50' : ''}`}
+                        className="flex items-start gap-3 px-4 py-3 transition-colors"
+                        style={{
+                          background: !n.read ? 'rgba(124,110,224,0.05)' : 'transparent',
+                          borderTop: idx === 0 ? 'none' : '1px solid rgba(124,110,224,0.06)',
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.6)'
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.background = !n.read ? 'rgba(124,110,224,0.05)' : 'transparent'
+                        }}
                       >
-                        <span className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${!n.read ? 'bg-purple-500' : 'bg-transparent'}`} />
+                        <span
+                          className="mt-1.5 w-2 h-2 rounded-full flex-shrink-0"
+                          style={{
+                            background: !n.read ? '#7c6ee0' : 'transparent',
+                            boxShadow: !n.read ? '0 0 6px rgba(124,110,224,0.4)' : 'none',
+                          }}
+                        />
                         <div className="flex-1 min-w-0">
-                          <p className={`text-xs leading-snug ${!n.read ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}>
+                          <p
+                            className="text-xs leading-snug"
+                            style={{
+                              fontWeight: !n.read ? 600 : 500,
+                              color: !n.read ? '#1a1a2e' : '#475569',
+                            }}
+                          >
                             {n.title}
                           </p>
                           {n.body && (
-                            <p className="text-[11px] text-gray-400 mt-0.5 line-clamp-2 leading-relaxed">{n.body}</p>
+                            <p
+                              className="text-[11px] mt-0.5 line-clamp-2 leading-relaxed"
+                              style={{ color: '#94a3b8' }}
+                            >
+                              {n.body}
+                            </p>
                           )}
-                          <p className="text-[10px] text-gray-300 mt-1">{timeAgo(n.created_at)}</p>
+                          <p className="text-[10px] mt-1" style={{ color: '#cbd5e1' }}>{timeAgo(n.created_at)}</p>
                         </div>
                       </li>
                     ))}
@@ -210,10 +346,16 @@ export default function Topbar({ title, onMenuClick }) {
                 )}
               </div>
 
-              <div className="border-t border-gray-100 px-4 py-2.5">
+              <div
+                className="px-4 py-2.5"
+                style={{ borderTop: '1px solid rgba(124,110,224,0.10)' }}
+              >
                 <button
                   onClick={() => { setShowDropdown(false); navigate(allNotifsPath) }}
-                  className="w-full text-center text-xs text-purple-600 hover:text-purple-800 font-medium py-1 rounded-md hover:bg-purple-50 transition-colors"
+                  className="w-full text-center text-xs font-medium py-1.5 rounded-lg transition-colors"
+                  style={{ color: '#7c6ee0' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.08)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
                 >
                   Bütün bildirişlərə bax →
                 </button>
@@ -222,28 +364,48 @@ export default function Topbar({ title, onMenuClick }) {
           )}
         </div>
 
-        {/* Divider */}
-        <div className="w-px h-5 mx-1" style={{ background: '#e5e7eb' }} />
-
-        {/* Avatar + name */}
+        {/* Avatar + name (profile pill) */}
         <button
           onClick={() => navigate(profilePath)}
-          className="group flex items-center gap-2 pl-1 pr-3 py-1.5 rounded-lg transition-colors"
-          style={{ color: '#374151' }}
-          onMouseEnter={e => e.currentTarget.style.background='#f9fafb'}
-          onMouseLeave={e => e.currentTarget.style.background='transparent'}
+          className="group flex items-center gap-2 pl-1 pr-3 py-1 rounded-full"
+          style={{
+            background: 'rgba(255,255,255,0.5)',
+            border: '1px solid rgba(255,255,255,0.6)',
+            transition: 'all 0.2s ease',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.85)'
+            e.currentTarget.style.borderColor = 'rgba(124,110,224,0.25)'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.5)'
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)'
+          }}
+          aria-label="Profil"
         >
           <div
-            className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0 ring-2 ring-transparent group-hover:ring-purple-200 transition-all"
-            style={{ background: profile?.avatar_color || '#6d28d9' }}
+            className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
+            style={{
+              background: profile?.avatar_color
+                ? profile.avatar_color
+                : 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 6px rgba(124,110,224,0.18)',
+            }}
           >
             {initials}
           </div>
           <div className="hidden sm:block text-left min-w-0">
-            <p className="text-xs font-semibold text-gray-800 leading-tight truncate max-w-[120px]">{profile?.full_name}</p>
-            <p className="text-[10px] text-gray-400 leading-tight">{roleLabel}</p>
+            <p
+              className="text-xs font-semibold leading-tight truncate max-w-[120px]"
+              style={{ color: '#1a1a2e' }}
+            >
+              {profile?.full_name}
+            </p>
+            <p className="text-[10px] leading-tight" style={{ color: '#94a3b8' }}>{roleLabel}</p>
           </div>
-          <ChevronDown className="w-3 h-3 text-gray-400 hidden sm:block flex-shrink-0" />
+          <ChevronDown className="w-3 h-3 hidden sm:block flex-shrink-0" style={{ color: '#94a3b8' }} />
         </button>
       </div>
     </header>
