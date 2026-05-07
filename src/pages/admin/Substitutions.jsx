@@ -317,7 +317,7 @@ export default function Substitutions() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-serif text-3xl text-gray-900">Əvəzetmə</h1>
+        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Əvəzetmə</span></h1>
         <Button onClick={() => openAddModal()}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Əvəzetmə əlavə et</span>
         </Button>
@@ -326,15 +326,16 @@ export default function Substitutions() {
       {/* Date picker */}
       <div className="flex items-end gap-4 flex-wrap">
         <div className="w-52">
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Tarix seçin</label>
+          <label className="block text-sm font-medium text-[#1a1a2e] mb-1.5">Tarix seçin</label>
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-full border border-border-soft rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+            className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
+            style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
           />
         </div>
-        <p className="text-sm text-gray-500 pb-2.5">
+        <p className="text-sm text-[#64748b] pb-2.5">
           Həftə: <strong>{formatDate(monday)}</strong> — <strong>{formatDate(addDays(monday, 5))}</strong>
         </p>
       </div>
@@ -433,7 +434,7 @@ export default function Substitutions() {
 
       {/* Week list view */}
       <div>
-        <h2 className="font-serif text-xl text-gray-900 mb-4">Bu həftənin əvəzetmələri</h2>
+        <h2 className="text-xl font-bold text-[#1a1a2e] mb-4">Bu həftənin əvəzetmələri</h2>
         <Card hover={false} className="p-0 overflow-hidden">
           {weekSubs.length === 0 ? (
             <EmptyState

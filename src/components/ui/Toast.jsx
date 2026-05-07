@@ -3,28 +3,24 @@ import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react'
 
 const TYPE_CONFIG = {
   success: {
-    border: 'border-teal-200',
+    accent: '#5db8a3',
+    accentSoft: 'rgba(93,184,163,0.12)',
     icon: CheckCircle,
-    iconColor: 'text-teal-500',
-    bar: 'bg-teal-500',
   },
   error: {
-    border: 'border-red-200',
+    accent: '#dc2626',
+    accentSoft: 'rgba(220,38,38,0.10)',
     icon: XCircle,
-    iconColor: 'text-red-500',
-    bar: 'bg-red-500',
   },
   warning: {
-    border: 'border-amber-200',
+    accent: '#e8a87c',
+    accentSoft: 'rgba(232,168,124,0.14)',
     icon: AlertTriangle,
-    iconColor: 'text-amber-500',
-    bar: 'bg-amber-500',
   },
   info: {
-    border: 'border-purple-200',
+    accent: '#7c6ee0',
+    accentSoft: 'rgba(124,110,224,0.12)',
     icon: Info,
-    iconColor: 'text-purple-500',
-    bar: 'bg-purple-500',
   },
 }
 
@@ -35,12 +31,10 @@ function Toast({ toast, removeToast }) {
   const Icon = config.icon
 
   useEffect(() => {
-    // Trigger slide-in
     const showTimer = requestAnimationFrame(() => {
       requestAnimationFrame(() => setVisible(true))
     })
 
-    // Animate progress bar
     const start = Date.now()
     const duration = 4000
     let rafId
@@ -67,33 +61,43 @@ function Toast({ toast, removeToast }) {
 
   return (
     <div
-      className={`
-        flex items-start gap-3 px-4 py-3 rounded-xl shadow-lg border
-        min-w-[280px] max-w-[380px] bg-white text-gray-900 relative overflow-hidden
-        ${config.border}
-        transition-all duration-300
-        ${visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}
-      `}
+      className={`flex items-start gap-3 pl-4 pr-3 py-3 min-w-[300px] max-w-[400px] text-[#1a1a2e] relative overflow-hidden transition-all duration-300 ease-out
+        ${visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}
+      style={{
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.72) 100%)',
+        backdropFilter: 'blur(20px) saturate(1.6)',
+        WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
+        border: '1px solid rgba(255,255,255,0.7)',
+        borderLeft: `4px solid ${config.accent}`,
+        borderRadius: '16px',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.85), 0 12px 32px rgba(140,120,200,0.18), 0 4px 12px rgba(0,0,0,0.05)',
+      }}
     >
-      <Icon className={`w-5 h-5 mt-0.5 shrink-0 ${config.iconColor}`} />
+      <div
+        className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+        style={{ background: config.accentSoft }}
+      >
+        <Icon className="w-4.5 h-4.5" style={{ color: config.accent, width: 18, height: 18 }} />
+      </div>
       <div className="flex-1 min-w-0">
         {toast.title && (
-          <p className="font-semibold text-sm leading-tight mb-0.5">{toast.title}</p>
+          <p className="font-semibold text-sm leading-tight mb-0.5 text-[#1a1a2e]">{toast.title}</p>
         )}
-        <p className="text-sm leading-snug text-gray-700">{toast.message}</p>
+        <p className="text-sm leading-snug text-[#475569]">{toast.message}</p>
       </div>
       <button
         onClick={handleClose}
-        className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors mt-0.5"
+        className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full text-[#94a3b8] hover:text-[#1a1a2e] transition-colors"
+        style={{ background: 'rgba(255,255,255,0.5)' }}
         aria-label="Close notification"
       >
-        <X className="w-4 h-4" />
+        <X className="w-3.5 h-3.5" />
       </button>
 
       {/* Progress bar */}
       <div
-        className={`absolute bottom-0 left-0 h-0.5 ${config.bar} transition-none`}
-        style={{ width: `${progress}%` }}
+        className="absolute bottom-0 left-0 h-[3px] transition-none"
+        style={{ width: `${progress}%`, background: config.accent, opacity: 0.7 }}
       />
     </div>
   )
@@ -103,7 +107,7 @@ export default function ToastContainer({ toasts, removeToast }) {
   if (!toasts.length) return null
 
   return (
-    <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2">
+    <div className="fixed bottom-4 right-4 z-[9999] flex flex-col gap-3">
       {toasts.map(toast => (
         <Toast key={toast.id} toast={toast} removeToast={removeToast} />
       ))}

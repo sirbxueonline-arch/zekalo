@@ -313,18 +313,23 @@ export default function Teachers() {
   return (
     <div className="space-y-6">
       {/* Page header with gradient banner */}
-      <div className="rounded-2xl overflow-hidden border border-border-soft">
-        <div className="bg-gradient-to-r from-purple/10 via-purple/5 to-transparent px-7 py-6">
+      <div className="liquid-card relative overflow-hidden" style={{ padding: 0 }}>
+        <div
+          aria-hidden="true"
+          className="section-blob"
+          style={{ top: '-40%', right: '-10%', width: '40%', height: '160%', background: 'radial-gradient(ellipse at center, rgba(93,184,163,0.32) 0%, transparent 65%)', opacity: 0.5 }}
+        />
+        <div className="relative px-7 py-6">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <h1 className="font-serif text-3xl text-gray-900">{t('teachers')}</h1>
-              <p className="text-sm text-gray-500 mt-1">{t('teachers')} idarəetməsi</p>
+              <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('teachers')}</span></h1>
+              <p className="text-sm text-[#64748b] mt-1">{t('teachers')} idarəetməsi</p>
               <div className="flex items-center gap-3 mt-3 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 bg-white border border-border-soft rounded-full px-3 py-1 text-xs font-semibold text-gray-700">
-                  <GraduationCap className="w-3.5 h-3.5 text-purple" />
+                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold backdrop-blur-md" style={{ background: 'rgba(255,255,255,0.6)', color: '#1a1a2e', border: '1px solid rgba(124,110,224,0.18)' }}>
+                  <GraduationCap className="w-3.5 h-3.5" style={{ color: '#7c6ee0' }} />
                   Ümumi: {teachers.length}
                 </span>
-                <span className="inline-flex items-center gap-1.5 bg-teal-light border border-teal/20 rounded-full px-3 py-1 text-xs font-semibold text-teal">
+                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold backdrop-blur-md" style={{ background: 'rgba(93,184,163,0.14)', color: '#3a8170', border: '1px solid rgba(93,184,163,0.32)' }}>
                   Nəticə: {filtered.length}
                 </span>
               </div>
@@ -343,13 +348,14 @@ export default function Teachers() {
 
       {/* Search bar */}
       <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: '#7c6ee0' }} />
         <input
           type="text"
           placeholder={t('search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full border border-border-soft rounded-xl pl-10 pr-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple/20 focus:border-purple transition-colors"
+          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
+          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
         />
       </div>
 

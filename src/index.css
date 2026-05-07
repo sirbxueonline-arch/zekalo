@@ -358,3 +358,148 @@
   0% { background-position: 0% center; }
   100% { background-position: 200% center; }
 }
+
+/* ── Pastel input / textarea / select ── */
+.pastel-input {
+  width: 100%;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(124,110,224,0.25);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #1a1a2e;
+  transition: all .25s cubic-bezier(.22,1,.36,1);
+}
+.pastel-input::placeholder { color: #94a3b8; }
+.pastel-input:focus {
+  outline: none;
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(124,110,224,0.6);
+  box-shadow: 0 0 0 4px rgba(124,110,224,0.12);
+}
+
+/* ── Pastel skeleton pulse ── */
+@keyframes pastelPulse {
+  0%, 100% { background-position: 0% 50%; opacity: 0.85; }
+  50%      { background-position: 100% 50%; opacity: 0.55; }
+}
+.pastel-skeleton {
+  background: linear-gradient(110deg, rgba(124,110,224,0.10) 0%, rgba(93,184,163,0.10) 50%, rgba(232,168,124,0.10) 100%);
+  background-size: 200% 100%;
+  border-radius: 10px;
+  animation: pastelPulse 1.6s ease-in-out infinite;
+}
+
+/* ── Pastel pill tints (soft bg + darker text) ── */
+.pill-mint   { background: rgba(93,184,163,0.16);  color: #2f7a64; border: 1px solid rgba(93,184,163,0.30); }
+.pill-blue   { background: rgba(107,157,222,0.16); color: #2f5a8c; border: 1px solid rgba(107,157,222,0.30); }
+.pill-peri   { background: rgba(124,110,224,0.16); color: #5448a8; border: 1px solid rgba(124,110,224,0.30); }
+.pill-peach  { background: rgba(232,168,124,0.20); color: #a25e2c; border: 1px solid rgba(232,168,124,0.35); }
+.pill-rose   { background: rgba(239,108,108,0.14); color: #b13838; border: 1px solid rgba(239,108,108,0.28); }
+.pill-muted  { background: rgba(100,116,139,0.10); color: #475569; border: 1px solid rgba(100,116,139,0.18); }
+
+/* ── Soft table styling — used inside .liquid-card ── */
+.pastel-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.pastel-table thead tr {
+  background: rgba(248,247,251,0.8);
+  backdrop-filter: blur(8px);
+}
+.pastel-table thead th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(124,110,224,0.12);
+}
+.pastel-table tbody td {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(124,110,224,0.10);
+  color: #1a1a2e;
+  font-size: 14px;
+  transition: background .25s cubic-bezier(.22,1,.36,1);
+}
+.pastel-table tbody tr:last-child td { border-bottom: 0; }
+.pastel-table tbody tr:hover td { background: rgba(124,110,224,0.04); }
+
+/* ── Subtle interactive hover lift ── */
+.pastel-hover { transition: all .25s cubic-bezier(.22,1,.36,1); }
+.pastel-hover:hover { transform: translateY(-1px); }
+
+/* ── Glass tabs ── */
+.pastel-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(124,110,224,0.15);
+  border-radius: 999px;
+}
+.pastel-tab {
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all .25s cubic-bezier(.22,1,.36,1);
+  border: none;
+  background: transparent;
+  white-space: nowrap;
+}
+.pastel-tab:hover { color: #1a1a2e; background: rgba(124,110,224,0.06); }
+.pastel-tab.active {
+  background: linear-gradient(135deg, #7c6ee0, #5db8a3);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(124,110,224,0.25);
+}
+
+/* ── Liquid icon chip (rotating accent colors) ── */
+.icon-chip {
+  width: 44px; height: 44px;
+  border-radius: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.icon-chip-periwinkle { background: linear-gradient(135deg, rgba(124,110,224,0.18), rgba(124,110,224,0.08)); color: #7c6ee0; }
+.icon-chip-mint       { background: linear-gradient(135deg, rgba(93,184,163,0.18),  rgba(93,184,163,0.08));  color: #5db8a3; }
+.icon-chip-peach      { background: linear-gradient(135deg, rgba(232,168,124,0.22), rgba(232,168,124,0.08)); color: #d68a5a; }
+.icon-chip-blue       { background: linear-gradient(135deg, rgba(107,157,222,0.18), rgba(107,157,222,0.08)); color: #6b9dde; }
+
+/* ── Liquid modal backdrop ── */
+.liquid-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(15,15,40,0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  animation: fadeIn .2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Drop target glow (for drag-drop targets) ── */
+.drop-target {
+  border: 2px dashed rgba(124,110,224,0.25);
+  transition: all .25s cubic-bezier(.22,1,.36,1);
+}
+.drop-target:hover, .drop-target.dragover {
+  border-color: rgba(124,110,224,0.6);
+  background: rgba(124,110,224,0.05);
+  box-shadow: inset 0 0 24px rgba(124,110,224,0.10), 0 0 24px rgba(124,110,224,0.18);
+}
+
+/* ── Smooth transition utility ── */
+.smooth-trans { transition: all .25s cubic-bezier(.22,1,.36,1); }
+
+/* ── Toast variants ── */
+.toast-success { background: linear-gradient(135deg, rgba(93,184,163,0.95), rgba(93,184,163,0.85)); color: #fff; box-shadow: 0 8px 24px rgba(93,184,163,0.3); }
+.toast-error   { background: linear-gradient(135deg, rgba(229,107,127,0.95), rgba(229,107,127,0.85)); color: #fff; box-shadow: 0 8px 24px rgba(229,107,127,0.3); }
+.toast-info    { background: linear-gradient(135deg, rgba(124,110,224,0.95), rgba(107,157,222,0.85)); color: #fff; box-shadow: 0 8px 24px rgba(124,110,224,0.3); }

@@ -1,38 +1,34 @@
 import { useState, useEffect } from 'react'
-import { Plus, BookOpen, Calendar, Clock, Edit2, Trash2 } from 'lucide-react'
+import { Plus, BookOpen, Calendar, Clock, Edit2, Trash2, X, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import Button from '../../components/ui/Button'
-import Card from '../../components/ui/Card'
-import Modal from '../../components/ui/Modal'
-import Badge from '../../components/ui/Badge'
-import { PageSpinner } from '../../components/ui/Spinner'
-import EmptyState from '../../components/ui/EmptyState'
-import Input from '../../components/ui/Input'
-import { Textarea, Select } from '../../components/ui/Input'
 import { fmtDate } from '../../lib/dateUtils'
 
 const ATL_SKILLS = ['Düşüncə', 'Ünsiyyət', 'Sosial', 'Özünüidarəetmə', 'Tədqiqat']
 
-const statusConfig = {
-  draft: { label: 'Qaralama', className: 'bg-surface text-gray-600 border border-border-soft' },
-  active: { label: 'Aktiv', className: 'bg-purple-light text-purple-dark border border-[#AFA9EC]' },
-  complete: { label: 'Tamamlandı', className: 'bg-teal-light text-[#085041] border border-teal-mid' },
+const statusBadge = {
+  draft:    'pastel-badge pastel-badge-slate',
+  active:   'pastel-badge pastel-badge-periwinkle',
+  complete: 'pastel-badge pastel-badge-mint',
+}
+const statusLabel = {
+  draft: 'Qaralama',
+  active: 'Aktiv',
+  complete: 'Tamamlandı',
 }
 
-const subjectColors = {
-  'Riyaziyyat': 'bg-blue-50 text-blue-700',
-  'Fizika': 'bg-orange-50 text-orange-700',
-  'Kimya': 'bg-green-50 text-green-700',
-  'Biologiya': 'bg-teal-light text-[#085041]',
-  'Tarix': 'bg-amber-50 text-amber-700',
-  'Ədəbiyyat': 'bg-purple-light text-purple-dark',
-  'İngilis dili': 'bg-indigo-50 text-indigo-700',
-  default: 'bg-surface text-gray-600',
-}
-
-function getSubjectColor(subject) {
-  return subjectColors[subject] || subjectColors.default
+// Subject hash → pastel hue
+const SUBJ_HUES = [
+  { bg: 'rgba(124,110,224,0.12)', text: '#5b4fb8' },
+  { bg: 'rgba(93,184,163,0.14)',  text: '#3d8a73' },
+  { bg: 'rgba(232,168,124,0.18)', text: '#b46a3e' },
+  { bg: 'rgba(107,157,222,0.14)', text: '#4a7cb5' },
+  { bg: 'rgba(200,158,212,0.16)', text: '#8b599c' },
+]
+function subjectHue(name = '') {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
+  return SUBJ_HUES[Math.abs(h) % SUBJ_HUES.length]
 }
 
 export default function UnitPlanner() {
@@ -65,7 +61,6 @@ export default function UnitPlanner() {
       setUnits(unitsRes.data || [])
       setClasses(classesRes.data || [])
     } catch {
-      // unit_plans table may not exist — show empty state
       setUnits([])
       try {
         const { data } = await supabase.from('classes').select('id,name').eq('school_id', profile.school_id).order('name').limit(100)
@@ -184,107 +179,163 @@ export default function UnitPlanner() {
 
   const filtered = units.filter(u => filterStatus === 'all' || u.status === filterStatus)
 
-  const UnitFormFields = () => (
-    <div className="space-y-4">
-      <Input label="Vahid başlığı" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Məs: Trigonometriya Vahidi" />
-      <div className="grid grid-cols-2 gap-4">
-        <Input label="Fənn" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} placeholder="Riyaziyyat" />
-        <Select label="Sinif" value={form.class_id} onChange={e => setForm({ ...form, class_id: e.target.value })}>
-          <option value="">— Sinif —</option>
-          {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </Select>
-      </div>
-      <Textarea label="Öyrənmə məqsədləri" value={form.objectives} onChange={e => setForm({ ...form, objectives: e.target.value })} rows={3} placeholder="Şagirdlər bu vahidin sonunda..." />
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">ATL Bacarıqları</label>
-        <div className="flex flex-wrap gap-2">
-          {ATL_SKILLS.map(skill => (
-            <button
-              key={skill}
-              type="button"
-              onClick={() => toggleATL(skill)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${form.atl_skills.includes(skill) ? 'bg-purple text-white border-purple' : 'bg-surface text-gray-600 border-border-soft hover:border-purple hover:text-purple'}`}
-            >
-              {skill}
-            </button>
-          ))}
+  function UnitFormFields() {
+    return (
+      <div className="space-y-4">
+        <div>
+          <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Vahid başlığı</label>
+          <input className="pastel-input" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Məs: Trigonometriya Vahidi" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Fənn</label>
+            <input className="pastel-input" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} placeholder="Riyaziyyat" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Sinif</label>
+            <select className="pastel-input" value={form.class_id} onChange={e => setForm({ ...form, class_id: e.target.value })}>
+              <option value="">— Sinif —</option>
+              {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Öyrənmə məqsədləri</label>
+          <textarea className="pastel-input" rows={3} value={form.objectives} onChange={e => setForm({ ...form, objectives: e.target.value })} placeholder="Şagirdlər bu vahidin sonunda..." />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: '#64748b' }}>ATL Bacarıqları</label>
+          <div className="flex flex-wrap gap-2">
+            {ATL_SKILLS.map(skill => (
+              <button
+                key={skill}
+                type="button"
+                onClick={() => toggleATL(skill)}
+                className={form.atl_skills.includes(skill) ? 'pastel-tab active' : 'pastel-tab'}
+                style={{ padding: '6px 14px', fontSize: 12 }}
+              >
+                {skill}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Başlama tarixi</label>
+            <input type="date" className="pastel-input" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Bitmə tarixi</label>
+            <input type="date" className="pastel-input" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Status</label>
+          <select className="pastel-input" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+            <option value="draft">Qaralama</option>
+            <option value="active">Aktiv</option>
+            <option value="complete">Tamamlandı</option>
+          </select>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <Input label="Başlama tarixi" type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} />
-        <Input label="Bitmə tarixi" type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} />
-      </div>
-      <Select label="Status" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-        <option value="draft">Qaralama</option>
-        <option value="active">Aktiv</option>
-        <option value="complete">Tamamlandı</option>
-      </Select>
-    </div>
-  )
+    )
+  }
 
-  if (loading) return <PageSpinner />
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <div className="pastel-skeleton h-12 w-72" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="pastel-skeleton h-48" />
+          <div className="pastel-skeleton h-48" />
+          <div className="pastel-skeleton h-48" />
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">Vahid Planlayıcı</h1>
-          <p className="text-sm text-gray-500 mt-1">{units.length} vahid · {units.filter(u => u.status === 'active').length} aktiv</p>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
+            <span className="pastel-text">Vahid Planlayıcı</span>
+          </h1>
+          <p className="text-sm mt-1" style={{ color: '#64748b' }}>{units.length} vahid · {units.filter(u => u.status === 'active').length} aktiv</p>
         </div>
-        <Button onClick={() => { resetForm(); setAddModal(true) }}>
-          <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Yeni vahid</span>
-        </Button>
+        <button onClick={() => { resetForm(); setAddModal(true) }} className="btn-pastel" style={{ padding: '12px 22px', fontSize: 13 }}>
+          <Plus className="w-4 h-4" /> Yeni vahid
+        </button>
       </div>
 
-      <div className="flex gap-2">
+      <div className="pastel-tabs">
         {[['all', 'Hamısı'], ['draft', 'Qaralama'], ['active', 'Aktiv'], ['complete', 'Tamamlandı']].map(([val, label]) => (
           <button
             key={val}
             onClick={() => setFilterStatus(val)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${filterStatus === val ? 'bg-purple text-white' : 'bg-surface text-gray-600 hover:text-purple'}`}
+            className={filterStatus === val ? 'pastel-tab active' : 'pastel-tab'}
           >
             {label}
           </button>
         ))}
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="flex items-center gap-2 text-sm" style={{ color: '#b83b54' }}>
+          <AlertCircle className="w-4 h-4" /> {error}
+        </div>
+      )}
 
       {filtered.length === 0 ? (
-        <EmptyState icon={BookOpen} title="Vahid tapılmadı" description="İlk tədris vahidinizi əlavə edin." actionLabel="Yeni vahid" onAction={() => { resetForm(); setAddModal(true) }} />
+        <div className="liquid-card p-12">
+          <div className="text-center">
+            <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
+              <BookOpen className="w-8 h-8" />
+            </div>
+            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Vahid tapılmadı</p>
+            <p className="text-sm mt-1 mb-4" style={{ color: '#94a3b8' }}>İlk tədris vahidinizi əlavə edin.</p>
+            <button onClick={() => { resetForm(); setAddModal(true) }} className="btn-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>
+              <Plus className="w-4 h-4" /> Yeni vahid
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map(unit => {
-            const cfg = statusConfig[unit.status] || statusConfig.draft
             const dur = durationLabel(unit.start_date, unit.end_date)
+            const hue = subjectHue(unit.subject || '')
             return (
-              <Card key={unit.id} className="p-6 flex flex-col gap-4">
+              <div key={unit.id} className="liquid-card p-5 flex flex-col gap-3 drop-target">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${getSubjectColor(unit.subject)}`}>{unit.subject || 'Fənn yoxdur'}</span>
-                    <h3 className="font-serif text-xl text-gray-900 mt-2 leading-tight">{unit.title}</h3>
+                    <span className="pastel-badge" style={{ background: hue.bg, color: hue.text }}>
+                      {unit.subject || 'Fənn yoxdur'}
+                    </span>
+                    <h3 className="text-lg font-bold mt-2 leading-tight" style={{ color: '#1a1a2e' }}>{unit.title}</h3>
                   </div>
-                  <span className={`rounded-full text-xs font-medium px-3 py-0.5 whitespace-nowrap ${cfg.className}`}>{cfg.label}</span>
+                  <span className={statusBadge[unit.status] || statusBadge.draft}>
+                    {statusLabel[unit.status] || statusLabel.draft}
+                  </span>
                 </div>
 
                 {unit.class && (
-                  <p className="text-sm text-gray-500">{unit.class.name}</p>
+                  <p className="text-sm" style={{ color: '#64748b' }}>{unit.class.name}</p>
                 )}
 
                 {unit.objectives && (
-                  <p className="text-sm text-gray-600 line-clamp-2">{unit.objectives}</p>
+                  <p className="text-sm line-clamp-2" style={{ color: '#475569' }}>{unit.objectives}</p>
                 )}
 
                 {(unit.atl_skills || []).length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {unit.atl_skills.map(skill => (
-                      <span key={skill} className="text-xs bg-purple-light text-purple-dark px-2 py-0.5 rounded-full">{skill}</span>
+                      <span key={skill} className="pastel-badge pastel-badge-periwinkle" style={{ fontSize: 10 }}>{skill}</span>
                     ))}
                   </div>
                 )}
 
-                <div className="flex items-center justify-between mt-auto pt-2 border-t border-border-soft">
-                  <div className="flex items-center gap-3 text-xs text-gray-400">
+                <div className="flex items-center justify-between mt-auto pt-3" style={{ borderTop: '1px solid rgba(124,110,224,0.10)' }}>
+                  <div className="flex items-center gap-3 text-xs" style={{ color: '#94a3b8' }}>
                     {unit.start_date && (
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
@@ -296,51 +347,91 @@ export default function UnitPlanner() {
                     )}
                   </div>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => openEdit(unit)} className="p-1.5 text-gray-400 hover:text-purple transition-colors">
+                    <button onClick={() => openEdit(unit)} className="p-1.5 rounded-lg smooth-trans hover:bg-white" style={{ color: '#64748b' }} onMouseEnter={e => e.currentTarget.style.color = '#7c6ee0'} onMouseLeave={e => e.currentTarget.style.color = '#64748b'}>
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setDeleteModal(unit)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors">
+                    <button onClick={() => setDeleteModal(unit)} className="p-1.5 rounded-lg smooth-trans hover:bg-white" style={{ color: '#64748b' }} onMouseEnter={e => e.currentTarget.style.color = '#b83b54'} onMouseLeave={e => e.currentTarget.style.color = '#64748b'}>
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-              </Card>
+              </div>
             )
           })}
         </div>
       )}
 
-      <Modal open={addModal} onClose={() => { setAddModal(false); setError(null); resetForm() }} title="Yeni Vahid" size="lg">
-        <div className="space-y-4">
-          <UnitFormFields />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
-          <div className="flex justify-end gap-3 pt-4">
-            <Button variant="ghost" onClick={() => { setAddModal(false); setError(null); resetForm() }}>{t('cancel')}</Button>
-            <Button onClick={handleAdd} loading={saving} disabled={!form.title || saving}>{t('add')}</Button>
+      {/* Add Modal */}
+      {addModal && (
+        <div className="liquid-backdrop" onClick={() => { setAddModal(false); setError(null); resetForm() }}>
+          <div className="liquid-card p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>Yeni Vahid</h3>
+              <button onClick={() => { setAddModal(false); setError(null); resetForm() }} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <UnitFormFields />
+            {error && <p className="text-sm flex items-center gap-1.5 mt-3" style={{ color: '#b83b54' }}><AlertCircle className="w-4 h-4" /> {error}</p>}
+            <div className="flex justify-end gap-2 pt-4">
+              <button onClick={() => { setAddModal(false); setError(null); resetForm() }} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>{t('cancel')}</button>
+              <button onClick={handleAdd} disabled={saving || !form.title} className="btn-pastel" style={{ padding: '10px 22px', fontSize: 13, opacity: (saving || !form.title) ? 0.5 : 1 }}>{saving ? '...' : t('add')}</button>
+            </div>
           </div>
         </div>
-      </Modal>
+      )}
 
-      <Modal open={!!editModal} onClose={() => { setEditModal(null); setError(null); resetForm() }} title="Vahidi Düzənlə" size="lg">
-        <div className="space-y-4">
-          <UnitFormFields />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
-          <div className="flex justify-end gap-3 pt-4">
-            <Button variant="ghost" onClick={() => { setEditModal(null); setError(null); resetForm() }}>{t('cancel')}</Button>
-            <Button onClick={handleEdit} loading={saving} disabled={!form.title || saving}>{t('save')}</Button>
+      {/* Edit Modal */}
+      {editModal && (
+        <div className="liquid-backdrop" onClick={() => { setEditModal(null); setError(null); resetForm() }}>
+          <div className="liquid-card p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>Vahidi Düzənlə</h3>
+              <button onClick={() => { setEditModal(null); setError(null); resetForm() }} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <UnitFormFields />
+            {error && <p className="text-sm flex items-center gap-1.5 mt-3" style={{ color: '#b83b54' }}><AlertCircle className="w-4 h-4" /> {error}</p>}
+            <div className="flex justify-end gap-2 pt-4">
+              <button onClick={() => { setEditModal(null); setError(null); resetForm() }} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>{t('cancel')}</button>
+              <button onClick={handleEdit} disabled={saving || !form.title} className="btn-pastel" style={{ padding: '10px 22px', fontSize: 13, opacity: (saving || !form.title) ? 0.5 : 1 }}>{saving ? '...' : t('save')}</button>
+            </div>
           </div>
         </div>
-      </Modal>
+      )}
 
-      <Modal open={!!deleteModal} onClose={() => setDeleteModal(null)} title={t('delete')} size="sm">
-        <p className="text-sm text-gray-600 mb-6">
-          <strong>{deleteModal?.title}</strong> vahidini silmək istədiyinizə əminsiniz?
-        </p>
-        <div className="flex justify-end gap-3">
-          <Button variant="ghost" onClick={() => setDeleteModal(null)}>{t('cancel')}</Button>
-          <Button variant="danger" onClick={handleDelete} loading={saving}>{t('delete')}</Button>
+      {/* Delete confirmation */}
+      {deleteModal && (
+        <div className="liquid-backdrop" onClick={() => setDeleteModal(null)}>
+          <div className="liquid-card p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="icon-chip icon-chip-peach" style={{ width: 40, height: 40 }}>
+                <AlertCircle className="w-5 h-5" />
+              </span>
+              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{t('delete')}</h3>
+            </div>
+            <p className="text-sm mb-5" style={{ color: '#64748b' }}>
+              <strong style={{ color: '#1a1a2e' }}>{deleteModal?.title}</strong> vahidini silmək istədiyinizə əminsiniz?
+            </p>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setDeleteModal(null)} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>{t('cancel')}</button>
+              <button
+                onClick={handleDelete}
+                disabled={saving}
+                className="px-5 py-2.5 rounded-full font-semibold text-white text-sm smooth-trans"
+                style={{
+                  background: 'linear-gradient(135deg, #e56b7f, #d85268)',
+                  boxShadow: '0 4px 12px rgba(229,107,127,0.3)',
+                  opacity: saving ? 0.5 : 1,
+                }}
+              >
+                {saving ? '...' : t('delete')}
+              </button>
+            </div>
+          </div>
         </div>
-      </Modal>
+      )}
     </div>
   )
 }

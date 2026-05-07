@@ -23,10 +23,10 @@ function escapeCsvField(val) {
 
 function gradeColor(score, maxScore) {
   const pct = maxScore > 0 ? (score / maxScore) * 100 : score * 10
-  if (pct >= 85) return 'bg-teal-light text-teal font-semibold'
-  if (pct >= 60) return 'bg-blue-50 text-blue-700'
-  if (pct >= 40) return 'bg-amber-50 text-amber-700'
-  return 'bg-red-50 text-red-600'
+  if (pct >= 85) return 'bg-[rgba(93,184,163,0.16)] text-[#2e7363] font-semibold'
+  if (pct >= 60) return 'bg-[rgba(107,157,222,0.14)] text-[#3d6da7]'
+  if (pct >= 40) return 'bg-[rgba(232,168,124,0.16)] text-[#a55f33]'
+  return 'bg-[rgba(239,68,68,0.10)] text-[#b91c1c]'
 }
 
 function normalize(score, maxScore) {
@@ -269,9 +269,9 @@ export default function AdminGradebook() {
       {/* ── Page header ─────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-4xl text-gray-900 tracking-tight">Jurnal</h1>
+          <h1 className="text-4xl font-bold tracking-tight"><span className="pastel-text">Jurnal</span></h1>
           {selectedClassName && selectedSubjectName && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-[#64748b]">
               {selectedClassName} &mdash; {selectedSubjectName}
             </p>
           )}

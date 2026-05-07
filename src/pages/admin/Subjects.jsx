@@ -10,14 +10,14 @@ import EmptyState from '../../components/ui/EmptyState'
 
 // Deterministically pick one of 8 palette entries based on subject name
 const SUBJECT_PALETTE = [
-  { bg: 'bg-[#EDE9FF]', text: 'text-[#534AB7]', dot: '#534AB7' },
-  { bg: 'bg-[#D1FAF0]', text: 'text-[#0D6B52]', dot: '#1D9E75' },
-  { bg: 'bg-[#FEF3C7]', text: 'text-[#92400E]', dot: '#D97706' },
-  { bg: 'bg-[#DBEAFE]', text: 'text-[#1E40AF]', dot: '#3B82F6' },
-  { bg: 'bg-[#FCE7F3]', text: 'text-[#9D174D]', dot: '#EC4899' },
-  { bg: 'bg-[#FEE2E2]', text: 'text-[#991B1B]', dot: '#EF4444' },
-  { bg: 'bg-[#E0F2FE]', text: 'text-[#0C4A6E]', dot: '#0EA5E9' },
-  { bg: 'bg-[#F3F4F6]', text: 'text-[#374151]', dot: '#6B7280' },
+  { bg: 'bg-[rgba(124,110,224,0.12)]', text: 'text-[#5e4fc7]', dot: '#7c6ee0' },
+  { bg: 'bg-[rgba(93,184,163,0.14)]',  text: 'text-[#3a8170]', dot: '#5db8a3' },
+  { bg: 'bg-[rgba(232,168,124,0.16)]', text: 'text-[#a55f33]', dot: '#e8a87c' },
+  { bg: 'bg-[rgba(107,157,222,0.14)]', text: 'text-[#3d6da7]', dot: '#6b9dde' },
+  { bg: 'bg-[rgba(157,146,234,0.14)]', text: 'text-[#5e4fc7]', dot: '#9d92ea' },
+  { bg: 'bg-[rgba(127,202,184,0.16)]', text: 'text-[#3a8170]', dot: '#7fcab8' },
+  { bg: 'bg-[rgba(231,154,98,0.14)]',  text: 'text-[#a55f33]', dot: '#e79a62' },
+  { bg: 'bg-[rgba(82,131,199,0.14)]',  text: 'text-[#3d6da7]', dot: '#5283c7' },
 ]
 
 function subjectColor(name = '') {
@@ -139,8 +139,8 @@ export default function AdminSubjects() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">Fənlər</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{subjects.length} fənn qeydə alınıb</p>
+          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Fənlər</span></h1>
+          <p className="text-sm text-[#64748b] mt-0.5">{subjects.length} fənn qeydə alınıb</p>
         </div>
         <Button onClick={openAdd}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Fənn əlavə et</span>
@@ -149,13 +149,14 @@ export default function AdminSubjects() {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
         <input
           type="text"
           placeholder="Fənn axtar..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full border border-border-soft rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple/20 focus:border-purple/40 transition-shadow"
+          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
+          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
         />
       </div>
 
@@ -169,7 +170,7 @@ export default function AdminSubjects() {
           onAction={openAdd}
         />
       ) : (
-        <div className="bg-white rounded-xl border border-border-soft shadow-sm overflow-hidden">
+        <div className="liquid-card overflow-hidden" style={{ padding: 0 }}>
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-surface border-b border-border-soft">

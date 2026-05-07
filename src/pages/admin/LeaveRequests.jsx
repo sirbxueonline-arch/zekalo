@@ -14,17 +14,17 @@ import Input from '../../components/ui/Input'
 import { Select, Textarea } from '../../components/ui/Input'
 
 const leaveTypes = {
-  sick: { label: 'Xəstəlik', className: 'bg-red-50 text-red-700 border border-red-200' },
-  personal: { label: 'Şəxsi', className: 'bg-[#faeeda] text-[#633806] border border-[#EF9F27]' },
-  professional: { label: 'Peşəkar inkişaf', className: 'bg-purple-light text-purple-dark border border-[#AFA9EC]' },
-  maternity: { label: 'Doğuş məzuniyyəti', className: 'bg-pink-50 text-pink-700 border border-pink-200' },
-  other: { label: 'Digər', className: 'bg-surface text-gray-600 border border-border-soft' },
+  sick:         { label: 'Xəstəlik',           className: 'bg-[rgba(239,68,68,0.08)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]' },
+  personal:     { label: 'Şəxsi',              className: 'bg-[rgba(232,168,124,0.15)] text-[#a55f33] border border-[rgba(232,168,124,0.4)]' },
+  professional: { label: 'Peşəkar inkişaf',    className: 'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7] border border-[rgba(124,110,224,0.28)]' },
+  maternity:    { label: 'Doğuş məzuniyyəti',  className: 'bg-[rgba(157,146,234,0.15)] text-[#5e4fc7] border border-[rgba(157,146,234,0.32)]' },
+  other:        { label: 'Digər',              className: 'bg-[rgba(255,255,255,0.6)] text-[#64748b] border border-[rgba(124,110,224,0.18)]' },
 }
 
 const statusConfig = {
-  pending: { label: 'Gözlənilir', className: 'bg-[#faeeda] text-[#633806] border border-[#EF9F27]' },
-  approved: { label: 'Təsdiqləndi', className: 'bg-teal-light text-[#085041] border border-teal-mid' },
-  rejected: { label: 'Rədd edildi', className: 'bg-red-50 text-red-700 border border-red-200' },
+  pending:  { label: 'Gözlənilir',  className: 'bg-[rgba(232,168,124,0.15)] text-[#a55f33] border border-[rgba(232,168,124,0.4)]' },
+  approved: { label: 'Təsdiqləndi', className: 'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]' },
+  rejected: { label: 'Rədd edildi', className: 'bg-[rgba(239,68,68,0.08)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]' },
 }
 
 function daysBetween(start, end) {
@@ -176,8 +176,8 @@ export default function LeaveRequests() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">Məzuniyyət Sorğuları</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Məzuniyyət Sorğuları</span></h1>
+          <p className="text-sm text-[#64748b] mt-1">
             {requests.filter(r => r.status === 'pending').length} gözlənilən sorğu
           </p>
         </div>
@@ -191,7 +191,10 @@ export default function LeaveRequests() {
           <button
             key={val}
             onClick={() => setFilterStatus(val)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${filterStatus === val ? 'bg-purple text-white' : 'bg-surface text-gray-600 hover:text-purple'}`}
+            className="px-4 py-2 rounded-full text-sm font-semibold transition-all backdrop-blur-md"
+            style={filterStatus === val
+              ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 6px 16px rgba(124,110,224,0.25)' }
+              : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
           >
             {label}
           </button>
@@ -199,13 +202,14 @@ export default function LeaveRequests() {
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
         <input
           type="text"
           placeholder="Müəllim adı axtar..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full border border-border-soft rounded-md pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
+          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
         />
       </div>
 

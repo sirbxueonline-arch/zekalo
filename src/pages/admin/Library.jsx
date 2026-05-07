@@ -220,10 +220,10 @@ export default function Library() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">Kitabxana</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Kitabxana</span></h1>
+          <p className="text-sm text-[#64748b] mt-1">
             {books.length} kitab · {checkouts.length} aktiv verilmiş
-            {overdueCount > 0 && <span className="ml-2 text-red-600 font-medium">· {overdueCount} gecikmiş</span>}
+            {overdueCount > 0 && <span className="ml-2 text-red-600 font-semibold">· {overdueCount} gecikmiş</span>}
           </p>
         </div>
         <Button onClick={() => { resetForm(); setAddModal(true) }}>
@@ -232,12 +232,15 @@ export default function Library() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-border-soft">
+      <div className="flex gap-2" style={{ borderBottom: '1px solid rgba(124,110,224,0.15)' }}>
         {[['catalog', 'Kataloq'], ['checkouts', 'Verilmiş kitablar']].map(([val, label]) => (
           <button
             key={val}
             onClick={() => setTab(val)}
-            className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors ${tab === val ? 'border-purple text-purple' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+            className="pb-3 px-4 text-sm font-semibold transition-all"
+            style={tab === val
+              ? { color: '#7c6ee0', borderBottom: '2px solid #7c6ee0' }
+              : { color: '#64748b', borderBottom: '2px solid transparent' }}
           >
             {label}
             {val === 'checkouts' && overdueCount > 0 && (
@@ -250,13 +253,14 @@ export default function Library() {
       {tab === 'catalog' && (
         <>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
             <input
               type="text"
               placeholder="Başlıq, müəllif və ya ISBN axtar..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full border border-border-soft rounded-md pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+              className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
+              style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
             />
           </div>
           <Card hover={false} className="p-0 overflow-hidden">

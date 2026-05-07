@@ -16,21 +16,45 @@ const SUBJECTS = [
   'Ədəbiyyat', 'İngilis dili', 'İnformatika', 'İncəsənət', 'Digər',
 ]
 
+// Pastel subject palette
 const subjectColors = {
-  'Riyaziyyat': 'bg-blue-50 text-blue-700',
-  'Fizika': 'bg-orange-50 text-orange-700',
-  'Kimya': 'bg-green-50 text-green-700',
-  'Biologiya': 'bg-teal-light text-[#085041]',
-  'Tarix': 'bg-amber-50 text-amber-700',
-  'Ədəbiyyat': 'bg-purple-light text-purple-dark',
-  'İngilis dili': 'bg-indigo-50 text-indigo-700',
-  'İnformatika': 'bg-cyan-50 text-cyan-700',
-  'İncəsənət': 'bg-pink-50 text-pink-700',
-  'Digər': 'bg-surface text-gray-600',
+  'Riyaziyyat':   { bg: 'rgba(107,157,222,0.16)', color: '#2f5a8c', border: 'rgba(107,157,222,0.30)' },
+  'Fizika':       { bg: 'rgba(232,168,124,0.20)', color: '#a25e2c', border: 'rgba(232,168,124,0.35)' },
+  'Kimya':        { bg: 'rgba(93,184,163,0.16)',  color: '#2f7a64', border: 'rgba(93,184,163,0.30)' },
+  'Biologiya':    { bg: 'rgba(93,184,163,0.16)',  color: '#2f7a64', border: 'rgba(93,184,163,0.30)' },
+  'Tarix':        { bg: 'rgba(232,168,124,0.20)', color: '#a25e2c', border: 'rgba(232,168,124,0.35)' },
+  'Ədəbiyyat':    { bg: 'rgba(124,110,224,0.16)', color: '#5448a8', border: 'rgba(124,110,224,0.30)' },
+  'İngilis dili': { bg: 'rgba(124,110,224,0.16)', color: '#5448a8', border: 'rgba(124,110,224,0.30)' },
+  'İnformatika':  { bg: 'rgba(107,157,222,0.16)', color: '#2f5a8c', border: 'rgba(107,157,222,0.30)' },
+  'İncəsənət':    { bg: 'rgba(232,168,124,0.20)', color: '#a25e2c', border: 'rgba(232,168,124,0.35)' },
+  'Digər':        { bg: 'rgba(100,116,139,0.10)', color: '#475569', border: 'rgba(100,116,139,0.18)' },
 }
 
-function getSubjectColor(subject) {
+function getSubjectStyle(subject) {
   return subjectColors[subject] || subjectColors['Digər']
+}
+
+function SubjectPill({ subject, size = 'md' }) {
+  const s = getSubjectStyle(subject)
+  const padding = size === 'lg' ? '5px 14px' : '3px 10px'
+  const fontSize = size === 'lg' ? 13 : 12
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        background: s.bg,
+        color: s.color,
+        border: `1px solid ${s.border}`,
+        borderRadius: 999,
+        padding,
+        fontSize,
+        fontWeight: 600,
+      }}
+    >
+      {subject}
+    </span>
+  )
 }
 
 export default function Portfolio() {
@@ -164,8 +188,12 @@ export default function Portfolio() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">Portfölyo</h1>
-          <p className="text-sm text-gray-500 mt-1">{items.length} iş · {new Set(items.map(i => i.subject)).size} fənn</p>
+          <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+            <span className="pastel-text">Portfölyo</span>
+          </h1>
+          <p className="text-sm mt-1.5" style={{ color: '#64748b' }}>
+            {items.length} iş · {new Set(items.map(i => i.subject)).size} fənn
+          </p>
         </div>
         <Button onClick={() => { resetForm(); setAddModal(true) }}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> İş əlavə et</span>
@@ -174,55 +202,105 @@ export default function Portfolio() {
 
       {subjects.length > 1 && (
         <div className="flex gap-2 flex-wrap">
-          {subjects.map(s => (
-            <button
-              key={s}
-              onClick={() => setFilterSubject(s)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${filterSubject === s ? 'bg-purple text-white' : 'bg-surface text-gray-600 hover:text-purple'}`}
-            >
-              {s === 'all' ? 'Hamısı' : s}
-            </button>
-          ))}
+          {subjects.map(s => {
+            const active = filterSubject === s
+            return (
+              <button
+                key={s}
+                onClick={() => setFilterSubject(s)}
+                className="transition-all"
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 999,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  background: active
+                    ? 'linear-gradient(135deg, rgba(124,110,224,0.18) 0%, rgba(93,184,163,0.18) 100%)'
+                    : 'rgba(255,255,255,0.55)',
+                  border: active ? '1px solid rgba(124,110,224,0.5)' : '1px solid rgba(124,110,224,0.18)',
+                  color: active ? '#5448a8' : '#475569',
+                  backdropFilter: 'blur(12px)',
+                  cursor: 'pointer',
+                }}
+              >
+                {s === 'all' ? 'Hamısı' : s}
+              </button>
+            )
+          })}
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm" style={{ color: '#b13838' }}>{error}</p>}
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Briefcase} title="Portfölyo boşdur" description="İlk işinizi əlavə edərək portfölyo qurun." actionLabel="İş əlavə et" onAction={() => { resetForm(); setAddModal(true) }} />
+        <EmptyState
+          icon={Briefcase}
+          title={filterSubject === 'all' ? 'Portfölyo boşdur' : 'Bu fəndə iş yoxdur'}
+          description={filterSubject === 'all' ? 'İlk işinizi əlavə edərək portfölyo qurun.' : 'Bu fəndə hələ heç bir iş əlavə etməmisiniz.'}
+          actionLabel={filterSubject === 'all' ? 'İş əlavə et' : undefined}
+          onAction={filterSubject === 'all' ? () => { resetForm(); setAddModal(true) } : undefined}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map(item => (
-            <Card key={item.id} className="p-6 flex flex-col gap-3 cursor-pointer" onClick={() => setViewModal(item)}>
+            <Card key={item.id} className="flex flex-col gap-3 cursor-pointer" onClick={() => setViewModal(item)}>
               <div className="flex items-start justify-between gap-2">
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${getSubjectColor(item.subject)}`}>
-                  {item.subject}
-                </span>
+                <SubjectPill subject={item.subject} />
                 <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                  <button onClick={() => openEdit(item)} className="p-1.5 text-gray-400 hover:text-purple transition-colors">
+                  <button
+                    onClick={() => openEdit(item)}
+                    className="transition-colors flex items-center justify-center"
+                    style={{ width: 28, height: 28, borderRadius: 8, color: '#64748b' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.10)'; e.currentTarget.style.color = '#7c6ee0' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b' }}
+                  >
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
-                  <button onClick={() => setDeleteModal(item)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors">
+                  <button
+                    onClick={() => setDeleteModal(item)}
+                    className="transition-colors flex items-center justify-center"
+                    style={{ width: 28, height: 28, borderRadius: 8, color: '#64748b' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,108,108,0.10)'; e.currentTarget.style.color = '#b13838' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b' }}
+                  >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
 
-              <h3 className="font-serif text-xl text-gray-900 leading-tight">{item.title}</h3>
+              <h3 style={{ fontSize: 19, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.25 }}>
+                {item.title}
+              </h3>
 
               {item.description && (
-                <p className="text-sm text-gray-600 line-clamp-2">{item.description}</p>
+                <p className="text-sm line-clamp-2" style={{ color: '#475569', lineHeight: 1.5 }}>
+                  {item.description}
+                </p>
               )}
 
               {item.reflection && (
-                <div className="bg-surface rounded-lg p-3 mt-1">
-                  <p className="text-xs font-medium text-gray-500 mb-1">Refleksiya</p>
-                  <p className="text-sm text-gray-600 line-clamp-3">{item.reflection}</p>
+                <div
+                  style={{
+                    background: 'rgba(124,110,224,0.06)',
+                    borderRadius: 14,
+                    padding: 12,
+                    border: '1px solid rgba(124,110,224,0.10)',
+                  }}
+                >
+                  <p style={{ fontSize: 11, fontWeight: 700, color: '#7c6ee0', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Refleksiya
+                  </p>
+                  <p className="text-sm line-clamp-3" style={{ color: '#475569', lineHeight: 1.5 }}>
+                    {item.reflection}
+                  </p>
                 </div>
               )}
 
               {item.date && (
-                <div className="flex items-center gap-1 text-xs text-gray-400 mt-auto pt-2 border-t border-border-soft">
+                <div
+                  className="flex items-center gap-1 text-xs mt-auto pt-2"
+                  style={{ color: '#64748b', borderTop: '1px solid rgba(124,110,224,0.10)' }}
+                >
                   <Calendar className="w-3 h-3" />
                   {fmtLong(item.date)}
                 </div>
@@ -236,10 +314,10 @@ export default function Portfolio() {
       <Modal open={!!viewModal} onClose={() => setViewModal(null)} title={viewModal?.title || ''} size="lg">
         {viewModal && (
           <div className="space-y-5">
-            <div className="flex items-center gap-3">
-              <span className={`text-sm font-medium px-3 py-1 rounded-full ${getSubjectColor(viewModal.subject)}`}>{viewModal.subject}</span>
+            <div className="flex items-center gap-3 flex-wrap">
+              <SubjectPill subject={viewModal.subject} size="lg" />
               {viewModal.date && (
-                <span className="text-sm text-gray-500 flex items-center gap-1">
+                <span className="text-sm flex items-center gap-1" style={{ color: '#64748b' }}>
                   <Calendar className="w-4 h-4" />
                   {fmtLong(viewModal.date)}
                 </span>
@@ -247,18 +325,31 @@ export default function Portfolio() {
             </div>
             {viewModal.description && (
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Açıqlama</p>
-                <p className="text-gray-700">{viewModal.description}</p>
+                <p style={{ fontSize: 11, fontWeight: 700, color: '#7c6ee0', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
+                  Açıqlama
+                </p>
+                <p style={{ color: '#1a1a2e' }}>{viewModal.description}</p>
               </div>
             )}
             {viewModal.reflection && (
-              <div className="bg-surface rounded-xl p-5">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Refleksiya</p>
-                <p className="text-gray-700 leading-relaxed">{viewModal.reflection}</p>
+              <div
+                style={{
+                  background: 'rgba(124,110,224,0.06)',
+                  borderRadius: 16,
+                  padding: 20,
+                  border: '1px solid rgba(124,110,224,0.10)',
+                }}
+              >
+                <p style={{ fontSize: 11, fontWeight: 700, color: '#7c6ee0', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
+                  Refleksiya
+                </p>
+                <p style={{ color: '#1a1a2e', lineHeight: 1.6 }}>{viewModal.reflection}</p>
               </div>
             )}
             <div className="flex justify-end gap-3 pt-2">
-              <Button variant="ghost" onClick={() => { setViewModal(null); openEdit(viewModal) }}><span className="flex items-center gap-2"><Edit2 className="w-4 h-4" /> Düzənlə</span></Button>
+              <Button variant="secondary" onClick={() => { setViewModal(null); openEdit(viewModal) }}>
+                <span className="flex items-center gap-2"><Edit2 className="w-4 h-4" /> Düzənlə</span>
+              </Button>
               <Button variant="ghost" onClick={() => setViewModal(null)}>{t('close') || 'Bağla'}</Button>
             </div>
           </div>
@@ -269,7 +360,14 @@ export default function Portfolio() {
       <Modal open={addModal} onClose={() => { setAddModal(false); setError(null) }} title="İş Əlavə Et" size="lg">
         <div className="space-y-4">
           <FormFields />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
+          {error && (
+            <div
+              className="px-3 py-2 rounded-lg text-sm"
+              style={{ background: 'rgba(239,108,108,0.10)', color: '#b13838', border: '1px solid rgba(239,108,108,0.25)' }}
+            >
+              {error}
+            </div>
+          )}
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleAdd} loading={saving} disabled={!form.title}>{t('add')}</Button>
@@ -281,7 +379,14 @@ export default function Portfolio() {
       <Modal open={!!editModal} onClose={() => { setEditModal(null); setError(null) }} title="İşi Düzənlə" size="lg">
         <div className="space-y-4">
           <FormFields />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
+          {error && (
+            <div
+              className="px-3 py-2 rounded-lg text-sm"
+              style={{ background: 'rgba(239,108,108,0.10)', color: '#b13838', border: '1px solid rgba(239,108,108,0.25)' }}
+            >
+              {error}
+            </div>
+          )}
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="ghost" onClick={() => { setEditModal(null); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleEdit} loading={saving} disabled={!form.title}>{t('save')}</Button>
@@ -291,8 +396,8 @@ export default function Portfolio() {
 
       {/* Delete Modal */}
       <Modal open={!!deleteModal} onClose={() => setDeleteModal(null)} title={t('delete')} size="sm">
-        <p className="text-sm text-gray-600 mb-6">
-          <strong>{deleteModal?.title}</strong> işini silmək istədiyinizə əminsiniz?
+        <p className="text-sm mb-6" style={{ color: '#475569' }}>
+          <strong style={{ color: '#1a1a2e' }}>{deleteModal?.title}</strong> işini silmək istədiyinizə əminsiniz?
         </p>
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setDeleteModal(null)}>{t('cancel')}</Button>

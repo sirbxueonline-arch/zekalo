@@ -23,11 +23,11 @@ const TYPE_LABELS = {
 }
 
 const TYPE_BADGE_CLASSES = {
-  warning: 'bg-amber-100 text-amber-800 border border-amber-200',
-  detention: 'bg-orange-100 text-orange-800 border border-orange-200',
-  suspension: 'bg-red-100 text-red-700 border border-red-200',
-  commendation: 'bg-teal-50 text-teal-800 border border-teal-200',
-  note: 'bg-gray-100 text-gray-600 border border-gray-200',
+  warning:      'bg-[rgba(232,168,124,0.15)] text-[#a55f33] border border-[rgba(232,168,124,0.4)]',
+  detention:    'bg-[rgba(231,154,98,0.18)] text-[#a55f33] border border-[rgba(231,154,98,0.4)]',
+  suspension:   'bg-[rgba(239,68,68,0.10)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]',
+  commendation: 'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]',
+  note:         'bg-[rgba(255,255,255,0.6)] text-[#64748b] border border-[rgba(124,110,224,0.18)]',
 }
 
 function TypeBadge({ type }) {
@@ -254,7 +254,7 @@ export default function AdminDiscipline() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-serif text-3xl text-gray-900">İntizam Jurnalı</h1>
+        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">İntizam Jurnalı</span></h1>
         <Button onClick={() => { resetForm(); setAddModal(true) }}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Qeyd əlavə et</span>
         </Button>
@@ -271,13 +271,14 @@ export default function AdminDiscipline() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-end">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
           <input
             type="text"
             placeholder="Şagird adı ilə axtar..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-border-soft rounded-md pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+            className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
+            style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
           />
         </div>
         <div className="w-44">

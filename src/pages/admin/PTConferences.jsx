@@ -41,11 +41,11 @@ function generateSlotTimes() {
 const SLOT_TIMES = generateSlotTimes()
 
 const TEACHER_COLORS = [
-  { bg: 'bg-purple', text: 'text-white', light: 'bg-purple-light', lightText: 'text-purple-dark' },
-  { bg: 'bg-teal', text: 'text-white', light: 'bg-teal-light', lightText: 'text-[#085041]' },
-  { bg: 'bg-blue-500', text: 'text-white', light: 'bg-blue-50', lightText: 'text-blue-700' },
-  { bg: 'bg-orange-400', text: 'text-white', light: 'bg-orange-50', lightText: 'text-orange-700' },
-  { bg: 'bg-pink-500', text: 'text-white', light: 'bg-pink-50', lightText: 'text-pink-700' },
+  { bg: 'bg-[#7c6ee0]', text: 'text-white', light: 'bg-[rgba(124,110,224,0.12)]', lightText: 'text-[#5e4fc7]' },
+  { bg: 'bg-[#5db8a3]', text: 'text-white', light: 'bg-[rgba(93,184,163,0.14)]',  lightText: 'text-[#3a8170]' },
+  { bg: 'bg-[#6b9dde]', text: 'text-white', light: 'bg-[rgba(107,157,222,0.14)]', lightText: 'text-[#3d6da7]' },
+  { bg: 'bg-[#e8a87c]', text: 'text-white', light: 'bg-[rgba(232,168,124,0.16)]', lightText: 'text-[#a55f33]' },
+  { bg: 'bg-[#9d92ea]', text: 'text-white', light: 'bg-[rgba(157,146,234,0.14)]', lightText: 'text-[#5e4fc7]' },
 ]
 
 export default function PTConferences() {
@@ -158,8 +158,8 @@ export default function PTConferences() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">Valideyn-Müəllim Görüşləri</h1>
-          <p className="text-sm text-gray-500 mt-1">{bookedCount} rezerv · {availableCount} boş slot</p>
+          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Valideyn-Müəllim Görüşləri</span></h1>
+          <p className="text-sm text-[#64748b] mt-1">{bookedCount} rezerv · {availableCount} boş slot</p>
         </div>
         <Button onClick={() => { setSlotForm(f => ({ ...f, date: selectedDate })); setAddSlotModal(true) }}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Slot əlavə et</span>
@@ -196,7 +196,7 @@ export default function PTConferences() {
             return (
               <Card key={teacherId} hover={false} className="p-6">
                 <div className="flex items-center gap-3 mb-5">
-                  <Avatar name={teacher_name} size="md" color={color.bg.replace('bg-', '#').replace('purple', '534AB7').replace('teal', '0f9688')} />
+                  <Avatar name={teacher_name} size="md" />
                   <div>
                     <h3 className="font-medium text-gray-900">{teacher_name}</h3>
                     <p className="text-xs text-gray-500">{bookedSlots.length} rezerv · {freeSlots.length} boş</p>
@@ -236,16 +236,16 @@ export default function PTConferences() {
       {slots.length > 0 && (
         <div className="grid grid-cols-3 gap-4">
           <Card hover={false} className="p-5 text-center">
-            <p className="text-3xl font-bold text-purple">{bookedCount}</p>
-            <p className="text-xs text-gray-500 mt-1">Rezerv edilmiş</p>
+            <p className="text-3xl font-bold" style={{ color: '#7c6ee0' }}>{bookedCount}</p>
+            <p className="text-xs mt-1" style={{ color: '#64748b' }}>Rezerv edilmiş</p>
           </Card>
           <Card hover={false} className="p-5 text-center">
-            <p className="text-3xl font-bold text-gray-400">{availableCount}</p>
-            <p className="text-xs text-gray-500 mt-1">Boş slot</p>
+            <p className="text-3xl font-bold" style={{ color: '#94a3b8' }}>{availableCount}</p>
+            <p className="text-xs mt-1" style={{ color: '#64748b' }}>Boş slot</p>
           </Card>
           <Card hover={false} className="p-5 text-center">
-            <p className="text-3xl font-bold text-gray-900">{teacherEntries.length}</p>
-            <p className="text-xs text-gray-500 mt-1">Müəllim</p>
+            <p className="text-3xl font-bold" style={{ color: '#5db8a3' }}>{teacherEntries.length}</p>
+            <p className="text-xs mt-1" style={{ color: '#64748b' }}>Müəllim</p>
           </Card>
         </div>
       )}

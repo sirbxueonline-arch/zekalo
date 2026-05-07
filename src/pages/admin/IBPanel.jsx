@@ -204,7 +204,7 @@ function IBPanelContent() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-3xl text-gray-900">{t('ib_panel')}</h1>
+        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('ib_panel')}</span></h1>
         <div className="flex items-center gap-3">
           <Button variant="ghost" onClick={exportIBReport}>
             <span className="flex items-center gap-2"><FileText className="w-4 h-4" /> IB {t('reports')}</span>

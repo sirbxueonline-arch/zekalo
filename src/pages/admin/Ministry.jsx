@@ -125,7 +125,7 @@ function MinistryContent() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-gray-900">{t('ministry')}</h1>
+      <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('ministry')}</span></h1>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

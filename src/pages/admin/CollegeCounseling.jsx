@@ -14,12 +14,12 @@ import Input from '../../components/ui/Input'
 import { Select, Textarea } from '../../components/ui/Input'
 
 const appStatusConfig = {
-  researching: { label: 'Araşdırma', className: 'bg-surface text-gray-600 border border-border-soft' },
-  drafting: { label: 'Sənədlər hazırlanır', className: 'bg-[#faeeda] text-[#633806] border border-[#EF9F27]' },
-  submitted: { label: 'Göndərildi', className: 'bg-purple-light text-purple-dark border border-[#AFA9EC]' },
-  accepted: { label: 'Qəbul edildi', className: 'bg-teal-light text-[#085041] border border-teal-mid' },
-  rejected: { label: 'Rədd edildi', className: 'bg-red-50 text-red-700 border border-red-200' },
-  waitlisted: { label: 'Gözleme siyahısı', className: 'bg-blue-50 text-blue-700 border border-blue-200' },
+  researching: { label: 'Araşdırma',           className: 'bg-[rgba(255,255,255,0.6)] text-[#64748b] border border-[rgba(124,110,224,0.18)]' },
+  drafting:    { label: 'Sənədlər hazırlanır', className: 'bg-[rgba(232,168,124,0.15)] text-[#a55f33] border border-[rgba(232,168,124,0.4)]' },
+  submitted:   { label: 'Göndərildi',          className: 'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7] border border-[rgba(124,110,224,0.28)]' },
+  accepted:    { label: 'Qəbul edildi',        className: 'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]' },
+  rejected:    { label: 'Rədd edildi',         className: 'bg-[rgba(239,68,68,0.08)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]' },
+  waitlisted:  { label: 'Gözleme siyahısı',    className: 'bg-[rgba(107,157,222,0.14)] text-[#3d6da7] border border-[rgba(107,157,222,0.32)]' },
 }
 
 export default function CollegeCounseling() {
@@ -242,8 +242,8 @@ export default function CollegeCounseling() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">Kollec Məsləhəti</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Kollec Məsləhəti</span></h1>
+          <p className="text-sm text-[#64748b] mt-1">
             {applications.length} şagird · {applications.reduce((s, a) => s + (a.universities || []).length, 0)} müraciət · {acceptedCount} qəbul
           </p>
         </div>
@@ -253,13 +253,14 @@ export default function CollegeCounseling() {
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
         <input
           type="text"
           placeholder="Şagird axtar..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full border border-border-soft rounded-md pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
+          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
         />
       </div>
 

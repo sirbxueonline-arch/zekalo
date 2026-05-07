@@ -87,20 +87,24 @@ const EVENT_META = {
 
 function SectionHeader({ icon: Icon, iconBg, iconColor, title, sub, action, onAction }) {
   return (
-    <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
+    <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
       <div className="flex items-center gap-3">
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
-          <Icon className={`w-4.5 h-4.5 ${iconColor}`} />
+        <div
+          className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] ${iconBg || ''}`}
+          style={!iconBg ? { background: 'rgba(124,110,224,0.12)' } : undefined}
+        >
+          <Icon className={`w-4.5 h-4.5 ${iconColor || ''}`} style={!iconColor ? { color: '#7c6ee0' } : undefined} />
         </div>
-        <div className="border-l-4 border-purple pl-3">
-          <h2 className="font-serif text-xl text-gray-900 leading-none">{title}</h2>
-          {sub && <p className="text-xs text-gray-500 mt-0.5">{sub}</p>}
+        <div className="pl-3" style={{ borderLeft: '3px solid rgba(124,110,224,0.55)' }}>
+          <h2 className="text-lg font-bold leading-tight" style={{ color: '#1a1a2e' }}>{title}</h2>
+          {sub && <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{sub}</p>}
         </div>
       </div>
       {action && (
         <button
           onClick={onAction}
-          className="text-xs text-purple hover:text-purple-dark font-semibold flex items-center gap-0.5 transition-colors"
+          className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:opacity-80"
+          style={{ color: '#7c6ee0' }}
         >
           {action} <ChevronRight className="w-3.5 h-3.5" />
         </button>
@@ -218,18 +222,40 @@ export default function AdminDashboard() {
 
       {/* ── HERO BANNER ──────────────────────────────────────────────────── */}
       <div
-        className="rounded-2xl overflow-hidden shadow-lg"
-        style={{ background: 'linear-gradient(135deg, #534AB7 0%, #3D37A4 50%, #2D279F 100%)' }}
+        className="liquid-card relative overflow-hidden"
+        style={{ padding: 0 }}
       >
+        {/* Soft pastel blob accent */}
+        <div
+          aria-hidden="true"
+          className="section-blob"
+          style={{
+            top: '-30%', right: '-10%',
+            width: '40%', height: '120%',
+            background: 'radial-gradient(ellipse at center, rgba(124,110,224,0.35) 0%, transparent 65%)',
+            opacity: 0.5,
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="section-blob"
+          style={{
+            bottom: '-30%', left: '-5%',
+            width: '35%', height: '120%',
+            background: 'radial-gradient(ellipse at center, rgba(93,184,163,0.32) 0%, transparent 65%)',
+            opacity: 0.45,
+          }}
+        />
         {/* Top row */}
-        <div className="px-7 pt-6 pb-5 flex items-start justify-between gap-4 flex-wrap">
+        <div className="relative px-7 pt-6 pb-5 flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-[11px] font-bold text-white/50 uppercase tracking-widest">{todayLabel()}</p>
-            <h1 className="text-white text-2xl font-extrabold mt-1.5 leading-tight tracking-tight">
-              {greeting(t)}, {firstName} 👋
+            <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#64748b' }}>{todayLabel()}</p>
+            <h1 className="text-2xl font-extrabold mt-1.5 leading-tight tracking-tight">
+              <span className="pastel-text">{greeting(t)}, {firstName}</span>
+              <span className="ml-1">👋</span>
             </h1>
             {profile?.school?.name && (
-              <p className="text-white/60 text-xs mt-1.5 flex items-center gap-1.5 font-medium">
+              <p className="text-xs mt-1.5 flex items-center gap-1.5 font-medium" style={{ color: '#64748b' }}>
                 <School className="w-3.5 h-3.5" />
                 {profile.school.name}
               </p>
@@ -238,14 +264,16 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2 flex-shrink-0 mt-1">
             <button
               onClick={() => navigate('/admin/shagirdler')}
-              className="flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/20 text-white rounded-xl px-4 py-2.5 text-sm font-semibold transition-all"
+              className="btn-ghost-pastel"
+              style={{ padding: '10px 18px', fontSize: 13.5 }}
             >
               <UserPlus className="w-4 h-4" />
               <span className="hidden sm:inline">Şagird Əlavə Et</span>
             </button>
             <button
               onClick={() => navigate('/admin/mesajlar')}
-              className="flex items-center gap-2 bg-white text-purple hover:bg-purple-50 rounded-xl px-4 py-2.5 text-sm font-bold transition-all shadow-sm"
+              className="btn-pastel"
+              style={{ padding: '10px 18px', fontSize: 13.5 }}
             >
               <Megaphone className="w-4 h-4" />
               <span className="hidden sm:inline">Elan Yayımla</span>
@@ -254,21 +282,33 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stat tiles inside banner */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/10 border-t border-white/10">
+        <div
+          className="relative grid grid-cols-2 sm:grid-cols-4 gap-px"
+          style={{ borderTop: '1px solid rgba(124,110,224,0.12)', background: 'rgba(124,110,224,0.10)' }}
+        >
           {[
-            { label: 'Şagirdlər',   value: stats.students,     sub: `${stats.classes} sinif`,       icon: Users },
-            { label: 'Müəllimlər',  value: stats.teachers,     sub: `${stats.parents} valideyn`,    icon: GraduationCap },
-            { label: 'Davamiyyət',  value: `${stats.attendance}%`, sub: 'bu günkü faiz',           icon: CalendarCheck },
-            { label: 'Tədbirlər',   value: stats.activeEvents, sub: 'yaxınlaşan',                  icon: Activity },
+            { label: 'Şagirdlər',   value: stats.students,     sub: `${stats.classes} sinif`,       icon: Users,         color: '#7c6ee0' },
+            { label: 'Müəllimlər',  value: stats.teachers,     sub: `${stats.parents} valideyn`,    icon: GraduationCap, color: '#5db8a3' },
+            { label: 'Davamiyyət',  value: `${stats.attendance}%`, sub: 'bu günkü faiz',           icon: CalendarCheck,  color: '#e8a87c' },
+            { label: 'Tədbirlər',   value: stats.activeEvents, sub: 'yaxınlaşan',                  icon: Activity,        color: '#6b9dde' },
           ].map(s => (
-            <div key={s.label} className="bg-white/5 hover:bg-white/10 transition-colors px-5 py-4 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <s.icon className="w-4.5 h-4.5 text-white/80" />
+            <div
+              key={s.label}
+              className="px-5 py-4 flex items-center gap-3 transition-colors"
+              style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.85)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.55)' }}
+            >
+              <div
+                className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
+                style={{ background: `${s.color}22` }}
+              >
+                <s.icon className="w-4.5 h-4.5" style={{ color: s.color }} />
               </div>
               <div className="min-w-0">
-                <p className="text-white/50 text-[10px] font-bold uppercase tracking-wider">{s.label}</p>
-                <p className="text-white text-2xl font-black leading-none mt-0.5 tabular-nums">{s.value}</p>
-                <p className="text-white/40 text-[10px] mt-0.5 font-medium truncate">{s.sub}</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#64748b' }}>{s.label}</p>
+                <p className="text-2xl font-black leading-none mt-0.5 tabular-nums" style={{ color: '#1a1a2e' }}>{s.value}</p>
+                <p className="text-[10px] mt-0.5 font-medium truncate" style={{ color: '#94a3b8' }}>{s.sub}</p>
               </div>
             </div>
           ))}
@@ -277,7 +317,7 @@ export default function AdminDashboard() {
 
       {/* ── ATTENDANCE OVERVIEW ───────────────────────────────────────────── */}
       {att.total > 0 && (
-        <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
+        <div className="liquid-card overflow-hidden">
           <SectionHeader
             icon={CalendarCheck}
             iconBg="bg-purple-light"
@@ -343,7 +383,7 @@ export default function AdminDashboard() {
         <div className="lg:col-span-7 space-y-5">
 
           {/* Class-by-class attendance */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
+          <div className="liquid-card overflow-hidden">
             <SectionHeader
               icon={CalendarCheck}
               iconBg="bg-purple-light"
@@ -406,7 +446,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* At-risk students */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
+          <div className="liquid-card overflow-hidden">
             {atRisk.length > 0 ? (
               <>
                 <SectionHeader
@@ -472,7 +512,7 @@ export default function AdminDashboard() {
         <div className="lg:col-span-5 space-y-5">
 
           {/* Upcoming events */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
+          <div className="liquid-card overflow-hidden">
             <SectionHeader
               icon={Activity}
               iconBg="bg-amber-50"
@@ -518,7 +558,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Activity / notifications feed */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
+          <div className="liquid-card overflow-hidden">
             <SectionHeader
               icon={Bell}
               iconBg="bg-purple-light"

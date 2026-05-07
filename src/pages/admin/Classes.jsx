@@ -160,18 +160,18 @@ export default function Classes() {
         <div className="flex items-center gap-4 flex-wrap">
           <button
             onClick={() => setSelectedClass(null)}
-            className="p-2 text-gray-400 hover:text-purple transition-colors rounded-lg hover:bg-purple-light"
+            className="p-2 text-[#64748b] hover:text-[#7c6ee0] transition-all rounded-full hover:bg-[rgba(124,110,224,0.1)]"
             aria-label="Geri"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="font-serif text-3xl text-gray-900">{selectedClass.name}</h1>
+            <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{selectedClass.name}</span></h1>
             {selectedClass.grade_level && (
-              <p className="text-sm text-gray-400 mt-0.5">{selectedClass.grade_level}-ci sinif</p>
+              <p className="text-sm text-[#64748b] mt-0.5">{selectedClass.grade_level}-ci sinif</p>
             )}
           </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold bg-teal-light text-[#085041]">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-md" style={{ background: 'rgba(93,184,163,0.14)', color: '#3a8170', border: '1px solid rgba(93,184,163,0.36)' }}>
             <Users className="w-4 h-4" />
             {classStudents.length} {t('students')}
           </span>
@@ -235,7 +235,7 @@ export default function Classes() {
                     ? parts[0][0] + parts[parts.length - 1][0]
                     : (parts[0]?.[0] || '?')
                   const colors = [
-                    'bg-[#EDE9FF] text-[#534AB7]',
+                    'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7]',
                     'bg-[#D1FAF0] text-[#0D6B52]',
                     'bg-[#DBEAFE] text-[#1E40AF]',
                     'bg-[#FEF3C7] text-[#92400E]',
@@ -288,7 +288,7 @@ export default function Classes() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-3xl text-gray-900">{t('classes')}</h1>
+        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('classes')}</span></h1>
         <Button onClick={() => setAddModal(true)}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> {t('add')}</span>
         </Button>
@@ -306,32 +306,36 @@ export default function Classes() {
               <Card key={cls.id} className="cursor-pointer group" onClick={() => openClassDetail(cls)}>
                 {/* Card header accent */}
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0 group-hover:bg-purple/20 transition-colors">
-                    <BookOpen className="w-5 h-5 text-purple" />
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]" style={{ background: 'rgba(124,110,224,0.12)' }}>
+                    <BookOpen className="w-5 h-5" style={{ color: '#7c6ee0' }} />
                   </div>
                   {/* Student count pill */}
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold
-                    ${cls.student_count > 0 ? 'bg-teal-light text-[#085041]' : 'bg-surface text-gray-500'}`}>
+                  <span
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md"
+                    style={cls.student_count > 0
+                      ? { background: 'rgba(93,184,163,0.14)', color: '#3a8170', border: '1px solid rgba(93,184,163,0.36)' }
+                      : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
+                  >
                     <Users className="w-3 h-3" />
                     {cls.student_count}
                   </span>
                 </div>
 
-                <h3 className="font-serif text-xl text-gray-900 mb-3">{cls.name}</h3>
+                <h3 className="text-xl font-bold mb-3" style={{ color: '#1a1a2e' }}>{cls.name}</h3>
 
                 <div className="flex flex-wrap gap-2">
                   {cls.grade_level && (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-surface text-gray-600 border border-border-soft">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md" style={{ background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}>
                       {cls.grade_level}-ci sinif
                     </span>
                   )}
                   {teacher && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-light text-purple-dark border border-[#AFA9EC]">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md" style={{ background: 'rgba(124,110,224,0.12)', color: '#5e4fc7', border: '1px solid rgba(124,110,224,0.28)' }}>
                       {teacher.full_name}
                     </span>
                   )}
                   {!teacher && (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-surface text-gray-400 border border-border-soft italic">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium italic backdrop-blur-md" style={{ background: 'rgba(255,255,255,0.5)', color: '#94a3b8', border: '1px solid rgba(124,110,224,0.12)' }}>
                       Müəllim yoxdur
                     </span>
                   )}

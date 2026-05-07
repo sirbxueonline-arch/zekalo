@@ -1,15 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
-import Card from '../../components/ui/Card'
-import Button from '../../components/ui/Button'
-import Input from '../../components/ui/Input'
-import { Select } from '../../components/ui/Input'
-import Modal from '../../components/ui/Modal'
-import { PageSpinner } from '../../components/ui/Spinner'
-import EmptyState from '../../components/ui/EmptyState'
 import { GradeBadge } from '../../components/ui/Badge'
-import { BookOpen, Plus, Download, Search, ChevronDown, TrendingUp, Award, BarChart3, ChevronUp } from 'lucide-react'
+import { BookOpen, Plus, Download, Search, ChevronDown, TrendingUp, Award, BarChart3, X } from 'lucide-react'
 import { fmtDate } from '../../lib/dateUtils'
 import { notifyUsers } from '../../lib/notify'
 
@@ -21,20 +14,12 @@ const assessmentTypes = [
   { value: 'classwork', label: 'Sinif işi' },
 ]
 
-const typeColors = {
-  test:      'bg-purple-light text-purple border-purple',
-  homework:  'bg-teal-light text-teal border-teal',
-  project:   'bg-amber-50 text-amber-700 border-amber-400',
-  exam:      'bg-red-50 text-red-600 border-red-400',
-  classwork: 'bg-blue-50 text-blue-600 border-blue-400',
-}
-
-const typeHeaderBorder = {
-  test:      'border-purple',
-  homework:  'border-teal',
-  project:   'border-amber-400',
-  exam:      'border-red-400',
-  classwork: 'border-blue-400',
+const TYPE_HUE = {
+  test:      { bg: 'rgba(124,110,224,0.14)', text: '#5b4fb8', accent: '#7c6ee0' },
+  homework:  { bg: 'rgba(93,184,163,0.14)',  text: '#3d8a73', accent: '#5db8a3' },
+  project:   { bg: 'rgba(232,168,124,0.18)', text: '#b46a3e', accent: '#e8a87c' },
+  exam:      { bg: 'rgba(229,107,127,0.14)', text: '#b83b54', accent: '#e56b7f' },
+  classwork: { bg: 'rgba(107,157,222,0.14)', text: '#4a7cb5', accent: '#6b9dde' },
 }
 
 const typeLabelMap = {
@@ -45,13 +30,14 @@ const typeLabelMap = {
   classwork: 'Sinif işi',
 }
 
-function getCellStyle(score, maxScore) {
+// Pastel color-coded cell colors based on score / max
+function cellPastelStyle(score, maxScore) {
   if (score == null || score === '') return null
-  // Normalize to 0-10 scale
   const normalized = maxScore > 0 ? (score / maxScore) * 10 : Number(score)
-  if (normalized >= 8) return 'bg-teal-light text-teal font-semibold'
-  if (normalized >= 6) return 'bg-purple-light text-purple font-medium'
-  return 'bg-red-50 text-red-600 font-medium'
+  if (normalized >= 8)  return { bg: 'rgba(93,184,163,0.18)',  color: '#3d8a73' }   // mint — high
+  if (normalized >= 6)  return { bg: 'rgba(124,110,224,0.16)', color: '#5b4fb8' }   // periwinkle — good
+  if (normalized >= 4)  return { bg: 'rgba(232,168,124,0.20)', color: '#b46a3e' }   // peach — mid
+  return                       { bg: 'rgba(229,107,127,0.16)', color: '#b83b54' }   // rose — low
 }
 
 export default function TeacherGradebook() {
@@ -163,43 +149,24 @@ export default function TeacherGradebook() {
     }))
     setEditingCell(null)
 
-    // Fire-and-forget notifications — notify student (and parent if linked)
     ;(async () => {
       try {
         const assessment = assessmentId ? assessments.find(a => a.id === assessmentId) : null
-        const subjectName = assessment?.title
-          ?? (criterion ? `Kriteriya ${criterion}` : 'Qiymət')
+        const subjectName = assessment?.title ?? (criterion ? `Kriteriya ${criterion}` : 'Qiymət')
         const maxScore = assessment?.max_score ?? (criterion ? 8 : null)
-        const bodyText = maxScore != null
-          ? `${subjectName}: ${score}/${maxScore}`
-          : `${subjectName}: ${score}`
+        const bodyText = maxScore != null ? `${subjectName}: ${score}/${maxScore}` : `${subjectName}: ${score}`
 
         const toNotify = [
-          {
-            profile_id: studentId,
-            school_id: profile.school_id,
-            title: 'Yeni qiymət',
-            body: bodyText,
-            type: 'grade',
-            reference_id: savedGradeId,
-          },
+          { profile_id: studentId, school_id: profile.school_id, title: 'Yeni qiymət', body: bodyText, type: 'grade', reference_id: savedGradeId },
         ]
 
-        // Look up parent(s) via parent_children and notify them too
         const { data: parentLinks } = await supabase
           .from('parent_children')
           .select('parent_id')
           .eq('student_id', studentId)
 
         ;(parentLinks || []).forEach(link => {
-          toNotify.push({
-            profile_id: link.parent_id,
-            school_id: profile.school_id,
-            title: 'Yeni qiymət',
-            body: bodyText,
-            type: 'grade',
-            reference_id: savedGradeId,
-          })
+          toNotify.push({ profile_id: link.parent_id, school_id: profile.school_id, title: 'Yeni qiymət', body: bodyText, type: 'grade', reference_id: savedGradeId })
         })
 
         await notifyUsers(toNotify)
@@ -217,7 +184,7 @@ export default function TeacherGradebook() {
     const { data, error } = await supabase.from('assessments').insert({
       title:      newAssessment.title.trim(),
       type:       newAssessment.type,
-      date:       newAssessment.date || null,   // empty string → null so Postgres uses DEFAULT CURRENT_DATE
+      date:       newAssessment.date || null,
       class_id:   selectedClass,
       subject_id: selectedSubject,
       teacher_id: profile.id,
@@ -256,7 +223,7 @@ export default function TeacherGradebook() {
     })
 
     const csv = [header, ...rows].map(r => r.join(';')).join('\n')
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -265,10 +232,27 @@ export default function TeacherGradebook() {
     URL.revokeObjectURL(url)
   }
 
-  if (loading) return <PageSpinner />
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <div className="pastel-skeleton h-12 w-72" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-24" />)}
+        </div>
+        <div className="pastel-skeleton h-96" />
+      </div>
+    )
+  }
 
   if (!teacherClasses.length) {
-    return <EmptyState icon={BookOpen} title={t('no_data')} description={t('no_data')} />
+    return (
+      <div className="liquid-card p-12 text-center">
+        <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
+          <BookOpen className="w-8 h-8" />
+        </div>
+        <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>{t('no_data')}</p>
+      </div>
+    )
   }
 
   const uniqueClasses = [...new Map(teacherClasses.map(tc => [tc.class_id, tc.class])).values()]
@@ -280,226 +264,130 @@ export default function TeacherGradebook() {
 
   const ibCriteria = ['A', 'B', 'C', 'D']
 
-  // --- Summary stats ---
   const allAvgs = filteredStudents.map(s => getStudentAvg(s.id)).filter(v => v != null)
-  const classAvg = allAvgs.length
-    ? Math.round((allAvgs.reduce((a, b) => a + b, 0) / allAvgs.length) * 10) / 10
-    : null
+  const classAvg = allAvgs.length ? Math.round((allAvgs.reduce((a, b) => a + b, 0) / allAvgs.length) * 10) / 10 : null
   const highestScore = allAvgs.length ? Math.max(...allAvgs) : null
   const lowestScore  = allAvgs.length ? Math.min(...allAvgs) : null
-
-  // Count total grade submissions
   const submissionCount = Object.keys(grades).filter(k =>
     filteredStudents.some(s => k.startsWith(s.id + '_'))
   ).length
-
-  // --- Grade distribution (out of 10) ---
   const distA = allAvgs.filter(v => v >= 9).length
   const distB = allAvgs.filter(v => v >= 7 && v < 9).length
   const distC = allAvgs.filter(v => v >= 5 && v < 7).length
   const distD = allAvgs.filter(v => v < 5).length
 
   return (
-    <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-4xl text-gray-900 tracking-tight">{t('gradebook')}</h1>
-        <div className="flex gap-3">
-          <Button variant="secondary" onClick={exportCSV}>
-            <Download className="w-4 h-4 mr-2" />
-            {t('export_csv')}
-          </Button>
-          <Button onClick={() => setShowModal(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            {t('new_assignment')}
-          </Button>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
+          <span className="pastel-text">{t('gradebook')}</span>
+        </h1>
+        <div className="flex gap-2 flex-wrap">
+          <button onClick={exportCSV} className="btn-ghost-pastel" style={{ padding: '10px 18px', fontSize: 13 }}>
+            <Download className="w-4 h-4" /> {t('export_csv')}
+          </button>
+          <button onClick={() => setShowModal(true)} className="btn-pastel" style={{ padding: '10px 22px', fontSize: 13 }}>
+            <Plus className="w-4 h-4" /> {t('new_assignment')}
+          </button>
         </div>
       </div>
 
-      {/* Class / subject / search selectors */}
-      <div className="flex gap-3 items-end flex-wrap">
-        <div className="min-w-[160px]">
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t('class_name')}</label>
-          <div className="relative">
-            <select
-              value={selectedClass}
-              onChange={e => setSelectedClass(e.target.value)}
-              className="w-full appearance-none bg-white border border-border-soft rounded-xl px-4 py-2.5 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent shadow-sm pr-9 cursor-pointer"
-            >
-              {uniqueClasses.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
+      {/* Selectors */}
+      <div className="liquid-card p-4">
+        <div className="flex gap-3 items-end flex-wrap">
+          <div className="min-w-[160px]">
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('class_name')}</label>
+            <select className="pastel-input" value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
+              {uniqueClasses.map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
-        </div>
-        <div className="min-w-[160px]">
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t('subject')}</label>
-          <div className="relative">
-            <select
-              value={selectedSubject}
-              onChange={e => setSelectedSubject(e.target.value)}
-              className="w-full appearance-none bg-white border border-border-soft rounded-xl px-4 py-2.5 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent shadow-sm pr-9 cursor-pointer"
-            >
-              {subjectsForClass.map(s => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
+          <div className="min-w-[160px]">
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('subject')}</label>
+            <select className="pastel-input" value={selectedSubject} onChange={e => setSelectedSubject(e.target.value)}>
+              {subjectsForClass.map(s => (<option key={s.id} value={s.id}>{s.name}</option>))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
-        </div>
-        <div className="relative flex-1 min-w-[180px]">
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t('search')}</label>
-          <Search className="absolute left-3.5 bottom-3 w-4 h-4 text-gray-400" />
-          <input
-            placeholder={t('search')}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="w-full border border-border-soft rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent shadow-sm bg-white"
-          />
+          <div className="relative flex-1 min-w-[180px]">
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('search')}</label>
+            <Search className="absolute left-3.5 bottom-3 w-4 h-4" style={{ color: '#94a3b8' }} />
+            <input
+              placeholder={t('search')}
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="pastel-input"
+              style={{ paddingLeft: 40 }}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Summary stat cards */}
+      {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {/* Class Average */}
-        <div className="bg-white border border-border-soft rounded-xl px-5 py-4 flex items-start gap-3 shadow-sm">
-          <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-purple-light flex items-center justify-center">
-            <TrendingUp className="w-4 h-4 text-purple" />
+        {[
+          { label: 'Sinif orta', value: classAvg ?? '—', icon: TrendingUp, chip: 'icon-chip-periwinkle' },
+          { label: 'Ən yüksək',   value: highestScore ?? '—', icon: Award, chip: 'icon-chip-mint' },
+          { label: 'Ən aşağı',    value: lowestScore ?? '—', icon: ChevronDown, chip: 'icon-chip-peach' },
+          { label: 'Qiymətlər',   value: submissionCount, icon: BarChart3, chip: 'icon-chip-blue' },
+        ].map((s, i) => (
+          <div key={i} className="liquid-card p-4 flex items-start gap-3">
+            <span className={`icon-chip ${s.chip}`}>
+              <s.icon className="w-5 h-5" />
+            </span>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>{s.label}</p>
+              <p className="text-2xl font-bold mt-0.5 leading-none" style={{ color: '#1a1a2e' }}>{s.value}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: '#94a3b8' }}>/ 10</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-0.5">Sinif orta</p>
-            <p className="text-2xl font-bold text-gray-900 leading-none">
-              {classAvg != null ? classAvg : '—'}
-            </p>
-            <p className="text-[10px] text-gray-400 mt-0.5">/ 10</p>
-          </div>
-        </div>
-
-        {/* Highest Score */}
-        <div className="bg-white border border-border-soft rounded-xl px-5 py-4 flex items-start gap-3 shadow-sm">
-          <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-teal-light flex items-center justify-center">
-            <Award className="w-4 h-4 text-teal" />
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-0.5">Ən yüksək</p>
-            <p className="text-2xl font-bold text-gray-900 leading-none">
-              {highestScore != null ? highestScore : '—'}
-            </p>
-            <p className="text-[10px] text-gray-400 mt-0.5">/ 10</p>
-          </div>
-        </div>
-
-        {/* Lowest Score */}
-        <div className="bg-white border border-border-soft rounded-xl px-5 py-4 flex items-start gap-3 shadow-sm">
-          <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center">
-            <ChevronDown className="w-4 h-4 text-red-500" />
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-0.5">Ən aşağı</p>
-            <p className="text-2xl font-bold text-gray-900 leading-none">
-              {lowestScore != null ? lowestScore : '—'}
-            </p>
-            <p className="text-[10px] text-gray-400 mt-0.5">/ 10</p>
-          </div>
-        </div>
-
-        {/* Submissions */}
-        <div className="bg-white border border-border-soft rounded-xl px-5 py-4 flex items-start gap-3 shadow-sm">
-          <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
-            <BarChart3 className="w-4 h-4 text-blue-600" />
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-0.5">Qiymətlər</p>
-            <p className="text-2xl font-bold text-gray-900 leading-none">{submissionCount}</p>
-            <p className="text-[10px] text-gray-400 mt-0.5">ümumi qeyd</p>
-          </div>
-        </div>
+        ))}
       </div>
-
-      {/* Assessment type tabs */}
-      {!isIB && assessments.length > 0 && (
-        <div className="border-b border-border-soft">
-          <nav className="flex gap-0 -mb-px overflow-x-auto">
-            {[{ value: 'all', label: 'Hamısı' }, ...assessmentTypes].map(tab => {
-              const count = tab.value === 'all'
-                ? assessments.length
-                : assessments.filter(a => a.type === tab.value).length
-              const isActive = false // tabs are visual only — no filter state for assessments
-              return count === 0 && tab.value !== 'all' ? null : (
-                <button
-                  key={tab.value}
-                  className={`relative flex items-center gap-1.5 px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
-                    tab.value === 'all'
-                      ? 'text-purple border-b-2 border-purple'
-                      : 'text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300'
-                  }`}
-                >
-                  {tab.label}
-                  {count > 0 && (
-                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
-                      tab.value === 'all' ? 'bg-purple-light text-purple' : 'bg-gray-100 text-gray-500'
-                    }`}>
-                      {count}
-                    </span>
-                  )}
-                </button>
-              )
-            })}
-          </nav>
-        </div>
-      )}
 
       {/* Gradebook table */}
-      <Card hover={false} className="p-0 overflow-hidden">
+      <div className="liquid-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse min-w-[700px]">
             <thead>
-              <tr className="bg-surface border-b border-border-soft">
-                {/* Student name header — sticky */}
-                <th className="sticky left-0 z-20 bg-surface text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3 text-left whitespace-nowrap min-w-[180px]">
+              <tr style={{ background: 'rgba(248,247,251,0.8)', borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
+                <th className="sticky left-0 z-20 px-5 py-3 text-left whitespace-nowrap min-w-[180px]"
+                  style={{ background: 'rgba(248,247,251,0.95)', color: '#64748b', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}
+                >
                   {t('full_name')}
                 </th>
 
                 {isIB ? (
                   ibCriteria.map(c => (
-                    <th
-                      key={c}
-                      className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 text-center border-t-4 border-purple min-w-[90px]"
+                    <th key={c} className="px-3 py-3 text-center min-w-[90px]"
+                      style={{ borderTop: '3px solid #7c6ee0', color: '#475569' }}
                     >
-                      <div className="text-gray-700 font-semibold">Kriteriya {c}</div>
-                      <div className="text-[10px] text-gray-400 font-normal normal-case mt-0.5">maks: 8</div>
+                      <div className="font-bold text-sm" style={{ color: '#1a1a2e' }}>Kriteriya {c}</div>
+                      <div className="text-[10px] mt-0.5" style={{ color: '#94a3b8' }}>maks: 8</div>
                     </th>
                   ))
                 ) : (
                   assessments.map(a => {
-                    const borderClass = typeHeaderBorder[a.type] || 'border-gray-300'
-                    const badgeClass  = typeColors[a.type]      || 'bg-gray-100 text-gray-600 border-gray-300'
-                    const label       = typeLabelMap[a.type]    || a.type
-                    const dateStr     = a.date ? fmtDate(new Date(a.date), { day: '2-digit', month: 'short' }) : ''
+                    const hue = TYPE_HUE[a.type] || TYPE_HUE.test
+                    const label = typeLabelMap[a.type] || a.type
+                    const dateStr = a.date ? fmtDate(new Date(a.date), { day: '2-digit', month: 'short' }) : ''
                     return (
-                      <th
-                        key={a.id}
-                        className={`text-xs font-semibold text-gray-600 px-4 py-3 text-center border-t-4 ${borderClass} min-w-[110px]`}
+                      <th key={a.id} className="px-3 py-3 text-center min-w-[110px]"
+                        style={{ borderTop: `3px solid ${hue.accent}`, color: '#475569' }}
                       >
-                        <div className="font-semibold text-gray-800 truncate max-w-[120px] mx-auto" title={a.title}>
+                        <div className="font-bold text-sm truncate max-w-[120px] mx-auto" title={a.title} style={{ color: '#1a1a2e' }}>
                           {a.title}
                         </div>
                         <div className="mt-1 flex flex-col items-center gap-1">
-                          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border ${badgeClass}`}>
-                            {label}
-                          </span>
-                          {dateStr && (
-                            <span className="text-[10px] text-gray-400 font-normal normal-case">{dateStr}</span>
-                          )}
-                          <span className="text-[10px] text-gray-400 font-normal normal-case">maks: {a.max_score}</span>
+                          <span className="pastel-badge" style={{ background: hue.bg, color: hue.text, fontSize: 9 }}>{label}</span>
+                          {dateStr && <span className="text-[10px]" style={{ color: '#94a3b8' }}>{dateStr}</span>}
+                          <span className="text-[10px]" style={{ color: '#94a3b8' }}>maks: {a.max_score}</span>
                         </div>
                       </th>
                     )
                   })
                 )}
 
-                <th className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 text-center min-w-[110px] border-t-4 border-gray-200">
+                <th className="px-3 py-3 text-center min-w-[110px]"
+                  style={{ borderTop: '3px solid #cbd5e1', color: '#64748b', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}
+                >
                   {t('avg_grade')}
                 </th>
               </tr>
@@ -507,29 +395,28 @@ export default function TeacherGradebook() {
 
             <tbody>
               {filteredStudents.map((s, idx) => {
-                const avg   = getStudentAvg(s.id)
+                const avg = getStudentAvg(s.id)
                 const isLow = avg != null && avg < 5
-                const rowBg = isLow ? 'bg-red-50/30' : idx % 2 === 0 ? 'bg-white' : 'bg-surface/50'
+                const rowBg = isLow ? 'rgba(229,107,127,0.05)' : (idx % 2 === 0 ? 'transparent' : 'rgba(124,110,224,0.02)')
 
                 return (
-                  <tr
-                    key={s.id}
-                    className={`border-b border-border-soft transition-colors hover:bg-purple-light/20 ${rowBg}`}
+                  <tr key={s.id} className="smooth-trans"
+                    style={{ borderBottom: '1px solid rgba(124,110,224,0.06)' }}
                   >
-                    {/* Sticky student name */}
-                    <td className={`sticky left-0 z-10 px-6 py-3 text-sm font-semibold text-gray-900 whitespace-nowrap ${rowBg}`}>
+                    <td className="sticky left-0 z-10 px-5 py-3 text-sm font-semibold whitespace-nowrap"
+                      style={{ background: rowBg, color: '#1a1a2e' }}
+                    >
                       {s.full_name}
                     </td>
 
                     {isIB ? (
                       ibCriteria.map(c => {
-                        const key    = `${s.id}_${c}`
-                        const g      = grades[key]
+                        const key = `${s.id}_${c}`
+                        const g = grades[key]
                         const cellId = `${s.id}_crit_${c}`
-                        const cellStyle = g ? getCellStyle(g.score, 8) : null
-
+                        const cellStyle = g ? cellPastelStyle(g.score, 8) : null
                         return (
-                          <td key={c} className="px-3 py-2 text-center">
+                          <td key={c} className="px-3 py-2 text-center" style={{ background: rowBg }}>
                             {editingCell === cellId ? (
                               <input
                                 ref={editRef}
@@ -537,7 +424,8 @@ export default function TeacherGradebook() {
                                 min={0}
                                 max={8}
                                 defaultValue={g?.score ?? ''}
-                                className="w-16 border-2 border-purple rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple/30 font-semibold"
+                                className="pastel-input"
+                                style={{ width: 64, padding: '4px 6px', fontSize: 13, textAlign: 'center', fontWeight: 600 }}
                                 autoFocus
                                 onBlur={e => saveGrade(s.id, null, c, e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && e.target.blur()}
@@ -545,13 +433,18 @@ export default function TeacherGradebook() {
                             ) : (
                               <button
                                 onClick={() => setEditingCell(cellId)}
-                                className={`w-16 py-1.5 rounded-lg text-sm transition-all hover:scale-105 ${
-                                  cellStyle
-                                    ? `${cellStyle} hover:opacity-80 shadow-sm`
-                                    : 'text-gray-300 hover:bg-purple-light hover:text-purple border border-dashed border-gray-200 hover:border-purple/30'
-                                }`}
+                                className="rounded-lg smooth-trans"
+                                style={{
+                                  width: 60,
+                                  padding: '6px 0',
+                                  fontSize: 13,
+                                  fontWeight: 700,
+                                  background: cellStyle?.bg || 'transparent',
+                                  color: cellStyle?.color || '#cbd5e1',
+                                  border: cellStyle ? 'none' : '1px dashed rgba(124,110,224,0.2)',
+                                }}
                               >
-                                {g ? g.score : <span className="text-lg leading-none">+</span>}
+                                {g ? g.score : '+'}
                               </button>
                             )}
                           </td>
@@ -559,13 +452,12 @@ export default function TeacherGradebook() {
                       })
                     ) : (
                       assessments.map(a => {
-                        const key      = `${s.id}_${a.id}`
-                        const g        = grades[key]
-                        const cellId   = `${s.id}_${a.id}`
-                        const cellStyle = g ? getCellStyle(g.score, a.max_score) : null
-
+                        const key = `${s.id}_${a.id}`
+                        const g = grades[key]
+                        const cellId = `${s.id}_${a.id}`
+                        const cellStyle = g ? cellPastelStyle(g.score, a.max_score) : null
                         return (
-                          <td key={a.id} className="px-3 py-2 text-center">
+                          <td key={a.id} className="px-3 py-2 text-center" style={{ background: rowBg }}>
                             {editingCell === cellId ? (
                               <input
                                 ref={editRef}
@@ -573,7 +465,8 @@ export default function TeacherGradebook() {
                                 min={0}
                                 max={a.max_score}
                                 defaultValue={g?.score ?? ''}
-                                className="w-16 border-2 border-purple rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple/30 font-semibold"
+                                className="pastel-input"
+                                style={{ width: 64, padding: '4px 6px', fontSize: 13, textAlign: 'center', fontWeight: 600 }}
                                 autoFocus
                                 onBlur={e => saveGrade(s.id, a.id, null, e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && e.target.blur()}
@@ -581,13 +474,18 @@ export default function TeacherGradebook() {
                             ) : (
                               <button
                                 onClick={() => setEditingCell(cellId)}
-                                className={`w-16 py-1.5 rounded-lg text-sm transition-all hover:scale-105 ${
-                                  cellStyle
-                                    ? `${cellStyle} hover:opacity-80 shadow-sm`
-                                    : 'text-gray-300 hover:bg-purple-light hover:text-purple border border-dashed border-gray-200 hover:border-purple/30'
-                                }`}
+                                className="rounded-lg smooth-trans"
+                                style={{
+                                  width: 60,
+                                  padding: '6px 0',
+                                  fontSize: 13,
+                                  fontWeight: 700,
+                                  background: cellStyle?.bg || 'transparent',
+                                  color: cellStyle?.color || '#cbd5e1',
+                                  border: cellStyle ? 'none' : '1px dashed rgba(124,110,224,0.2)',
+                                }}
                               >
-                                {g ? g.score : <span className="text-lg leading-none">+</span>}
+                                {g ? g.score : '+'}
                               </button>
                             )}
                           </td>
@@ -595,26 +493,22 @@ export default function TeacherGradebook() {
                       })
                     )}
 
-                    {/* Average column */}
-                    <td className="px-4 py-2 text-center">
+                    <td className="px-3 py-2 text-center" style={{ background: rowBg }}>
                       {avg != null ? (
                         <div className="flex flex-col items-center gap-1">
                           <GradeBadge score={avg} />
-                          {/* Narrow progress bar showing score out of 10 */}
-                          <div className="w-14 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                          <div className="w-14 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(124,110,224,0.10)' }}>
                             <div
-                              className={`h-full rounded-full transition-all ${
-                                avg >= 9 ? 'bg-teal' :
-                                avg >= 7 ? 'bg-blue-500' :
-                                avg >= 5 ? 'bg-amber-400' :
-                                'bg-red-400'
-                              }`}
-                              style={{ width: `${Math.min((avg / 10) * 100, 100)}%` }}
+                              className="h-full rounded-full smooth-trans"
+                              style={{
+                                width: `${Math.min((avg / 10) * 100, 100)}%`,
+                                background: avg >= 8 ? '#5db8a3' : avg >= 6 ? '#7c6ee0' : avg >= 4 ? '#e8a87c' : '#e56b7f',
+                              }}
                             />
                           </div>
                         </div>
                       ) : (
-                        <span className="text-gray-400 text-sm">—</span>
+                        <span style={{ color: '#cbd5e1' }} className="text-sm">—</span>
                       )}
                     </td>
                   </tr>
@@ -623,68 +517,52 @@ export default function TeacherGradebook() {
 
               {filteredStudents.length === 0 && (
                 <tr>
-                  <td colSpan={isIB ? 6 : assessments.length + 2} className="text-center py-10 text-sm text-gray-400">
+                  <td colSpan={isIB ? 6 : assessments.length + 2} className="text-center py-10 text-sm" style={{ color: '#94a3b8' }}>
                     {t('no_data')}
                   </td>
                 </tr>
               )}
 
-              {/* Class average row */}
               {filteredStudents.length > 0 && classAvg != null && (
-                <tr className="border-t-2 border-purple/20 bg-gradient-to-r from-purple-light/40 to-purple-light/10">
-                  <td className="sticky left-0 z-10 px-6 py-3 bg-purple-light/40">
+                <tr style={{ borderTop: '2px solid rgba(124,110,224,0.20)', background: 'linear-gradient(90deg, rgba(124,110,224,0.10), rgba(93,184,163,0.06))' }}>
+                  <td className="sticky left-0 z-10 px-5 py-3" style={{ background: 'rgba(245,243,255,0.85)' }}>
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-purple flex items-center justify-center">
-                        <TrendingUp className="w-3 h-3 text-white" />
+                      <span className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7c6ee0, #5db8a3)' }}>
+                        <TrendingUp className="w-3 h-3" style={{ color: '#fff' }} />
                       </span>
-                      <span className="text-sm font-bold text-purple">Sinif ortası</span>
+                      <span className="text-sm font-bold" style={{ color: '#5b4fb8' }}>Sinif ortası</span>
                     </div>
                   </td>
                   {isIB ? (
                     ibCriteria.map(c => {
-                      const criteriaGrades = filteredStudents
-                        .map(s => grades[`${s.id}_${c}`])
-                        .filter(Boolean)
-                        .map(g => g.score)
-                      const avg = criteriaGrades.length
-                        ? Math.round((criteriaGrades.reduce((a, b) => a + b, 0) / criteriaGrades.length) * 10) / 10
-                        : null
+                      const grds = filteredStudents.map(s => grades[`${s.id}_${c}`]).filter(Boolean).map(g => g.score)
+                      const avg = grds.length ? Math.round((grds.reduce((a, b) => a + b, 0) / grds.length) * 10) / 10 : null
                       return (
                         <td key={c} className="px-3 py-3 text-center">
                           {avg != null ? (
-                            <span className="inline-flex items-center justify-center w-16 py-1.5 rounded-lg text-sm font-bold bg-purple text-white">
-                              {avg}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400 text-sm">—</span>
-                          )}
+                            <span className="inline-flex items-center justify-center w-14 py-1.5 rounded-lg text-sm font-bold text-white"
+                              style={{ background: 'linear-gradient(135deg, #7c6ee0, #5db8a3)' }}>{avg}</span>
+                          ) : <span style={{ color: '#cbd5e1' }} className="text-sm">—</span>}
                         </td>
                       )
                     })
                   ) : (
                     assessments.map(a => {
-                      const assessmentGrades = filteredStudents
-                        .map(s => grades[`${s.id}_${a.id}`])
-                        .filter(Boolean)
-                        .map(g => g.score)
-                      const avg = assessmentGrades.length
-                        ? Math.round((assessmentGrades.reduce((x, y) => x + y, 0) / assessmentGrades.length) * 10) / 10
-                        : null
+                      const grds = filteredStudents.map(s => grades[`${s.id}_${a.id}`]).filter(Boolean).map(g => g.score)
+                      const avg = grds.length ? Math.round((grds.reduce((x, y) => x + y, 0) / grds.length) * 10) / 10 : null
                       return (
                         <td key={a.id} className="px-3 py-3 text-center">
                           {avg != null ? (
-                            <span className="inline-flex items-center justify-center w-16 py-1.5 rounded-lg text-sm font-bold bg-purple text-white">
-                              {avg}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400 text-sm">—</span>
-                          )}
+                            <span className="inline-flex items-center justify-center w-14 py-1.5 rounded-lg text-sm font-bold text-white"
+                              style={{ background: 'linear-gradient(135deg, #7c6ee0, #5db8a3)' }}>{avg}</span>
+                          ) : <span style={{ color: '#cbd5e1' }} className="text-sm">—</span>}
                         </td>
                       )
                     })
                   )}
-                  <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center justify-center w-16 py-1.5 rounded-lg text-sm font-bold bg-purple text-white shadow-sm">
+                  <td className="px-3 py-3 text-center">
+                    <span className="inline-flex items-center justify-center w-14 py-1.5 rounded-lg text-sm font-bold text-white"
+                      style={{ background: 'linear-gradient(135deg, #7c6ee0, #5db8a3)', boxShadow: '0 4px 12px rgba(124,110,224,0.25)' }}>
                       {classAvg}
                     </span>
                   </td>
@@ -694,71 +572,61 @@ export default function TeacherGradebook() {
           </table>
         </div>
 
-        {/* Grade distribution bar */}
+        {/* Distribution */}
         {filteredStudents.length > 0 && allAvgs.length > 0 && (
-          <div className="border-t border-border-soft px-6 py-4 bg-surface/50">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <BarChart3 className="w-3.5 h-3.5" />
-              Qiymət paylanması
+          <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(124,110,224,0.10)', background: 'rgba(248,247,251,0.5)' }}>
+            <p className="text-xs font-semibold mb-3 flex items-center gap-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>
+              <BarChart3 className="w-3.5 h-3.5" /> Qiymət paylanması
             </p>
             <div className="flex flex-wrap gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-light text-teal text-xs font-semibold border border-teal/20">
-                <span className="w-2 h-2 rounded-full bg-teal inline-block" />
-                A (≥9) — {distA} şagird
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-200">
-                <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
-                B (7–8.9) — {distB} şagird
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold border border-amber-200">
-                <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
-                C (5–6.9) — {distC} şagird
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-600 text-xs font-semibold border border-red-200">
-                <span className="w-2 h-2 rounded-full bg-red-400 inline-block" />
-                D (&lt;5) — {distD} şagird
-              </span>
+              <span className="pastel-badge pastel-badge-mint" style={{ padding: '6px 12px' }}>A (≥9) — {distA} şagird</span>
+              <span className="pastel-badge pastel-badge-blue" style={{ padding: '6px 12px' }}>B (7–8.9) — {distB} şagird</span>
+              <span className="pastel-badge pastel-badge-peach" style={{ padding: '6px 12px' }}>C (5–6.9) — {distC} şagird</span>
+              <span className="pastel-badge pastel-badge-rose" style={{ padding: '6px 12px' }}>D (&lt;5) — {distD} şagird</span>
             </div>
           </div>
         )}
-      </Card>
+      </div>
 
       {/* Add assessment modal */}
-      <Modal open={showModal} onClose={() => setShowModal(false)} title={t('new_assignment')}>
-        <div className="space-y-4">
-          <Input
-            label="Başlıq"
-            value={newAssessment.title}
-            onChange={e => setNewAssessment(p => ({ ...p, title: e.target.value }))}
-            placeholder="Məs: Yarımillik test"
-          />
-          <Select
-            label="Növ"
-            value={newAssessment.type}
-            onChange={e => setNewAssessment(p => ({ ...p, type: e.target.value }))}
-          >
-            {assessmentTypes.map(at => (
-              <option key={at.value} value={at.value}>{at.label}</option>
-            ))}
-          </Select>
-          <Input
-            label={t('date')}
-            type="date"
-            value={newAssessment.date}
-            onChange={e => setNewAssessment(p => ({ ...p, date: e.target.value }))}
-          />
-          <Input
-            label="Maksimum bal"
-            type="number"
-            value={newAssessment.max_score}
-            onChange={e => setNewAssessment(p => ({ ...p, max_score: e.target.value }))}
-          />
-          <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={() => setShowModal(false)}>{t('cancel')}</Button>
-            <Button onClick={handleAddAssessment} loading={saving} disabled={!newAssessment.title}>{t('save')}</Button>
+      {showModal && (
+        <div className="liquid-backdrop" onClick={() => setShowModal(false)}>
+          <div className="liquid-card p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{t('new_assignment')}</h3>
+              <button onClick={() => setShowModal(false)} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Başlıq</label>
+                <input className="pastel-input" value={newAssessment.title} onChange={e => setNewAssessment(p => ({ ...p, title: e.target.value }))} placeholder="Məs: Yarımillik test" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Növ</label>
+                <select className="pastel-input" value={newAssessment.type} onChange={e => setNewAssessment(p => ({ ...p, type: e.target.value }))}>
+                  {assessmentTypes.map(at => <option key={at.value} value={at.value}>{at.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('date')}</label>
+                <input type="date" className="pastel-input" value={newAssessment.date} onChange={e => setNewAssessment(p => ({ ...p, date: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Maksimum bal</label>
+                <input type="number" className="pastel-input" value={newAssessment.max_score} onChange={e => setNewAssessment(p => ({ ...p, max_score: e.target.value }))} />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button onClick={() => setShowModal(false)} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>{t('cancel')}</button>
+                <button onClick={handleAddAssessment} disabled={saving || !newAssessment.title} className="btn-pastel" style={{ padding: '10px 22px', fontSize: 13, opacity: (saving || !newAssessment.title) ? 0.5 : 1 }}>
+                  {saving ? '...' : t('save')}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </Modal>
+      )}
     </div>
   )
 }

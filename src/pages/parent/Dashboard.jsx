@@ -4,11 +4,10 @@ import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import Badge, { GradeBadge } from '../../components/ui/Badge'
 import { DashboardSkeleton } from '../../components/ui/Skeleton'
-import Avatar from '../../components/ui/Avatar'
 import EmptyState from '../../components/ui/EmptyState'
 import {
   Users, BookOpen, Calendar, Bell, MessageSquare,
-  Clock, ClipboardList, GraduationCap, ChevronRight,
+  Clock, ClipboardList, GraduationCap, ChevronRight, Sparkles,
 } from 'lucide-react'
 import { todayFull, fmtNumeric } from '../../lib/dateUtils'
 
@@ -35,34 +34,26 @@ function formatRelativeTime(iso) {
   return `${days} gün əvvəl`
 }
 
-// Avatar background colour — derived from name
-const AVATAR_COLORS = ['#534AB7', '#1D9E75', '#D97706', '#2563EB', '#DB2777', '#EA580C']
-function avatarColor(name = '') {
+// Pastel palette for avatars / subjects
+const PASTEL_COLORS = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde']
+function pastelColor(name = '') {
   let h = 0
   for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
-  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length]
-}
-
-// Subject badge hex colour
-const HEX_COLORS = ['#534AB7', '#1D9E75', '#D97706', '#2563EB', '#DB2777', '#EA580C']
-function subjectHex(n = '') {
-  let h = 0
-  for (let i = 0; i < n.length; i++) h = n.charCodeAt(i) + ((h << 5) - h)
-  return HEX_COLORS[Math.abs(h) % HEX_COLORS.length]
+  return PASTEL_COLORS[Math.abs(h) % PASTEL_COLORS.length]
 }
 
 // Notification icon meta
 function notifIcon(type) {
   switch (type) {
-    case 'grade':      return { icon: GraduationCap, cls: 'bg-purple-light text-purple' }
-    case 'absence':    return { icon: Calendar,      cls: 'bg-red-50 text-red-500' }
-    case 'message':    return { icon: MessageSquare, cls: 'bg-blue-50 text-blue-500' }
-    case 'assignment': return { icon: ClipboardList, cls: 'bg-teal-light text-teal' }
-    default:           return { icon: Bell,          cls: 'bg-surface text-gray-400' }
+    case 'grade':      return { icon: GraduationCap, bg: 'rgba(124,110,224,0.12)', color: '#7c6ee0' }
+    case 'absence':    return { icon: Calendar,      bg: 'rgba(232,168,124,0.18)', color: '#e8a87c' }
+    case 'message':    return { icon: MessageSquare, bg: 'rgba(107,157,222,0.15)', color: '#6b9dde' }
+    case 'assignment': return { icon: ClipboardList, bg: 'rgba(93,184,163,0.15)',  color: '#5db8a3' }
+    default:           return { icon: Bell,          bg: 'rgba(124,110,224,0.10)', color: '#7c6ee0' }
   }
 }
 
-// Due-date countdown chip (inline, no separate component)
+// Due-date countdown chip — soft pastel
 function DueDateChip({ dueDateIso }) {
   if (!dueDateIso) return null
   const due = new Date(dueDateIso)
@@ -71,32 +62,18 @@ function DueDateChip({ dueDateIso }) {
   today.setHours(0, 0, 0, 0)
   const diffDays = Math.round((due - today) / 86400000)
 
+  const base = 'inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap'
+
   if (diffDays < 0) {
-    return (
-      <span className="inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 whitespace-nowrap">
-        gecikmiş
-      </span>
-    )
+    return <span className={base} style={{ background: 'rgba(232,168,124,0.18)', color: '#c47a4a', border: '1px solid rgba(232,168,124,0.3)' }}>gecikmiş</span>
   }
   if (diffDays === 0) {
-    return (
-      <span className="inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
-        bu gün
-      </span>
-    )
+    return <span className={base} style={{ background: 'rgba(232,168,124,0.18)', color: '#c47a4a', border: '1px solid rgba(232,168,124,0.3)' }}>bu gün</span>
   }
   if (diffDays <= 3) {
-    return (
-      <span className="inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
-        {diffDays} gün
-      </span>
-    )
+    return <span className={base} style={{ background: 'rgba(232,168,124,0.15)', color: '#c47a4a', border: '1px solid rgba(232,168,124,0.25)' }}>{diffDays} gün</span>
   }
-  return (
-    <span className="inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full bg-surface text-gray-500 border border-border-soft whitespace-nowrap">
-      {diffDays} gün
-    </span>
-  )
+  return <span className={base} style={{ background: 'rgba(124,110,224,0.08)', color: '#64748b', border: '1px solid rgba(124,110,224,0.15)' }}>{diffDays} gün</span>
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -109,8 +86,6 @@ export default function ParentDashboard() {
   const [selectedChild, setSelectedChild] = useState(null)
   const [childData, setChildData] = useState({})
   const [notifications, setNotifications] = useState([])
-
-  // ── Data fetching (unchanged queries) ──────────────────────────────────────
 
   useEffect(() => {
     if (!profile) return
@@ -148,7 +123,6 @@ export default function ParentDashboard() {
     const today = new Date().getDay()
     const now = new Date().toISOString()
 
-    // Class memberships
     const { data: memberData } = await supabase
       .from('class_members')
       .select('class:classes(id, name)')
@@ -158,7 +132,6 @@ export default function ParentDashboard() {
     const classIds = classes.map(c => c.id)
     const className = classes[0]?.name || null
 
-    // This-week bounds for attendance
     const weekStart = new Date()
     weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1)
     weekStart.setHours(0, 0, 0, 0)
@@ -226,8 +199,6 @@ export default function ParentDashboard() {
     setLoading(false)
   }
 
-  // ── Guard states ───────────────────────────────────────────────────────────
-
   if (loading && !children.length) return <DashboardSkeleton />
 
   if (children.length === 0) {
@@ -240,8 +211,6 @@ export default function ParentDashboard() {
     )
   }
 
-  // ── Derived values ─────────────────────────────────────────────────────────
-
   const firstName = profile?.full_name?.split(' ')[0] || ''
 
   const lastGradeScore = childData.lastGrade
@@ -250,52 +219,58 @@ export default function ParentDashboard() {
         : childData.lastGrade.score)
     : null
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  const childInitials = (name = '') =>
+    name ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
 
-      {/* ── Compact header ─────────────────────────────────────────────────── */}
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-gray-400 uppercase tracking-widest">{todayLabel()}</p>
-          <h1 className="font-serif text-3xl text-gray-900 mt-0.5">{t('welcome_back')}, {firstName}!</h1>
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#64748b' }}>
+            {todayLabel()}
+          </p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold mt-1.5" style={{ color: '#1a1a2e', letterSpacing: '-0.02em' }}>
+            {t('welcome_back')}, <span className="pastel-text">{firstName}</span>
+          </h1>
         </div>
       </div>
 
-      {/* ── Child selector profile cards (only when >1 child) ─────────────── */}
+      {/* ── Multi-child glass switcher ─────────────────────────────────────── */}
       {children.length > 1 && (
-        <div className="flex gap-3 overflow-x-auto pb-1">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {children.map(child => {
-            const initials = child.full_name
-              ? child.full_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-              : '?'
             const active = selectedChild?.id === child.id
-            const color = avatarColor(child.full_name)
+            const color = pastelColor(child.full_name)
             return (
               <button
                 key={child.id}
                 onClick={() => setSelectedChild(child)}
-                className={`flex flex-col items-center gap-2 px-5 py-4 rounded-2xl border transition-all duration-150 whitespace-nowrap flex-shrink-0 ${
+                className="flex items-center gap-2.5 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0"
+                style={
                   active
-                    ? 'border-purple bg-purple-light shadow-sm'
-                    : 'border-border-soft bg-white hover:bg-surface hover:border-gray-300'
-                }`}
+                    ? {
+                        background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                        color: '#fff',
+                        border: '1px solid rgba(124,110,224,0.3)',
+                        boxShadow: '0 4px 12px rgba(124,110,224,0.25)',
+                      }
+                    : {
+                        background: 'rgba(255,255,255,0.6)',
+                        color: '#1a1a2e',
+                        border: '1px solid rgba(124,110,224,0.2)',
+                        backdropFilter: 'blur(12px)',
+                      }
+                }
               >
                 <span
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-white text-base font-bold flex-shrink-0 shadow-sm"
-                  style={{ backgroundColor: color }}
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                  style={{ background: active ? 'rgba(255,255,255,0.25)' : color }}
                 >
-                  {initials}
+                  {childInitials(child.full_name)}
                 </span>
-                <span className={`text-sm font-semibold ${active ? 'text-purple' : 'text-gray-700'}`}>
-                  {child.full_name}
-                </span>
-                {child.school?.name && (
-                  <span className={`text-xs ${active ? 'text-purple/70' : 'text-gray-400'}`}>
-                    {child.school.name}
-                  </span>
-                )}
+                {child.full_name}
               </button>
             )
           })}
@@ -306,106 +281,128 @@ export default function ParentDashboard() {
         <DashboardSkeleton />
       ) : (
         <>
-          {/* ── Child summary — identity + stat cards ─────────────────────── */}
-          <div className="space-y-4">
-            {/* Identity row */}
-            <div className="flex items-center gap-3">
+          {/* ── "Today" hero card with friendly avatar + stats ──────────────── */}
+          <div className="liquid-card p-6 relative overflow-hidden">
+            {/* decorative blob */}
+            <div
+              aria-hidden
+              className="section-blob"
+              style={{
+                top: '-30%',
+                right: '-10%',
+                width: '40%',
+                height: '160%',
+                background: 'radial-gradient(ellipse at center, rgba(124,110,224,0.18) 0%, transparent 65%)',
+              }}
+            />
+
+            <div className="relative flex flex-col sm:flex-row sm:items-center gap-5">
+              {/* Big friendly avatar */}
               <div
-                className="w-11 h-11 rounded-full flex items-center justify-center text-white text-base font-bold flex-shrink-0 shadow-sm"
-                style={{ backgroundColor: avatarColor(selectedChild?.full_name || '') }}
+                className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold flex-shrink-0"
+                style={{
+                  background: `linear-gradient(135deg, ${pastelColor(selectedChild?.full_name || '')} 0%, ${pastelColor((selectedChild?.full_name || '') + 'x')} 100%)`,
+                  boxShadow: '0 8px 24px rgba(124,110,224,0.25), inset 0 1px 0 rgba(255,255,255,0.4)',
+                }}
               >
-                {selectedChild?.full_name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
+                {childInitials(selectedChild?.full_name)}
               </div>
-              <div className="min-w-0">
-                <h2 className="text-base font-bold text-gray-900 leading-tight">{selectedChild?.full_name}</h2>
-                <p className="text-xs text-gray-400">
-                  {[childData.className, selectedChild?.school?.name].filter(Boolean).join(' · ')}
+
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#7c6ee0' }}>
+                  Bu gün
+                </p>
+                <h2 className="text-xl font-bold" style={{ color: '#1a1a2e' }}>
+                  {selectedChild?.full_name}
+                </h2>
+                <p className="text-sm mt-0.5" style={{ color: '#64748b' }}>
+                  {[childData.className, selectedChild?.school?.name].filter(Boolean).join(' · ') || 'Sinif məlumatı yoxdur'}
                 </p>
               </div>
             </div>
 
             {/* Stat cards row */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="relative grid grid-cols-3 gap-3 mt-6">
               {/* Attendance */}
-              <div className={`rounded-2xl border p-4 flex flex-col gap-1 ${
-                childData.attendancePct >= 90
-                  ? 'bg-teal-light border-teal/20'
-                  : childData.attendancePct >= 75
-                  ? 'bg-amber-50 border-amber-200'
-                  : 'bg-red-50 border-red-200'
-              }`}>
+              <div
+                className="rounded-2xl p-4 flex flex-col gap-1 backdrop-blur-md"
+                style={{
+                  background: 'rgba(93,184,163,0.10)',
+                  border: '1px solid rgba(93,184,163,0.25)',
+                }}
+              >
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <Calendar className={`w-3.5 h-3.5 flex-shrink-0 ${
-                    childData.attendancePct >= 90 ? 'text-teal' : childData.attendancePct >= 75 ? 'text-amber-600' : 'text-red-500'
-                  }`} />
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">İştirak</span>
+                  <Calendar className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#5db8a3' }} />
+                  <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#64748b' }}>İştirak</span>
                 </div>
-                <p className={`font-serif text-2xl font-bold leading-none ${
-                  childData.attendancePct >= 90 ? 'text-teal' : childData.attendancePct >= 75 ? 'text-amber-700' : 'text-red-600'
-                }`}>
+                <p className="text-2xl font-extrabold leading-none" style={{ color: '#5db8a3' }}>
                   {childData.attendancePct}%
                 </p>
-                <p className="text-xs text-gray-400">bu həftə: {childData.daysPresent} gün</p>
+                <p className="text-xs" style={{ color: '#64748b' }}>bu həftə: {childData.daysPresent} gün</p>
               </div>
 
-              {/* Average grade */}
-              <div className={`rounded-2xl border p-4 flex flex-col gap-1 ${
-                lastGradeScore != null && lastGradeScore >= 8
-                  ? 'bg-teal-light border-teal/20'
-                  : lastGradeScore != null && lastGradeScore >= 6
-                  ? 'bg-purple-light border-purple/20'
-                  : 'bg-surface border-border-soft'
-              }`}>
+              {/* Last grade */}
+              <div
+                className="rounded-2xl p-4 flex flex-col gap-1 backdrop-blur-md"
+                style={{
+                  background: 'rgba(124,110,224,0.10)',
+                  border: '1px solid rgba(124,110,224,0.25)',
+                }}
+              >
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <GraduationCap className="w-3.5 h-3.5 text-purple flex-shrink-0" />
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">Son qiymət</span>
+                  <GraduationCap className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#7c6ee0' }} />
+                  <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#64748b' }}>Son qiymət</span>
                 </div>
-                <p className={`font-serif text-2xl font-bold leading-none ${
-                  lastGradeScore != null && lastGradeScore >= 8
-                    ? 'text-teal'
-                    : lastGradeScore != null && lastGradeScore >= 6
-                    ? 'text-purple'
-                    : 'text-gray-400'
-                }`}>
+                <p className="text-2xl font-extrabold leading-none" style={{ color: '#7c6ee0' }}>
                   {lastGradeScore != null ? lastGradeScore : '—'}
                 </p>
-                <p className="text-xs text-gray-400">{childData.lastGrade?.subject?.name || 'Fənn yoxdur'}</p>
+                <p className="text-xs truncate" style={{ color: '#64748b' }}>
+                  {childData.lastGrade?.subject?.name || 'Fənn yoxdur'}
+                </p>
               </div>
 
               {/* Upcoming assignments */}
-              <div className="bg-white rounded-2xl border border-border-soft p-4 flex flex-col gap-1">
+              <div
+                className="rounded-2xl p-4 flex flex-col gap-1 backdrop-blur-md"
+                style={{
+                  background: 'rgba(232,168,124,0.10)',
+                  border: '1px solid rgba(232,168,124,0.25)',
+                }}
+              >
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <ClipboardList className="w-3.5 h-3.5 text-purple flex-shrink-0" />
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">Tapşırıqlar</span>
+                  <ClipboardList className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#e8a87c' }} />
+                  <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#64748b' }}>Tapşırıqlar</span>
                 </div>
-                <p className="font-serif text-2xl font-bold leading-none text-gray-900">
+                <p className="text-2xl font-extrabold leading-none" style={{ color: '#e8a87c' }}>
                   {(childData.upcomingAssignments || []).length}
                 </p>
-                <p className="text-xs text-gray-400">gözləyən tapşırıq</p>
+                <p className="text-xs" style={{ color: '#64748b' }}>gözləyən tapşırıq</p>
               </div>
             </div>
           </div>
 
           {/* ── Quick actions ─────────────────────────────────────────────── */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               onClick={() => navigate('/valideyn/yazismalar')}
-              className="flex items-center gap-3 bg-purple text-white px-5 py-3.5 rounded-xl hover:opacity-90 transition-opacity"
+              className="btn-pastel justify-start"
+              style={{ padding: '16px 24px' }}
             >
               <MessageSquare className="w-5 h-5 flex-shrink-0" />
               <div className="text-left min-w-0">
-                <p className="text-sm font-semibold">Müəllimlə Əlaqə</p>
-                <p className="text-xs opacity-70">Mesaj göndər</p>
+                <p className="text-sm font-bold">Müəllimlə Əlaqə</p>
+                <p className="text-xs opacity-80 font-medium">Mesaj göndər</p>
               </div>
             </button>
             <button
               onClick={() => navigate('/valideyn/qiymetler')}
-              className="flex items-center gap-3 bg-teal text-white px-5 py-3.5 rounded-xl hover:opacity-90 transition-opacity"
+              className="btn-ghost-pastel justify-start"
+              style={{ padding: '16px 24px' }}
             >
-              <GraduationCap className="w-5 h-5 flex-shrink-0" />
+              <GraduationCap className="w-5 h-5 flex-shrink-0" style={{ color: '#7c6ee0' }} />
               <div className="text-left min-w-0">
-                <p className="text-sm font-semibold">Qiymətlər</p>
-                <p className="text-xs opacity-70">Bütün qiymətlər</p>
+                <p className="text-sm font-bold" style={{ color: '#1a1a2e' }}>Qiymətlər</p>
+                <p className="text-xs font-medium" style={{ color: '#64748b' }}>Bütün qiymətlər</p>
               </div>
             </button>
           </div>
@@ -413,19 +410,23 @@ export default function ParentDashboard() {
           {/* ── Main 2-column grid ────────────────────────────────────────── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-            {/* ── LEFT (7 cols) ──────────────────────────────────────────── */}
+            {/* ── LEFT (7 cols) ─────────────────────────────────────────── */}
             <div className="lg:col-span-7 flex flex-col gap-6">
 
-              {/* Son Qiymətlər */}
-              <div className="bg-white rounded-2xl border border-border-soft shadow-sm flex flex-col overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
-                  <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-purple" />
+              {/* Recent grades */}
+              <div className="liquid-card overflow-hidden">
+                <div
+                  className="flex items-center justify-between px-5 py-4"
+                  style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}
+                >
+                  <h2 className="font-bold flex items-center gap-2" style={{ color: '#1a1a2e' }}>
+                    <GraduationCap className="w-4 h-4" style={{ color: '#7c6ee0' }} />
                     {t('recent_grades')}
                   </h2>
                   <button
                     onClick={() => navigate('/valideyn/qiymetler')}
-                    className="flex items-center gap-0.5 text-xs text-purple font-medium hover:opacity-75 transition-opacity"
+                    className="flex items-center gap-0.5 text-xs font-semibold transition-opacity hover:opacity-70"
+                    style={{ color: '#7c6ee0' }}
                   >
                     {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -433,33 +434,40 @@ export default function ParentDashboard() {
 
                 {(childData.grades || []).length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-14 text-center px-6">
-                    <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
-                      <BookOpen className="w-5 h-5 text-gray-300" />
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+                      style={{ background: 'rgba(124,110,224,0.10)' }}
+                    >
+                      <BookOpen className="w-6 h-6" style={{ color: '#7c6ee0' }} />
                     </div>
-                    <p className="text-sm text-gray-400">{t('no_grades')}</p>
+                    <p className="text-sm font-medium" style={{ color: '#1a1a2e' }}>{t('no_grades')}</p>
+                    <p className="text-xs mt-1" style={{ color: '#64748b' }}>İlk qiymət gələn kimi burada görünəcək</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-border-soft">
-                    {(childData.grades || []).map(g => {
+                  <div>
+                    {(childData.grades || []).map((g, idx, arr) => {
                       if (g.score == null) return null
                       const score = g.max_score > 0
                         ? Math.round((g.score / g.max_score) * 10)
                         : g.score
                       const barPct = Math.min((score / 10) * 100, 100)
                       const barColor =
-                        score >= 8 ? 'bg-teal' : score >= 6 ? 'bg-purple' : 'bg-red-400'
+                        score >= 8 ? '#5db8a3' : score >= 6 ? '#7c6ee0' : '#e8a87c'
                       return (
                         <div
                           key={g.id}
-                          className="px-5 py-3.5 hover:bg-surface/50 transition-colors"
+                          className="px-5 py-3.5 transition-colors hover:bg-white/40"
+                          style={{
+                            borderBottom: idx === arr.length - 1 ? 'none' : '1px solid rgba(124,110,224,0.08)',
+                          }}
                         >
                           <div className="flex items-center gap-3 mb-2">
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-bold text-gray-900 truncate leading-tight">
+                              <p className="text-sm font-bold truncate leading-tight" style={{ color: '#1a1a2e' }}>
                                 {g.subject?.name}
                               </p>
                               {g.assessment_title && (
-                                <p className="text-xs text-gray-400 mt-0.5 truncate">
+                                <p className="text-xs mt-0.5 truncate" style={{ color: '#64748b' }}>
                                   {g.assessment_title}
                                 </p>
                               )}
@@ -467,19 +475,22 @@ export default function ParentDashboard() {
                             <div className="flex items-center gap-2 flex-shrink-0">
                               <GradeBadge score={score} />
                               {g.date && (
-                                <span className="text-xs text-gray-300">{formatDate(g.date)}</span>
+                                <span className="text-xs" style={{ color: '#64748b' }}>{formatDate(g.date)}</span>
                               )}
                             </div>
                           </div>
                           {/* Mini grade bar */}
                           <div className="flex items-center gap-2">
-                            <div className="flex-1 h-1.5 bg-surface rounded-full overflow-hidden">
+                            <div
+                              className="flex-1 h-1.5 rounded-full overflow-hidden"
+                              style={{ background: 'rgba(124,110,224,0.10)' }}
+                            >
                               <div
-                                className={`h-full rounded-full transition-all duration-500 ${barColor}`}
-                                style={{ width: `${barPct}%` }}
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{ width: `${barPct}%`, background: barColor }}
                               />
                             </div>
-                            <span className="text-[10px] text-gray-400 w-6 text-right flex-shrink-0">
+                            <span className="text-[10px] w-6 text-right flex-shrink-0" style={{ color: '#64748b' }}>
                               {score}/10
                             </span>
                           </div>
@@ -490,16 +501,20 @@ export default function ParentDashboard() {
                 )}
               </div>
 
-              {/* Yaxın Tapşırıqlar */}
-              <div className="bg-white rounded-2xl border border-border-soft shadow-sm flex flex-col overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
-                  <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                    <ClipboardList className="w-4 h-4 text-purple" />
+              {/* Upcoming assignments */}
+              <div className="liquid-card overflow-hidden">
+                <div
+                  className="flex items-center justify-between px-5 py-4"
+                  style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}
+                >
+                  <h2 className="font-bold flex items-center gap-2" style={{ color: '#1a1a2e' }}>
+                    <ClipboardList className="w-4 h-4" style={{ color: '#7c6ee0' }} />
                     {t('upcoming_assignments_title')}
                   </h2>
                   <button
                     onClick={() => navigate('/valideyn/tapshiriqlar')}
-                    className="flex items-center gap-0.5 text-xs text-purple font-medium hover:opacity-75 transition-opacity"
+                    className="flex items-center gap-0.5 text-xs font-semibold transition-opacity hover:opacity-70"
+                    style={{ color: '#7c6ee0' }}
                   >
                     {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -507,38 +522,43 @@ export default function ParentDashboard() {
 
                 {(childData.upcomingAssignments || []).length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-14 text-center px-6">
-                    <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
-                      <ClipboardList className="w-5 h-5 text-gray-300" />
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+                      style={{ background: 'rgba(93,184,163,0.12)' }}
+                    >
+                      <Sparkles className="w-6 h-6" style={{ color: '#5db8a3' }} />
                     </div>
-                    <p className="text-sm text-gray-400">{t('no_assignments')}</p>
+                    <p className="text-sm font-medium" style={{ color: '#1a1a2e' }}>{t('no_assignments')}</p>
+                    <p className="text-xs mt-1" style={{ color: '#64748b' }}>Hər şey tamam — yeni tapşırıq yoxdur</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-border-soft">
-                    {(childData.upcomingAssignments || []).map(a => {
-                      const hex = subjectHex(a.subject?.name || '')
+                  <div>
+                    {(childData.upcomingAssignments || []).map((a, idx, arr) => {
+                      const hex = pastelColor(a.subject?.name || '')
                       return (
                         <div
                           key={a.id}
-                          className="flex items-start gap-3 px-5 py-3.5 hover:bg-surface/50 transition-colors"
+                          className="flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-white/40"
+                          style={{
+                            borderBottom: idx === arr.length - 1 ? 'none' : '1px solid rgba(124,110,224,0.08)',
+                          }}
                         >
-                          {/* Subject color dot */}
                           <span
                             className="mt-1 w-2.5 h-2.5 rounded-full flex-shrink-0"
                             style={{ backgroundColor: hex }}
                           />
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate leading-tight">
+                            <p className="text-sm font-semibold truncate leading-tight" style={{ color: '#1a1a2e' }}>
                               {a.title}
                             </p>
-                            <p className="text-xs text-gray-400 mt-0.5 truncate">
+                            <p className="text-xs mt-0.5 truncate" style={{ color: '#64748b' }}>
                               {a.subject?.name || 'Fənn'}
                             </p>
                           </div>
-                          {/* Due date — prominent on the right */}
                           <div className="flex flex-col items-end gap-1 flex-shrink-0">
                             <DueDateChip dueDateIso={a.due_date} />
                             {a.due_date && (
-                              <span className="text-[10px] text-gray-300">
+                              <span className="text-[10px]" style={{ color: '#64748b' }}>
                                 {formatDate(a.due_date)}
                               </span>
                             )}
@@ -551,41 +571,54 @@ export default function ParentDashboard() {
               </div>
             </div>
 
-            {/* ── RIGHT (5 cols) ─────────────────────────────────────────── */}
+            {/* ── RIGHT (5 cols) ────────────────────────────────────────── */}
             <div className="lg:col-span-5 flex flex-col gap-6">
 
-              {/* Uşağın Bu Günü — today's timetable */}
-              <div className="bg-white rounded-2xl border border-border-soft shadow-sm flex flex-col overflow-hidden">
-                <div className="flex items-center px-5 py-4 border-b border-border-soft">
-                  <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-purple" />
+              {/* Today's timetable */}
+              <div className="liquid-card overflow-hidden">
+                <div
+                  className="flex items-center px-5 py-4"
+                  style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}
+                >
+                  <h2 className="font-bold flex items-center gap-2" style={{ color: '#1a1a2e' }}>
+                    <Clock className="w-4 h-4" style={{ color: '#7c6ee0' }} />
                     {t('childs_today')}
                   </h2>
                 </div>
 
                 {(childData.timetable || []).length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-                    <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
-                      <Calendar className="w-5 h-5 text-gray-300" />
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+                      style={{ background: 'rgba(232,168,124,0.12)' }}
+                    >
+                      <Calendar className="w-6 h-6" style={{ color: '#e8a87c' }} />
                     </div>
-                    <p className="text-sm text-gray-400">{t('no_lessons_today')}</p>
+                    <p className="text-sm font-medium" style={{ color: '#1a1a2e' }}>{t('no_lessons_today')}</p>
+                    <p className="text-xs mt-1" style={{ color: '#64748b' }}>İstirahət günü</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-border-soft">
-                    {(childData.timetable || []).map(slot => (
+                  <div>
+                    {(childData.timetable || []).map((slot, idx, arr) => (
                       <div
                         key={slot.id}
-                        className="flex items-center gap-3 px-5 py-3 hover:bg-surface/50 transition-colors last:border-0"
+                        className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-white/40"
+                        style={{
+                          borderBottom: idx === arr.length - 1 ? 'none' : '1px solid rgba(124,110,224,0.08)',
+                        }}
                       >
-                        <span className="w-7 h-7 rounded-full bg-purple text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                        <span
+                          className="w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0"
+                          style={{ background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)' }}
+                        >
                           {slot.period}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">
+                          <p className="text-sm font-semibold truncate" style={{ color: '#1a1a2e' }}>
                             {slot.subject?.name}
                           </p>
                           {(slot.room || slot.start_time) && (
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs" style={{ color: '#64748b' }}>
                               {[slot.start_time, slot.room].filter(Boolean).join(' · ')}
                             </p>
                           )}
@@ -596,16 +629,20 @@ export default function ParentDashboard() {
                 )}
               </div>
 
-              {/* Bildirişlər — notification feed */}
-              <div className="bg-white rounded-2xl border border-border-soft shadow-sm flex flex-col overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft">
-                  <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                    <Bell className="w-4 h-4 text-purple" />
+              {/* Notifications */}
+              <div className="liquid-card overflow-hidden">
+                <div
+                  className="flex items-center justify-between px-5 py-4"
+                  style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}
+                >
+                  <h2 className="font-bold flex items-center gap-2" style={{ color: '#1a1a2e' }}>
+                    <Bell className="w-4 h-4" style={{ color: '#7c6ee0' }} />
                     {t('all_notifications')}
                   </h2>
                   <button
                     onClick={() => navigate('/valideyn/bildirisler')}
-                    className="flex items-center gap-0.5 text-xs text-purple font-medium hover:opacity-75 transition-opacity"
+                    className="flex items-center gap-0.5 text-xs font-semibold transition-opacity hover:opacity-70"
+                    style={{ color: '#7c6ee0' }}
                   >
                     {t('view_all')} <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -613,44 +650,57 @@ export default function ParentDashboard() {
 
                 {notifications.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-                    <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
-                      <Bell className="w-5 h-5 text-gray-300" />
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+                      style={{ background: 'rgba(124,110,224,0.10)' }}
+                    >
+                      <Bell className="w-6 h-6" style={{ color: '#7c6ee0' }} />
                     </div>
-                    <p className="text-sm text-gray-400">{t('no_notifications')}</p>
+                    <p className="text-sm font-medium" style={{ color: '#1a1a2e' }}>{t('no_notifications')}</p>
+                    <p className="text-xs mt-1" style={{ color: '#64748b' }}>Hər şey sakitdir</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-border-soft">
-                    {notifications.slice(0, 5).map(n => {
-                      const { icon: Icon, cls } = notifIcon(n.type)
+                  <div>
+                    {notifications.slice(0, 5).map((n, idx, arr) => {
+                      const meta = notifIcon(n.type)
+                      const Icon = meta.icon
                       return (
                         <div
                           key={n.id}
-                          className={`flex items-start gap-3 px-5 py-3.5 hover:bg-surface/50 transition-colors ${
-                            !n.read ? 'bg-purple-light/10' : ''
-                          }`}
+                          className="flex items-start gap-3 px-5 py-3.5 transition-colors"
+                          style={{
+                            background: !n.read ? 'rgba(124,110,224,0.05)' : 'transparent',
+                            borderBottom: idx === Math.min(arr.length - 1, 4) ? 'none' : '1px solid rgba(124,110,224,0.08)',
+                          }}
                         >
                           <span
-                            className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${cls}`}
+                            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                            style={{ background: meta.bg, color: meta.color }}
                           >
                             <Icon className="w-4 h-4" />
                           </span>
                           <div className="min-w-0 flex-1">
                             <p
-                              className={`text-sm leading-snug ${
-                                n.read ? 'text-gray-600' : 'text-gray-900 font-semibold'
-                              }`}
+                              className="text-sm leading-snug"
+                              style={{
+                                color: n.read ? '#64748b' : '#1a1a2e',
+                                fontWeight: n.read ? 500 : 700,
+                              }}
                             >
                               {n.title}
                             </p>
                             {n.body && (
-                              <p className="text-xs text-gray-400 mt-0.5 truncate">{n.body}</p>
+                              <p className="text-xs mt-0.5 truncate" style={{ color: '#64748b' }}>{n.body}</p>
                             )}
-                            <p className="text-xs text-gray-300 mt-1">
+                            <p className="text-[10px] mt-1" style={{ color: '#64748b' }}>
                               {formatRelativeTime(n.created_at)}
                             </p>
                           </div>
                           {!n.read && (
-                            <span className="flex-shrink-0 w-2 h-2 rounded-full bg-purple mt-2" />
+                            <span
+                              className="flex-shrink-0 w-2 h-2 rounded-full mt-2"
+                              style={{ background: '#7c6ee0' }}
+                            />
                           )}
                         </div>
                       )

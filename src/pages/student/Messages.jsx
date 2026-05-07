@@ -5,7 +5,7 @@ import { useRealtime } from '../../hooks/useRealtime'
 import Avatar from '../../components/ui/Avatar'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
-import { MessageSquare, Send } from 'lucide-react'
+import { MessageSquare, Send, Inbox } from 'lucide-react'
 
 export default function StudentMessages() {
   const { profile, t } = useAuth()
@@ -102,35 +102,103 @@ export default function StudentMessages() {
   if (loading) return <PageSpinner />
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] -m-8 overflow-hidden">
-      <div className="w-80 bg-white border-r border-border-soft flex flex-col">
-        <div className="p-4 border-b border-border-soft">
-          <h2 className="text-sm font-medium text-gray-900">{t('messages')}</h2>
+    <div
+      className="flex h-[calc(100vh-4rem)] -m-8 overflow-hidden"
+      style={{ background: 'transparent' }}
+    >
+      {/* Thread sidebar */}
+      <div
+        className="w-80 flex flex-col"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 100%)',
+          backdropFilter: 'blur(24px) saturate(1.6)',
+          WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+          borderRight: '1px solid rgba(124,110,224,0.12)',
+        }}
+      >
+        <div
+          className="p-4 flex items-center gap-2"
+          style={{ borderBottom: '1px solid rgba(124,110,224,0.10)' }}
+        >
+          <span
+            className="flex items-center justify-center"
+            style={{
+              width: 28, height: 28, borderRadius: 8,
+              background: 'rgba(124,110,224,0.14)',
+            }}
+          >
+            <Inbox className="w-3.5 h-3.5" style={{ color: '#7c6ee0' }} />
+          </span>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e' }}>
+            {t('messages')}
+          </h2>
         </div>
         <div className="flex-1 overflow-y-auto">
           {threads.length === 0 ? (
-            <div className="p-4 text-sm text-gray-400 text-center">{t('no_messages')}</div>
+            <div className="p-6 flex flex-col items-center text-center gap-2">
+              <span
+                className="flex items-center justify-center"
+                style={{
+                  width: 48, height: 48, borderRadius: 16,
+                  background: 'rgba(124,110,224,0.10)',
+                  border: '1px solid rgba(124,110,224,0.18)',
+                }}
+              >
+                <MessageSquare className="w-5 h-5" style={{ color: '#7c6ee0' }} />
+              </span>
+              <p className="text-sm font-medium" style={{ color: '#1a1a2e' }}>
+                {t('no_messages')}
+              </p>
+              <p className="text-xs" style={{ color: '#64748b' }}>
+                Mesajlarınız burada görünəcək
+              </p>
+            </div>
           ) : (
             threads.map(thread => {
               const other = profiles[thread.otherId]
+              const isActive = activeThread?.threadId === thread.threadId
               return (
                 <button
                   key={thread.threadId}
                   onClick={() => selectThread(thread)}
-                  className={`w-full text-left px-4 py-3 border-b border-border-soft transition-colors ${
-                    activeThread?.threadId === thread.threadId ? 'bg-purple-light' : 'hover:bg-surface'
-                  }`}
+                  className="w-full text-left transition-all"
+                  style={{
+                    padding: '14px 16px',
+                    borderBottom: '1px solid rgba(124,110,224,0.06)',
+                    background: isActive ? 'rgba(124,110,224,0.10)' : 'transparent',
+                    borderLeft: isActive ? '3px solid #7c6ee0' : '3px solid transparent',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(124,110,224,0.04)' }}
+                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
                 >
                   <div className="flex items-center gap-3">
                     <Avatar name={other?.full_name} color={other?.avatar_color} size="sm" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
-                        <p className={`text-sm truncate ${thread.unread ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                        <p
+                          className="truncate"
+                          style={{
+                            fontSize: 14,
+                            fontWeight: thread.unread ? 700 : 500,
+                            color: thread.unread ? '#1a1a2e' : '#475569',
+                          }}
+                        >
                           {other?.full_name || 'İstifadəçi'}
                         </p>
-                        {thread.unread && <div className="w-2 h-2 rounded-full bg-purple flex-shrink-0" />}
+                        {thread.unread && (
+                          <span
+                            style={{
+                              width: 8, height: 8, borderRadius: 999,
+                              background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                              flexShrink: 0,
+                            }}
+                          />
+                        )}
                       </div>
-                      <p className="text-xs text-gray-500 truncate">{thread.lastMessage.content}</p>
+                      <p className="text-xs truncate mt-0.5" style={{ color: '#64748b' }}>
+                        {thread.lastMessage.content}
+                      </p>
                     </div>
                   </div>
                 </button>
@@ -140,43 +208,94 @@ export default function StudentMessages() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col">
+      {/* Chat pane */}
+      <div className="flex-1 flex flex-col" style={{ background: 'transparent' }}>
         {!activeThread ? (
-          <EmptyState icon={MessageSquare} title={t('select_chat')} description={t('select_chat_desc')} />
+          <div className="flex-1 flex items-center justify-center p-6">
+            <EmptyState icon={MessageSquare} title={t('select_chat')} description={t('select_chat_desc')} />
+          </div>
         ) : (
           <>
-            <div className="px-6 py-4 border-b border-border-soft flex items-center gap-3">
+            <div
+              className="px-6 py-4 flex items-center gap-3"
+              style={{
+                borderBottom: '1px solid rgba(124,110,224,0.10)',
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 100%)',
+                backdropFilter: 'blur(24px) saturate(1.6)',
+                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+              }}
+            >
               <Avatar name={profiles[activeThread.otherId]?.full_name} color={profiles[activeThread.otherId]?.avatar_color} size="sm" />
-              <span className="text-sm font-medium text-gray-900">{profiles[activeThread.otherId]?.full_name}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#1a1a2e' }}>
+                {profiles[activeThread.otherId]?.full_name}
+              </span>
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
-              {threadMessages.map(msg => (
-                <div key={msg.id} className={`flex ${msg.sender_id === profile.id ? 'justify-end' : ''}`}>
-                  <div className={`max-w-[70%] rounded-xl px-4 py-3 text-sm ${
-                    msg.sender_id === profile.id
-                      ? 'bg-purple text-white'
-                      : 'bg-white border border-border-soft text-gray-900'
-                  }`}>
-                    {msg.content}
+              {threadMessages.map(msg => {
+                const isMe = msg.sender_id === profile.id
+                return (
+                  <div key={msg.id} className={`flex ${isMe ? 'justify-end' : ''}`}>
+                    <div
+                      className="max-w-[70%] text-sm"
+                      style={{
+                        padding: '10px 16px',
+                        borderRadius: 18,
+                        background: isMe
+                          ? 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)'
+                          : 'rgba(255,255,255,0.75)',
+                        color: isMe ? '#fff' : '#1a1a2e',
+                        border: isMe ? 'none' : '1px solid rgba(124,110,224,0.18)',
+                        backdropFilter: !isMe ? 'blur(12px)' : undefined,
+                        WebkitBackdropFilter: !isMe ? 'blur(12px)' : undefined,
+                        boxShadow: isMe
+                          ? '0 4px 14px rgba(124,110,224,0.20)'
+                          : '0 2px 6px rgba(140,120,200,0.06)',
+                        lineHeight: 1.5,
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      {msg.content}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
               <div ref={messagesEndRef} />
             </div>
-            <div className="px-6 py-4 border-t border-border-soft flex gap-3">
+            <div
+              className="px-6 py-4 flex gap-3"
+              style={{
+                borderTop: '1px solid rgba(124,110,224,0.10)',
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 100%)',
+                backdropFilter: 'blur(24px) saturate(1.6)',
+                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+              }}
+            >
               <input
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && sendMessage()}
                 placeholder={t('type_message')}
-                className="flex-1 border border-border-soft rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+                className="pastel-input flex-1"
               />
               <button
                 onClick={sendMessage}
                 disabled={!input.trim()}
-                className="bg-purple text-white rounded-xl px-4 hover:bg-purple-dark transition-colors disabled:opacity-50"
+                className="flex items-center justify-center transition-all"
+                style={{
+                  width: 44, height: 44, borderRadius: 999,
+                  background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                  color: '#fff',
+                  border: 'none',
+                  boxShadow: '0 6px 16px rgba(124,110,224,0.28)',
+                  opacity: !input.trim() ? 0.5 : 1,
+                  cursor: !input.trim() ? 'not-allowed' : 'pointer',
+                  flexShrink: 0,
+                }}
+                onMouseEnter={e => { if (input.trim()) e.currentTarget.style.transform = 'translateY(-1px)' }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)' }}
               >
-                <Send className="w-5 h-5" />
+                <Send className="w-4 h-4" />
               </button>
             </div>
           </>

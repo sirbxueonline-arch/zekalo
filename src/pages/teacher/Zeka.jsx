@@ -2,19 +2,14 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { streamZekaResponse } from '../../lib/zeka'
-import Card from '../../components/ui/Card'
-import Button from '../../components/ui/Button'
-import { Select } from '../../components/ui/Input'
-import { Textarea } from '../../components/ui/Input'
-import { PageSpinner } from '../../components/ui/Spinner'
-import { Sparkles, FileText, MessageSquare, Copy, Check, Loader2 } from 'lucide-react'
+import { Sparkles, FileText, MessageSquare, Copy, Check } from 'lucide-react'
 
 const modes = [
   { key: 'report', label: 'Hesabat yaz', icon: FileText },
   { key: 'essay', label: 'Esse rəyi', icon: MessageSquare },
 ]
 
-const subjectChips = ['Riyaziyyat', 'Fizika', 'Kimya', 'Biologiya', 'Tarix', 'Ədəbiyyat', 'Ingilis dili', 'Cografiya']
+const subjectChips = ['Riyaziyyat', 'Fizika', 'Kimya', 'Biologiya', 'Tarix', 'Ədəbiyyat', 'İngilis dili', 'Coğrafiya']
 
 const ibCriteria = [
   { key: 'A', label: 'Kriteriya A' },
@@ -33,7 +28,6 @@ export default function TeacherZeka() {
   const [output, setOutput] = useState('')
   const [copied, setCopied] = useState(false)
 
-  // Essay mode state
   const [essayText, setEssayText] = useState('')
   const [essaySubject, setEssaySubject] = useState('')
   const [essayCriteria, setEssayCriteria] = useState([])
@@ -121,22 +115,29 @@ export default function TeacherZeka() {
     )
   }
 
-  if (loading) return <PageSpinner />
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <div className="pastel-skeleton h-12 w-72" />
+        <div className="pastel-skeleton h-64" />
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-4xl text-gray-900 tracking-tight">{t('zeka_ai')}</h1>
-        <div className="flex gap-2 bg-surface rounded-lg p-1">
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
+          <span className="pastel-text">{t('zeka_ai')}</span>
+        </h1>
+        <div className="pastel-tabs">
           {modes.map(m => (
             <button
               key={m.key}
               onClick={() => setMode(m.key)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                mode === m.key ? 'bg-white text-purple shadow-sm' : 'text-gray-500 hover:text-gray-700'
-              }`}
+              className={mode === m.key ? 'pastel-tab active' : 'pastel-tab'}
             >
-              <m.icon className="w-4 h-4" />
+              <m.icon className="w-3.5 h-3.5 inline mr-1.5" />
               {m.label}
             </button>
           ))}
@@ -144,36 +145,56 @@ export default function TeacherZeka() {
       </div>
 
       {mode === 'report' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card hover={false}>
-            <h2 className="text-xs tracking-widest text-gray-400 uppercase mb-4">{t('reports')}</h2>
-            <div className="space-y-4">
-              <Select
-                label={t('full_name')}
-                value={selectedStudent}
-                onChange={e => setSelectedStudent(e.target.value)}
-              >
-                {students.map(s => (
-                  <option key={s.id} value={s.id}>{s.full_name} ({s.class_name})</option>
-                ))}
-              </Select>
-              <Button onClick={generateReport} loading={generating} disabled={!selectedStudent}>
-                <Sparkles className="w-4 h-4 mr-2" />
-                {t('reports')}
-              </Button>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Inputs */}
+          <div className="liquid-card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="icon-chip icon-chip-periwinkle" style={{ width: 32, height: 32, borderRadius: 10 }}>
+                <Sparkles className="w-4 h-4" />
+              </span>
+              <h2 className="text-xs tracking-widest uppercase font-semibold" style={{ color: '#64748b' }}>{t('reports')}</h2>
             </div>
-          </Card>
+            <div className="space-y-4">
+              {students.length === 0 ? (
+                <div className="text-center py-6">
+                  <p className="text-sm" style={{ color: '#94a3b8' }}>Hələ şagird tapılmadı</p>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('full_name')}</label>
+                    <select className="pastel-input" value={selectedStudent} onChange={e => setSelectedStudent(e.target.value)}>
+                      {students.map(s => (
+                        <option key={s.id} value={s.id}>{s.full_name} ({s.class_name})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <button
+                    onClick={generateReport}
+                    disabled={generating || !selectedStudent}
+                    className="btn-pastel"
+                    style={{ padding: '12px 22px', fontSize: 13, opacity: (generating || !selectedStudent) ? 0.5 : 1 }}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    {generating ? 'Yaradılır...' : t('reports')}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
 
-          <Card hover={false}>
+          {/* Output */}
+          <div className="liquid-card p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs tracking-widest text-gray-400 uppercase">Nəticə</h2>
+              <h2 className="text-xs tracking-widest uppercase font-semibold" style={{ color: '#64748b' }}>Nəticə</h2>
               {output && (
                 <button
                   onClick={() => handleCopy(output)}
-                  className="flex items-center gap-1 text-xs text-purple hover:text-purple-dark transition-colors"
+                  className="flex items-center gap-1 text-xs font-semibold smooth-trans hover:opacity-70"
+                  style={{ color: '#7c6ee0' }}
                 >
                   {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copied ? 'Kopyalandi' : 'Kopyala'}
+                  {copied ? 'Kopyalandı' : 'Kopyala'}
                 </button>
               )}
             </div>
@@ -182,39 +203,51 @@ export default function TeacherZeka() {
                 value={output}
                 onChange={e => setOutput(e.target.value)}
                 rows={16}
-                className="w-full border border-border-soft rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent resize-none"
+                className="pastel-input"
+                style={{ resize: 'none' }}
               />
             ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-                <Sparkles className="w-8 h-8 mb-2" />
-                <p className="text-sm">Hesabat burada gorunəcək</p>
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="icon-chip icon-chip-mint mb-3" style={{ width: 56, height: 56 }}>
+                  <Sparkles className="w-7 h-7" />
+                </div>
+                <p className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>Zəka köməkçiniz</p>
+                <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>Hesabat burada görünəcək</p>
               </div>
             )}
-          </Card>
+          </div>
         </div>
       ) : (
-        <div className="space-y-6">
-          <Card hover={false}>
-            <h2 className="text-xs tracking-widest text-gray-400 uppercase mb-4">{t('teacher_feedback')}</h2>
-            <Textarea
-              label={t('your_answer')}
-              rows={10}
-              value={essayText}
-              onChange={e => setEssayText(e.target.value)}
-              placeholder={t('your_answer')}
-            />
+        <div className="space-y-5">
+          <div className="liquid-card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="icon-chip icon-chip-mint" style={{ width: 32, height: 32, borderRadius: 10 }}>
+                <MessageSquare className="w-4 h-4" />
+              </span>
+              <h2 className="text-xs tracking-widest uppercase font-semibold" style={{ color: '#64748b' }}>{t('teacher_feedback')}</h2>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('your_answer')}</label>
+              <textarea
+                rows={10}
+                className="pastel-input"
+                value={essayText}
+                onChange={e => setEssayText(e.target.value)}
+                placeholder={t('your_answer')}
+                style={{ resize: 'vertical' }}
+              />
+            </div>
 
             <div className="mt-4 space-y-4">
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">{t('subject')}</p>
+                <p className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('subject')}</p>
                 <div className="flex flex-wrap gap-2">
                   {subjectChips.map(s => (
                     <button
                       key={s}
                       onClick={() => setEssaySubject(s)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                        essaySubject === s ? 'border-purple bg-purple-light text-purple' : 'border-border-soft text-gray-500 hover:bg-surface'
-                      }`}
+                      className={essaySubject === s ? 'pastel-tab active' : 'pastel-tab'}
+                      style={{ padding: '6px 14px', fontSize: 12 }}
                     >
                       {s}
                     </button>
@@ -224,15 +257,14 @@ export default function TeacherZeka() {
 
               {profile?.edition === 'ib' && (
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">IB Kriteriyalari</p>
-                  <div className="flex gap-2">
+                  <p className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: '#64748b' }}>IB Kriteriyaları</p>
+                  <div className="flex gap-2 flex-wrap">
                     {ibCriteria.map(c => (
                       <button
                         key={c.key}
                         onClick={() => toggleCriterion(c.key)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                          essayCriteria.includes(c.key) ? 'border-purple bg-purple-light text-purple' : 'border-border-soft text-gray-500 hover:bg-surface'
-                        }`}
+                        className={essayCriteria.includes(c.key) ? 'pastel-tab active' : 'pastel-tab'}
+                        style={{ padding: '6px 14px', fontSize: 12 }}
                       >
                         {c.label}
                       </button>
@@ -241,30 +273,35 @@ export default function TeacherZeka() {
                 </div>
               )}
 
-              <Button onClick={generateEssayFeedback} loading={generating} disabled={!essayText.trim()}>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Rəy yarat
-              </Button>
+              <button
+                onClick={generateEssayFeedback}
+                disabled={generating || !essayText.trim()}
+                className="btn-pastel"
+                style={{ padding: '12px 22px', fontSize: 13, opacity: (generating || !essayText.trim()) ? 0.5 : 1 }}
+              >
+                <Sparkles className="w-4 h-4" /> {generating ? 'Yaradılır...' : 'Rəy yarat'}
+              </button>
             </div>
-          </Card>
+          </div>
 
           {feedback && (
-            <Card hover={false}>
+            <div className="liquid-card p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xs tracking-widest text-gray-400 uppercase">AI Rəyi</h2>
+                <h2 className="text-xs tracking-widest uppercase font-semibold" style={{ color: '#64748b' }}>AI Rəyi</h2>
                 <button
                   onClick={() => handleCopy(feedback)}
-                  className="flex items-center gap-1 text-xs text-purple hover:text-purple-dark transition-colors"
+                  className="flex items-center gap-1 text-xs font-semibold smooth-trans hover:opacity-70"
+                  style={{ color: '#7c6ee0' }}
                 >
                   {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copied ? 'Kopyalandi' : 'Kopyala'}
+                  {copied ? 'Kopyalandı' : 'Kopyala'}
                 </button>
               </div>
-              <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
+              <div className="text-sm whitespace-pre-wrap" style={{ color: '#1a1a2e', lineHeight: 1.6 }}>
                 {feedback}
-                {generating && <span className="inline-block w-2 h-4 bg-purple animate-pulse rounded-sm ml-1" />}
+                {generating && <span className="inline-block w-2 h-4 rounded-sm ml-1" style={{ background: '#7c6ee0', animation: 'pastel-pulse 1s infinite' }} />}
               </div>
-            </Card>
+            </div>
           )}
         </div>
       )}

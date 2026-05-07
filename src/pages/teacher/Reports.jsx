@@ -1,14 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
-import Card from '../../components/ui/Card'
-import Button from '../../components/ui/Button'
-import { Select } from '../../components/ui/Input'
-import Table from '../../components/ui/Table'
-import { PageSpinner } from '../../components/ui/Spinner'
-import EmptyState from '../../components/ui/EmptyState'
-import Badge from '../../components/ui/Badge'
-import { FileText, Download, Send, Printer } from 'lucide-react'
+import { FileText, Send, Printer, Sparkles } from 'lucide-react'
 
 const reportTypeKeys = [
   { value: 'class', labelKey: 'class_report' },
@@ -28,6 +21,7 @@ export default function TeacherReports() {
   const [reportData, setReportData] = useState(null)
   const [generating, setGenerating] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [submitToast, setSubmitToast] = useState('')
   const [ministryReports, setMinistryReports] = useState([])
   const previewRef = useRef(null)
 
@@ -138,7 +132,7 @@ export default function TeacherReports() {
     const printWindow = window.open('', '', 'width=800,height=600')
     printWindow.document.write(`
       <html><head><title>${t('reports')}</title>
-      <style>body{font-family:serif;padding:2rem}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:13px}th{background:#f5f5f5}</style>
+      <style>body{font-family:system-ui;padding:2rem;color:#1a1a2e}table{width:100%;border-collapse:collapse}th,td{border:1px solid #e2e8f0;padding:8px;text-align:left;font-size:13px}th{background:#f8f7fb;color:#64748b;font-weight:600}h2{color:#7c6ee0}</style>
       </head><body>${previewRef.current.innerHTML}</body></html>
     `)
     printWindow.document.close()
@@ -161,7 +155,11 @@ export default function TeacherReports() {
 
     if (!error && data) {
       setMinistryReports(prev => [data, ...prev])
+      setSubmitToast('success')
+    } else {
+      setSubmitToast('error')
     }
+    setTimeout(() => setSubmitToast(''), 2400)
     setSubmitting(false)
   }
 
@@ -171,89 +169,117 @@ export default function TeacherReports() {
     return `${String(dt.getDate()).padStart(2, '0')}.${String(dt.getMonth() + 1).padStart(2, '0')}.${dt.getFullYear()}`
   }
 
-  const ministryColumns = [
-    { key: 'created_at', label: t('date'), render: (v) => formatDate(v) },
-    { key: 'report_type', label: t('reports') },
-    { key: 'date_from', label: t('date'), render: (_, row) => `${formatDate(row.date_from)} - ${formatDate(row.date_to)}` },
-    { key: 'status', label: t('actions'), render: (v) => <Badge variant={v === 'submitted' ? 'good' : v === 'approved' ? 'excellent' : 'default'}>{v}</Badge> },
-  ]
-
-  if (loading) return <PageSpinner />
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <div className="pastel-skeleton h-12 w-72" />
+        <div className="pastel-skeleton h-32" />
+        <div className="pastel-skeleton h-64" />
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <h1 className="font-serif text-4xl text-gray-900 tracking-tight">{t('reports')}</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Select label={t('reports')} value={reportType} onChange={e => setReportType(e.target.value)}>
-          {reportTypeKeys.map(rt => (
-            <option key={rt.value} value={rt.value}>{t(rt.labelKey)}</option>
-          ))}
-        </Select>
-        <Select label={t('class_name')} value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
-          {teacherClasses.map(c => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </Select>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('date')}</label>
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={e => setDateFrom(e.target.value)}
-            className="w-full border border-border-soft rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
-          />
+    <div className="space-y-5 relative">
+      {submitToast && (
+        <div className={`fixed top-6 right-6 ${submitToast === 'success' ? 'toast-success' : 'toast-error'} px-4 py-3 rounded-2xl text-sm font-semibold z-50`}>
+          {submitToast === 'success' ? 'Hesabat göndərildi' : 'Xəta baş verdi'}
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('date')}</label>
-          <input
-            type="date"
-            value={dateTo}
-            onChange={e => setDateTo(e.target.value)}
-            className="w-full border border-border-soft rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
-          />
-        </div>
-      </div>
+      )}
 
-      <div className="flex gap-3">
-        <Button onClick={generateReport} loading={generating}>{t('reports')}</Button>
-        {reportData && (
-          <>
-            <Button variant="secondary" onClick={handlePrint}>
-              <Printer className="w-4 h-4 mr-2" />
-              {t('print')}
-            </Button>
-            {reportType === 'ministry' && isGovernment && (
-              <Button variant="teal" onClick={handleMinistrySubmit} loading={submitting}>
-                <Send className="w-4 h-4 mr-2" />
-                {t('submit_egov')}
-              </Button>
-            )}
-          </>
-        )}
+      <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
+        <span className="pastel-text">{t('reports')}</span>
+      </h1>
+
+      {/* Filters */}
+      <div className="liquid-card p-5">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('reports')}</label>
+            <select className="pastel-input" value={reportType} onChange={e => setReportType(e.target.value)}>
+              {reportTypeKeys.map(rt => (
+                <option key={rt.value} value={rt.value}>{t(rt.labelKey)}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('class_name')}</label>
+            <select className="pastel-input" value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
+              {teacherClasses.length === 0 && <option>—</option>}
+              {teacherClasses.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('date')}</label>
+            <input type="date" className="pastel-input" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('date')}</label>
+            <input type="date" className="pastel-input" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+          </div>
+        </div>
+
+        <div className="flex gap-3 mt-5 flex-wrap">
+          <button
+            onClick={generateReport}
+            disabled={generating || !selectedClass}
+            className="btn-pastel"
+            style={{ padding: '10px 22px', fontSize: 13, opacity: (generating || !selectedClass) ? 0.5 : 1 }}
+          >
+            <Sparkles className="w-4 h-4" /> {generating ? '...' : t('reports')}
+          </button>
+          {reportData && (
+            <>
+              <button onClick={handlePrint} className="btn-ghost-pastel" style={{ padding: '10px 22px', fontSize: 13 }}>
+                <Printer className="w-4 h-4" /> {t('print')}
+              </button>
+              {reportType === 'ministry' && isGovernment && (
+                <button
+                  onClick={handleMinistrySubmit}
+                  disabled={submitting}
+                  className="btn-ghost-pastel"
+                  style={{ padding: '10px 22px', fontSize: 13, borderColor: 'rgba(93,184,163,0.4)', color: '#3d8a73' }}
+                >
+                  <Send className="w-4 h-4" /> {submitting ? '...' : t('submit_egov')}
+                </button>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {reportData && (
-        <Card hover={false}>
+        <div className="liquid-card p-6">
           <div ref={previewRef}>
-            <h2 className="font-serif text-2xl text-gray-900 mb-1">{reportData.className}</h2>
-            <p className="text-sm text-gray-500 mb-6">{formatDate(dateFrom)} - {formatDate(dateTo)}</p>
+            <h2 className="text-2xl font-bold mb-1" style={{ color: '#1a1a2e' }}>{reportData.className}</h2>
+            <p className="text-sm mb-6" style={{ color: '#64748b' }}>{formatDate(dateFrom)} - {formatDate(dateTo)}</p>
 
             {(reportData.type === 'class' || reportData.type === 'student') && (
-              <table className="w-full">
+              <table className="pastel-table">
                 <thead>
-                  <tr className="bg-surface">
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{t('full_name')}</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">{t('grades')}</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">{t('avg_grade')}</th>
+                  <tr>
+                    <th>{t('full_name')}</th>
+                    <th style={{ textAlign: 'center' }}>{t('grades')}</th>
+                    <th style={{ textAlign: 'center' }}>{t('avg_grade')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {reportData.students.map(s => (
-                    <tr key={s.id} className="border-b border-border-soft">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{s.full_name}</td>
-                      <td className="px-6 py-4 text-sm text-center text-gray-700">{s.grades.length}</td>
-                      <td className="px-6 py-4 text-sm text-center">{s.avg != null ? String(s.avg).replace('.', ',') : '\u2014'}</td>
+                    <tr key={s.id}>
+                      <td style={{ fontWeight: 600 }}>{s.full_name}</td>
+                      <td style={{ textAlign: 'center' }}>{s.grades.length}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        {s.avg != null ? (
+                          <span className="pastel-badge" style={{
+                            background: s.avg >= 8 ? 'rgba(93,184,163,0.16)' : s.avg >= 5 ? 'rgba(232,168,124,0.18)' : 'rgba(229,107,127,0.14)',
+                            color: s.avg >= 8 ? '#3d8a73' : s.avg >= 5 ? '#b46a3e' : '#b83b54',
+                          }}>
+                            {String(s.avg).replace('.', ',')}
+                          </span>
+                        ) : '—'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -261,24 +287,24 @@ export default function TeacherReports() {
             )}
 
             {reportData.type === 'attendance' && (
-              <table className="w-full">
+              <table className="pastel-table">
                 <thead>
-                  <tr className="bg-surface">
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{t('full_name')}</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">{t('present')}</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">{t('late')}</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">{t('absent')}</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">%</th>
+                  <tr>
+                    <th>{t('full_name')}</th>
+                    <th style={{ textAlign: 'center' }}>{t('present')}</th>
+                    <th style={{ textAlign: 'center' }}>{t('late')}</th>
+                    <th style={{ textAlign: 'center' }}>{t('absent')}</th>
+                    <th style={{ textAlign: 'center' }}>%</th>
                   </tr>
                 </thead>
                 <tbody>
                   {reportData.students.map(s => (
-                    <tr key={s.id} className="border-b border-border-soft">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{s.full_name}</td>
-                      <td className="px-6 py-4 text-sm text-center text-teal">{s.present}</td>
-                      <td className="px-6 py-4 text-sm text-center text-amber-600">{s.late}</td>
-                      <td className="px-6 py-4 text-sm text-center text-red-600">{s.absent}</td>
-                      <td className="px-6 py-4 text-sm text-center font-medium">{s.pct}%</td>
+                    <tr key={s.id}>
+                      <td style={{ fontWeight: 600 }}>{s.full_name}</td>
+                      <td style={{ textAlign: 'center', color: '#3d8a73', fontWeight: 600 }}>{s.present}</td>
+                      <td style={{ textAlign: 'center', color: '#b46a3e', fontWeight: 600 }}>{s.late}</td>
+                      <td style={{ textAlign: 'center', color: '#b83b54', fontWeight: 600 }}>{s.absent}</td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: s.pct >= 85 ? '#3d8a73' : '#b83b54' }}>{s.pct}%</td>
                     </tr>
                   ))}
                 </tbody>
@@ -286,38 +312,73 @@ export default function TeacherReports() {
             )}
 
             {reportData.type === 'ministry' && (
-              <table className="w-full">
+              <table className="pastel-table">
                 <thead>
-                  <tr className="bg-surface">
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{t('full_name')}</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">{t('avg_grade')}</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">{t('attendance_pct')}</th>
+                  <tr>
+                    <th>{t('full_name')}</th>
+                    <th style={{ textAlign: 'center' }}>{t('avg_grade')}</th>
+                    <th style={{ textAlign: 'center' }}>{t('attendance_pct')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {reportData.students.map(s => (
-                    <tr key={s.id} className="border-b border-border-soft">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{s.full_name}</td>
-                      <td className="px-6 py-4 text-sm text-center">{s.avg != null ? String(s.avg).replace('.', ',') : '\u2014'}</td>
-                      <td className="px-6 py-4 text-sm text-center">{s.attendancePct}%</td>
+                    <tr key={s.id}>
+                      <td style={{ fontWeight: 600 }}>{s.full_name}</td>
+                      <td style={{ textAlign: 'center' }}>{s.avg != null ? String(s.avg).replace('.', ',') : '—'}</td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: s.attendancePct >= 85 ? '#3d8a73' : '#b83b54' }}>{s.attendancePct}%</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             )}
           </div>
-        </Card>
+        </div>
       )}
 
       {!reportData && !generating && (
-        <EmptyState icon={FileText} title={t('reports')} description={t('no_data')} />
+        <div className="liquid-card p-12">
+          <div className="text-center">
+            <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
+              <FileText className="w-8 h-8" />
+            </div>
+            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>{t('reports')}</p>
+            <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>{t('no_data')}</p>
+          </div>
+        </div>
       )}
 
       {ministryReports.length > 0 && (
-        <Card hover={false}>
-          <h2 className="text-xs tracking-widest text-gray-400 uppercase mb-4">{t('ministry_report')}</h2>
-          <Table columns={ministryColumns} data={ministryReports} />
-        </Card>
+        <div className="liquid-card overflow-hidden">
+          <div className="px-5 py-4 border-b" style={{ borderColor: 'rgba(124,110,224,0.12)' }}>
+            <h2 className="text-xs tracking-widest uppercase font-semibold" style={{ color: '#64748b' }}>{t('ministry_report')}</h2>
+          </div>
+          <table className="pastel-table">
+            <thead>
+              <tr>
+                <th>{t('date')}</th>
+                <th>{t('reports')}</th>
+                <th>{t('date')}</th>
+                <th>{t('actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ministryReports.map(r => (
+                <tr key={r.id}>
+                  <td>{formatDate(r.created_at)}</td>
+                  <td>{r.report_type}</td>
+                  <td>{formatDate(r.date_from)} - {formatDate(r.date_to)}</td>
+                  <td>
+                    <span className={
+                      r.status === 'approved' ? 'pastel-badge pastel-badge-mint' :
+                      r.status === 'submitted' ? 'pastel-badge pastel-badge-blue' :
+                      'pastel-badge pastel-badge-slate'
+                    }>{r.status}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   )

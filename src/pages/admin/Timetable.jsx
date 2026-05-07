@@ -218,7 +218,7 @@ export default function Timetable() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-3xl text-gray-900">{t('timetable')}</h1>
+        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('timetable')}</span></h1>
         <div className="flex items-center gap-3">
           {draftCount > 0 && (
             <span className="text-xs text-gray-500">{draftCount} dəyişiklik dərc edilməyib</span>
@@ -251,14 +251,13 @@ export default function Timetable() {
 
       {/* Class filter tabs */}
       <div className="flex items-center gap-2 flex-wrap">
-        <Filter className="w-4 h-4 text-gray-400 shrink-0" />
+        <Filter className="w-4 h-4 shrink-0" style={{ color: '#7c6ee0' }} />
         <button
           onClick={() => setActiveClassFilter('all')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-            activeClassFilter === 'all'
-              ? 'bg-purple text-white shadow-sm'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
+          className="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all backdrop-blur-md"
+          style={activeClassFilter === 'all'
+            ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(124,110,224,0.25)' }
+            : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
         >
           Bütün Siniflər
         </button>
@@ -266,11 +265,10 @@ export default function Timetable() {
           <button
             key={cls.id}
             onClick={() => setActiveClassFilter(cls.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              activeClassFilter === cls.id
-                ? 'bg-purple text-white shadow-sm'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all backdrop-blur-md"
+            style={activeClassFilter === cls.id
+              ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(124,110,224,0.25)' }
+              : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
           >
             {cls.name}
           </button>
@@ -334,8 +332,13 @@ export default function Timetable() {
                           )}
                         </div>
                       ) : (
-                        <div className="h-24 flex items-center justify-center rounded-xl border-2 border-dashed border-gray-100 hover:border-purple/30 hover:bg-purple-light/30 transition-all group">
-                          <Plus className="w-4 h-4 text-gray-200 group-hover:text-purple/50 transition-colors" />
+                        <div
+                          className="h-24 flex items-center justify-center rounded-xl border-2 border-dashed transition-all group"
+                          style={{ borderColor: 'rgba(124,110,224,0.15)' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(124,110,224,0.55)'; e.currentTarget.style.background = 'rgba(124,110,224,0.06)'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(124,110,224,0.08), 0 0 16px rgba(124,110,224,0.18)' }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(124,110,224,0.15)'; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.boxShadow = 'none' }}
+                        >
+                          <Plus className="w-4 h-4 transition-colors" style={{ color: 'rgba(124,110,224,0.4)' }} />
                         </div>
                       )}
                     </td>

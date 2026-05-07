@@ -10,7 +10,7 @@ import Badge from '../../components/ui/Badge'
 import { GradeBadge } from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 
-function BarChart({ data, labelKey, valueKey, maxValue, color = '#534AB7', height = 200 }) {
+function BarChart({ data, labelKey, valueKey, maxValue, color = '#7c6ee0', height = 200 }) {
   if (!data || data.length === 0) return <p className="text-sm text-gray-400 text-center py-8">—</p>
   const max = maxValue || Math.max(...data.map(d => d[valueKey] || 0), 1)
   const barWidth = Math.max(20, Math.min(60, 600 / data.length))
@@ -38,7 +38,7 @@ function BarChart({ data, labelKey, valueKey, maxValue, color = '#534AB7', heigh
   )
 }
 
-function LineChart({ data, labelKey, valueKey, color = '#0D9488', height = 200 }) {
+function LineChart({ data, labelKey, valueKey, color = '#5db8a3', height = 200 }) {
   if (!data || data.length < 2) return <p className="text-sm text-gray-400 text-center py-8">—</p>
   const max = Math.max(...data.map(d => d[valueKey] || 0), 1)
   const padding = 40
@@ -184,7 +184,7 @@ export default function Analytics() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-3xl text-gray-900">{t('analytics')}</h1>
+        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('analytics')}</span></h1>
         <Button variant="ghost" onClick={fetchData}>{t('filter')}</Button>
       </div>
 
@@ -222,7 +222,7 @@ export default function Analytics() {
           <Users className="w-5 h-5 text-purple-mid" />
           <h2 className="font-serif text-xl text-gray-900">{t('teachers')}</h2>
         </div>
-        <BarChart data={teacherWorkload} labelKey="name" valueKey="count" color="#0D9488" />
+        <BarChart data={teacherWorkload} labelKey="name" valueKey="count" color="#5db8a3" />
       </Card>
     </div>
   )

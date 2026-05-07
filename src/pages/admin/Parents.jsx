@@ -294,7 +294,7 @@ export default function Parents() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-serif text-3xl text-gray-900">Valideynlər</h1>
+        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Valideynlər</span></h1>
         <div className="flex items-center gap-3 flex-wrap">
           <Button variant="ghost" onClick={() => setBulkModal(true)}>
             <span className="flex items-center gap-2"><UserPlus className="w-4 h-4" /> Toplu əlavə</span>
@@ -306,19 +306,20 @@ export default function Parents() {
       </div>
 
       {students.length === 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-700">
+        <div className="rounded-2xl px-4 py-3 text-sm backdrop-blur-md" style={{ background: 'rgba(232,168,124,0.12)', border: '1px solid rgba(232,168,124,0.36)', color: '#a55f33' }}>
           Valideyn əlavə etmək üçün əvvəlcə şagirdlər əlavə edilməlidir.
         </div>
       )}
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
         <input
           type="text"
           placeholder={t('search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full border border-border-soft rounded-md pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
+          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
         />
       </div>
 

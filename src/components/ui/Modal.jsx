@@ -28,15 +28,30 @@ export default function Modal({ open, onClose, title, children, size = 'md' }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div
-        className={`relative bg-white rounded-2xl shadow-2xl border border-border-soft w-full ${sizes[size]} mx-4 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200`}
+        className="absolute inset-0"
+        onClick={onClose}
+        style={{
+          background: 'rgba(26,26,46,0.45)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+        }}
+      />
+      <div
+        className={`liquid-card relative w-full ${sizes[size]} mx-4 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200`}
+        style={{ padding: 0 }}
       >
-        <div className="flex items-center justify-between border-b border-border-soft px-6 pt-5 pb-4">
-          <h2 className="font-serif text-xl text-gray-900">{title}</h2>
+        <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
+          <h2 className="font-semibold text-xl text-[#1a1a2e]">{title}</h2>
           <button
             onClick={onClose}
-            className="ml-4 shrink-0 flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            className="ml-4 shrink-0 flex items-center justify-center w-9 h-9 rounded-full text-[#64748b] hover:text-[#1a1a2e] transition-all"
+            style={{
+              background: 'rgba(255,255,255,0.6)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(124,110,224,0.18)',
+            }}
           >
             <X className="w-4 h-4" />
           </button>

@@ -85,7 +85,7 @@ function printFallback({ schoolName, student, cls, period, gradeRows, attendance
   <title>Şagird Şəhadətnaməsi</title>
   <style>
     body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 40px; color: #222; }
-    .header { background: #534AB7; color: white; padding: 24px 32px; border-radius: 8px; margin-bottom: 24px; }
+    .header { background: linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%); color: white; padding: 24px 32px; border-radius: 12px; margin-bottom: 24px; }
     .header h1 { margin: 0 0 4px; font-size: 22px; }
     .header p { margin: 0; font-size: 13px; opacity: 0.85; }
     .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
@@ -93,7 +93,7 @@ function printFallback({ schoolName, student, cls, period, gradeRows, attendance
     .info-box .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; margin-bottom: 4px; }
     .info-box .value { font-size: 15px; font-weight: 600; color: #1f2937; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-    th { background: #534AB7; color: white; padding: 10px 12px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    th { background: #7c6ee0; color: white; padding: 10px 12px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
     tr:nth-child(even) td { background: #f9f8ff; }
     .attendance-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 16px 20px; display: inline-block; margin-bottom: 24px; }
     .footer { font-size: 11px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 12px; }
@@ -305,8 +305,8 @@ export default function ReportCards() {
 
       const doc = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
-      const PURPLE = [83, 74, 183]
-      const PURPLE_LIGHT = [245, 244, 254]
+      const PURPLE = [124, 110, 224]
+      const PURPLE_LIGHT = [238, 240, 255]
       const WHITE = [255, 255, 255]
       const pageW = doc.internal.pageSize.getWidth()
       const margin = 18
@@ -443,8 +443,8 @@ export default function ReportCards() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">Şəhadətnamələr</h1>
-          <p className="text-sm text-gray-500 mt-1">Şagird şəhadətnamələrini hazırlayın və PDF kimi yükləyin</p>
+          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Şəhadətnamələr</span></h1>
+          <p className="text-sm text-[#64748b] mt-1">Şagird şəhadətnamələrini hazırlayın və PDF kimi yükləyin</p>
         </div>
         {previewData && (
           <div className="flex items-center gap-3">
@@ -514,7 +514,7 @@ export default function ReportCards() {
         <div ref={previewRef}>
           <Card hover={false} className="overflow-hidden !p-0">
             {/* Preview header bar */}
-            <div className="bg-[#534AB7] px-8 py-6">
+            <div className="px-8 py-6" style={{ background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)' }}>
               <h2 className="text-white font-serif text-2xl">{schoolName}</h2>
               <p className="text-white/80 text-sm mt-1">Şagird Şəhadətnaməsi</p>
             </div>
@@ -543,7 +543,7 @@ export default function ReportCards() {
                   <div className="overflow-x-auto rounded-xl border border-border-soft">
                     <table className="w-full">
                       <thead>
-                        <tr className="bg-[#534AB7] text-white">
+                        <tr className="text-white" style={{ background: '#7c6ee0' }}>
                           <th className="text-xs font-medium uppercase tracking-wider px-6 py-3 text-left">Fənn</th>
                           <th className="text-xs font-medium uppercase tracking-wider px-6 py-3 text-center">Orta bal</th>
                           <th className="text-xs font-medium uppercase tracking-wider px-6 py-3 text-center">Qiymət</th>

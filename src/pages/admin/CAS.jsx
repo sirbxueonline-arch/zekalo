@@ -24,9 +24,9 @@ function casStatus(c, a, s) {
 }
 
 const statusStyles = {
-  complete: 'bg-teal-light text-[#085041] border border-teal-mid',
-  on_track: 'bg-purple-light text-purple-dark border border-[#AFA9EC]',
-  at_risk: 'bg-red-50 text-red-700 border border-red-200',
+  complete: 'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]',
+  on_track: 'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7] border border-[rgba(124,110,224,0.28)]',
+  at_risk:  'bg-[rgba(239,68,68,0.08)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]',
 }
 const statusLabels = { complete: 'Tamamlandı', on_track: 'Yolundadır', at_risk: 'Risk altında' }
 
@@ -234,7 +234,7 @@ export default function CAS() {
           <button onClick={() => setSelectedStudent(null)} className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors">
             <ChevronLeft className="w-4 h-4" /> Geri
           </button>
-          <h1 className="font-serif text-3xl text-gray-900">{selectedStudent.full_name} — CAS Jurnalı</h1>
+          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{selectedStudent.full_name} — CAS Jurnalı</span></h1>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -293,8 +293,8 @@ export default function CAS() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">CAS Tracker</h1>
-          <p className="text-sm text-gray-500 mt-1">Creativity · Activity · Service — IB DP tələbi: {TARGET_HOURS} saat</p>
+          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">CAS Tracker</span></h1>
+          <p className="text-sm text-[#64748b] mt-1">Creativity · Activity · Service — IB DP tələbi: {TARGET_HOURS} saat</p>
         </div>
         <Button onClick={() => { setForm({ student_id: '', type: 'creativity', hours: '', description: '', date: '' }); setAddModal(true) }}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Giriş əlavə et</span>
@@ -302,13 +302,14 @@ export default function CAS() {
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
         <input
           type="text"
           placeholder="Şagird axtar..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full border border-border-soft rounded-md pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
+          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
         />
       </div>
 

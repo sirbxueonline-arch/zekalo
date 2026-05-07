@@ -184,7 +184,7 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-gray-900">{t('settings')}</h1>
+      <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('settings')}</span></h1>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
       {success && <p className="text-sm text-teal">{success}</p>}
@@ -261,10 +261,10 @@ export default function Settings() {
         <Button onClick={handleSave} loading={saving}>{t('save')}</Button>
       </div>
 
-      <Card hover={false} className="border-red-200">
+      <Card hover={false} className="border-[rgba(239,68,68,0.25)]" style={{ background: 'linear-gradient(135deg, rgba(254,242,242,0.6) 0%, rgba(255,255,255,0.55) 100%)' }}>
         <div className="flex items-center gap-3 mb-4">
           <AlertTriangle className="w-5 h-5 text-red-500" />
-          <h2 className="font-serif text-xl text-red-700">{t('danger_zone')}</h2>
+          <h2 className="text-xl font-bold text-red-700">{t('danger_zone')}</h2>
         </div>
         <p className="text-sm text-gray-600 mb-4">
           Bu emeliyyat mektebin butun melumatlarini geri qaytarilmaz sekilde silecek.

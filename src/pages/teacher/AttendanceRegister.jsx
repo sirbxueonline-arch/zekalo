@@ -2,37 +2,38 @@ import { useState, useEffect } from 'react'
 import { CalendarCheck, AlertTriangle, Check, Users, ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { Select } from '../../components/ui/Input'
-import Button from '../../components/ui/Button'
-import { PageSpinner } from '../../components/ui/Spinner'
-import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
 import { fmtNumeric } from '../../lib/dateUtils'
 import { notifyUsers } from '../../lib/notify'
 
-// Day labels Mon–Fri only (indexes 0–4 = Mon–Fri)
 const DAY_LABELS = ['B.e', 'Ç.a', 'Ç', 'C.a', 'C']
 
-// Row background + left-border color when a status is set
-const ROW_STYLE = {
-  present: 'bg-teal-50/50 border-l-4 border-l-teal-500',
-  late:    'bg-amber-50/50 border-l-4 border-l-amber-400',
-  absent:  'bg-red-50/50  border-l-4 border-l-red-400',
-  unset:   'border-l-4 border-l-transparent',
+const STATUS_BG = {
+  present: 'rgba(93,184,163,0.06)',
+  late:    'rgba(232,168,124,0.08)',
+  absent:  'rgba(229,107,127,0.06)',
+  unset:   'transparent',
 }
-
-// Active (selected) pill style
-const PILL_ACTIVE = {
-  present: 'bg-teal-600  text-white border-teal-600  shadow-sm',
-  late:    'bg-amber-500 text-white border-amber-500 shadow-sm',
-  absent:  'bg-red-600   text-white border-red-600   shadow-sm',
+const STATUS_BORDER = {
+  present: '#5db8a3',
+  late:    '#e8a87c',
+  absent:  '#e56b7f',
+  unset:   'transparent',
 }
-
-// Idle pill style
-const PILL_IDLE = {
-  present: 'border-teal-300   text-teal-700   hover:bg-teal-50',
-  late:    'border-amber-300  text-amber-700  hover:bg-amber-50',
-  absent:  'border-red-300    text-red-700    hover:bg-red-50',
+const PILL_ACTIVE_BG = {
+  present: 'linear-gradient(135deg, #5db8a3, #3d8a73)',
+  late:    'linear-gradient(135deg, #e8a87c, #d68a5a)',
+  absent:  'linear-gradient(135deg, #e56b7f, #c84d62)',
+}
+const PILL_IDLE_COLOR = {
+  present: '#3d8a73',
+  late:    '#b46a3e',
+  absent:  '#b83b54',
+}
+const PILL_IDLE_BG = {
+  present: 'rgba(93,184,163,0.10)',
+  late:    'rgba(232,168,124,0.12)',
+  absent:  'rgba(229,107,127,0.10)',
 }
 
 const STATUS_LABELS = {
@@ -41,17 +42,14 @@ const STATUS_LABELS = {
   absent:  '✗ Qayıb',
 }
 
-// Returns the Monday of the week containing `dateStr`
 function getMondayOfWeek(dateStr) {
   const d = new Date(dateStr)
-  // getDay(): 0=Sun,1=Mon,...,6=Sat. We want Mon=0 offset.
-  const dayOfWeek = (d.getDay() + 6) % 7 // Mon=0 ... Sun=6
+  const dayOfWeek = (d.getDay() + 6) % 7
   const monday = new Date(d)
   monday.setDate(d.getDate() - dayOfWeek)
   return monday
 }
 
-// Build an array of 5 date strings for Mon–Fri of the week containing `dateStr`
 function getWeekDates(dateStr) {
   const monday = getMondayOfWeek(dateStr)
   const days = []
@@ -71,29 +69,25 @@ export default function TeacherAttendanceRegister() {
   const [selectedClass, setSelectedClass]   = useState('')
   const [selectedDate, setSelectedDate]     = useState(new Date().toISOString().split('T')[0])
   const [students, setStudents]             = useState([])
-  const [attendance, setAttendance]         = useState({})   // { [studentId]: 'present'|'late'|'absent' }
+  const [attendance, setAttendance]         = useState({})
   const [saving, setSaving]                 = useState(false)
   const [saveError, setSaveError]           = useState(null)
+  const [savedToast, setSavedToast]         = useState(false)
   const [existingRecords, setExistingRecords] = useState(false)
-  const [weekDays, setWeekDays]             = useState([])   // [{ date, recorded }]
+  const [weekDays, setWeekDays]             = useState([])
 
-  // ── Load teacher's classes once ────────────────────────────────────────────
   useEffect(() => {
     if (!profile) return
     loadClasses()
   }, [profile])
 
-  // ── Reload students + attendance whenever class or date changes ────────────
   useEffect(() => {
     if (selectedClass && selectedDate) loadStudentsAndAttendance()
   }, [selectedClass, selectedDate])
 
-  // ── Reload week strip whenever class or date changes ───────────────────────
   useEffect(() => {
     if (selectedClass && selectedDate) loadWeekDays()
   }, [selectedClass, selectedDate])
-
-  // ── Data fetchers ──────────────────────────────────────────────────────────
 
   async function loadClasses() {
     const { data } = await supabase
@@ -109,15 +103,8 @@ export default function TeacherAttendanceRegister() {
 
   async function loadStudentsAndAttendance() {
     const [studentsRes, attRes] = await Promise.all([
-      supabase
-        .from('class_members')
-        .select('*, student:profiles(id, full_name, avatar_color)')
-        .eq('class_id', selectedClass),
-      supabase
-        .from('attendance')
-        .select('*')
-        .eq('class_id', selectedClass)
-        .eq('date', selectedDate),
+      supabase.from('class_members').select('*, student:profiles(id, full_name, avatar_color)').eq('class_id', selectedClass),
+      supabase.from('attendance').select('*').eq('class_id', selectedClass).eq('date', selectedDate),
     ])
 
     const studentList = (studentsRes.data || []).map(m => m.student).filter(Boolean)
@@ -132,7 +119,6 @@ export default function TeacherAttendanceRegister() {
 
   async function loadWeekDays() {
     const dates = getWeekDates(selectedDate)
-
     const { data } = await supabase
       .from('attendance')
       .select('date')
@@ -143,8 +129,6 @@ export default function TeacherAttendanceRegister() {
     const recorded = new Set((data || []).map(r => r.date))
     setWeekDays(dates.map(d => ({ date: d, recorded: recorded.has(d) })))
   }
-
-  // ── Actions ────────────────────────────────────────────────────────────────
 
   function setStatus(studentId, status) {
     setAttendance(prev => ({
@@ -171,12 +155,12 @@ export default function TeacherAttendanceRegister() {
     const records = students
       .filter(s => attendance[s.id])
       .map(s => ({
-        student_id:   s.id,
-        class_id:     selectedClass,
-        date:         selectedDate,
-        status:       attendance[s.id],
-        recorded_by:  profile.id,
-        school_id:    profile.school_id,
+        student_id: s.id,
+        class_id:   selectedClass,
+        date:       selectedDate,
+        status:     attendance[s.id],
+        recorded_by: profile.id,
+        school_id:   profile.school_id,
       }))
 
     if (!records.length) {
@@ -184,17 +168,16 @@ export default function TeacherAttendanceRegister() {
       return
     }
 
-    const { error } = await supabase
-      .from('attendance')
-      .upsert(records, { onConflict: 'student_id,class_id,date' })
+    const { error } = await supabase.from('attendance').upsert(records, { onConflict: 'student_id,class_id,date' })
 
     if (error) {
       setSaveError(error.message || 'Saxlama zamanı xəta baş verdi.')
     } else {
       setExistingRecords(true)
+      setSavedToast(true)
+      setTimeout(() => setSavedToast(false), 2400)
       await loadWeekDays()
 
-      // Fire-and-forget: notify absent students
       const absentIds = records.filter(r => r.status === 'absent').map(r => r.student_id)
       if (absentIds.length > 0) {
         notifyUsers(absentIds.map(id => ({
@@ -209,8 +192,6 @@ export default function TeacherAttendanceRegister() {
     setSaving(false)
   }
 
-  // ── Derived values ─────────────────────────────────────────────────────────
-
   const presentCount  = Object.values(attendance).filter(s => s === 'present').length
   const lateCount     = Object.values(attendance).filter(s => s === 'late').length
   const absentCount   = Object.values(attendance).filter(s => s === 'absent').length
@@ -221,37 +202,52 @@ export default function TeacherAttendanceRegister() {
 
   const selectedClassName = teacherClasses.find(c => c.id === selectedClass)?.name ?? ''
 
-  // ── Early returns ──────────────────────────────────────────────────────────
-
-  if (loading) return <PageSpinner />
-  if (!teacherClasses.length) return (
-    <EmptyState
-      icon={CalendarCheck}
-      title="Sinif tapılmadı"
-      description="Sizə hənuz sinif təyin edilməyib."
-    />
-  )
-
-  // ── Render ─────────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <div className="pastel-skeleton h-12 w-72" />
+        <div className="pastel-skeleton h-24" />
+        <div className="pastel-skeleton h-64" />
+      </div>
+    )
+  }
+  if (!teacherClasses.length) {
+    return (
+      <div className="liquid-card p-12 text-center">
+        <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
+          <CalendarCheck className="w-8 h-8" />
+        </div>
+        <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Sinif tapılmadı</p>
+        <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Sizə hənuz sinif təyin edilməyib.</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-5 pb-12">
+    <div className="space-y-5 pb-12 relative">
+      {savedToast && (
+        <div className="fixed top-6 right-6 toast-success px-4 py-3 rounded-2xl text-sm font-semibold flex items-center gap-2 z-50">
+          <Check className="w-4 h-4" /> Davamiyyət saxlandı
+        </div>
+      )}
 
-      {/* ── Page title ───────────────────────────────────────────────────── */}
-      <h1 className="font-serif text-4xl text-gray-900">Davamiyyət Qeydiyyatı</h1>
+      <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
+        <span className="pastel-text">Davamiyyət Qeydiyyatı</span>
+      </h1>
 
-      {/* ══ WEEK MINI-CALENDAR STRIP ═════════════════════════════════════════ */}
-      <div className="bg-white border border-border-soft rounded-2xl px-5 py-4 flex items-center gap-3">
-        {/* Prev week */}
+      {/* Week mini-calendar */}
+      <div className="liquid-card px-5 py-4 flex items-center gap-3">
         <button
           onClick={() => shiftWeek(-1)}
-          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-700 flex-shrink-0"
+          className="p-1.5 rounded-lg smooth-trans"
+          style={{ color: '#64748b' }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#7c6ee0'; e.currentTarget.style.background = 'rgba(124,110,224,0.08)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'transparent' }}
           aria-label="Əvvəlki həftə"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
 
-        {/* Day buttons */}
         <div className="flex flex-1 justify-around gap-1">
           {weekDays.map((day, i) => {
             const isSelected = day.date === selectedDate
@@ -262,206 +258,169 @@ export default function TeacherAttendanceRegister() {
               <button
                 key={day.date}
                 onClick={() => setSelectedDate(day.date)}
-                className={`flex flex-col items-center gap-1.5 px-3 py-2 rounded-xl transition-all flex-1 max-w-[64px] ${
-                  isSelected
-                    ? 'bg-purple-600 text-white shadow-sm'
-                    : 'hover:bg-gray-50 text-gray-600'
-                }`}
+                className="flex flex-col items-center gap-1.5 px-3 py-2 rounded-xl smooth-trans flex-1 max-w-[64px]"
+                style={{
+                  background: isSelected ? 'linear-gradient(135deg, #7c6ee0, #5db8a3)' : 'transparent',
+                  color: isSelected ? '#fff' : '#475569',
+                  boxShadow: isSelected ? '0 4px 12px rgba(124,110,224,0.25)' : 'none',
+                }}
+                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(124,110,224,0.06)' }}
+                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent' }}
               >
-                <span className={`text-xs font-medium tracking-wide uppercase ${isSelected ? 'text-purple-200' : 'text-gray-400'}`}>
+                <span className="text-xs font-semibold tracking-wide uppercase" style={{ color: isSelected ? 'rgba(255,255,255,0.85)' : '#94a3b8' }}>
                   {DAY_LABELS[i]}
                 </span>
-                <span className={`text-base font-bold leading-none ${isSelected ? 'text-white' : isToday ? 'text-purple-600' : 'text-gray-800'}`}>
+                <span className="text-base font-bold leading-none" style={{ color: isSelected ? '#fff' : (isToday ? '#7c6ee0' : '#1a1a2e') }}>
                   {dayNum}
                 </span>
-                {/* Record dot */}
-                <div className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                  day.recorded
-                    ? (isSelected ? 'bg-white' : 'bg-teal-500')
-                    : (isSelected ? 'bg-purple-400' : 'bg-gray-200')
-                }`} />
+                <div className="w-1.5 h-1.5 rounded-full" style={{
+                  background: day.recorded
+                    ? (isSelected ? '#fff' : '#5db8a3')
+                    : (isSelected ? 'rgba(255,255,255,0.4)' : '#e2e8f0'),
+                }} />
               </button>
             )
           })}
         </div>
 
-        {/* Next week */}
         <button
           onClick={() => shiftWeek(1)}
-          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-700 flex-shrink-0"
+          className="p-1.5 rounded-lg smooth-trans"
+          style={{ color: '#64748b' }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#7c6ee0'; e.currentTarget.style.background = 'rgba(124,110,224,0.08)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'transparent' }}
           aria-label="Növbəti həftə"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
 
-      {/* ══ TOOLBAR ══════════════════════════════════════════════════════════ */}
-      <div className="flex flex-wrap items-end gap-3">
-        {/* Class selector */}
-        <div className="flex-1 min-w-[180px] max-w-xs">
-          <Select
-            label="Sinif"
-            value={selectedClass}
-            onChange={e => {
-              setSelectedClass(e.target.value)
-              setAttendance({})
-            }}
+      {/* Toolbar */}
+      <div className="liquid-card p-4">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex-1 min-w-[180px] max-w-xs">
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Sinif</label>
+            <select
+              className="pastel-input"
+              value={selectedClass}
+              onChange={e => { setSelectedClass(e.target.value); setAttendance({}) }}
+            >
+              {teacherClasses.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1 min-w-[160px] max-w-xs">
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Tarix</label>
+            <input type="date" className="pastel-input" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
+          </div>
+          <button
+            onClick={markAllPresent}
+            className="btn-ghost-pastel"
+            style={{ padding: '10px 18px', fontSize: 13, borderColor: 'rgba(93,184,163,0.4)', color: '#3d8a73' }}
           >
-            {teacherClasses.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </Select>
+            <Users className="w-4 h-4" /> Hamısını İştirak Et
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={markedCount === 0 || saving}
+            className="btn-pastel"
+            style={{ padding: '10px 22px', fontSize: 13, opacity: (markedCount === 0 || saving) ? 0.5 : 1 }}
+          >
+            <Check className="w-4 h-4" /> {saving ? '...' : `Saxla (${markedCount})`}
+          </button>
         </div>
-
-        {/* Date picker */}
-        <div className="flex-1 min-w-[160px] max-w-xs">
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Tarix</label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value)}
-            className="w-full border border-border-soft rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent bg-white"
-          />
-        </div>
-
-        {/* Mark all present */}
-        <button
-          onClick={markAllPresent}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg border-2 border-teal-500 text-teal-700 font-medium text-sm hover:bg-teal-50 transition-colors"
-        >
-          <Users className="w-4 h-4" />
-          Hamısını İştirak Et
-        </button>
-
-        {/* Save button */}
-        <Button
-          onClick={handleSave}
-          loading={saving}
-          disabled={markedCount === 0 || saving}
-          className="whitespace-nowrap"
-        >
-          <Check className="w-4 h-4 mr-2" />
-          Saxla ({markedCount} şagird)
-        </Button>
       </div>
 
-      {/* ══ EXISTING RECORDS WARNING ═════════════════════════════════════════ */}
       {existingRecords && (
-        <div className="flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-          <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
-          <p className="text-sm text-amber-800">
-            <strong className="font-semibold">{selectedClassName}</strong> sinfi üçün bu tarixdə davamiyyət artıq qeyd olunub.
-            Saxladıqda mövcud qeydlər yenilənəcək.
+        <div className="liquid-card flex items-center gap-2.5 px-4 py-3" style={{ background: 'rgba(232,168,124,0.10)', borderColor: 'rgba(232,168,124,0.3)' }}>
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: '#d68a5a' }} />
+          <p className="text-sm" style={{ color: '#b46a3e' }}>
+            <strong className="font-semibold">{selectedClassName}</strong> sinfi üçün bu tarixdə davamiyyət artıq qeyd olunub. Saxladıqda mövcud qeydlər yenilənəcək.
           </p>
         </div>
       )}
 
-      {/* ══ SAVE ERROR ═══════════════════════════════════════════════════════ */}
       {saveError && (
-        <div className="flex items-center gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-          <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
-          <p className="text-sm text-red-800">{saveError}</p>
+        <div className="liquid-card flex items-center gap-2.5 px-4 py-3" style={{ background: 'rgba(229,107,127,0.10)', borderColor: 'rgba(229,107,127,0.3)' }}>
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: '#e56b7f' }} />
+          <p className="text-sm" style={{ color: '#b83b54' }}>{saveError}</p>
         </div>
       )}
 
-      {/* ══ LIVE SUMMARY BAR ═════════════════════════════════════════════════ */}
-      <div className="bg-white border border-border-soft rounded-2xl px-6 py-4 space-y-3">
-        {/* Stat pills */}
+      {/* Summary bar */}
+      <div className="liquid-card px-6 py-4 space-y-3">
         <div className="flex flex-wrap items-center gap-4">
-          {/* Total */}
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-500">Cəmi:</span>
-            <span className="text-sm font-bold text-gray-900">{totalStudents}</span>
+            <Users className="w-4 h-4" style={{ color: '#94a3b8' }} />
+            <span className="text-sm" style={{ color: '#64748b' }}>Cəmi:</span>
+            <span className="text-sm font-bold" style={{ color: '#1a1a2e' }}>{totalStudents}</span>
           </div>
-
-          <div className="w-px h-4 bg-border-soft" />
-
-          {/* Present */}
-          <div className="flex items-center gap-1.5">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-teal-500" />
-            <span className="text-sm text-gray-500">İştirak:</span>
-            <span className="text-sm font-bold text-teal-700">{presentCount}</span>
-          </div>
-
-          {/* Late */}
-          <div className="flex items-center gap-1.5">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-amber-400" />
-            <span className="text-sm text-gray-500">Gecikmə:</span>
-            <span className="text-sm font-bold text-amber-700">{lateCount}</span>
-          </div>
-
-          {/* Absent */}
-          <div className="flex items-center gap-1.5">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500" />
-            <span className="text-sm text-gray-500">Qayıb:</span>
-            <span className="text-sm font-bold text-red-700">{absentCount}</span>
-          </div>
-
-          {/* Not marked */}
-          <div className="flex items-center gap-1.5">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-gray-200" />
-            <span className="text-sm text-gray-500">Qeyd edilməyib:</span>
-            <span className="text-sm font-bold text-gray-500">{notMarked}</span>
-          </div>
-
-          {/* Pct label pushed to the right */}
-          <div className="ml-auto flex items-center gap-1.5 text-sm text-gray-500">
+          <div className="w-px h-4" style={{ background: 'rgba(124,110,224,0.18)' }} />
+          {[
+            { color: '#5db8a3', label: 'İştirak', value: presentCount, textColor: '#3d8a73' },
+            { color: '#e8a87c', label: 'Gecikmə', value: lateCount, textColor: '#b46a3e' },
+            { color: '#e56b7f', label: 'Qayıb', value: absentCount, textColor: '#b83b54' },
+            { color: '#cbd5e1', label: 'Qeyd edilməyib', value: notMarked, textColor: '#64748b' },
+          ].map(s => (
+            <div key={s.label} className="flex items-center gap-1.5">
+              <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: s.color }} />
+              <span className="text-sm" style={{ color: '#64748b' }}>{s.label}:</span>
+              <span className="text-sm font-bold" style={{ color: s.textColor }}>{s.value}</span>
+            </div>
+          ))}
+          <div className="ml-auto flex items-center gap-1.5 text-sm" style={{ color: '#64748b' }}>
             <TrendingUp className="w-4 h-4" />
             <span>{pctMarked}% qeyd edilib</span>
           </div>
         </div>
-
-        {/* Progress bar */}
-        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'rgba(124,110,224,0.10)' }}>
           <div
-            className="h-full bg-teal-500 rounded-full transition-all duration-300"
-            style={{ width: `${pctMarked}%` }}
+            className="h-full rounded-full smooth-trans"
+            style={{ width: `${pctMarked}%`, background: 'linear-gradient(90deg, #5db8a3, #6b9dde)' }}
           />
         </div>
       </div>
 
-      {/* ══ STUDENT LIST ═════════════════════════════════════════════════════ */}
-      <div className="bg-white border border-border-soft rounded-2xl overflow-hidden">
+      {/* Student list */}
+      <div className="liquid-card overflow-hidden">
         {students.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-sm text-gray-400">Bu sinifdə şagird yoxdur.</p>
+            <p className="text-sm" style={{ color: '#94a3b8' }}>Bu sinifdə şagird yoxdur.</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div>
             {students.map((s, idx) => {
               const status = attendance[s.id]
-              const rowBg  = ROW_STYLE[status ?? 'unset']
-
               return (
                 <div
                   key={s.id}
-                  className={`flex items-center gap-4 px-6 py-4 transition-colors ${rowBg}`}
+                  className="flex items-center gap-4 px-6 py-3 smooth-trans"
+                  style={{
+                    background: STATUS_BG[status ?? 'unset'],
+                    borderTop: idx === 0 ? 'none' : '1px solid rgba(124,110,224,0.06)',
+                    borderLeft: `3px solid ${STATUS_BORDER[status ?? 'unset']}`,
+                  }}
                 >
-                  {/* Index */}
-                  <span className="text-xs text-gray-300 w-5 text-right flex-shrink-0 select-none">
-                    {idx + 1}
-                  </span>
-
-                  {/* Avatar + name */}
+                  <span className="text-xs w-5 text-right flex-shrink-0 select-none" style={{ color: '#cbd5e1' }}>{idx + 1}</span>
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <Avatar name={s.full_name} color={s.avatar_color} size="md" />
-                    <span className="text-sm font-semibold text-gray-900 truncate">
-                      {s.full_name}
-                    </span>
+                    <span className="text-sm font-semibold truncate" style={{ color: '#1a1a2e' }}>{s.full_name}</span>
                   </div>
-
-                  {/* Status pills */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
                     {(['present', 'late', 'absent']).map(key => {
                       const isActive = status === key
                       return (
                         <button
                           key={key}
                           onClick={() => setStatus(s.id, key)}
-                          className={`px-5 py-2 rounded-full text-sm font-semibold border-2 transition-all whitespace-nowrap ${
-                            isActive ? PILL_ACTIVE[key] : `border-2 bg-white ${PILL_IDLE[key]}`
-                          }`}
+                          className="px-4 py-1.5 rounded-full text-sm font-semibold smooth-trans whitespace-nowrap"
+                          style={{
+                            background: isActive ? PILL_ACTIVE_BG[key] : PILL_IDLE_BG[key],
+                            color: isActive ? '#fff' : PILL_IDLE_COLOR[key],
+                            border: isActive ? 'none' : `1px solid ${PILL_IDLE_COLOR[key]}33`,
+                            boxShadow: isActive ? '0 4px 12px rgba(0,0,0,0.08)' : 'none',
+                          }}
                         >
                           {STATUS_LABELS[key]}
                         </button>
@@ -475,17 +434,16 @@ export default function TeacherAttendanceRegister() {
         )}
       </div>
 
-      {/* ══ BOTTOM SAVE BUTTON (secondary, for convenience) ══════════════════ */}
       {students.length > 0 && (
         <div className="flex justify-end">
-          <Button
+          <button
             onClick={handleSave}
-            loading={saving}
             disabled={markedCount === 0 || saving}
+            className="btn-pastel"
+            style={{ padding: '12px 22px', fontSize: 13, opacity: (markedCount === 0 || saving) ? 0.5 : 1 }}
           >
-            <Check className="w-4 h-4 mr-2" />
-            Saxla ({markedCount} şagird)
-          </Button>
+            <Check className="w-4 h-4" /> {saving ? '...' : `Saxla (${markedCount} şagird)`}
+          </button>
         </div>
       )}
     </div>

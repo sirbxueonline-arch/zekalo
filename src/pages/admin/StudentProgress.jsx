@@ -51,22 +51,23 @@ export default function AdminStudentProgress() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-serif text-3xl text-gray-900">Şagird Tərəqqisi</h1>
-        <p className="text-sm text-gray-500 mt-1">Şagird seçin — qiymət dinamikası və inkişaf trendlərini görün</p>
+        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Şagird Tərəqqisi</span></h1>
+        <p className="text-sm text-[#64748b] mt-1">Şagird seçin — qiymət dinamikası və inkişaf trendlərini görün</p>
       </div>
 
       {/* Student picker */}
-      <div className="bg-white border border-border-soft rounded-xl p-5 space-y-4">
+      <div className="liquid-card p-5 space-y-4">
         <div className="flex gap-3 flex-wrap">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
             <input
               type="text"
               placeholder="Ad ilə axtar..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full border border-border-soft rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple"
+              className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
+              style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
             />
           </div>
           {/* Class filter */}
@@ -74,12 +75,13 @@ export default function AdminStudentProgress() {
             <select
               value={classFilter}
               onChange={e => setClassFilter(e.target.value)}
-              className="appearance-none border border-border-soft rounded-lg pl-4 pr-10 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple"
+              className="appearance-none rounded-full pl-4 pr-10 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
+              style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
             >
               <option value="">Bütün siniflər</option>
               {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
-            <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#7c6ee0' }} />
           </div>
         </div>
 
@@ -92,18 +94,17 @@ export default function AdminStudentProgress() {
               <button
                 key={s.id}
                 onClick={() => setSelectedStudent(s)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-all ${
-                  selectedStudent?.id === s.id
-                    ? 'border-purple bg-purple-light'
-                    : 'border-border-soft hover:border-purple/40 hover:bg-surface'
-                }`}
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all backdrop-blur-md"
+                style={selectedStudent?.id === s.id
+                  ? { background: 'rgba(124,110,224,0.12)', border: '1px solid rgba(124,110,224,0.4)' }
+                  : { background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(124,110,224,0.15)' }}
               >
                 <Avatar name={s.full_name} size="sm" />
                 <div className="min-w-0">
-                  <p className={`text-sm font-medium truncate ${selectedStudent?.id === s.id ? 'text-purple' : 'text-gray-900'}`}>
+                  <p className="text-sm font-semibold truncate" style={{ color: selectedStudent?.id === s.id ? '#5e4fc7' : '#1a1a2e' }}>
                     {s.full_name}
                   </p>
-                  {s.class && <p className="text-xs text-gray-400">{s.class.name}</p>}
+                  {s.class && <p className="text-xs" style={{ color: '#94a3b8' }}>{s.class.name}</p>}
                 </div>
               </button>
             ))}

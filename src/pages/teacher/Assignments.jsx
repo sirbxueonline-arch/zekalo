@@ -2,57 +2,15 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { notifyUsers } from '../../lib/notify'
-import Button from '../../components/ui/Button'
-import Input from '../../components/ui/Input'
-import { Select, Textarea } from '../../components/ui/Input'
-import Modal from '../../components/ui/Modal'
-import Badge from '../../components/ui/Badge'
-import Avatar from '../../components/ui/Avatar'
-import { PageSpinner } from '../../components/ui/Spinner'
-import EmptyState from '../../components/ui/EmptyState'
 import {
-  ClipboardList,
-  Plus,
-  Sparkles,
-  Loader2,
-  Filter,
-  Eye,
-  BarChart2,
-  Clock,
-  CheckSquare,
-  Paperclip,
-  Download,
-  Check,
-  AlertCircle,
-  Save,
-  Trash2,
-  Calendar,
-  Users,
-  BookOpen,
+  ClipboardList, Plus, Sparkles, Loader2, Filter, Eye, BarChart2, Clock,
+  CheckSquare, Paperclip, Download, Check, AlertCircle, Save, Trash2, Users, BookOpen, X,
 } from 'lucide-react'
 
-// ── Subject colour palette ────────────────────────────────────────────────────
-
-const SUBJECT_PALETTE = [
-  'bg-purple',
-  'bg-teal',
-  'bg-amber-500',
-  'bg-blue-500',
-  'bg-pink-500',
-  'bg-orange-500',
-]
-
-function subjectTopColor(name = '') {
-  let h = 0
-  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
-  return SUBJECT_PALETTE[Math.abs(h) % SUBJECT_PALETTE.length]
-}
-
-// ── Due-date countdown chip ───────────────────────────────────────────────────
+// ── Helpers ─────────────────────────────────────────────────────────────────
 
 function DueDateChip({ dueDate }) {
   if (!dueDate) return null
-
   const now = new Date()
   const due = new Date(dueDate)
   const diffMs = due.setHours(0, 0, 0, 0) - now.setHours(0, 0, 0, 0)
@@ -60,64 +18,38 @@ function DueDateChip({ dueDate }) {
 
   if (diffDays < 0) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-red-50 text-red-600">
-        <Clock className="w-3 h-3" />
-        {Math.abs(diffDays)} gün keçdi
+      <span className="pastel-badge pastel-badge-rose">
+        <Clock className="w-3 h-3" /> {Math.abs(diffDays)} gün keçdi
       </span>
     )
   }
   if (diffDays === 0) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-amber-50 text-amber-600">
-        <Clock className="w-3 h-3" />
-        Bu gün!
+      <span className="pastel-badge pastel-badge-peach">
+        <Clock className="w-3 h-3" /> Bu gün!
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-surface text-gray-500">
-      <Clock className="w-3 h-3" />
-      {diffDays} gün qaldı
+    <span className="pastel-badge pastel-badge-slate">
+      <Clock className="w-3 h-3" /> {diffDays} gün qaldı
     </span>
   )
 }
-
-// ── Submission progress bar ───────────────────────────────────────────────────
-
-function SubmissionBar({ submitted, total }) {
-  const pct = total > 0 ? Math.round((submitted / total) * 100) : 0
-  return (
-    <div className="flex items-center gap-2 mt-3">
-      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-teal rounded-full transition-all"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <span className="text-xs text-gray-500">
-        {submitted}/{total}
-      </span>
-    </div>
-  )
-}
-
-// ── Submission status badge ───────────────────────────────────────────────────
 
 function SubStatusBadge({ status }) {
   const map = {
-    graded:    { cls: 'bg-teal-light text-teal',          label: 'Qiymətləndirildi' },
-    submitted: { cls: 'bg-purple-light text-purple-dark', label: 'Təhvil verildi'   },
-    late:      { cls: 'bg-amber-50 text-amber-600',       label: 'Gecikən'          },
+    graded:    'pastel-badge pastel-badge-mint',
+    submitted: 'pastel-badge pastel-badge-periwinkle',
+    late:      'pastel-badge pastel-badge-peach',
   }
-  const s = map[status] || { cls: 'bg-surface text-gray-500', label: status || 'Naməlum' }
-  return (
-    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${s.cls}`}>
-      {s.label}
-    </span>
-  )
+  const labelMap = {
+    graded: 'Qiymətləndirildi',
+    submitted: 'Təhvil verildi',
+    late: 'Gecikən',
+  }
+  return <span className={map[status] || 'pastel-badge pastel-badge-slate'}>{labelMap[status] || status || 'Naməlum'}</span>
 }
-
-// ── Assignment status helpers ─────────────────────────────────────────────────
 
 function getAssignmentStatus(assignment) {
   if (!assignment.due_date) return 'active'
@@ -134,27 +66,27 @@ function getAssignmentStatus(assignment) {
   return 'active'
 }
 
-const STATUS_LEFT_BORDER = {
-  overdue:   'border-l-red-500',
-  active:    'border-l-[#534AB7]',
-  completed: 'border-l-[#1D9E75]',
+const STATUS_BORDER_COLOR = {
+  overdue:   '#e56b7f',
+  active:    '#7c6ee0',
+  completed: '#5db8a3',
 }
-
-const STATUS_BADGE = {
-  overdue:   { cls: 'bg-red-50 text-red-600',    label: 'Gecikib'  },
-  active:    { cls: 'bg-purple-light text-purple', label: 'Aktiv'   },
-  completed: { cls: 'bg-teal-light text-teal',    label: 'Tamamlandı' },
+const STATUS_BADGE_CLASS = {
+  overdue:   'pastel-badge pastel-badge-rose',
+  active:    'pastel-badge pastel-badge-periwinkle',
+  completed: 'pastel-badge pastel-badge-mint',
 }
-
-// ── Assignment card ───────────────────────────────────────────────────────────
+const STATUS_LABEL = {
+  overdue: 'Gecikib',
+  active: 'Aktiv',
+  completed: 'Tamamlandı',
+}
 
 function AssignmentCard({ assignment, onClick, onDelete }) {
   const subjectName   = assignment.subject?.name || ''
   const className     = assignment.class?.name   || ''
   const ungradedCount = assignment.ungradedCount || 0
   const status        = getAssignmentStatus(assignment)
-  const borderCls     = STATUS_LEFT_BORDER[status]
-  const statusBadge   = STATUS_BADGE[status]
 
   const submitted  = assignment.submissionCount || 0
   const total      = assignment.totalStudents   || 0
@@ -162,119 +94,101 @@ function AssignmentCard({ assignment, onClick, onDelete }) {
 
   return (
     <div
-      className={`bg-white rounded-2xl border border-border-soft border-l-4 ${borderCls} shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden flex flex-col`}
+      className="liquid-card p-5 cursor-pointer overflow-hidden flex flex-col"
+      style={{ borderLeft: `4px solid ${STATUS_BORDER_COLOR[status]}` }}
       onClick={() => onClick(assignment)}
     >
-      <div className="p-5 flex flex-col flex-1">
-
-        {/* Top row: status badge + delete */}
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Status indicator */}
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wide ${statusBadge.cls}`}>
-              {statusBadge.label}
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className={STATUS_BADGE_CLASS[status]}>{STATUS_LABEL[status]}</span>
+          {subjectName && (
+            <span className="pastel-badge pastel-badge-slate">
+              <BookOpen className="w-2.5 h-2.5" /> {subjectName}
             </span>
-            {/* Subject chip */}
-            {subjectName && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600">
-                <BookOpen className="w-2.5 h-2.5" />
-                {subjectName}
-              </span>
-            )}
-            {className && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-600">
-                {className}
-              </span>
-            )}
-          </div>
+          )}
+          {className && (
+            <span className="pastel-badge pastel-badge-blue">{className}</span>
+          )}
+        </div>
+        <button
+          onClick={e => { e.stopPropagation(); onDelete(assignment) }}
+          className="p-1.5 rounded-lg smooth-trans"
+          style={{ color: '#cbd5e1' }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#e56b7f'; e.currentTarget.style.background = 'rgba(229,107,127,0.08)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.background = 'transparent' }}
+          aria-label="Sil"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <h3 className="text-base font-bold leading-snug mb-1.5" style={{ color: '#1a1a2e' }}>
+        {assignment.title}
+      </h3>
+
+      {assignment.description && (
+        <p
+          className="text-sm leading-relaxed"
+          style={{
+            color: '#64748b',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}
+        >
+          {assignment.description}
+        </p>
+      )}
+
+      <div className="flex-1" />
+
+      <div className="flex items-center justify-between mt-4 mb-3 gap-2 flex-wrap">
+        <DueDateChip dueDate={assignment.due_date} />
+        <span className="pastel-badge pastel-badge-slate">
+          <Users className="w-3 h-3" /> {submitted}/{total} təhvil
+        </span>
+      </div>
+
+      <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'rgba(124,110,224,0.10)' }}>
+        <div
+          className="h-full rounded-full smooth-trans"
+          style={{
+            width: `${pct}%`,
+            background: status === 'overdue'
+              ? 'linear-gradient(90deg, #e56b7f, #d85268)'
+              : status === 'completed'
+              ? 'linear-gradient(90deg, #5db8a3, #6b9dde)'
+              : 'linear-gradient(90deg, #7c6ee0, #5db8a3)',
+          }}
+        />
+      </div>
+
+      <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: '1px solid rgba(124,110,224,0.08)' }}>
+        <span className="text-xs" style={{ color: '#94a3b8' }}>{pct}% tamamlandı</span>
+        <div className="flex items-center gap-2">
+          {ungradedCount > 0 && (
+            <span className="pastel-badge pastel-badge-peach">{ungradedCount} gözləyir</span>
+          )}
           <button
-            onClick={e => { e.stopPropagation(); onDelete(assignment) }}
-            className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
-            aria-label="Sil"
+            className="flex items-center gap-1 text-xs font-semibold smooth-trans hover:opacity-70"
+            style={{ color: '#7c6ee0' }}
+            onClick={e => { e.stopPropagation(); onClick(assignment) }}
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Eye className="w-3.5 h-3.5" /> Bax
           </button>
-        </div>
-
-        {/* Title */}
-        <h3 className="text-base font-semibold text-gray-900 leading-snug mb-1.5">
-          {assignment.title}
-        </h3>
-
-        {/* Description — 2-line clamp */}
-        {assignment.description && (
-          <p
-            className="text-sm text-gray-500 leading-relaxed"
-            style={{
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}
-          >
-            {assignment.description}
-          </p>
-        )}
-
-        <div className="flex-1" />
-
-        {/* Due date + submission badge row */}
-        <div className="flex items-center justify-between mt-4 mb-3 gap-2 flex-wrap">
-          <DueDateChip dueDate={assignment.due_date} />
-          {/* Submission count badge */}
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-surface text-gray-600 border border-border-soft">
-            <Users className="w-3 h-3" />
-            {submitted}/{total} təhvil
-          </span>
-        </div>
-
-        {/* Progress bar */}
-        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all ${
-              status === 'overdue'   ? 'bg-red-400'  :
-              status === 'completed' ? 'bg-teal'     :
-              'bg-purple'
-            }`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-
-        {/* Footer row */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-soft">
-          <span className="text-xs text-gray-400">
-            {pct}% tamamlandı
-          </span>
-          <div className="flex items-center gap-2">
-            {ungradedCount > 0 && (
-              <span className="rounded-full bg-amber-50 text-amber-600 text-xs font-medium px-2 py-0.5">
-                {ungradedCount} gözləyir
-              </span>
-            )}
-            <button
-              className="flex items-center gap-1 text-xs font-semibold text-purple hover:text-purple-dark transition-colors"
-              onClick={e => { e.stopPropagation(); onClick(assignment) }}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              Bax
-            </button>
-          </div>
         </div>
       </div>
     </div>
   )
 }
 
-// ── Filter tab ────────────────────────────────────────────────────────────────
-
 const FILTERS = [
-  { key: 'all',       label: 'Hamısı'            },
-  { key: 'active',    label: 'Aktiv'             },
+  { key: 'all',       label: 'Hamısı'             },
+  { key: 'active',    label: 'Aktiv'              },
   { key: 'ungraded',  label: 'Qiymətləndirilməyib' },
-  { key: 'finished',  label: 'Bitmiş'            },
+  { key: 'finished',  label: 'Bitmiş'             },
 ]
-
-// ── Main component ────────────────────────────────────────────────────────────
 
 export default function TeacherAssignments() {
   const { profile, t } = useAuth()
@@ -290,28 +204,21 @@ export default function TeacherAssignments() {
   const [saveError, setSaveError]             = useState(null)
   const [aiLoading, setAiLoading]             = useState(null)
   const [activeFilter, setActiveFilter]       = useState('all')
-  const [gradeStatus, setGradeStatus]         = useState({}) // { [submissionId]: 'saving'|'saved'|'error' }
-  const [teacherFeedback, setTeacherFeedback] = useState({}) // { [submissionId]: string }
+  const [gradeStatus, setGradeStatus]         = useState({})
+  const [teacherFeedback, setTeacherFeedback] = useState({})
   const [feedbackSaving, setFeedbackSaving]   = useState(null)
-  const [deleteTarget, setDeleteTarget]       = useState(null) // assignment to confirm delete
+  const [deleteTarget, setDeleteTarget]       = useState(null)
   const [deleting, setDeleting]               = useState(false)
 
   const [newAssignment, setNewAssignment] = useState({
-    title: '',
-    description: '',
-    class_id: '',
-    subject_id: '',
-    due_date: '',
-    max_score: 10,
-    notify: false,
+    title: '', description: '', class_id: '', subject_id: '',
+    due_date: '', max_score: 10, notify: false,
   })
 
   useEffect(() => {
     if (!profile) return
     loadData()
   }, [profile])
-
-  // ── Data loading ────────────────────────────────────────────────────────────
 
   async function loadData() {
     const { data: tcData } = await supabase
@@ -332,7 +239,6 @@ export default function TeacherAssignments() {
 
     const assignIds = (assignData || []).map(a => a.id)
 
-    // Submission counts (total) + ungraded counts
     let subCounts    = {}
     let ungradedMap  = {}
 
@@ -350,7 +256,6 @@ export default function TeacherAssignments() {
       })
     }
 
-    // Student counts per class
     const classCounts = {}
     for (const cid of [...new Set(classIds)]) {
       const { count } = await supabase
@@ -371,19 +276,17 @@ export default function TeacherAssignments() {
     setLoading(false)
   }
 
-  // ── Create assignment ───────────────────────────────────────────────────────
-
   async function handleCreate() {
     setSaving(true)
     setSaveError(null)
     const { notify, ...rest } = newAssignment
     const { data: inserted, error } = await supabase.from('assignments').insert({
-      title:      rest.title.trim(),
+      title: rest.title.trim(),
       description: rest.description.trim() || null,
-      class_id:   rest.class_id,
+      class_id: rest.class_id,
       subject_id: rest.subject_id,
-      due_date:   rest.due_date || null,   // empty string → null (Postgres rejects '')
-      max_score:  Number(rest.max_score),
+      due_date: rest.due_date || null,
+      max_score: Number(rest.max_score),
       teacher_id: profile.id,
     }).select().single()
 
@@ -392,24 +295,16 @@ export default function TeacherAssignments() {
     } else {
       setShowNewModal(false)
       setSaveError(null)
-      const savedClassId  = rest.class_id
-      const savedTitle    = rest.title.trim()
-      const savedDueDate  = rest.due_date || null
+      const savedClassId = rest.class_id
+      const savedTitle = rest.title.trim()
+      const savedDueDate = rest.due_date || null
       const newAssignmentId = inserted?.id || null
-      setNewAssignment({
-        title: '', description: '', class_id: '', subject_id: '',
-        due_date: '', max_score: 10, notify: false,
-      })
+      setNewAssignment({ title: '', description: '', class_id: '', subject_id: '', due_date: '', max_score: 10, notify: false })
       loadData()
 
-      // Fire-and-forget: notify all students in the class
       ;(async () => {
         try {
-          const { data: members } = await supabase
-            .from('class_members')
-            .select('student_id')
-            .eq('class_id', savedClassId)
-
+          const { data: members } = await supabase.from('class_members').select('student_id').eq('class_id', savedClassId)
           const notifications = (members || []).map(m => ({
             profile_id: m.student_id,
             school_id: profile.school_id,
@@ -427,15 +322,10 @@ export default function TeacherAssignments() {
     setSaving(false)
   }
 
-  // ── Delete assignment ───────────────────────────────────────────────────────
-
   async function confirmDelete() {
     if (!deleteTarget) return
     setDeleting(true)
-    const { error } = await supabase
-      .from('assignments')
-      .delete()
-      .eq('id', deleteTarget.id)
+    const { error } = await supabase.from('assignments').delete().eq('id', deleteTarget.id)
     if (!error) {
       setAssignments(prev => prev.filter(a => a.id !== deleteTarget.id))
     }
@@ -443,37 +333,26 @@ export default function TeacherAssignments() {
     setDeleting(false)
   }
 
-  // ── Open detail panel ───────────────────────────────────────────────────────
-
   async function openDetail(assignment) {
     setSelectedAssignment(assignment)
     setGradeStatus({})
     setTeacherFeedback({})
 
-    // Step 1: fetch submissions (no join — avoids potential RLS join failure)
-    const { data: subs, error: subErr } = await supabase
+    const { data: subs } = await supabase
       .from('submissions')
       .select('*')
       .eq('assignment_id', assignment.id)
       .order('submitted_at', { ascending: false })
 
-    if (subErr) console.error('submissions fetch error:', subErr)
-
     const submissions = subs || []
 
-    // Step 2: fetch student profiles separately
     let profileMap = {}
     if (submissions.length > 0) {
       const studentIds = [...new Set(submissions.map(s => s.student_id).filter(Boolean))]
-      const { data: profileData, error: profErr } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .in('id', studentIds)
-      if (profErr) console.error('profiles fetch error:', profErr)
+      const { data: profileData } = await supabase.from('profiles').select('id, full_name').in('id', studentIds)
       ;(profileData || []).forEach(p => { profileMap[p.id] = p })
     }
 
-    // Merge student info into each submission
     const merged = submissions.map(s => ({
       ...s,
       student: profileMap[s.student_id] || { id: s.student_id, full_name: 'Naməlum' },
@@ -481,17 +360,14 @@ export default function TeacherAssignments() {
 
     setDetailSubmissions(merged)
 
-    // Pre-fill teacher feedback state from existing feedback
     const fb = {}
     merged.forEach(s => { if (s.feedback) fb[s.id] = s.feedback })
     setTeacherFeedback(fb)
     setShowDetailModal(true)
   }
 
-  // ── Grade submission ────────────────────────────────────────────────────────
-
   async function gradeSubmission(submissionId, score) {
-    if (gradeStatus[submissionId] === 'saving') return  // prevent double-submit
+    if (gradeStatus[submissionId] === 'saving') return
     const val = parseFloat(score)
     const maxScore = selectedAssignment?.max_score ?? Infinity
     if (isNaN(val) || val < 0 || val > maxScore) return
@@ -502,7 +378,6 @@ export default function TeacherAssignments() {
       .eq('id', submissionId)
     if (error) {
       setGradeStatus(prev => ({ ...prev, [submissionId]: 'error' }))
-      console.error('Grade save error:', error)
       return
     }
     setGradeStatus(prev => ({ ...prev, [submissionId]: 'saved' }))
@@ -511,8 +386,6 @@ export default function TeacherAssignments() {
     )
     setTimeout(() => setGradeStatus(prev => ({ ...prev, [submissionId]: null })), 2500)
   }
-
-  // ── Save teacher feedback ───────────────────────────────────────────────────
 
   async function saveTeacherFeedback(submissionId) {
     const text = teacherFeedback[submissionId] || ''
@@ -529,11 +402,8 @@ export default function TeacherAssignments() {
     setFeedbackSaving(null)
   }
 
-  // ── AI feedback ─────────────────────────────────────────────────────────────
-
   async function generateAIFeedback(submission) {
     setAiLoading(submission.id)
-    // Update feedback in textarea as AI streams
     setTeacherFeedback(prev => ({ ...prev, [submission.id]: '' }))
     try {
       const contentPart = submission.content
@@ -564,11 +434,9 @@ export default function TeacherAssignments() {
         }
       )
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
-      const reader  = response.body.getReader()
+      const reader = response.body.getReader()
       const decoder = new TextDecoder()
       let fullContent = ''
 
@@ -582,7 +450,6 @@ export default function TeacherAssignments() {
             const parsed = JSON.parse(line.slice(6))
             if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
               fullContent += parsed.delta.text
-              // Stream text into the feedback textarea live
               setTeacherFeedback(prev => ({ ...prev, [submission.id]: fullContent }))
             }
           } catch {}
@@ -595,16 +462,13 @@ export default function TeacherAssignments() {
           prev.map(s => s.id === submission.id ? { ...s, feedback: fullContent } : s)
         )
       }
-    } catch (err) {
-      console.error('AI feedback error:', err)
+    } catch {
       const errMsg = 'AI rəyi əldə edilə bilmədi. Yenidən cəhd edin.'
       setTeacherFeedback(prev => ({ ...prev, [submission.id]: errMsg }))
     } finally {
       setAiLoading(null)
     }
   }
-
-  // ── Helpers ─────────────────────────────────────────────────────────────────
 
   const formatDate = (d) => {
     if (!d) return ''
@@ -631,8 +495,6 @@ export default function TeacherAssignments() {
     return new Date(a.due_date) >= new Date(new Date().setHours(0, 0, 0, 0))
   }
 
-  // ── Stats ───────────────────────────────────────────────────────────────────
-
   const totalCount    = assignments.length
   const ungradedTotal = assignments.reduce((acc, a) => acc + (a.ungradedCount || 0), 0)
   const thisWeekCount = assignments.filter(a => isThisWeek(a.due_date)).length
@@ -644,8 +506,6 @@ export default function TeacherAssignments() {
       )
     : 0
 
-  // ── Filtered assignments ────────────────────────────────────────────────────
-
   const filteredAssignments = assignments.filter(a => {
     if (activeFilter === 'active')   return isActive(a)
     if (activeFilter === 'ungraded') return (a.ungradedCount || 0) > 0
@@ -653,147 +513,111 @@ export default function TeacherAssignments() {
     return true
   })
 
-  // ── Derived form data ───────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <div className="pastel-skeleton h-12 w-72" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-24" />)}
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-56" />)}
+        </div>
+      </div>
+    )
+  }
 
-  if (loading) return <PageSpinner />
-
-  const uniqueClasses    = [...new Map(teacherClasses.map(tc => [tc.class_id, tc.class])).values()]
+  const uniqueClasses = [...new Map(teacherClasses.map(tc => [tc.class_id, tc.class])).values()]
   const subjectsForClass = (classId) =>
     teacherClasses.filter(tc => tc.class_id === classId).map(tc => tc.subject)
-
-  // ── Submission panel summary ────────────────────────────────────────────────
 
   const submittedCount = detailSubmissions.length
   const gradedCount    = detailSubmissions.filter(s => s.status === 'graded').length
   const pendingCount   = submittedCount - gradedCount
 
-  // ── Render ──────────────────────────────────────────────────────────────────
-
   return (
-    <div className="space-y-6">
-
-      {/* ── Page header ─────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-4xl text-gray-900 tracking-tight">
-          Tapşırıqlar
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
+          <span className="pastel-text">Tapşırıqlar</span>
         </h1>
-        <Button onClick={() => setShowNewModal(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Yeni tapşırıq
-        </Button>
+        <button onClick={() => setShowNewModal(true)} className="btn-pastel" style={{ padding: '12px 22px', fontSize: 13 }}>
+          <Plus className="w-4 h-4" /> Yeni tapşırıq
+        </button>
       </div>
 
-      {/* ── Stats row ───────────────────────────────────────────────────────── */}
+      {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-
-        {/* Total tapşırıqlar */}
-        <div className="bg-white rounded-2xl border border-border-soft p-5 flex items-center gap-4">
-          <span className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-            <ClipboardList className="w-5 h-5 text-blue-500" />
-          </span>
-          <div>
-            <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">
-              Ümumi tapşırıq
-            </p>
-            <p className="text-2xl font-bold text-gray-900 mt-0.5">{totalCount}</p>
+        {[
+          { label: 'Ümumi tapşırıq', value: totalCount, icon: ClipboardList, chip: 'icon-chip-blue' },
+          { label: 'Gözləyən qiymətləndir.', value: ungradedTotal, icon: Clock, chip: 'icon-chip-peach' },
+          { label: 'Bu həftə son tarix', value: thisWeekCount, icon: CheckSquare, chip: 'icon-chip-mint' },
+          { label: 'Ortalama təhvil %', value: `${avgPct}%`, icon: BarChart2, chip: 'icon-chip-periwinkle' },
+        ].map((s, i) => (
+          <div key={i} className="liquid-card p-4 flex items-center gap-4">
+            <span className={`icon-chip ${s.chip}`}>
+              <s.icon className="w-5 h-5" />
+            </span>
+            <div>
+              <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: '#64748b' }}>{s.label}</p>
+              <p className="text-2xl font-bold mt-0.5" style={{ color: '#1a1a2e' }}>{s.value}</p>
+            </div>
           </div>
-        </div>
-
-        {/* Gözləyən qiymətləndirmə */}
-        <div className="bg-white rounded-2xl border border-border-soft p-5 flex items-center gap-4">
-          <span className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
-            <Clock className="w-5 h-5 text-amber-500" />
-          </span>
-          <div>
-            <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">
-              Gözləyən qiymətləndir.
-            </p>
-            <p className="text-2xl font-bold text-gray-900 mt-0.5">{ungradedTotal}</p>
-          </div>
-        </div>
-
-        {/* Bu həftə son tarix */}
-        <div className="bg-white rounded-2xl border border-border-soft p-5 flex items-center gap-4">
-          <span className="w-10 h-10 rounded-xl bg-teal-light flex items-center justify-center flex-shrink-0">
-            <CheckSquare className="w-5 h-5 text-teal" />
-          </span>
-          <div>
-            <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">
-              Bu həftə son tarix
-            </p>
-            <p className="text-2xl font-bold text-gray-900 mt-0.5">{thisWeekCount}</p>
-          </div>
-        </div>
-
-        {/* Ortalama təhvil % */}
-        <div className="bg-white rounded-2xl border border-border-soft p-5 flex items-center gap-4">
-          <span className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0">
-            <BarChart2 className="w-5 h-5 text-purple" />
-          </span>
-          <div>
-            <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">
-              Ortalama təhvil %
-            </p>
-            <p className="text-2xl font-bold text-gray-900 mt-0.5">{avgPct}%</p>
-          </div>
-        </div>
-
-      </div>
-
-      {/* ── Filter tabs ─────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1 bg-surface rounded-xl p-1 w-fit border border-border-soft">
-        <Filter className="w-4 h-4 text-gray-400 mx-2 flex-shrink-0" />
-        {FILTERS.map(f => (
-          <button
-            key={f.key}
-            onClick={() => setActiveFilter(f.key)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              activeFilter === f.key
-                ? 'bg-white text-gray-900 shadow-sm border border-border-soft'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {f.label}
-            {f.key === 'ungraded' && ungradedTotal > 0 && (
-              <span className="ml-1.5 rounded-full bg-amber-100 text-amber-600 text-xs font-semibold px-1.5 py-0.5">
-                {ungradedTotal}
-              </span>
-            )}
-          </button>
         ))}
       </div>
 
-      {/* ── Assignment grid ──────────────────────────────────────────────────── */}
-      {filteredAssignments.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
-          <div className="w-20 h-20 rounded-2xl bg-purple-light flex items-center justify-center shadow-sm">
-            <ClipboardList className="w-10 h-10 text-purple opacity-60" />
-          </div>
-          <div>
-            <p className="text-base font-semibold text-gray-700">
-              {activeFilter === 'all'
-                ? 'Hələ tapşırıq əlavə edilməyib'
-                : activeFilter === 'active'
-                ? 'Aktiv tapşırıq yoxdur'
-                : activeFilter === 'ungraded'
-                ? 'Qiymətləndirilməmiş tapşırıq yoxdur'
-                : 'Bitmiş tapşırıq yoxdur'}
-            </p>
-            <p className="text-sm text-gray-400 mt-1 max-w-xs mx-auto">
-              {activeFilter === 'all'
-                ? 'Şagirdlərə tapşırıq vermək üçün "Yeni tapşırıq" düyməsinə basın'
-                : 'Filteri dəyişdirərək digər tapşırıqlara baxa bilərsiniz'}
-            </p>
-          </div>
-          {activeFilter === 'all' && (
+      {/* Filter tabs */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <Filter className="w-4 h-4" style={{ color: '#94a3b8' }} />
+        <div className="pastel-tabs">
+          {FILTERS.map(f => (
             <button
-              onClick={() => setShowNewModal(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-purple text-white rounded-xl text-sm font-semibold hover:bg-purple/90 transition-colors shadow-sm"
+              key={f.key}
+              onClick={() => setActiveFilter(f.key)}
+              className={activeFilter === f.key ? 'pastel-tab active' : 'pastel-tab'}
             >
-              <Plus className="w-4 h-4" />
-              Yeni tapşırıq
+              {f.label}
+              {f.key === 'ungraded' && ungradedTotal > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                  style={{
+                    background: activeFilter === f.key ? 'rgba(255,255,255,0.25)' : 'rgba(232,168,124,0.25)',
+                    color: activeFilter === f.key ? '#fff' : '#b46a3e',
+                  }}
+                >
+                  {ungradedTotal}
+                </span>
+              )}
             </button>
-          )}
+          ))}
+        </div>
+      </div>
+
+      {/* Assignment grid / empty state */}
+      {filteredAssignments.length === 0 ? (
+        <div className="liquid-card p-12">
+          <div className="flex flex-col items-center justify-center text-center gap-4">
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 72, height: 72 }}>
+              <ClipboardList className="w-9 h-9" />
+            </div>
+            <div>
+              <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>
+                {activeFilter === 'all' ? 'Hələ tapşırıq əlavə edilməyib' :
+                 activeFilter === 'active' ? 'Aktiv tapşırıq yoxdur' :
+                 activeFilter === 'ungraded' ? 'Qiymətləndirilməmiş tapşırıq yoxdur' :
+                 'Bitmiş tapşırıq yoxdur'}
+              </p>
+              <p className="text-sm mt-1 max-w-sm mx-auto" style={{ color: '#94a3b8' }}>
+                {activeFilter === 'all'
+                  ? 'Şagirdlərə tapşırıq vermək üçün "Yeni tapşırıq" düyməsinə basın'
+                  : 'Filteri dəyişdirərək digər tapşırıqlara baxa bilərsiniz'}
+              </p>
+            </div>
+            {activeFilter === 'all' && (
+              <button onClick={() => setShowNewModal(true)} className="btn-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>
+                <Plus className="w-4 h-4" /> Yeni tapşırıq
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -803,224 +627,182 @@ export default function TeacherAssignments() {
         </div>
       )}
 
-      {/* ── New assignment modal ─────────────────────────────────────────────── */}
-      <Modal
-        open={showNewModal}
-        onClose={() => setShowNewModal(false)}
-        title="Yeni tapşırıq"
-        size="md"
-      >
-        <div className="space-y-4">
-
-          <Input
-            label="Başlıq"
-            placeholder="Tapşırığın adını daxil edin"
-            value={newAssignment.title}
-            onChange={e => setNewAssignment(p => ({ ...p, title: e.target.value }))}
-          />
-
-          <Textarea
-            label="Açıqlama"
-            rows={4}
-            placeholder="Tapşırıq haqqında ətraflı məlumat..."
-            value={newAssignment.description}
-            onChange={e => setNewAssignment(p => ({ ...p, description: e.target.value }))}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="Sinif"
-              value={newAssignment.class_id}
-              onChange={e =>
-                setNewAssignment(p => ({ ...p, class_id: e.target.value, subject_id: '' }))
-              }
-            >
-              <option value="">Sinif seçin</option>
-              {uniqueClasses.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </Select>
-
-            <Select
-              label="Fənn"
-              value={newAssignment.subject_id}
-              onChange={e => setNewAssignment(p => ({ ...p, subject_id: e.target.value }))}
-              disabled={!newAssignment.class_id}
-            >
-              <option value="">Fənn seçin</option>
-              {subjectsForClass(newAssignment.class_id).map(s => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Son tarix"
-              type="date"
-              value={newAssignment.due_date}
-              onChange={e => setNewAssignment(p => ({ ...p, due_date: e.target.value }))}
-            />
-            <Input
-              label="Maksimal bal"
-              type="number"
-              min={1}
-              max={100}
-              value={newAssignment.max_score}
-              onChange={e => setNewAssignment(p => ({ ...p, max_score: e.target.value }))}
-            />
-          </div>
-
-          {/* Announcement toggle */}
-          <label className="flex items-center gap-3 cursor-pointer select-none">
-            <div
-              className={`relative w-10 h-6 rounded-full transition-colors ${newAssignment.notify ? 'bg-purple' : 'bg-gray-200'}`}
-              onClick={() => setNewAssignment(p => ({ ...p, notify: !p.notify }))}
-            >
-              <span
-                className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${newAssignment.notify ? 'translate-x-4' : ''}`}
-              />
+      {/* New assignment modal */}
+      {showNewModal && (
+        <div className="liquid-backdrop" onClick={() => { setShowNewModal(false); setSaveError(null) }}>
+          <div className="liquid-card p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>Yeni tapşırıq</h3>
+              <button onClick={() => { setShowNewModal(false); setSaveError(null) }} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            <div>
-              <span className="text-sm font-medium text-gray-700">Valideyn/şagirdlərə bildiriş göndər</span>
-              <p className="text-xs text-gray-400">Tapşırıq yaradıldıqda avtomatik bildiriş</p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Başlıq</label>
+                <input className="pastel-input" placeholder="Tapşırığın adını daxil edin" value={newAssignment.title} onChange={e => setNewAssignment(p => ({ ...p, title: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Açıqlama</label>
+                <textarea className="pastel-input" rows={4} placeholder="Tapşırıq haqqında ətraflı məlumat..." value={newAssignment.description} onChange={e => setNewAssignment(p => ({ ...p, description: e.target.value }))} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Sinif</label>
+                  <select className="pastel-input" value={newAssignment.class_id} onChange={e => setNewAssignment(p => ({ ...p, class_id: e.target.value, subject_id: '' }))}>
+                    <option value="">Sinif seçin</option>
+                    {uniqueClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Fənn</label>
+                  <select className="pastel-input" value={newAssignment.subject_id} onChange={e => setNewAssignment(p => ({ ...p, subject_id: e.target.value }))} disabled={!newAssignment.class_id}>
+                    <option value="">Fənn seçin</option>
+                    {subjectsForClass(newAssignment.class_id).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Son tarix</label>
+                  <input type="date" className="pastel-input" value={newAssignment.due_date} onChange={e => setNewAssignment(p => ({ ...p, due_date: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Maksimal bal</label>
+                  <input type="number" min={1} max={100} className="pastel-input" value={newAssignment.max_score} onChange={e => setNewAssignment(p => ({ ...p, max_score: e.target.value }))} />
+                </div>
+              </div>
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <button
+                  type="button"
+                  onClick={() => setNewAssignment(p => ({ ...p, notify: !p.notify }))}
+                  className="relative smooth-trans"
+                  style={{
+                    width: 44, height: 24, borderRadius: 999,
+                    background: newAssignment.notify ? 'linear-gradient(135deg, #7c6ee0, #5db8a3)' : 'rgba(124,110,224,0.18)',
+                    boxShadow: newAssignment.notify ? '0 4px 12px rgba(124,110,224,0.25)' : 'none',
+                  }}
+                >
+                  <span
+                    className="absolute top-1 smooth-trans"
+                    style={{
+                      width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                      left: newAssignment.notify ? 24 : 4,
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                    }}
+                  />
+                </button>
+                <div>
+                  <span className="text-sm font-medium" style={{ color: '#1a1a2e' }}>Valideyn/şagirdlərə bildiriş göndər</span>
+                  <p className="text-xs" style={{ color: '#94a3b8' }}>Tapşırıq yaradıldıqda avtomatik bildiriş</p>
+                </div>
+              </label>
+
+              {saveError && <p className="pastel-badge pastel-badge-rose"><AlertCircle className="w-3 h-3" /> {saveError}</p>}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button onClick={() => { setShowNewModal(false); setSaveError(null) }} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>Ləğv et</button>
+                <button onClick={handleCreate} disabled={saving || !newAssignment.title || !newAssignment.class_id || !newAssignment.subject_id} className="btn-pastel" style={{ padding: '10px 22px', fontSize: 13, opacity: (saving || !newAssignment.title || !newAssignment.class_id || !newAssignment.subject_id) ? 0.5 : 1 }}>
+                  {saving ? '...' : 'Yarat'}
+                </button>
+              </div>
             </div>
-          </label>
-
-          {saveError && (
-            <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{saveError}</p>
-          )}
-
-          <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => { setShowNewModal(false); setSaveError(null) }}>
-              Ləğv et
-            </Button>
-            <Button
-              onClick={handleCreate}
-              loading={saving}
-              disabled={!newAssignment.title || !newAssignment.class_id || !newAssignment.subject_id}
-            >
-              Yarat
-            </Button>
           </div>
-
         </div>
-      </Modal>
+      )}
 
-      {/* ── Submission review panel ──────────────────────────────────────────── */}
-      <Modal
-        open={showDetailModal}
-        onClose={() => setShowDetailModal(false)}
-        title={selectedAssignment?.title || ''}
-        size="lg"
-      >
-        {selectedAssignment && (
-          <div className="space-y-5">
+      {/* Submission review modal */}
+      {showDetailModal && selectedAssignment && (
+        <div className="liquid-backdrop" onClick={() => setShowDetailModal(false)}>
+          <div className="liquid-card p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{selectedAssignment.title}</h3>
+              <button onClick={() => setShowDetailModal(false)} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-            {/* Assignment meta */}
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center mb-4">
               {selectedAssignment.class?.name && (
-                <Badge variant="national">{selectedAssignment.class.name}</Badge>
+                <span className="pastel-badge pastel-badge-blue">{selectedAssignment.class.name}</span>
               )}
               {selectedAssignment.subject?.name && (
-                <Badge variant="default">{selectedAssignment.subject.name}</Badge>
+                <span className="pastel-badge pastel-badge-periwinkle">{selectedAssignment.subject.name}</span>
               )}
               {selectedAssignment.due_date && (
-                <span className="text-xs text-gray-500">
-                  Son tarix: {formatDate(selectedAssignment.due_date)}
-                </span>
+                <span className="text-xs" style={{ color: '#64748b' }}>Son tarix: {formatDate(selectedAssignment.due_date)}</span>
               )}
               {selectedAssignment.max_score && (
-                <span className="text-xs text-gray-500">
-                  Maks. bal: {selectedAssignment.max_score}
-                </span>
+                <span className="text-xs" style={{ color: '#64748b' }}>Maks. bal: {selectedAssignment.max_score}</span>
               )}
             </div>
 
             {selectedAssignment.description && (
-              <p className="text-sm text-gray-600 bg-surface rounded-lg p-3">
+              <p className="text-sm rounded-xl p-3 mb-4" style={{ color: '#475569', background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(124,110,224,0.10)' }}>
                 {selectedAssignment.description}
               </p>
             )}
 
-            {/* Summary bar */}
-            <div className="flex items-center gap-4 py-3 px-4 bg-surface rounded-xl border border-border-soft text-sm">
-              <span className="text-gray-500">
-                <span className="font-semibold text-gray-900">{submittedCount}</span> təhvil
-              </span>
-              <span className="w-px h-4 bg-border-soft" />
-              <span className="text-gray-500">
-                <span className="font-semibold text-teal">{gradedCount}</span> qiymətləndirildi
-              </span>
-              <span className="w-px h-4 bg-border-soft" />
-              <span className="text-gray-500">
-                <span className="font-semibold text-amber-500">{pendingCount}</span> gözləyir
-              </span>
+            <div className="flex items-center gap-4 py-3 px-4 rounded-xl mb-4 text-sm flex-wrap"
+              style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(124,110,224,0.12)' }}
+            >
+              <span style={{ color: '#64748b' }}><span className="font-bold" style={{ color: '#1a1a2e' }}>{submittedCount}</span> təhvil</span>
+              <span className="w-px h-4" style={{ background: 'rgba(124,110,224,0.18)' }} />
+              <span style={{ color: '#64748b' }}><span className="font-bold" style={{ color: '#3d8a73' }}>{gradedCount}</span> qiymətləndirildi</span>
+              <span className="w-px h-4" style={{ background: 'rgba(124,110,224,0.18)' }} />
+              <span style={{ color: '#64748b' }}><span className="font-bold" style={{ color: '#b46a3e' }}>{pendingCount}</span> gözləyir</span>
             </div>
 
-            {/* Submissions list */}
             {detailSubmissions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-surface flex items-center justify-center border border-border-soft">
-                  <ClipboardList className="w-8 h-8 text-gray-300" />
+              <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
+                <div className="icon-chip icon-chip-periwinkle" style={{ width: 56, height: 56 }}>
+                  <ClipboardList className="w-7 h-7" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-700">Hələ heç bir cavab yoxdur</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Şagirdlər tapşırığı təhvil verdikdə burada görünəcək
-                  </p>
+                  <p className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>Hələ heç bir cavab yoxdur</p>
+                  <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>Şagirdlər tapşırığı təhvil verdikdə burada görünəcək</p>
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {detailSubmissions.map(sub => {
-                  const status   = gradeStatus[sub.id]
-                  const initials = (sub.student?.full_name || '?')
-                    .split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+                  const status = gradeStatus[sub.id]
+                  const initials = (sub.student?.full_name || '?').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
                   const submittedTime = sub.submitted_at
-                    ? new Date(sub.submitted_at).toLocaleString('az-AZ', {
-                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
-                      })
+                    ? new Date(sub.submitted_at).toLocaleString('az-AZ', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
                     : null
                   return (
-                    <div
-                      key={sub.id}
-                      className="border border-border-soft rounded-2xl overflow-hidden shadow-sm"
+                    <div key={sub.id} className="rounded-2xl overflow-hidden"
+                      style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(124,110,224,0.12)' }}
                     >
-                      {/* Student header row */}
-                      <div className="flex items-center justify-between gap-3 px-4 py-3.5 bg-surface/60 border-b border-border-soft">
-                        <div className="flex items-center gap-3">
-                          {/* Initials avatar */}
-                          <div className="w-9 h-9 rounded-full bg-purple-light flex items-center justify-center flex-shrink-0 text-purple font-bold text-xs">
+                      <div className="flex items-center justify-between gap-3 px-4 py-3 flex-wrap"
+                        style={{ background: 'rgba(248,247,251,0.6)', borderBottom: '1px solid rgba(124,110,224,0.08)' }}
+                      >
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36, fontSize: 12, fontWeight: 700 }}>
                             {initials}
                           </div>
                           <div className="min-w-0">
-                            <span className="text-sm font-semibold text-gray-900 block">
-                              {sub.student?.full_name}
-                            </span>
+                            <span className="text-sm font-semibold block" style={{ color: '#1a1a2e' }}>{sub.student?.full_name}</span>
                             {submittedTime && (
-                              <span className="text-[11px] text-gray-400 flex items-center gap-1 mt-0.5">
-                                <Clock className="w-2.5 h-2.5" />
-                                {submittedTime}
+                              <span className="text-[11px] flex items-center gap-1 mt-0.5" style={{ color: '#94a3b8' }}>
+                                <Clock className="w-2.5 h-2.5" /> {submittedTime}
                               </span>
                             )}
                           </div>
                           <SubStatusBadge status={sub.status} />
                         </div>
 
-                        {/* Inline grade input */}
                         <div className="flex items-center gap-2 flex-shrink-0">
                           {status === 'saved' && (
-                            <span className="flex items-center gap-1 text-xs text-teal font-semibold bg-teal-light px-2 py-0.5 rounded-full">
-                              <Check className="w-3 h-3" /> Saxlandı
-                            </span>
+                            <span className="pastel-badge pastel-badge-mint"><Check className="w-3 h-3" /> Saxlandı</span>
                           )}
                           {status === 'error' && (
-                            <span className="flex items-center gap-1 text-xs text-red-500 font-semibold bg-red-50 px-2 py-0.5 rounded-full">
-                              <AlertCircle className="w-3 h-3" /> Xəta
-                            </span>
+                            <span className="pastel-badge pastel-badge-rose"><AlertCircle className="w-3 h-3" /> Xəta</span>
                           )}
-                          <div className="flex items-center gap-1.5 bg-white border border-border-soft rounded-xl px-3 py-1.5 shadow-sm">
+                          <div className="flex items-center gap-1.5 rounded-xl px-3 py-1.5"
+                            style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(124,110,224,0.18)' }}
+                          >
                             <input
                               key={sub.id}
                               type="number"
@@ -1028,103 +810,95 @@ export default function TeacherAssignments() {
                               max={selectedAssignment?.max_score || 10}
                               defaultValue={sub.score ?? ''}
                               placeholder="—"
-                              className={`w-12 text-sm text-center font-bold focus:outline-none bg-transparent transition-colors ${
-                                status === 'saving' ? 'text-purple' :
-                                status === 'saved'  ? 'text-teal'   :
-                                status === 'error'  ? 'text-red-500' :
-                                'text-gray-900'
-                              }`}
+                              className="w-12 text-sm text-center font-bold focus:outline-none bg-transparent smooth-trans"
+                              style={{
+                                color: status === 'saving' ? '#7c6ee0'
+                                     : status === 'saved' ? '#3d8a73'
+                                     : status === 'error' ? '#b83b54'
+                                     : '#1a1a2e',
+                              }}
                               onBlur={e => gradeSubmission(sub.id, e.target.value)}
                               onKeyDown={e => e.key === 'Enter' && e.target.blur()}
                             />
-                            <span className="text-xs text-gray-400 font-medium">
-                              / {selectedAssignment?.max_score}
-                            </span>
+                            <span className="text-xs font-medium" style={{ color: '#94a3b8' }}>/ {selectedAssignment?.max_score}</span>
                           </div>
                         </div>
                       </div>
 
                       <div className="px-4 py-3 space-y-3">
-                        {/* Uploaded file link */}
                         {sub.file_url && (
                           <a
                             href={sub.file_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium smooth-trans"
+                            style={{ background: 'rgba(107,157,222,0.10)', color: '#4a7cb5', border: '1px solid rgba(107,157,222,0.25)' }}
                           >
                             <Paperclip className="w-4 h-4 flex-shrink-0" />
-                            <span className="truncate max-w-[240px]">
-                              {sub.file_url.split('/').pop()?.split('?')[0] || 'Fayl'}
-                            </span>
+                            <span className="truncate max-w-[240px]">{sub.file_url.split('/').pop()?.split('?')[0] || 'Fayl'}</span>
                             <Download className="w-3.5 h-3.5 flex-shrink-0 ml-auto" />
                           </a>
                         )}
 
-                        {/* Submission text content */}
                         {sub.content && (
-                          <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 leading-relaxed whitespace-pre-wrap">
+                          <p className="text-sm rounded-lg p-3 leading-relaxed whitespace-pre-wrap"
+                            style={{ color: '#475569', background: 'rgba(248,247,251,0.6)' }}
+                          >
                             {sub.content}
                           </p>
                         )}
 
-                        {/* No content — file not saved or text-only gap */}
                         {!sub.content && !sub.file_url && (
-                          <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-                            <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                            <p className="text-xs text-amber-700">
+                          <div className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                            style={{ background: 'rgba(232,168,124,0.10)', border: '1px solid rgba(232,168,124,0.25)' }}
+                          >
+                            <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#d68a5a' }} />
+                            <p className="text-xs" style={{ color: '#b46a3e' }}>
                               Şagird fayl yükləyib, lakin keçmiş cavablar üçün fayl linki saxlanılmayıb. Yeni göndərmələr düzgün görünəcək.
                             </p>
                           </div>
                         )}
 
-                        {/* Teacher feedback textarea */}
                         <div>
-                          <label className="block text-xs font-semibold text-gray-500 mb-1.5">
-                            Müəllim rəyi
-                          </label>
+                          <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Müəllim rəyi</label>
                           <textarea
                             rows={2}
                             placeholder="Şagirdə rəy yazın..."
                             value={teacherFeedback[sub.id] ?? (sub.feedback && !sub.feedback.startsWith('AI') ? sub.feedback : '')}
                             onChange={e => setTeacherFeedback(prev => ({ ...prev, [sub.id]: e.target.value }))}
-                            className="w-full border border-border-soft rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple resize-none"
+                            className="pastel-input"
+                            style={{ resize: 'none' }}
                           />
-                          <div className="flex justify-end mt-1.5 gap-2">
-                            <Button
-                              variant="ghost"
-                              className="text-xs px-2.5 py-1"
+                          <div className="flex justify-end mt-2 gap-2">
+                            <button
                               onClick={() => generateAIFeedback(sub)}
                               disabled={aiLoading === sub.id}
+                              className="btn-ghost-pastel"
+                              style={{ padding: '6px 12px', fontSize: 12, opacity: aiLoading === sub.id ? 0.5 : 1 }}
                             >
                               {aiLoading === sub.id
-                                ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
-                                : <Sparkles className="w-3.5 h-3.5 mr-1" />
+                                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                : <Sparkles className="w-3.5 h-3.5" />
                               }
                               AI rəyi
-                            </Button>
-                            <Button
-                              className="text-xs px-2.5 py-1"
+                            </button>
+                            <button
                               onClick={() => saveTeacherFeedback(sub.id)}
-                              loading={feedbackSaving === sub.id}
                               disabled={feedbackSaving === sub.id}
+                              className="btn-pastel"
+                              style={{ padding: '6px 14px', fontSize: 12, opacity: feedbackSaving === sub.id ? 0.5 : 1 }}
                             >
-                              <Save className="w-3.5 h-3.5 mr-1" />
-                              Rəyi saxla
-                            </Button>
+                              <Save className="w-3.5 h-3.5" /> Rəyi saxla
+                            </button>
                           </div>
                         </div>
 
-                        {/* AI feedback display (read-only, shown when AI generated) */}
                         {sub.feedback && (
-                          <div className="bg-purple-light rounded-lg p-3">
-                            <p className="text-xs text-purple-dark font-semibold mb-1.5 flex items-center gap-1">
-                              <Sparkles className="w-3.5 h-3.5" />
-                              Mövcud rəy
+                          <div className="rounded-lg p-3" style={{ background: 'rgba(124,110,224,0.08)' }}>
+                            <p className="text-xs font-bold mb-1.5 flex items-center gap-1" style={{ color: '#5b4fb8' }}>
+                              <Sparkles className="w-3.5 h-3.5" /> Mövcud rəy
                             </p>
-                            <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-                              {sub.feedback}
-                            </p>
+                            <p className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: '#1a1a2e' }}>{sub.feedback}</p>
                           </div>
                         )}
                       </div>
@@ -1133,46 +907,48 @@ export default function TeacherAssignments() {
                 })}
               </div>
             )}
-
           </div>
-        )}
-      </Modal>
+        </div>
+      )}
 
-      {/* ── Delete confirm modal ─────────────────────────────────────────── */}
-      <Modal
-        open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        title="Tapşırığı sil"
-        size="sm"
-      >
-        {deleteTarget && (
-          <div className="space-y-4">
-            <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <Trash2 className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+      {/* Delete confirm modal */}
+      {deleteTarget && (
+        <div className="liquid-backdrop" onClick={() => setDeleteTarget(null)}>
+          <div className="liquid-card p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="icon-chip icon-chip-peach" style={{ width: 40, height: 40 }}>
+                <Trash2 className="w-5 h-5" />
+              </span>
+              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>Tapşırığı sil</h3>
+            </div>
+            <div className="flex items-start gap-3 p-3 rounded-xl mb-4"
+              style={{ background: 'rgba(229,107,127,0.08)', border: '1px solid rgba(229,107,127,0.25)' }}
+            >
               <div>
-                <p className="text-sm font-semibold text-gray-900">{deleteTarget.title}</p>
-                <p className="text-xs text-red-700 mt-1">
+                <p className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>{deleteTarget.title}</p>
+                <p className="text-xs mt-1" style={{ color: '#b83b54' }}>
                   Bu tapşırıq və bütün təhvil edilmiş cavablar birdəfəlik silinəcək.
                 </p>
               </div>
             </div>
-            <div className="flex justify-end gap-3">
-              <Button variant="ghost" onClick={() => setDeleteTarget(null)} disabled={deleting}>
-                Ləğv et
-              </Button>
-              <Button
-                className="bg-red-500 hover:bg-red-600 text-white border-red-500"
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setDeleteTarget(null)} disabled={deleting} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>Ləğv et</button>
+              <button
                 onClick={confirmDelete}
-                loading={deleting}
+                disabled={deleting}
+                className="px-5 py-2.5 rounded-full font-semibold text-white text-sm smooth-trans flex items-center gap-1.5"
+                style={{
+                  background: 'linear-gradient(135deg, #e56b7f, #d85268)',
+                  boxShadow: '0 4px 12px rgba(229,107,127,0.3)',
+                  opacity: deleting ? 0.5 : 1,
+                }}
               >
-                <Trash2 className="w-4 h-4 mr-1.5" />
-                Sil
-              </Button>
+                <Trash2 className="w-4 h-4" /> {deleting ? '...' : 'Sil'}
+              </button>
             </div>
           </div>
-        )}
-      </Modal>
-
+        </div>
+      )}
     </div>
   )
 }

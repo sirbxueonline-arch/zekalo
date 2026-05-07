@@ -3,14 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import {
   CalendarCheck, BookOpen, CheckCircle, Clock,
   Users, TrendingUp, TrendingDown, ChevronRight,
-  Inbox, Activity, Bell, AlertCircle, Info,
-  PenLine, ClipboardList, BarChart2, Star,
+  Inbox, Bell, AlertCircle, Info,
+  PenLine, ClipboardList,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { DashboardSkeleton } from '../../components/ui/Skeleton'
-import Avatar from '../../components/ui/Avatar'
-import Badge from '../../components/ui/Badge'
 import { todayFull } from '../../lib/dateUtils'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -66,46 +64,32 @@ function isPastPeriod(slot) {
   return curMin > endMin
 }
 
-// ── Subject color palette ──────────────────────────────────────────────────
+// ── Pastel subject palette ─────────────────────────────────────────────────
 
-const SUBJ_HEX = ['#534AB7','#1D9E75','#D97706','#2563EB','#DB2777','#EA580C']
+const SUBJ_HEX = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde', '#c89ed4', '#d68a5a']
 function subjectHash(name = '') {
   let h = 0; for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
   return Math.abs(h)
 }
 function subjectHex(name = '') { return SUBJ_HEX[subjectHash(name) % SUBJ_HEX.length] }
 
+// Rotating chip colors for stat cards
+const CHIP_COLORS = ['icon-chip-periwinkle', 'icon-chip-mint', 'icon-chip-peach', 'icon-chip-blue']
+
 // ── Notification icon ──────────────────────────────────────────────────────
 
 function NotifIcon({ type }) {
-  if (type === 'assignment') return <BookOpen className="w-3.5 h-3.5 text-purple" />
-  if (type === 'attendance') return <CalendarCheck className="w-3.5 h-3.5 text-teal" />
-  if (type === 'alert')      return <AlertCircle className="w-3.5 h-3.5 text-red-500" />
-  return <Info className="w-3.5 h-3.5 text-gray-400" />
+  if (type === 'assignment') return <BookOpen className="w-3.5 h-3.5" style={{ color: '#7c6ee0' }} />
+  if (type === 'attendance') return <CalendarCheck className="w-3.5 h-3.5" style={{ color: '#5db8a3' }} />
+  if (type === 'alert')      return <AlertCircle className="w-3.5 h-3.5" style={{ color: '#e56b7f' }} />
+  return <Info className="w-3.5 h-3.5" style={{ color: '#94a3b8' }} />
 }
 
-function notifBg(type) {
-  if (type === 'assignment') return 'bg-purple-light'
-  if (type === 'attendance') return 'bg-teal-light'
-  if (type === 'alert')      return 'bg-red-50'
-  return 'bg-gray-100'
-}
-
-// ── Quick action ────────────────────────────────────────────────────────────
-
-function QuickBtn({ icon: Icon, label, onClick, color }) {
-  const bg   = color === 'teal'   ? 'bg-teal text-white hover:bg-teal/90'
-             : color === 'purple' ? 'bg-purple text-white hover:bg-purple/90'
-             : color === 'amber'  ? 'bg-amber-500 text-white hover:bg-amber-500/90'
-             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${bg}`}
-    >
-      <Icon className="w-4 h-4" /> {label}
-    </button>
-  )
+function notifChipClass(type) {
+  if (type === 'assignment') return 'icon-chip-periwinkle'
+  if (type === 'attendance') return 'icon-chip-mint'
+  if (type === 'alert')      return 'icon-chip-peach'
+  return ''
 }
 
 // ── Main component ─────────────────────────────────────────────────────────
@@ -159,14 +143,13 @@ export default function TeacherDashboard() {
 
       const classIds = (classesRes.data || []).map(c => c.class_id)
 
-      // Fetch recent submissions — trust RLS (submissions_teacher_select) to limit to this teacher's assignments
+      // Fetch recent submissions — trust RLS to limit to this teacher's assignments
       const { data: rawSubs } = await supabase.from('submissions')
         .select('*, assignment:assignments(id, title, subject:subjects(name))')
         .eq('status', 'submitted')
         .order('submitted_at', { ascending: false })
         .limit(20)
 
-      // Fetch student profiles separately to avoid join RLS failures
       const subStudentIds = [...new Set((rawSubs || []).map(s => s.student_id).filter(Boolean))]
       const { data: subProfiles } = subStudentIds.length
         ? await supabase.from('profiles').select('id, full_name').in('id', subStudentIds)
@@ -243,22 +226,20 @@ export default function TeacherDashboard() {
   return (
     <div className="space-y-5">
 
-      {/* ── 1. Gradient welcome header card ──────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-2xl border border-border-soft shadow-sm"
-        style={{ background: 'linear-gradient(135deg, #534AB7 0%, #6d63cc 50%, #1D9E75 100%)' }}
-      >
-        {/* Decorative circles */}
-        <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5" />
-        <div className="absolute -bottom-10 -left-6 w-32 h-32 rounded-full bg-white/5" />
+      {/* ── 1. Hero greeting card (liquid-glass) ─────────────────────────── */}
+      <div className="liquid-card relative overflow-hidden p-6">
+        {/* Decorative pastel blobs inside the card */}
+        <div className="section-blob" style={{ top: '-30%', right: '-10%', width: '40%', height: '180%', background: 'radial-gradient(ellipse at center, rgba(124,110,224,0.18) 0%, transparent 65%)' }} />
+        <div className="section-blob" style={{ bottom: '-50%', left: '20%', width: '40%', height: '180%', background: 'radial-gradient(ellipse at center, rgba(93,184,163,0.16) 0%, transparent 65%)' }} />
 
-        <div className="relative flex items-center justify-between flex-wrap gap-4 px-6 py-5">
+        <div className="relative flex items-center justify-between flex-wrap gap-4">
           <div>
-            <p className="text-xs text-white/60 uppercase tracking-widest font-medium">{todayLabel()}</p>
-            <h1 className="font-serif text-3xl text-white mt-1">
-              {greeting(t)}, {firstName}
+            <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#64748b' }}>{todayLabel()}</p>
+            <h1 className="text-3xl md:text-4xl font-bold mt-1" style={{ color: '#1a1a2e' }}>
+              {greeting(t)}, <span className="pastel-text">{firstName}</span>
             </h1>
             {todaySlots.length > 0 && (
-              <p className="text-sm text-white/70 mt-1.5 flex items-center gap-1.5">
+              <p className="text-sm mt-2 flex items-center gap-1.5" style={{ color: '#64748b' }}>
                 <Clock className="w-3.5 h-3.5" />
                 Bu gün {todaySlots.length} dərs var
               </p>
@@ -269,19 +250,22 @@ export default function TeacherDashboard() {
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => navigate('/muellim/davamiyyet')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-sm font-semibold transition-all backdrop-blur-sm"
+              className="btn-ghost-pastel"
+              style={{ padding: '10px 18px', fontSize: '13px' }}
             >
               <CalendarCheck className="w-4 h-4" /> {t('attendance')}
             </button>
             <button
               onClick={() => navigate('/muellim/jurnal')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-sm font-semibold transition-all backdrop-blur-sm"
+              className="btn-ghost-pastel"
+              style={{ padding: '10px 18px', fontSize: '13px' }}
             >
               <BookOpen className="w-4 h-4" /> {t('gradebook')}
             </button>
             <button
               onClick={() => navigate('/muellim/tapshiriqlar')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-purple text-sm font-semibold transition-all hover:bg-white/90"
+              className="btn-pastel"
+              style={{ padding: '10px 18px', fontSize: '13px' }}
             >
               <PenLine className="w-4 h-4" /> Tapşırıq
             </button>
@@ -291,63 +275,46 @@ export default function TeacherDashboard() {
 
       {/* ── 2. Stats row ─────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {/* Classes today */}
-        <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-4 py-4 flex items-start gap-3">
-          <span className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0">
-            <Clock className="w-5 h-5 text-purple" />
-          </span>
-          <div>
-            <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wide">Bu günki dərs</p>
-            <p className="font-serif text-2xl font-bold text-gray-900 mt-0.5 leading-none">{todaySlots.length}</p>
-          </div>
-        </div>
-        {/* Pending submissions */}
-        <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-4 py-4 flex items-start gap-3">
-          <span className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${submissions.length > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
-            <Inbox className={`w-5 h-5 ${submissions.length > 0 ? 'text-red-500' : 'text-gray-400'}`} />
-          </span>
-          <div>
-            <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wide">Gözləyən</p>
-            <p className={`font-serif text-2xl font-bold mt-0.5 leading-none ${submissions.length > 0 ? 'text-red-600' : 'text-gray-900'}`}>{submissions.length}</p>
-          </div>
-        </div>
-        {/* Students */}
-        <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-4 py-4 flex items-start gap-3">
-          <span className="w-10 h-10 rounded-xl bg-teal-light flex items-center justify-center flex-shrink-0">
-            <Users className="w-5 h-5 text-teal" />
-          </span>
-          <div>
-            <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wide">Cəmi Şagird</p>
-            <p className="font-serif text-2xl font-bold text-gray-900 mt-0.5 leading-none">{studentCount}</p>
-          </div>
-        </div>
-        {/* Weekly attendance */}
-        <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-4 py-4 flex items-start gap-3">
-          <span className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${weekAttendance >= 85 ? 'bg-teal-light' : 'bg-red-50'}`}>
-            {weekAttendance >= 85
-              ? <TrendingUp className="w-5 h-5 text-teal" />
-              : <TrendingDown className="w-5 h-5 text-red-400" />
-            }
-          </span>
-          <div>
-            <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wide">Həftəlik dav.</p>
-            <p className={`font-serif text-2xl font-bold mt-0.5 leading-none ${weekAttendance >= 85 ? 'text-gray-900' : 'text-red-600'}`}>
-              {weekAttendance}<span className="text-sm font-semibold text-gray-400">%</span>
-            </p>
-          </div>
-        </div>
+        {[
+          { label: 'Bu günki dərs', value: todaySlots.length, icon: Clock, chip: 'icon-chip-periwinkle' },
+          { label: 'Gözləyən', value: submissions.length, icon: Inbox, chip: submissions.length > 0 ? 'icon-chip-peach' : 'icon-chip-mint', alert: submissions.length > 0 },
+          { label: 'Cəmi Şagird', value: studentCount, icon: Users, chip: 'icon-chip-mint' },
+          {
+            label: 'Həftəlik dav.',
+            value: weekAttendance,
+            suffix: '%',
+            icon: weekAttendance >= 85 ? TrendingUp : TrendingDown,
+            chip: weekAttendance >= 85 ? 'icon-chip-blue' : 'icon-chip-peach',
+          },
+        ].map((stat, i) => {
+          const Icon = stat.icon
+          return (
+            <div key={i} className="liquid-card p-4 flex items-start gap-3">
+              <span className={`icon-chip ${stat.chip}`}>
+                <Icon className="w-5 h-5" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-wider truncate" style={{ color: '#64748b' }}>{stat.label}</p>
+                <p className="text-2xl font-bold mt-0.5 leading-none" style={{ color: stat.alert ? '#b83b54' : '#1a1a2e' }}>
+                  {stat.value}{stat.suffix && <span className="text-sm font-semibold" style={{ color: '#94a3b8' }}>{stat.suffix}</span>}
+                </p>
+              </div>
+            </div>
+          )
+        })}
       </div>
 
       {/* ── 3. Today's timetable strip ──────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
+      <div className="liquid-card overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'rgba(124,110,224,0.12)' }}>
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-purple" />
-            <h2 className="font-semibold text-gray-900 text-sm">{t('todays_lessons')}</h2>
+            <Clock className="w-4 h-4" style={{ color: '#7c6ee0' }} />
+            <h2 className="font-semibold text-sm" style={{ color: '#1a1a2e' }}>{t('todays_lessons')}</h2>
           </div>
           <button
             onClick={() => navigate('/muellim/cedvel')}
-            className="flex items-center gap-1 text-xs text-purple font-medium hover:opacity-70 transition-opacity"
+            className="flex items-center gap-1 text-xs font-semibold smooth-trans hover:opacity-70"
+            style={{ color: '#7c6ee0' }}
           >
             {t('view_full_timetable')} <ChevronRight className="w-3.5 h-3.5" />
           </button>
@@ -355,8 +322,11 @@ export default function TeacherDashboard() {
         <div className="overflow-x-auto px-5 py-4">
           <div className="flex gap-3" style={{ minWidth: 'max-content' }}>
             {todaySlots.length === 0 ? (
-              <div className="flex items-center gap-3 px-4 py-3 bg-surface rounded-xl text-sm text-gray-400">
-                <CalendarCheck className="w-5 h-5" /> {t('no_lessons_today')}
+              <div className="flex flex-col items-center justify-center gap-3 w-full py-8">
+                <div className="icon-chip icon-chip-periwinkle" style={{ width: 56, height: 56 }}>
+                  <CalendarCheck className="w-7 h-7" />
+                </div>
+                <p className="text-sm" style={{ color: '#64748b' }}>{t('no_lessons_today')}</p>
               </div>
             ) : todaySlots.map(slot => {
               const current = isCurrentPeriod(slot)
@@ -367,45 +337,51 @@ export default function TeacherDashboard() {
                 <div
                   key={slot.id}
                   onClick={() => navigate('/muellim/davamiyyet')}
-                  className={`relative flex flex-col gap-1.5 rounded-xl px-4 py-3 w-40 flex-shrink-0 cursor-pointer transition-all border-2 ${
-                    current
-                      ? 'border-purple shadow-md bg-white'
+                  className="relative flex flex-col gap-1.5 rounded-2xl px-4 py-3 w-40 flex-shrink-0 cursor-pointer smooth-trans"
+                  style={{
+                    background: current
+                      ? 'linear-gradient(135deg, rgba(124,110,224,0.12), rgba(93,184,163,0.10))'
                       : past
-                      ? 'border-border-soft bg-gray-50 opacity-60'
+                      ? 'rgba(248,247,251,0.4)'
                       : attDone
-                      ? 'border-teal bg-teal-light/30'
-                      : 'border-border-soft bg-white hover:shadow-sm'
-                  }`}
+                      ? 'rgba(93,184,163,0.10)'
+                      : 'rgba(255,255,255,0.55)',
+                    border: current
+                      ? '1.5px solid rgba(124,110,224,0.45)'
+                      : '1px solid rgba(124,110,224,0.12)',
+                    backdropFilter: 'blur(12px)',
+                    boxShadow: current ? '0 4px 16px rgba(124,110,224,0.18)' : 'none',
+                    opacity: past ? 0.55 : 1,
+                  }}
                 >
                   <div className="flex items-center justify-between">
                     <span
                       className="w-6 h-6 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: past ? '#d1d5db' : hex }}
+                      style={{ backgroundColor: past ? '#cbd5e1' : hex }}
                     >
                       {slot.period}
                     </span>
                     {current && (
-                      <span className="text-[10px] font-semibold text-purple bg-purple-light px-1.5 py-0.5 rounded-full">İndi</span>
+                      <span className="pastel-badge pastel-badge-periwinkle" style={{ fontSize: 10 }}>İndi</span>
                     )}
                     {!current && attDone && (
-                      <CheckCircle className="w-3.5 h-3.5 text-teal" />
+                      <CheckCircle className="w-3.5 h-3.5" style={{ color: '#5db8a3' }} />
                     )}
                   </div>
-                  <p className={`text-sm font-bold truncate ${past ? 'text-gray-400' : 'text-gray-900'}`}>
+                  <p className="text-sm font-bold truncate" style={{ color: past ? '#94a3b8' : '#1a1a2e' }}>
                     {slot.subject?.name}
                   </p>
-                  <p className={`text-xs truncate ${past ? 'text-gray-300' : 'text-gray-500'}`}>
+                  <p className="text-xs truncate" style={{ color: past ? '#cbd5e1' : '#64748b' }}>
                     {slot.class?.name}
                   </p>
                   {slot.start_time && slot.end_time && (
-                    <p className="text-[11px] text-gray-400">
+                    <p className="text-[11px]" style={{ color: '#94a3b8' }}>
                       {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)}
                     </p>
                   )}
                   {slot.room && (
-                    <p className="text-[11px] text-gray-400">🏫 {slot.room}</p>
+                    <p className="text-[11px]" style={{ color: '#94a3b8' }}>🏫 {slot.room}</p>
                   )}
-                  {/* Bottom accent */}
                   {!past && (
                     <div className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full" style={{ backgroundColor: hex, opacity: 0.5 }} />
                   )}
@@ -422,20 +398,19 @@ export default function TeacherDashboard() {
         {/* LEFT (8 cols) */}
         <div className="lg:col-span-8 space-y-5">
 
-          {/* Gözləyən Qiymətləndirmə */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
-            <div className="flex items-center gap-2 px-5 py-3.5 border-b border-border-soft">
-              <Inbox className="w-4 h-4 text-purple" />
-              <h2 className="font-semibold text-gray-900 text-sm">{t('pending_grading')}</h2>
+          {/* Pending grading */}
+          <div className="liquid-card overflow-hidden">
+            <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: 'rgba(124,110,224,0.12)' }}>
+              <Inbox className="w-4 h-4" style={{ color: '#7c6ee0' }} />
+              <h2 className="font-semibold text-sm" style={{ color: '#1a1a2e' }}>{t('pending_grading')}</h2>
               {submissions.length > 0 && (
-                <span className="ml-1 min-w-[20px] h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1.5">
-                  {submissions.length}
-                </span>
+                <span className="pastel-badge pastel-badge-rose ml-1">{submissions.length}</span>
               )}
               {submissions.length > 0 && (
                 <button
                   onClick={() => navigate('/muellim/tapshiriqlar')}
-                  className="ml-auto text-xs text-purple font-medium hover:opacity-70 transition-opacity"
+                  className="ml-auto text-xs font-semibold smooth-trans hover:opacity-70"
+                  style={{ color: '#7c6ee0' }}
                 >
                   {t('view_all')} →
                 </button>
@@ -443,43 +418,47 @@ export default function TeacherDashboard() {
             </div>
             {submissions.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-                <div className="w-14 h-14 rounded-full bg-teal-light flex items-center justify-center">
-                  <CheckCircle className="w-7 h-7 text-teal" />
+                <div className="icon-chip icon-chip-mint" style={{ width: 56, height: 56 }}>
+                  <CheckCircle className="w-7 h-7" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-700">{t('all_graded')}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Bütün cavablar qiymətləndirilib</p>
+                  <p className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>{t('all_graded')}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#94a3b8' }}>Bütün cavablar qiymətləndirilib</p>
                 </div>
               </div>
             ) : (
-              <ul className="divide-y divide-border-soft">
-                {submissions.map(sub => {
+              <ul>
+                {submissions.map((sub, idx) => {
                   const initials = (sub.student?.full_name || '?')
                     .split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
                   return (
                     <li
                       key={sub.id}
-                      className="flex items-center gap-3 px-5 py-3.5 hover:bg-surface/50 transition-colors cursor-pointer group"
+                      className="flex items-center gap-3 px-5 py-3.5 smooth-trans cursor-pointer group"
+                      style={{
+                        borderTop: idx === 0 ? 'none' : '1px solid rgba(124,110,224,0.08)',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(124,110,224,0.04)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       onClick={() => navigate('/muellim/tapshiriqlar')}
                     >
-                      {/* Initials avatar circle */}
-                      <div className="w-9 h-9 rounded-full bg-purple-light flex items-center justify-center flex-shrink-0 text-purple font-bold text-xs">
+                      <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36, fontSize: 12, fontWeight: 700 }}>
                         {initials}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate">{sub.student?.full_name}</p>
-                        <p className="text-xs text-gray-500 mt-0.5 truncate">{sub.assignment?.title}</p>
+                        <p className="text-sm font-semibold truncate" style={{ color: '#1a1a2e' }}>{sub.student?.full_name}</p>
+                        <p className="text-xs mt-0.5 truncate" style={{ color: '#64748b' }}>{sub.assignment?.title}</p>
                       </div>
                       {sub.assignment?.subject?.name && (
-                        <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-light text-purple flex-shrink-0">
+                        <span className="hidden sm:inline-flex pastel-badge pastel-badge-periwinkle">
                           {sub.assignment.subject.name}
                         </span>
                       )}
                       <div className="flex-shrink-0 text-right">
-                        <span className="text-[11px] text-gray-400 whitespace-nowrap block">
+                        <span className="text-[11px] whitespace-nowrap block" style={{ color: '#94a3b8' }}>
                           {timeAgo(sub.submitted_at)}
                         </span>
-                        <span className="text-[10px] text-purple font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-[10px] font-semibold opacity-0 group-hover:opacity-100 smooth-trans" style={{ color: '#7c6ee0' }}>
                           Qiymətləndir →
                         </span>
                       </div>
@@ -490,15 +469,16 @@ export default function TeacherDashboard() {
             )}
           </div>
 
-          {/* Tapşırıq Son Tarixləri */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
-            <div className="flex items-center gap-2 px-5 py-3.5 border-b border-border-soft">
-              <ClipboardList className="w-4 h-4 text-teal" />
-              <h2 className="font-semibold text-gray-900 text-sm">{t('assignment_deadlines')}</h2>
+          {/* Assignment deadlines */}
+          <div className="liquid-card overflow-hidden">
+            <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: 'rgba(124,110,224,0.12)' }}>
+              <ClipboardList className="w-4 h-4" style={{ color: '#5db8a3' }} />
+              <h2 className="font-semibold text-sm" style={{ color: '#1a1a2e' }}>{t('assignment_deadlines')}</h2>
               {assignments.length > 0 && (
                 <button
                   onClick={() => navigate('/muellim/tapshiriqlar')}
-                  className="ml-auto text-xs text-purple font-medium hover:opacity-70 transition-opacity"
+                  className="ml-auto text-xs font-semibold smooth-trans hover:opacity-70"
+                  style={{ color: '#7c6ee0' }}
                 >
                   Hamısını gör →
                 </button>
@@ -506,21 +486,23 @@ export default function TeacherDashboard() {
             </div>
             {assignments.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-                <ClipboardList className="w-8 h-8 text-gray-200" />
-                <p className="text-sm text-gray-400">{t('no_assignments_set')}</p>
+                <div className="icon-chip icon-chip-blue" style={{ width: 56, height: 56 }}>
+                  <ClipboardList className="w-7 h-7" />
+                </div>
+                <p className="text-sm" style={{ color: '#64748b' }}>{t('no_assignments_set')}</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="pastel-table">
                   <thead>
-                    <tr className="bg-surface border-b border-border-soft">
-                      <th className="text-left text-xs text-gray-400 font-semibold px-5 py-2.5 uppercase tracking-wider">Tapşırıq</th>
-                      <th className="text-left text-xs text-gray-400 font-semibold px-3 py-2.5 uppercase tracking-wider hidden sm:table-cell">Sinif</th>
-                      <th className="text-left text-xs text-gray-400 font-semibold px-3 py-2.5 uppercase tracking-wider">Son Tarix</th>
-                      <th className="text-left text-xs text-gray-400 font-semibold px-3 py-2.5 uppercase tracking-wider hidden sm:table-cell">Təhvil</th>
+                    <tr>
+                      <th>Tapşırıq</th>
+                      <th className="hidden sm:table-cell">Sinif</th>
+                      <th>Son Tarix</th>
+                      <th className="hidden sm:table-cell">Təhvil</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border-soft">
+                  <tbody>
                     {assignments.map(a => {
                       const days      = daysUntil(a.due_date)
                       const overdue   = days < 0
@@ -532,10 +514,10 @@ export default function TeacherDashboard() {
                       return (
                         <tr
                           key={a.id}
-                          className="hover:bg-surface/50 transition-colors cursor-pointer"
+                          className="cursor-pointer"
                           onClick={() => navigate('/muellim/tapshiriqlar')}
                         >
-                          <td className="px-5 py-3">
+                          <td>
                             <div className="flex items-center gap-2">
                               {a.subject?.name && (
                                 <span
@@ -543,27 +525,23 @@ export default function TeacherDashboard() {
                                   style={{ backgroundColor: hex }}
                                 />
                               )}
-                              <p className="font-medium text-gray-900 truncate max-w-[160px]">{a.title}</p>
+                              <p className="font-medium truncate max-w-[160px]" style={{ color: '#1a1a2e' }}>{a.title}</p>
                             </div>
                           </td>
-                          <td className="px-3 py-3 hidden sm:table-cell">
-                            <span className="text-xs text-gray-600">{a.class?.name || '—'}</span>
+                          <td className="hidden sm:table-cell">
+                            <span className="text-xs" style={{ color: '#64748b' }}>{a.class?.name || '—'}</span>
                           </td>
-                          <td className="px-3 py-3">
-                            <span className={`text-xs font-semibold whitespace-nowrap px-2 py-1 rounded-md ${
-                              overdue  ? 'bg-red-50 text-red-700' :
-                              urgent   ? 'bg-amber-50 text-amber-700' :
-                                         'bg-surface text-gray-600'
-                            }`}>
+                          <td>
+                            <span className={overdue ? 'pastel-badge pastel-badge-rose' : urgent ? 'pastel-badge pastel-badge-peach' : 'pastel-badge pastel-badge-slate'}>
                               {overdue ? `${Math.abs(days)}g gecikib` : days === 0 ? 'Bu gün' : formatDate(a.due_date)}
                             </span>
                           </td>
-                          <td className="px-3 py-3 hidden sm:table-cell">
+                          <td className="hidden sm:table-cell">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-gray-600 font-medium whitespace-nowrap">{submitted}/{total}</span>
+                              <span className="text-xs font-medium whitespace-nowrap" style={{ color: '#475569' }}>{submitted}/{total}</span>
                               {total > 0 && (
-                                <div className="w-14 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                  <div className="h-full bg-teal rounded-full" style={{ width: `${pct}%` }} />
+                                <div className="w-14 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(124,110,224,0.10)' }}>
+                                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #7c6ee0, #5db8a3)' }} />
                                 </div>
                               )}
                             </div>
@@ -582,74 +560,85 @@ export default function TeacherDashboard() {
         <div className="lg:col-span-4 space-y-5">
 
           {/* Week stats */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm p-5 space-y-4">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{t('this_weeks_stats')}</p>
+          <div className="liquid-card p-5 space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#64748b' }}>{t('this_weeks_stats')}</p>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-400 font-medium">{t('total_students_stat')}</p>
-                <p className="text-3xl font-bold text-gray-900 mt-0.5">{studentCount}</p>
+                <p className="text-xs font-medium" style={{ color: '#94a3b8' }}>{t('total_students_stat')}</p>
+                <p className="text-3xl font-bold mt-0.5" style={{ color: '#1a1a2e' }}>{studentCount}</p>
               </div>
-              <span className="w-11 h-11 rounded-xl bg-purple-light flex items-center justify-center">
-                <Users className="w-5 h-5 text-purple" />
+              <span className="icon-chip icon-chip-periwinkle">
+                <Users className="w-5 h-5" />
               </span>
             </div>
 
-            <div className="h-px bg-border-soft" />
+            <div className="h-px" style={{ background: 'rgba(124,110,224,0.12)' }} />
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-400 font-medium">{t('weekly_attendance')}</p>
+                <p className="text-xs font-medium" style={{ color: '#94a3b8' }}>{t('weekly_attendance')}</p>
                 <div className="flex items-end gap-2 mt-0.5">
-                  <p className="text-3xl font-bold text-gray-900">{weekAttendance}<span className="text-xl font-semibold text-gray-400">%</span></p>
+                  <p className="text-3xl font-bold" style={{ color: '#1a1a2e' }}>{weekAttendance}<span className="text-xl font-semibold" style={{ color: '#94a3b8' }}>%</span></p>
                   {weekAttendance >= 85
-                    ? <span className="text-xs text-teal font-medium mb-0.5 flex items-center gap-0.5"><TrendingUp className="w-3 h-3" /> Yaxşı</span>
+                    ? <span className="text-xs font-medium mb-0.5 flex items-center gap-0.5" style={{ color: '#3d8a73' }}><TrendingUp className="w-3 h-3" /> Yaxşı</span>
                     : weekAttendance > 0
-                    ? <span className="text-xs text-red-500 font-medium mb-0.5 flex items-center gap-0.5"><TrendingDown className="w-3 h-3" /> Aşağı</span>
+                    ? <span className="text-xs font-medium mb-0.5 flex items-center gap-0.5" style={{ color: '#b83b54' }}><TrendingDown className="w-3 h-3" /> Aşağı</span>
                     : null
                   }
                 </div>
               </div>
-              <span className="w-11 h-11 rounded-xl bg-teal-light flex items-center justify-center">
-                <CalendarCheck className="w-5 h-5 text-teal" />
+              <span className="icon-chip icon-chip-mint">
+                <CalendarCheck className="w-5 h-5" />
               </span>
             </div>
             {weekAttendance > 0 && (
-              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(124,110,224,0.10)' }}>
                 <div
-                  className={`h-full rounded-full ${weekAttendance >= 85 ? 'bg-teal' : 'bg-red-400'}`}
-                  style={{ width: `${weekAttendance}%` }}
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${weekAttendance}%`,
+                    background: weekAttendance >= 85
+                      ? 'linear-gradient(90deg, #5db8a3, #6b9dde)'
+                      : 'linear-gradient(90deg, #e8a87c, #e56b7f)',
+                  }}
                 />
               </div>
             )}
           </div>
 
-          {/* Bildirişlər */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
-            <div className="flex items-center gap-2 px-5 py-3.5 border-b border-border-soft">
-              <Bell className="w-4 h-4 text-purple" />
-              <h2 className="font-semibold text-gray-900 text-sm">{t('teacher_notifications')}</h2>
+          {/* Notifications */}
+          <div className="liquid-card overflow-hidden">
+            <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: 'rgba(124,110,224,0.12)' }}>
+              <Bell className="w-4 h-4" style={{ color: '#7c6ee0' }} />
+              <h2 className="font-semibold text-sm" style={{ color: '#1a1a2e' }}>{t('teacher_notifications')}</h2>
               {notifications.length > 0 && (
-                <span className="ml-auto text-xs text-gray-400">{notifications.length}</span>
+                <span className="ml-auto text-xs" style={{ color: '#94a3b8' }}>{notifications.length}</span>
               )}
             </div>
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 py-10 text-center px-5">
-                <Bell className="w-7 h-7 text-gray-200" />
-                <p className="text-xs text-gray-400">{t('no_notifications')}</p>
+                <div className="icon-chip icon-chip-periwinkle" style={{ width: 48, height: 48 }}>
+                  <Bell className="w-5 h-5" />
+                </div>
+                <p className="text-xs" style={{ color: '#94a3b8' }}>{t('no_notifications')}</p>
               </div>
             ) : (
-              <ul className="divide-y divide-border-soft overflow-y-auto max-h-[220px] scrollbar-thin">
-                {notifications.map(n => (
-                  <li key={n.id} className="flex items-start gap-3 px-5 py-3">
-                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${notifBg(n.type)}`}>
+              <ul className="overflow-y-auto max-h-[260px] scrollbar-thin">
+                {notifications.map((n, idx) => (
+                  <li
+                    key={n.id}
+                    className="flex items-start gap-3 px-5 py-3 smooth-trans"
+                    style={{ borderTop: idx === 0 ? 'none' : '1px solid rgba(124,110,224,0.08)' }}
+                  >
+                    <span className={`icon-chip ${notifChipClass(n.type)}`} style={{ width: 30, height: 30, borderRadius: 10 }}>
                       <NotifIcon type={n.type} />
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-800 leading-snug line-clamp-2">
+                      <p className="text-xs font-medium leading-snug line-clamp-2" style={{ color: '#1a1a2e' }}>
                         {n.title || n.message || 'Bildiriş'}
                       </p>
-                      <p className="text-[10px] text-gray-400 mt-0.5">{timeAgo(n.created_at)}</p>
+                      <p className="text-[10px] mt-0.5" style={{ color: '#94a3b8' }}>{timeAgo(n.created_at)}</p>
                     </div>
                   </li>
                 ))}

@@ -4,20 +4,124 @@ import { supabase } from '../../lib/supabase'
 import { GradeBadge } from '../../components/ui/Badge'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
-import { BookOpen, Users, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { BookOpen, Users, TrendingUp, TrendingDown, Minus, Sparkles } from 'lucide-react'
 import { fmtNumeric } from '../../lib/dateUtils'
 
-function getRowBorderColor(score) {
-  if (score >= 8) return 'border-l-[#1D9E75]'
-  if (score >= 6) return 'border-l-[#534AB7]'
-  return 'border-l-red-400'
+const PASTEL_COLORS = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde']
+function pastelColor(name = '') {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
+  return PASTEL_COLORS[Math.abs(h) % PASTEL_COLORS.length]
+}
+
+function childInitials(name = '') {
+  return name ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?'
+}
+
+function gradeColor(score) {
+  if (score == null) return '#64748b'
+  if (score >= 8) return '#5db8a3'    // mint - A
+  if (score >= 6) return '#6b9dde'    // blue - B
+  if (score >= 4) return '#e8a87c'    // peach - C
+  return '#ef4444'
+}
+
+function gradeBg(score) {
+  if (score == null) return 'rgba(124,110,224,0.08)'
+  if (score >= 8) return 'rgba(93,184,163,0.12)'
+  if (score >= 6) return 'rgba(107,157,222,0.12)'
+  if (score >= 4) return 'rgba(232,168,124,0.15)'
+  return 'rgba(239,68,68,0.10)'
 }
 
 function TrendArrow({ current, prev }) {
-  if (prev == null || current == null) return <Minus className="w-4 h-4 text-gray-300" />
-  if (current > prev) return <TrendingUp className="w-4 h-4 text-[#1D9E75]" />
-  if (current < prev) return <TrendingDown className="w-4 h-4 text-red-400" />
-  return <Minus className="w-4 h-4 text-gray-400" />
+  if (prev == null || current == null) return <Minus className="w-4 h-4" style={{ color: '#64748b' }} />
+  if (current > prev) return <TrendingUp className="w-4 h-4" style={{ color: '#5db8a3' }} />
+  if (current < prev) return <TrendingDown className="w-4 h-4" style={{ color: '#e8a87c' }} />
+  return <Minus className="w-4 h-4" style={{ color: '#64748b' }} />
+}
+
+// Pastel SVG line chart of grades over time (chronological)
+function GradesTrendChart({ grades }) {
+  const points = (grades || [])
+    .filter(g => g.score != null)
+    .slice(0, 12)
+    .reverse()
+    .map(g => g.max_score > 0 ? Math.round((g.score / g.max_score) * 10 * 10) / 10 : g.score)
+
+  if (points.length < 2) return null
+
+  const W = 720
+  const H = 180
+  const PAD_X = 24
+  const PAD_TOP = 16
+  const PAD_BOT = 24
+  const innerW = W - PAD_X * 2
+  const innerH = H - PAD_TOP - PAD_BOT
+  const stepX = points.length > 1 ? innerW / (points.length - 1) : 0
+  const yOf = v => PAD_TOP + innerH - (v / 10) * innerH
+  const xOf = i => PAD_X + i * stepX
+
+  const path = points.map((v, i) => `${i === 0 ? 'M' : 'L'} ${xOf(i).toFixed(1)} ${yOf(v).toFixed(1)}`).join(' ')
+  const area = `${path} L ${xOf(points.length - 1).toFixed(1)} ${(PAD_TOP + innerH).toFixed(1)} L ${xOf(0).toFixed(1)} ${(PAD_TOP + innerH).toFixed(1)} Z`
+
+  return (
+    <div className="liquid-card p-5">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h3 className="text-sm font-bold" style={{ color: '#1a1a2e' }}>Qiymət dinamikası</h3>
+          <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>Son {points.length} qiymət</p>
+        </div>
+        <Sparkles className="w-4 h-4" style={{ color: '#7c6ee0' }} />
+      </div>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full h-auto"
+        preserveAspectRatio="none"
+        style={{ display: 'block' }}
+      >
+        <defs>
+          <linearGradient id="gradesArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#7c6ee0" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#5db8a3" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="gradesLine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#7c6ee0" />
+            <stop offset="100%" stopColor="#5db8a3" />
+          </linearGradient>
+        </defs>
+
+        {/* Subtle grid lines */}
+        {[0, 5, 10].map(v => (
+          <line
+            key={v}
+            x1={PAD_X}
+            x2={W - PAD_X}
+            y1={yOf(v)}
+            y2={yOf(v)}
+            stroke="rgba(124,110,224,0.15)"
+            strokeDasharray={v === 0 || v === 10 ? '0' : '3 4'}
+            strokeWidth="1"
+          />
+        ))}
+
+        <path d={area} fill="url(#gradesArea)" />
+        <path d={path} fill="none" stroke="url(#gradesLine)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+
+        {points.map((v, i) => (
+          <circle
+            key={i}
+            cx={xOf(i)}
+            cy={yOf(v)}
+            r="4"
+            fill="#fff"
+            stroke={gradeColor(v)}
+            strokeWidth="2"
+          />
+        ))}
+      </svg>
+    </div>
+  )
 }
 
 export default function ParentGrades() {
@@ -117,47 +221,50 @@ export default function ParentGrades() {
     : grades
 
   const overallAvg = calcAverage(null)
-
-  const childInitials = selectedChild?.full_name
-    ? selectedChild.full_name
-        .split(' ')
-        .map(w => w[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : '?'
+  const childInits = childInitials(selectedChild?.full_name)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="font-serif text-4xl text-gray-900">Qiymətlər</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold" style={{ color: '#1a1a2e', letterSpacing: '-0.02em' }}>
+          <span className="pastel-text">Qiymətlər</span>
+        </h1>
+        <p className="text-sm mt-1" style={{ color: '#64748b' }}>Ortalama, dinamika və qiymət tarixçəsi</p>
       </div>
 
-      {/* Child selector tabs */}
+      {/* Child glass switcher */}
       {children.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-1">
           {children.map(child => {
-            const initials = child.full_name
-              ? child.full_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-              : '?'
             const active = selectedChild?.id === child.id
+            const color = pastelColor(child.full_name)
             return (
               <button
                 key={child.id}
                 onClick={() => setSelectedChild(child)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
+                className="flex items-center gap-2.5 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0"
+                style={
                   active
-                    ? 'border-purple bg-purple-light text-purple'
-                    : 'border-border-soft text-gray-500 hover:bg-surface'
-                }`}
+                    ? {
+                        background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                        color: '#fff',
+                        border: '1px solid rgba(124,110,224,0.3)',
+                        boxShadow: '0 4px 12px rgba(124,110,224,0.25)',
+                      }
+                    : {
+                        background: 'rgba(255,255,255,0.6)',
+                        color: '#1a1a2e',
+                        border: '1px solid rgba(124,110,224,0.2)',
+                        backdropFilter: 'blur(12px)',
+                      }
+                }
               >
                 <span
-                  className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center ${
-                    active ? 'bg-purple text-white' : 'bg-border-soft text-gray-500'
-                  }`}
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                  style={{ background: active ? 'rgba(255,255,255,0.25)' : color }}
                 >
-                  {initials}
+                  {childInitials(child.full_name)}
                 </span>
                 {child.full_name}
               </button>
@@ -169,56 +276,81 @@ export default function ParentGrades() {
       {loading ? (
         <PageSpinner />
       ) : grades.length === 0 ? (
-        <EmptyState
-          icon={BookOpen}
-          title="Qiymət yoxdur"
-          description="Bu uşaq üçün hələ qiymət daxil edilməyib."
-        />
+        <div className="liquid-card p-12">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+              style={{ background: 'rgba(124,110,224,0.12)' }}
+            >
+              <BookOpen className="w-8 h-8" style={{ color: '#7c6ee0' }} />
+            </div>
+            <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>Qiymət yoxdur</h3>
+            <p className="text-sm mt-1" style={{ color: '#64748b' }}>Bu uşaq üçün hələ qiymət daxil edilməyib</p>
+          </div>
+        </div>
       ) : (
         <>
-          {/* Report card header */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-6 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-            <div className="flex items-center gap-4">
-              {/* School logo placeholder */}
-              <div className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0">
-                <BookOpen className="w-5 h-5 text-purple" />
-              </div>
-              <div className="w-px h-10 bg-border-soft flex-shrink-0" />
-              <div className="w-14 h-14 rounded-full bg-purple-light flex items-center justify-center text-purple font-bold text-xl flex-shrink-0 shadow-sm">
-                {childInitials}
-              </div>
-              <div>
-                <p className="font-serif font-semibold text-gray-900 text-xl leading-tight">
-                  {selectedChild?.full_name}
-                </p>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  {selectedChild?.class_name || selectedChild?.grade || '—'}
-                  {selectedChild?.school?.name ? ` · ${selectedChild.school.name}` : ''}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Ümumi ortalama</p>
-                <p className="font-serif text-4xl text-gray-900 leading-none">
-                  {overallAvg != null ? overallAvg.toString().replace('.', ',') : '—'}
-                </p>
-              </div>
-              {overallAvg != null && (
+          {/* Report card hero */}
+          <div className="liquid-card p-6 relative overflow-hidden">
+            <div
+              aria-hidden
+              className="section-blob"
+              style={{
+                top: '-50%',
+                right: '-10%',
+                width: '40%',
+                height: '200%',
+                background: 'radial-gradient(ellipse at center, rgba(93,184,163,0.18) 0%, transparent 65%)',
+              }}
+            />
+            <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+              <div className="flex items-center gap-4">
                 <div
-                  className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md ${
-                    overallAvg >= 8
-                      ? 'bg-[#1D9E75]'
-                      : overallAvg >= 6
-                      ? 'bg-purple'
-                      : 'bg-red-400'
-                  }`}
+                  className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
+                  style={{
+                    background: `linear-gradient(135deg, ${pastelColor(selectedChild?.full_name || '')} 0%, ${pastelColor((selectedChild?.full_name || '') + 'x')} 100%)`,
+                    boxShadow: '0 8px 20px rgba(124,110,224,0.25)',
+                  }}
                 >
-                  {overallAvg.toString().replace('.', ',')}
+                  {childInits}
                 </div>
-              )}
+                <div>
+                  <p className="text-xl font-extrabold leading-tight" style={{ color: '#1a1a2e' }}>
+                    {selectedChild?.full_name}
+                  </p>
+                  <p className="text-sm mt-0.5" style={{ color: '#64748b' }}>
+                    {selectedChild?.class_name || selectedChild?.grade || '—'}
+                    {selectedChild?.school?.name ? ` · ${selectedChild.school.name}` : ''}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#64748b' }}>
+                    Ümumi ortalama
+                  </p>
+                  <p className="text-4xl font-extrabold leading-none" style={{ color: '#1a1a2e' }}>
+                    {overallAvg != null ? overallAvg.toString().replace('.', ',') : '—'}
+                  </p>
+                </div>
+                {overallAvg != null && (
+                  <div
+                    className="w-16 h-16 rounded-full flex items-center justify-center text-white font-extrabold text-lg"
+                    style={{
+                      background: `linear-gradient(135deg, ${gradeColor(overallAvg)} 0%, ${gradeColor(overallAvg)}cc 100%)`,
+                      boxShadow: `0 8px 20px ${gradeColor(overallAvg)}40`,
+                    }}
+                  >
+                    {overallAvg.toString().replace('.', ',')}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+
+          {/* Trend chart */}
+          <GradesTrendChart grades={grades} />
 
           {/* Subject summary cards */}
           {subjects.length > 0 && (
@@ -228,42 +360,35 @@ export default function ParentGrades() {
                 const count = grades.filter(g => g.subject?.id === s.id).length
                 const { current, prev } = calcSubjectTrend(s.id)
                 const barPct = avg != null ? Math.min((avg / 10) * 100, 100) : 0
-                const barColor =
-                  avg == null
-                    ? 'bg-gray-200'
-                    : avg >= 8
-                    ? 'bg-[#1D9E75]'
-                    : avg >= 6
-                    ? 'bg-purple'
-                    : 'bg-red-400'
+                const color = avg == null ? '#64748b' : gradeColor(avg)
                 return (
-                  <div
-                    key={s.id}
-                    className="bg-white rounded-2xl border border-border-soft shadow-sm px-5 py-4 flex flex-col gap-3"
-                  >
+                  <div key={s.id} className="liquid-card p-5 flex flex-col gap-3">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium text-gray-800 leading-tight">{s.name}</p>
+                      <p className="text-sm font-bold leading-tight" style={{ color: '#1a1a2e' }}>{s.name}</p>
                       <TrendArrow current={current} prev={prev} />
                     </div>
                     <div className="flex items-center gap-3">
                       {avg != null ? (
                         <GradeBadge score={avg} />
                       ) : (
-                        <span className="text-xs text-gray-400">—</span>
+                        <span className="text-xs" style={{ color: '#64748b' }}>—</span>
                       )}
-                      <span className="text-xs text-gray-400">{count} qiymət</span>
+                      <span className="text-xs" style={{ color: '#64748b' }}>{count} qiymət</span>
                     </div>
-                    {/* Progress bar with percentage label */}
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-surface rounded-full overflow-hidden">
+                      <div
+                        className="flex-1 h-2 rounded-full overflow-hidden"
+                        style={{ background: 'rgba(124,110,224,0.08)' }}
+                      >
                         <div
-                          className={`h-full rounded-full transition-all ${barColor}`}
-                          style={{ width: `${barPct}%` }}
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${barPct}%`, background: color }}
                         />
                       </div>
-                      <span className={`text-xs font-semibold w-8 text-right flex-shrink-0 ${
-                        avg == null ? 'text-gray-300' : avg >= 8 ? 'text-teal' : avg >= 6 ? 'text-purple' : 'text-red-400'
-                      }`}>
+                      <span
+                        className="text-xs font-bold w-9 text-right flex-shrink-0"
+                        style={{ color }}
+                      >
                         {avg != null ? `${Math.round(barPct)}%` : '—'}
                       </span>
                     </div>
@@ -277,82 +402,97 @@ export default function ParentGrades() {
           <div className="flex gap-2 overflow-x-auto pb-1">
             <button
               onClick={() => setSelectedSubject(null)}
-              className={`px-4 py-2 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
+              className="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all"
+              style={
                 !selectedSubject
-                  ? 'border-purple bg-purple-light text-purple'
-                  : 'border-border-soft text-gray-500 hover:bg-surface'
-              }`}
+                  ? {
+                      background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                      color: '#fff',
+                      border: '1px solid rgba(124,110,224,0.3)',
+                      boxShadow: '0 4px 12px rgba(124,110,224,0.2)',
+                    }
+                  : {
+                      background: 'rgba(255,255,255,0.6)',
+                      color: '#64748b',
+                      border: '1px solid rgba(124,110,224,0.2)',
+                      backdropFilter: 'blur(12px)',
+                    }
+              }
             >
               Hamısı
             </button>
-            {subjects.map(s => (
-              <button
-                key={s.id}
-                onClick={() => setSelectedSubject(s.id)}
-                className={`px-4 py-2 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
-                  selectedSubject === s.id
-                    ? 'border-purple bg-purple-light text-purple'
-                    : 'border-border-soft text-gray-500 hover:bg-surface'
-                }`}
-              >
-                {s.name}
-              </button>
-            ))}
+            {subjects.map(s => {
+              const active = selectedSubject === s.id
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => setSelectedSubject(s.id)}
+                  className="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all"
+                  style={
+                    active
+                      ? {
+                          background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                          color: '#fff',
+                          border: '1px solid rgba(124,110,224,0.3)',
+                          boxShadow: '0 4px 12px rgba(124,110,224,0.2)',
+                        }
+                      : {
+                          background: 'rgba(255,255,255,0.6)',
+                          color: '#64748b',
+                          border: '1px solid rgba(124,110,224,0.2)',
+                          backdropFilter: 'blur(12px)',
+                        }
+                  }
+                >
+                  {s.name}
+                </button>
+              )
+            })}
           </div>
 
-          {/* Grade history table */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
+          {/* History table */}
+          <div className="liquid-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-surface border-b border-border-soft">
-                    <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-6 py-3 text-left">
-                      Tarix
-                    </th>
-                    <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-6 py-3 text-left">
-                      Fənn
-                    </th>
-                    <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-6 py-3 text-left">
-                      Qiymətləndirmə
-                    </th>
+                  <tr style={{ background: 'rgba(248,247,251,0.8)', borderBottom: '1px solid rgba(124,110,224,0.1)' }}>
+                    <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>Tarix</th>
+                    <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>Fənn</th>
+                    <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>Qiymətləndirmə</th>
                     {isIb ? (
                       <>
-                        <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-4 py-3 text-center">A</th>
-                        <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-4 py-3 text-center">B</th>
-                        <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-4 py-3 text-center">C</th>
-                        <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-4 py-3 text-center">D</th>
+                        <th className="text-xs font-bold uppercase tracking-wider px-4 py-3 text-center" style={{ color: '#64748b' }}>A</th>
+                        <th className="text-xs font-bold uppercase tracking-wider px-4 py-3 text-center" style={{ color: '#64748b' }}>B</th>
+                        <th className="text-xs font-bold uppercase tracking-wider px-4 py-3 text-center" style={{ color: '#64748b' }}>C</th>
+                        <th className="text-xs font-bold uppercase tracking-wider px-4 py-3 text-center" style={{ color: '#64748b' }}>D</th>
                       </>
                     ) : (
-                      <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-6 py-3 text-center">
-                        Bal
-                      </th>
+                      <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-center" style={{ color: '#64748b' }}>Bal</th>
                     )}
-                    <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-6 py-3 text-left">
-                      Qeyd
-                    </th>
+                    <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>Qeyd</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((g, idx) => {
+                  {filtered.map((g, idx, arr) => {
                     const normScore =
                       g.score == null ? null :
                       g.max_score > 0 ? Math.round((g.score / g.max_score) * 10) : g.score
-                    const borderColor = getRowBorderColor(normScore)
-                    const isEven = idx % 2 === 0
                     return (
                       <tr
                         key={g.id}
-                        className={`border-b border-border-soft last:border-0 hover:bg-purple-light/20 transition-colors duration-100 border-l-4 ${borderColor} ${
-                          isEven ? 'bg-white' : 'bg-surface/40'
-                        }`}
+                        className="transition-colors hover:bg-white/40"
+                        style={{
+                          borderBottom: idx === arr.length - 1 ? 'none' : '1px solid rgba(124,110,224,0.08)',
+                          borderLeft: `3px solid ${gradeColor(normScore)}`,
+                        }}
                       >
-                        <td className="px-6 py-3.5 text-sm text-gray-500 whitespace-nowrap">
+                        <td className="px-6 py-3.5 text-sm whitespace-nowrap" style={{ color: '#64748b' }}>
                           {fmtNumeric(g.date)}
                         </td>
-                        <td className="px-6 py-3.5 text-sm font-semibold text-gray-900">
+                        <td className="px-6 py-3.5 text-sm font-bold" style={{ color: '#1a1a2e' }}>
                           {g.subject?.name}
                         </td>
-                        <td className="px-6 py-3.5 text-sm text-gray-600">
+                        <td className="px-6 py-3.5 text-sm" style={{ color: '#64748b' }}>
                           {g.assessment_title || '—'}
                         </td>
                         {isIb ? (
@@ -375,7 +515,7 @@ export default function ParentGrades() {
                             <GradeBadge score={normScore} />
                           </td>
                         )}
-                        <td className="px-6 py-3.5 text-sm text-gray-400">
+                        <td className="px-6 py-3.5 text-sm" style={{ color: '#64748b' }}>
                           {g.notes || '—'}
                         </td>
                       </tr>

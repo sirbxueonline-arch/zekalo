@@ -138,7 +138,7 @@ export default function Messages() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-gray-900">{t('announcements')}</h1>
+      <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('announcements')}</span></h1>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
       {success && <p className="text-sm text-teal">{t('send_announcement')}</p>}

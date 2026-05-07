@@ -17,7 +17,7 @@ function getScoreVariant(pct) {
   if (pct >= 90) return 'excellent'
   if (pct >= 70) return 'good'
   if (pct >= 50) return 'late'
-  return 'absent'
+  return 'poor'
 }
 
 function getScoreLabel(pct) {
@@ -25,6 +25,27 @@ function getScoreLabel(pct) {
   if (pct >= 70) return 'Yaxşı'
   if (pct >= 50) return 'Kafi'
   return 'Zəif'
+}
+
+function SectionTitle({ icon: Icon, children, tone = 'periwinkle' }) {
+  const palette = {
+    periwinkle: { bg: 'rgba(124,110,224,0.14)', color: '#7c6ee0' },
+    mint:       { bg: 'rgba(93,184,163,0.14)',  color: '#5db8a3' },
+  }
+  const p = palette[tone] || palette.periwinkle
+  return (
+    <div className="flex items-center gap-3 mb-4">
+      <span
+        className="flex items-center justify-center"
+        style={{ width: 36, height: 36, borderRadius: 12, background: p.bg }}
+      >
+        <Icon className="w-4 h-4" style={{ color: p.color }} />
+      </span>
+      <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.01em' }}>
+        {children}
+      </h2>
+    </div>
+  )
 }
 
 export default function StudentExams() {
@@ -104,12 +125,15 @@ export default function StudentExams() {
 
   return (
     <div className="space-y-8">
+      <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+        <span className="pastel-text">İmtahanlar</span>
+      </h1>
+
       {/* Upcoming exams */}
       <section>
-        <div className="flex items-center gap-3 mb-4">
-          <Calendar className="w-5 h-5 text-purple" />
-          <h2 className="font-serif text-2xl text-gray-900">Gələcək imtahanlar</h2>
-        </div>
+        <SectionTitle icon={Calendar} tone="periwinkle">
+          Gələcək imtahanlar
+        </SectionTitle>
 
         {upcoming.length === 0 ? (
           <EmptyState
@@ -124,35 +148,43 @@ export default function StudentExams() {
               const today = new Date()
               today.setHours(0, 0, 0, 0)
               const daysLeft = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24))
+              const urgency =
+                daysLeft <= 3 ? 'poor' :
+                daysLeft <= 7 ? 'late' :
+                                'present'
               return (
                 <Card key={exam.id} className="flex flex-col gap-3">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="font-serif text-lg text-gray-900">{exam.title}</h3>
-                      <p className="text-sm text-gray-500 mt-0.5">{exam.subject?.name}</p>
+                      <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.25 }}>
+                        {exam.title}
+                      </h3>
+                      <p className="text-sm mt-0.5" style={{ color: '#64748b' }}>
+                        {exam.subject?.name}
+                      </p>
                     </div>
-                    <Badge variant={daysLeft <= 3 ? 'absent' : daysLeft <= 7 ? 'late' : 'present'}>
+                    <Badge variant={urgency}>
                       {daysLeft === 0 ? 'Bu gün' : daysLeft === 1 ? 'Sabah' : `${daysLeft} gün`}
                     </Badge>
                   </div>
 
-                  <div className="space-y-2 text-sm text-gray-600">
+                  <div className="space-y-2 text-sm" style={{ color: '#475569' }}>
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-purple-mid" />
+                      <Calendar className="w-4 h-4" style={{ color: '#7c6ee0' }} />
                       <span>{formatDate(exam.exam_date)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-purple-mid" />
+                      <Clock className="w-4 h-4" style={{ color: '#5db8a3' }} />
                       <span>{exam.duration_minutes} dəqiqə</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Award className="w-4 h-4 text-purple-mid" />
+                      <Award className="w-4 h-4" style={{ color: '#e8a87c' }} />
                       <span>Maksimum bal: {exam.max_score}</span>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-border-soft">
-                    <span className="text-xs text-gray-400">{exam.class?.name}</span>
+                  <div className="pt-2" style={{ borderTop: '1px solid rgba(124,110,224,0.10)' }}>
+                    <span className="text-xs" style={{ color: '#64748b' }}>{exam.class?.name}</span>
                   </div>
                 </Card>
               )
@@ -163,10 +195,9 @@ export default function StudentExams() {
 
       {/* Past results */}
       <section>
-        <div className="flex items-center gap-3 mb-4">
-          <ClipboardList className="w-5 h-5 text-purple" />
-          <h2 className="font-serif text-2xl text-gray-900">Nəticələr</h2>
-        </div>
+        <SectionTitle icon={ClipboardList} tone="mint">
+          Nəticələr
+        </SectionTitle>
 
         {results.length === 0 ? (
           <EmptyState
@@ -175,38 +206,38 @@ export default function StudentExams() {
             description="Hələ heç bir imtahan nəticəniz yoxdur."
           />
         ) : (
-          <Card hover={false}>
+          <Card hover={false} className="overflow-hidden" style={{ padding: 0 }}>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="pastel-table">
                 <thead>
-                  <tr className="bg-surface">
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">İmtahan</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">Fənn</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">Tarix</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">Bal</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">Faiz</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">Qiymət</th>
+                  <tr>
+                    <th>İmtahan</th>
+                    <th>Fənn</th>
+                    <th>Tarix</th>
+                    <th style={{ textAlign: 'center' }}>Bal</th>
+                    <th style={{ textAlign: 'center' }}>Faiz</th>
+                    <th style={{ textAlign: 'center' }}>Qiymət</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border-soft">
+                <tbody>
                   {results.map(r => {
                     const pct = r.score != null && r.exam.max_score > 0
                       ? Math.round((r.score / r.exam.max_score) * 100)
                       : 0
                     return (
-                      <tr key={r.id} className="hover:bg-surface transition-colors">
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{r.exam.title}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{r.exam.subject?.name}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{formatDate(r.exam.exam_date)}</td>
-                        <td className="px-6 py-4 text-center text-sm font-semibold text-gray-800">
+                      <tr key={r.id}>
+                        <td style={{ fontWeight: 600, color: '#1a1a2e' }}>{r.exam.title}</td>
+                        <td style={{ color: '#475569' }}>{r.exam.subject?.name}</td>
+                        <td style={{ color: '#475569' }}>{formatDate(r.exam.exam_date)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 700 }}>
                           {r.score} / {r.exam.max_score}
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td style={{ textAlign: 'center' }}>
                           <Badge variant={getScoreVariant(pct)}>
                             {pct}%
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td style={{ textAlign: 'center' }}>
                           <Badge variant={getScoreVariant(pct)}>
                             {getScoreLabel(pct)}
                           </Badge>

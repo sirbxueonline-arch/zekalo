@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
-import Card from '../../components/ui/Card'
-import Input from '../../components/ui/Input'
-import Button from '../../components/ui/Button'
 import Avatar from '../../components/ui/Avatar'
-import Badge, { EditionBadge } from '../../components/ui/Badge'
-import { Lock } from 'lucide-react'
+import { EditionBadge } from '../../components/ui/Badge'
+import { Lock, Check, AlertCircle, BookOpen, Users } from 'lucide-react'
 
-const colors = ['#534AB7', '#1D9E75', '#EF9F27', '#E74C3C', '#3498DB', '#8E44AD', '#E67E22', '#2ECC71']
+const colors = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde', '#c89ed4', '#d68a5a', '#f0b870', '#5db8a3']
 
 export default function TeacherProfile() {
   const { profile, updateProfile, t } = useAuth()
@@ -16,8 +13,9 @@ export default function TeacherProfile() {
   const [language, setLanguage] = useState(profile?.language || 'az')
   const [notifyMessage, setNotifyMessage] = useState(profile?.notify_message ?? true)
   const [notifyAssignment, setNotifyAssignment] = useState(profile?.notify_assignment ?? true)
-  const [avatarColor, setAvatarColor] = useState(profile?.avatar_color || '#534AB7')
+  const [avatarColor, setAvatarColor] = useState(profile?.avatar_color || '#7c6ee0')
   const [saving, setSaving] = useState(false)
+  const [savedToast, setSavedToast] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -50,6 +48,8 @@ export default function TeacherProfile() {
       avatar_color: avatarColor,
     })
     setSaving(false)
+    setSavedToast(true)
+    setTimeout(() => setSavedToast(false), 2400)
   }
 
   async function handlePasswordChange() {
@@ -81,44 +81,64 @@ export default function TeacherProfile() {
   const uniqueClasses = [...new Set(teacherClasses.map(tc => tc.class?.name).filter(Boolean))]
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <Card hover={false}>
-        <div className="flex items-center gap-6 mb-6">
+    <div className="max-w-3xl space-y-5 relative">
+      {savedToast && (
+        <div className="fixed top-6 right-6 toast-success px-4 py-3 rounded-2xl text-sm font-semibold flex items-center gap-2 z-50">
+          <Check className="w-4 h-4" /> Profil yadda saxlandı
+        </div>
+      )}
+
+      <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
+        <span className="pastel-text">{t('profile')}</span>
+      </h1>
+
+      {/* Profile card */}
+      <div className="liquid-card p-6">
+        <div className="flex items-center gap-6 mb-6 flex-wrap">
           <Avatar name={fullName} color={avatarColor} size="xl" />
           <div>
-            <h2 className="text-lg font-medium text-gray-900">{fullName}</h2>
-            <p className="text-sm text-gray-500">{profile?.email}</p>
-            <div className="flex items-center gap-2 mt-2">
+            <h2 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{fullName}</h2>
+            <p className="text-sm" style={{ color: '#64748b' }}>{profile?.email}</p>
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               <EditionBadge edition={profile?.edition} govLabel={t('government')} />
-              <Badge variant="default">Muəllim</Badge>
+              <span className="pastel-badge pastel-badge-periwinkle">Müəllim</span>
             </div>
           </div>
         </div>
 
-        <div className="flex gap-2 mb-6">
+        <p className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: '#64748b' }}>Avatar rəngi</p>
+        <div className="flex gap-2 mb-6 flex-wrap">
           {colors.map(c => (
             <button
               key={c}
               onClick={() => setAvatarColor(c)}
-              className={`w-8 h-8 rounded-full transition-all ${avatarColor === c ? 'ring-2 ring-offset-2 ring-purple' : ''}`}
-              style={{ backgroundColor: c }}
+              className="w-8 h-8 rounded-full smooth-trans"
+              style={{
+                backgroundColor: c,
+                outline: avatarColor === c ? '3px solid rgba(255,255,255,0.9)' : 'none',
+                boxShadow: avatarColor === c
+                  ? '0 0 0 2px ' + c + ', 0 4px 12px ' + c + '40'
+                  : '0 2px 6px rgba(0,0,0,0.06)',
+              }}
             />
           ))}
         </div>
 
         <div className="space-y-4">
-          <Input label={t('full_name')} value={fullName} onChange={e => setFullName(e.target.value)} />
+          <div>
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('full_name')}</label>
+            <input className="pastel-input" value={fullName} onChange={e => setFullName(e.target.value)} />
+          </div>
 
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">{t('language')}</p>
-            <div className="flex gap-3">
+            <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('language')}</label>
+            <div className="flex gap-2 flex-wrap">
               {[{ v: 'az', l: 'Azərbaycanca' }, { v: 'en', l: 'English' }, { v: 'ru', l: 'Russkiy' }].map(lng => (
                 <button
                   key={lng.v}
                   onClick={() => setLanguage(lng.v)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors ${
-                    language === lng.v ? 'border-purple bg-purple-light text-purple' : 'border-border-soft text-gray-600 hover:bg-surface'
-                  }`}
+                  className={language === lng.v ? 'pastel-tab active' : 'pastel-tab'}
+                  style={{ borderRadius: 12 }}
                 >
                   {lng.l}
                 </button>
@@ -127,93 +147,147 @@ export default function TeacherProfile() {
           </div>
         </div>
 
-        <Button onClick={handleSave} loading={saving} className="mt-6">
-          {t('save')}
-        </Button>
-      </Card>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="btn-pastel mt-6"
+          style={{ padding: '12px 24px', fontSize: 14, opacity: saving ? 0.6 : 1 }}
+        >
+          {saving ? 'Yadda saxlanır...' : t('save')}
+        </button>
+      </div>
 
-      <Card hover={false}>
-        <h3 className="text-xs tracking-widest text-gray-400 uppercase mb-4">{t('subject')}</h3>
+      {/* Subjects */}
+      <div className="liquid-card p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="icon-chip icon-chip-mint" style={{ width: 32, height: 32, borderRadius: 10 }}>
+            <BookOpen className="w-4 h-4" />
+          </span>
+          <h3 className="text-xs tracking-widest uppercase font-semibold" style={{ color: '#64748b' }}>{t('subject')}</h3>
+        </div>
         {uniqueSubjects.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {uniqueSubjects.map(s => (
-              <Badge key={s} variant="default">{s}</Badge>
+              <span key={s} className="pastel-badge pastel-badge-mint" style={{ padding: '6px 14px', fontSize: 13 }}>{s}</span>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">Hələ fənn təyin olunmayib</p>
+          <p className="text-sm" style={{ color: '#94a3b8' }}>Hələ fənn təyin olunmayıb</p>
         )}
-      </Card>
+      </div>
 
-      <Card hover={false}>
-        <h3 className="text-xs tracking-widest text-gray-400 uppercase mb-4">{t('class_name')}</h3>
+      {/* Classes */}
+      <div className="liquid-card p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="icon-chip icon-chip-blue" style={{ width: 32, height: 32, borderRadius: 10 }}>
+            <Users className="w-4 h-4" />
+          </span>
+          <h3 className="text-xs tracking-widest uppercase font-semibold" style={{ color: '#64748b' }}>{t('class_name')}</h3>
+        </div>
         {uniqueClasses.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {uniqueClasses.map(c => (
-              <Badge key={c} variant="default">{c}</Badge>
+              <span key={c} className="pastel-badge pastel-badge-blue" style={{ padding: '6px 14px', fontSize: 13 }}>{c}</span>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">Hələ sinif təyin olunmayib</p>
+          <p className="text-sm" style={{ color: '#94a3b8' }}>Hələ sinif təyin olunmayıb</p>
         )}
-      </Card>
+      </div>
 
-      <Card hover={false}>
-        <h3 className="text-xs tracking-widest text-gray-400 uppercase mb-4">{t('notification_settings')}</h3>
+      {/* Notifications */}
+      <div className="liquid-card p-6">
+        <h3 className="text-xs tracking-widest uppercase mb-4 font-semibold" style={{ color: '#64748b' }}>{t('notification_settings')}</h3>
         <div className="space-y-3">
           {[
             { label: t('teacher_message_notif'), value: notifyMessage, set: setNotifyMessage },
             { label: t('assignment_notif'), value: notifyAssignment, set: setNotifyAssignment },
           ].map(n => (
-            <label key={n.label} className="flex items-center justify-between">
-              <span className="text-sm text-gray-700">{n.label}</span>
+            <label key={n.label} className="flex items-center justify-between cursor-pointer smooth-trans"
+              style={{ padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.4)' }}
+            >
+              <span className="text-sm font-medium" style={{ color: '#1a1a2e' }}>{n.label}</span>
               <button
-                onClick={() => { n.set(!n.value); }}
-                className={`w-10 h-6 rounded-full transition-colors relative ${n.value ? 'bg-purple' : 'bg-gray-200'}`}
+                onClick={() => n.set(!n.value)}
+                className="relative smooth-trans"
+                style={{
+                  width: 44,
+                  height: 24,
+                  borderRadius: 999,
+                  background: n.value ? 'linear-gradient(135deg, #7c6ee0, #5db8a3)' : 'rgba(124,110,224,0.18)',
+                  boxShadow: n.value ? '0 4px 12px rgba(124,110,224,0.25)' : 'none',
+                }}
               >
-                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${n.value ? 'left-5' : 'left-1'}`} />
+                <span
+                  className="absolute top-1 smooth-trans"
+                  style={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: '50%',
+                    background: '#fff',
+                    left: n.value ? 24 : 4,
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                  }}
+                />
               </button>
             </label>
           ))}
         </div>
-      </Card>
+      </div>
 
-      <Card hover={false}>
+      {/* Password change */}
+      <div className="liquid-card p-6">
         <button
           onClick={() => setShowPassword(!showPassword)}
-          className="flex items-center gap-2 text-sm text-purple hover:text-purple-dark transition-colors"
+          className="flex items-center gap-2 text-sm font-semibold smooth-trans hover:opacity-70"
+          style={{ color: '#7c6ee0' }}
         >
           <Lock className="w-4 h-4" />
           {t('change_password')}
         </button>
         {showPassword && (
           <div className="mt-4 space-y-3">
-            <Input
-              label={t('new_password')}
-              type="password"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              placeholder="Minimum 6 simvol"
-            />
-            <Input
-              label={t('confirm_password') || 'Şifrəni təsdiqlə'}
-              type="password"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              placeholder="Şifrəni təkrar daxil edin"
-            />
+            <div>
+              <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('new_password')}</label>
+              <input
+                type="password"
+                className="pastel-input"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="Minimum 6 simvol"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('confirm_password') || 'Şifrəni təsdiqlə'}</label>
+              <input
+                type="password"
+                className="pastel-input"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                placeholder="Şifrəni təkrar daxil edin"
+              />
+            </div>
             {passwordError && (
-              <p className="text-sm text-red-600">{passwordError}</p>
+              <div className="flex items-center gap-2 text-sm" style={{ color: '#b83b54' }}>
+                <AlertCircle className="w-4 h-4" /> {passwordError}
+              </div>
             )}
             {passwordSuccess && (
-              <p className="text-sm text-green-600">{passwordSuccess}</p>
+              <div className="flex items-center gap-2 text-sm" style={{ color: '#3d8a73' }}>
+                <Check className="w-4 h-4" /> {passwordSuccess}
+              </div>
             )}
-            <Button onClick={handlePasswordChange} loading={passwordSaving} disabled={newPassword.length < 6}>
-              {t('update_password')}
-            </Button>
+            <button
+              onClick={handlePasswordChange}
+              disabled={passwordSaving || newPassword.length < 6}
+              className="btn-pastel"
+              style={{ padding: '10px 22px', fontSize: 13, opacity: (passwordSaving || newPassword.length < 6) ? 0.5 : 1 }}
+            >
+              {passwordSaving ? '...' : t('update_password')}
+            </button>
           </div>
         )}
-      </Card>
+      </div>
     </div>
   )
 }

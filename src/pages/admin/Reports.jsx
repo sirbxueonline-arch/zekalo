@@ -261,7 +261,7 @@ export default function Reports() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-gray-900">{t('reports')}</h1>
+      <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('reports')}</span></h1>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

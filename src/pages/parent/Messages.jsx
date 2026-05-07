@@ -162,41 +162,82 @@ export default function ParentMessages() {
   if (loading) return <PageSpinner />
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] -m-8 overflow-hidden">
-      <div className="w-80 bg-white border-r border-border-soft flex flex-col">
-        <div className="p-4 border-b border-border-soft flex items-center justify-between">
-          <h2 className="text-sm font-medium text-gray-900">{t('messages')}</h2>
+    <div className="flex h-[calc(100vh-9rem)] -mx-5 lg:-mx-8 -my-7 overflow-hidden">
+      {/* Left panel */}
+      <div
+        className="w-80 flex flex-col flex-shrink-0"
+        style={{
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.5) 100%)',
+          backdropFilter: 'blur(24px) saturate(1.6)',
+          borderRight: '1px solid rgba(124,110,224,0.15)',
+        }}
+      >
+        <div
+          className="p-4 flex items-center justify-between"
+          style={{ borderBottom: '1px solid rgba(124,110,224,0.15)' }}
+        >
+          <h2 className="text-lg font-extrabold" style={{ color: '#1a1a2e' }}>
+            <span className="pastel-text">{t('messages')}</span>
+          </h2>
           <button
             onClick={() => setShowCompose(true)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface transition-colors text-purple"
+            className="w-9 h-9 flex items-center justify-center rounded-full transition-all"
+            style={{
+              background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+              color: '#fff',
+              boxShadow: '0 4px 12px rgba(124,110,224,0.25)',
+            }}
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto">
           {threads.length === 0 ? (
-            <div className="p-4 text-sm text-gray-400 text-center">{t('no_messages')}</div>
+            <div className="p-6 text-center">
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                style={{ background: 'rgba(124,110,224,0.10)' }}
+              >
+                <MessageSquare className="w-6 h-6" style={{ color: '#7c6ee0' }} />
+              </div>
+              <p className="text-sm font-medium" style={{ color: '#1a1a2e' }}>{t('no_messages')}</p>
+              <p className="text-xs mt-1" style={{ color: '#64748b' }}>Yeni mesaj başladın</p>
+            </div>
           ) : (
             threads.map(thread => {
               const other = profiles[thread.otherId]
+              const isActive = activeThread?.threadId === thread.threadId
               return (
                 <button
                   key={thread.threadId}
                   onClick={() => selectThread(thread)}
-                  className={`w-full text-left px-4 py-3 border-b border-border-soft transition-colors ${
-                    activeThread?.threadId === thread.threadId ? 'bg-purple-light' : 'hover:bg-surface'
-                  }`}
+                  className="w-full text-left px-4 py-3 transition-colors"
+                  style={{
+                    background: isActive ? 'rgba(124,110,224,0.10)' : 'transparent',
+                    borderBottom: '1px solid rgba(124,110,224,0.08)',
+                  }}
                 >
                   <div className="flex items-center gap-3">
                     <Avatar name={other?.full_name} color={other?.avatar_color} size="sm" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
-                        <p className={`text-sm truncate ${thread.unread ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                        <p
+                          className="text-sm truncate"
+                          style={{
+                            fontWeight: thread.unread ? 700 : 600,
+                            color: '#1a1a2e',
+                          }}
+                        >
                           {other?.full_name || t('teacher')}
                         </p>
-                        {thread.unread && <div className="w-2 h-2 rounded-full bg-purple flex-shrink-0" />}
+                        {thread.unread && (
+                          <div
+                            className="w-2 h-2 rounded-full flex-shrink-0"
+                            style={{ background: '#7c6ee0' }}
+                          />
+                        )}
                       </div>
-                      <p className="text-xs text-gray-500 truncate">{thread.lastMessage.content}</p>
+                      <p className="text-xs truncate" style={{ color: '#64748b' }}>{thread.lastMessage.content}</p>
                     </div>
                   </div>
                 </button>
@@ -206,41 +247,100 @@ export default function ParentMessages() {
         </div>
       </div>
 
+      {/* Right panel */}
       <div className="flex-1 flex flex-col">
         {!activeThread ? (
-          <EmptyState icon={MessageSquare} title={t('select_chat')} description={t('select_chat_desc')} />
+          <div className="flex-1 flex items-center justify-center p-8">
+            <div className="liquid-card p-10 text-center max-w-sm">
+              <div
+                className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                style={{ background: 'rgba(124,110,224,0.12)' }}
+              >
+                <MessageSquare className="w-8 h-8" style={{ color: '#7c6ee0' }} />
+              </div>
+              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{t('select_chat')}</h3>
+              <p className="text-sm mt-1" style={{ color: '#64748b' }}>{t('select_chat_desc')}</p>
+            </div>
+          </div>
         ) : (
           <>
-            <div className="px-6 py-4 border-b border-border-soft flex items-center gap-3">
-              <Avatar name={profiles[activeThread.otherId]?.full_name} color={profiles[activeThread.otherId]?.avatar_color} size="sm" />
-              <span className="text-sm font-medium text-gray-900">{profiles[activeThread.otherId]?.full_name}</span>
+            <div
+              className="px-6 py-4 flex items-center gap-3"
+              style={{
+                borderBottom: '1px solid rgba(124,110,224,0.15)',
+                background: 'rgba(255,255,255,0.5)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <Avatar
+                name={profiles[activeThread.otherId]?.full_name}
+                color={profiles[activeThread.otherId]?.avatar_color}
+                size="sm"
+              />
+              <span className="text-sm font-bold" style={{ color: '#1a1a2e' }}>
+                {profiles[activeThread.otherId]?.full_name}
+              </span>
             </div>
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
-              {threadMessages.map(msg => (
-                <div key={msg.id} className={`flex ${msg.sender_id === profile.id ? 'justify-end' : ''}`}>
-                  <div className={`max-w-[70%] rounded-xl px-4 py-3 text-sm ${
-                    msg.sender_id === profile.id
-                      ? 'bg-purple text-white'
-                      : 'bg-white border border-border-soft text-gray-900'
-                  }`}>
-                    {msg.content}
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-3">
+              {threadMessages.map(msg => {
+                const isMe = msg.sender_id === profile.id
+                return (
+                  <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                    <div
+                      className="max-w-[70%] rounded-2xl px-4 py-3 text-sm"
+                      style={
+                        isMe
+                          ? {
+                              background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                              color: '#fff',
+                              boxShadow: '0 4px 12px rgba(124,110,224,0.2)',
+                            }
+                          : {
+                              background: 'rgba(255,255,255,0.85)',
+                              backdropFilter: 'blur(12px)',
+                              border: '1px solid rgba(124,110,224,0.15)',
+                              color: '#1a1a2e',
+                              boxShadow: '0 2px 8px rgba(140,120,200,0.06)',
+                            }
+                      }
+                    >
+                      {msg.content}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
               <div ref={messagesEndRef} />
             </div>
-            <div className="px-6 py-4 border-t border-border-soft flex gap-3">
+            <div
+              className="px-6 py-4 flex gap-3"
+              style={{
+                borderTop: '1px solid rgba(124,110,224,0.15)',
+                background: 'rgba(255,255,255,0.5)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
               <input
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && sendMessage()}
                 placeholder={t('type_message')}
-                className="flex-1 border border-border-soft rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+                className="flex-1 rounded-full px-5 py-3 text-sm focus:outline-none transition-colors"
+                style={{
+                  background: 'rgba(255,255,255,0.6)',
+                  border: '1px solid rgba(124,110,224,0.25)',
+                  backdropFilter: 'blur(12px)',
+                  color: '#1a1a2e',
+                }}
               />
               <button
                 onClick={sendMessage}
                 disabled={!input.trim()}
-                className="bg-purple text-white rounded-xl px-4 hover:bg-purple-dark transition-colors disabled:opacity-50"
+                className="rounded-full w-12 h-12 flex items-center justify-center transition-all disabled:opacity-50"
+                style={{
+                  background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                  color: '#fff',
+                  boxShadow: '0 4px 12px rgba(124,110,224,0.25)',
+                }}
               >
                 <Send className="w-5 h-5" />
               </button>
@@ -262,13 +362,19 @@ export default function ParentMessages() {
             ))}
           </Select>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('new_message')}</label>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: '#1a1a2e' }}>{t('new_message')}</label>
             <textarea
               rows={4}
               value={composeMessage}
               onChange={e => setComposeMessage(e.target.value)}
               placeholder={t('type_message')}
-              className="w-full border border-border-soft rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent resize-none"
+              className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none resize-none transition-colors"
+              style={{
+                background: 'rgba(255,255,255,0.6)',
+                border: '1px solid rgba(124,110,224,0.25)',
+                backdropFilter: 'blur(12px)',
+                color: '#1a1a2e',
+              }}
             />
           </div>
           <div className="flex justify-end gap-3">

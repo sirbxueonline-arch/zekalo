@@ -3,7 +3,6 @@ import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
-import { StatusBadge } from '../../components/ui/Badge'
 import { Calendar, CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight, BarChart2, Users } from 'lucide-react'
 import { fmtNumeric } from '../../lib/dateUtils'
 
@@ -13,6 +12,34 @@ const MONTH_NAMES = [
 ]
 
 const DAY_HEADERS = ['B.e', 'Ç.a', 'Ç', 'C.a', 'C', 'Ş', 'B']
+
+const PASTEL_COLORS = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde']
+function pastelColor(name = '') {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
+  return PASTEL_COLORS[Math.abs(h) % PASTEL_COLORS.length]
+}
+
+function childInitials(name = '') {
+  return name ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?'
+}
+
+function StatusPill({ status }) {
+  const styles = {
+    present: { bg: 'rgba(93,184,163,0.12)',  color: '#5db8a3', border: 'rgba(93,184,163,0.3)',  label: 'İştirak' },
+    absent:  { bg: 'rgba(232,168,124,0.18)', color: '#c47a4a', border: 'rgba(232,168,124,0.35)', label: 'Qayıb' },
+    late:    { bg: 'rgba(232,168,124,0.12)', color: '#c47a4a', border: 'rgba(232,168,124,0.3)',  label: 'Gecikmə' },
+  }
+  const s = styles[status] || styles.absent
+  return (
+    <span
+      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
+      style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}` }}
+    >
+      {s.label}
+    </span>
+  )
+}
 
 export default function ParentAttendance() {
   const { profile, t } = useAuth()
@@ -62,8 +89,8 @@ export default function ParentAttendance() {
     return (
       <EmptyState
         icon={Users}
-        title={t('error')}
-        description={t('error')}
+        title="Uşaq tapılmadı"
+        description="Hesabınıza bağlı uşaq profili yoxdur."
       />
     )
   }
@@ -92,201 +119,298 @@ export default function ParentAttendance() {
     calendarDays.push({ day: d, dateStr, status: recordMap[dateStr] || null })
   }
 
-  function dayCellClass(cell) {
-    if (!cell) return 'aspect-square flex items-center justify-center text-xs font-medium'
-    const base = 'aspect-square flex items-center justify-center text-xs font-medium transition-colors'
+  function dayCellStyle(cell) {
+    if (!cell) return { className: 'aspect-square flex items-center justify-center text-xs font-medium', style: {} }
+    const baseClass = 'aspect-square flex items-center justify-center text-xs font-bold transition-all'
     const isToday = cell.dateStr === todayStr
-    if (cell.status === 'present') return `${base} bg-[#1D9E75] text-white rounded-lg font-bold`
-    if (cell.status === 'absent') return `${base} bg-red-500 text-white rounded-lg font-bold`
-    if (cell.status === 'late') return `${base} bg-amber-400 text-white rounded-lg font-bold`
-    if (isToday) return `${base} ring-2 ring-purple rounded-lg text-purple font-bold`
-    return `${base} text-gray-500`
+
+    if (cell.status === 'present') {
+      return {
+        className: `${baseClass} rounded-xl text-white`,
+        style: { background: 'linear-gradient(135deg, #5db8a3 0%, #4ea08c 100%)', boxShadow: '0 2px 8px rgba(93,184,163,0.3)' },
+      }
+    }
+    if (cell.status === 'absent') {
+      return {
+        className: `${baseClass} rounded-xl text-white`,
+        style: { background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', boxShadow: '0 2px 8px rgba(239,68,68,0.25)' },
+      }
+    }
+    if (cell.status === 'late') {
+      return {
+        className: `${baseClass} rounded-xl text-white`,
+        style: { background: 'linear-gradient(135deg, #e8a87c 0%, #d4915f 100%)', boxShadow: '0 2px 8px rgba(232,168,124,0.3)' },
+      }
+    }
+    if (isToday) {
+      return {
+        className: `${baseClass} rounded-xl`,
+        style: { border: '2px solid #7c6ee0', color: '#7c6ee0', background: 'rgba(124,110,224,0.05)' },
+      }
+    }
+    return {
+      className: `${baseClass} rounded-xl`,
+      style: { color: '#64748b' },
+    }
   }
 
   const missedRecords = records.filter(r => r.status !== 'present')
 
   return (
     <div className="space-y-6">
-      {/* Child selector pills */}
+      {/* Page title */}
+      <div>
+        <h1 className="text-3xl sm:text-4xl font-extrabold" style={{ color: '#1a1a2e', letterSpacing: '-0.02em' }}>
+          <span className="pastel-text">Davamiyyət</span>
+        </h1>
+        <p className="text-sm mt-1" style={{ color: '#64748b' }}>Aylıq iştirak və qayıb tarixçəsi</p>
+      </div>
+
+      {/* Child glass switcher */}
       {children.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {children.map(child => (
-            <button
-              key={child.id}
-              onClick={() => setSelectedChild(child)}
-              className={`px-4 py-2 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
-                selectedChild?.id === child.id
-                  ? 'border-purple bg-purple-light text-purple'
-                  : 'border-border-soft text-gray-500 hover:bg-surface'
-              }`}
-            >
-              {child.full_name}
-            </button>
-          ))}
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {children.map(child => {
+            const active = selectedChild?.id === child.id
+            const color = pastelColor(child.full_name)
+            return (
+              <button
+                key={child.id}
+                onClick={() => setSelectedChild(child)}
+                className="flex items-center gap-2.5 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0"
+                style={
+                  active
+                    ? {
+                        background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                        color: '#fff',
+                        border: '1px solid rgba(124,110,224,0.3)',
+                        boxShadow: '0 4px 12px rgba(124,110,224,0.25)',
+                      }
+                    : {
+                        background: 'rgba(255,255,255,0.6)',
+                        color: '#1a1a2e',
+                        border: '1px solid rgba(124,110,224,0.2)',
+                        backdropFilter: 'blur(12px)',
+                      }
+                }
+              >
+                <span
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                  style={{ background: active ? 'rgba(255,255,255,0.25)' : color }}
+                >
+                  {childInitials(child.full_name)}
+                </span>
+                {child.full_name}
+              </button>
+            )
+          })}
         </div>
       )}
 
       {loading ? (
         <PageSpinner />
       ) : records.length === 0 ? (
-        <EmptyState icon={Calendar} title={t('no_attendance')} description={t('attendance_will_appear')} />
+        <div className="liquid-card p-12">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+              style={{ background: 'rgba(124,110,224,0.12)' }}
+            >
+              <Calendar className="w-8 h-8" style={{ color: '#7c6ee0' }} />
+            </div>
+            <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{t('no_attendance')}</h3>
+            <p className="text-sm mt-1" style={{ color: '#64748b' }}>{t('attendance_will_appear')}</p>
+          </div>
+        </div>
       ) : (
         <>
-          {/* 4 stat cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Davamiyyət % */}
-            <div className="bg-white border border-border-soft rounded-xl p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-light flex-shrink-0">
-                <BarChart2 className="w-5 h-5 text-purple" />
+          {/* Stat cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="liquid-card p-4 flex items-center gap-3">
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(124,110,224,0.12)' }}
+              >
+                <BarChart2 className="w-5 h-5" style={{ color: '#7c6ee0' }} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 leading-none">{pct}%</p>
-                <p className="text-xs text-gray-400 mt-1">Davamiyyət %</p>
+                <p className="text-2xl font-extrabold leading-none" style={{ color: '#7c6ee0' }}>{pct}%</p>
+                <p className="text-xs mt-1" style={{ color: '#64748b' }}>Davamiyyət %</p>
               </div>
             </div>
 
-            {/* İştirak */}
-            <div className="bg-white border border-border-soft rounded-xl p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#e6f7f2] flex-shrink-0">
-                <CheckCircle2 className="w-5 h-5 text-[#1D9E75]" />
+            <div className="liquid-card p-4 flex items-center gap-3">
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(93,184,163,0.15)' }}
+              >
+                <CheckCircle2 className="w-5 h-5" style={{ color: '#5db8a3' }} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 leading-none">{present}</p>
-                <p className="text-xs text-gray-400 mt-1">İştirak</p>
+                <p className="text-2xl font-extrabold leading-none" style={{ color: '#5db8a3' }}>{present}</p>
+                <p className="text-xs mt-1" style={{ color: '#64748b' }}>İştirak</p>
               </div>
             </div>
 
-            {/* Qayıb */}
-            <div className="bg-white border border-border-soft rounded-xl p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-red-50 flex-shrink-0">
-                <XCircle className="w-5 h-5 text-red-500" />
+            <div className="liquid-card p-4 flex items-center gap-3">
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(239,68,68,0.10)' }}
+              >
+                <XCircle className="w-5 h-5" style={{ color: '#ef4444' }} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 leading-none">{absent}</p>
-                <p className="text-xs text-gray-400 mt-1">Qayıb</p>
+                <p className="text-2xl font-extrabold leading-none" style={{ color: '#ef4444' }}>{absent}</p>
+                <p className="text-xs mt-1" style={{ color: '#64748b' }}>Qayıb</p>
               </div>
             </div>
 
-            {/* Gecikmə */}
-            <div className="bg-white border border-border-soft rounded-xl p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-amber-50 flex-shrink-0">
-                <Clock className="w-5 h-5 text-amber-500" />
+            <div className="liquid-card p-4 flex items-center gap-3">
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(232,168,124,0.15)' }}
+              >
+                <Clock className="w-5 h-5" style={{ color: '#e8a87c' }} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 leading-none">{late}</p>
-                <p className="text-xs text-gray-400 mt-1">Gecikmə</p>
+                <p className="text-2xl font-extrabold leading-none" style={{ color: '#e8a87c' }}>{late}</p>
+                <p className="text-xs mt-1" style={{ color: '#64748b' }}>Gecikmə</p>
               </div>
             </div>
           </div>
 
-          {/* Monthly calendar */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm px-6 py-6">
-            {/* Navigation header */}
+          {/* Calendar */}
+          <div className="liquid-card p-6">
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={() => setCurrentMonth(new Date(year, month - 1))}
-                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface text-gray-500 hover:text-purple transition-colors"
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-105"
+                style={{
+                  background: 'rgba(255,255,255,0.6)',
+                  color: '#7c6ee0',
+                  border: '1px solid rgba(124,110,224,0.2)',
+                  backdropFilter: 'blur(12px)',
+                }}
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <h3 className="text-base font-semibold text-gray-900">
+              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>
                 {MONTH_NAMES[month]} {year}
               </h3>
               <button
                 onClick={() => setCurrentMonth(new Date(year, month + 1))}
-                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface text-gray-500 hover:text-purple transition-colors"
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-105"
+                style={{
+                  background: 'rgba(255,255,255,0.6)',
+                  color: '#7c6ee0',
+                  border: '1px solid rgba(124,110,224,0.2)',
+                  backdropFilter: 'blur(12px)',
+                }}
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Day-of-week headers */}
-            <div className="grid grid-cols-7 gap-1 mb-1">
+            <div className="grid grid-cols-7 gap-1.5 mb-1">
               {DAY_HEADERS.map(d => (
-                <div key={d} className="text-xs text-gray-400 text-center py-2 font-medium">
+                <div
+                  key={d}
+                  className="text-xs text-center py-2 font-semibold uppercase tracking-wider"
+                  style={{ color: '#64748b' }}
+                >
                   {d}
                 </div>
               ))}
             </div>
 
-            {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-1">
-              {calendarDays.map((cell, i) => (
-                <div key={i} className={dayCellClass(cell)}>
-                  {cell?.day}
-                </div>
-              ))}
+            <div className="grid grid-cols-7 gap-1.5">
+              {calendarDays.map((cell, i) => {
+                const { className, style } = dayCellStyle(cell)
+                return (
+                  <div key={i} className={className} style={style}>
+                    {cell?.day}
+                  </div>
+                )
+              })}
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-4 mt-5 pt-4 border-t border-border-soft">
-              <span className="flex items-center gap-1.5 text-xs text-gray-500">
-                <span className="w-3 h-3 rounded-full bg-[#1D9E75] inline-block" />
+            <div
+              className="flex flex-wrap items-center gap-4 mt-6 pt-4"
+              style={{ borderTop: '1px solid rgba(124,110,224,0.1)' }}
+            >
+              <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#64748b' }}>
+                <span className="w-3 h-3 rounded-md" style={{ background: '#5db8a3' }} />
                 İştirak
               </span>
-              <span className="flex items-center gap-1.5 text-xs text-gray-500">
-                <span className="w-3 h-3 rounded-full bg-red-500 inline-block" />
+              <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#64748b' }}>
+                <span className="w-3 h-3 rounded-md" style={{ background: '#ef4444' }} />
                 Qayıb
               </span>
-              <span className="flex items-center gap-1.5 text-xs text-gray-500">
-                <span className="w-3 h-3 rounded-full bg-amber-400 inline-block" />
+              <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#64748b' }}>
+                <span className="w-3 h-3 rounded-md" style={{ background: '#e8a87c' }} />
                 Gecikmə
               </span>
             </div>
           </div>
 
-          {/* Attendance log — only non-present records */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-border-soft">
-              <h2 className="text-sm font-semibold text-gray-700">Buraxılmış dərslər</h2>
+          {/* Missed log */}
+          <div className="liquid-card overflow-hidden">
+            <div className="px-6 py-4" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
+              <h2 className="text-base font-bold" style={{ color: '#1a1a2e' }}>Buraxılmış dərslər</h2>
             </div>
             {missedRecords.length === 0 ? (
-              <div className="px-6 py-10 text-center text-sm text-gray-400">
-                Buraxılmış dərs yoxdur. Əla!
+              <div className="px-6 py-12 text-center">
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                  style={{ background: 'rgba(93,184,163,0.12)' }}
+                >
+                  <CheckCircle2 className="w-7 h-7" style={{ color: '#5db8a3' }} />
+                </div>
+                <p className="text-base font-bold" style={{ color: '#1a1a2e' }}>Əla iş!</p>
+                <p className="text-sm mt-1" style={{ color: '#64748b' }}>Buraxılmış dərs yoxdur</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-surface border-b border-border-soft">
-                      <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-6 py-3 text-left">
+                    <tr style={{ background: 'rgba(248,247,251,0.8)', borderBottom: '1px solid rgba(124,110,224,0.1)' }}>
+                      <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>
                         Tarix
                       </th>
-                      <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-6 py-3 text-left">
+                      <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>
                         Sinif
                       </th>
-                      <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-6 py-3 text-left">
+                      <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>
                         Status
                       </th>
-                      <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-6 py-3 text-left">
+                      <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>
                         Qeyd
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {missedRecords.map(r => {
-                      const borderColor =
-                        r.status === 'absent' ? 'border-l-red-400' : 'border-l-amber-400'
-                      return (
-                        <tr
-                          key={r.id}
-                          className={`border-b border-border-soft last:border-0 hover:bg-surface transition-colors border-l-4 ${borderColor}`}
-                        >
-                          <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                            {fmtNumeric(r.date)}
-                          </td>
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                            {r.class?.name || '—'}
-                          </td>
-                          <td className="px-6 py-4">
-                            <StatusBadge status={r.status} />
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-400">
-                            {r.note || '—'}
-                          </td>
-                        </tr>
-                      )
-                    })}
+                    {missedRecords.map((r, idx, arr) => (
+                      <tr
+                        key={r.id}
+                        className="transition-colors hover:bg-white/40"
+                        style={{
+                          borderBottom: idx === arr.length - 1 ? 'none' : '1px solid rgba(124,110,224,0.08)',
+                        }}
+                      >
+                        <td className="px-6 py-4 text-sm whitespace-nowrap" style={{ color: '#64748b' }}>
+                          {fmtNumeric(r.date)}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-semibold" style={{ color: '#1a1a2e' }}>
+                          {r.class?.name || '—'}
+                        </td>
+                        <td className="px-6 py-4">
+                          <StatusPill status={r.status} />
+                        </td>
+                        <td className="px-6 py-4 text-sm" style={{ color: '#64748b' }}>
+                          {r.note || '—'}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

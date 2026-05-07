@@ -13,16 +13,16 @@ import Input from '../../components/ui/Input'
 import { Select, Textarea } from '../../components/ui/Input'
 
 const audienceConfig = {
-  all: { label: 'Hamısı', className: 'bg-purple-light text-purple-dark border border-[#AFA9EC]' },
-  parents: { label: 'Valideynlər', className: 'bg-teal-light text-[#085041] border border-teal-mid' },
-  teachers: { label: 'Müəllimlər', className: 'bg-[#faeeda] text-[#633806] border border-[#EF9F27]' },
-  students: { label: 'Şagirdlər', className: 'bg-blue-50 text-blue-700 border border-blue-200' },
+  all:      { label: 'Hamısı',      className: 'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7] border border-[rgba(124,110,224,0.28)]' },
+  parents:  { label: 'Valideynlər', className: 'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]' },
+  teachers: { label: 'Müəllimlər',  className: 'bg-[rgba(232,168,124,0.15)] text-[#a55f33] border border-[rgba(232,168,124,0.4)]' },
+  students: { label: 'Şagirdlər',   className: 'bg-[rgba(107,157,222,0.14)] text-[#3d6da7] border border-[rgba(107,157,222,0.32)]' },
 }
 
 const statusConfig = {
-  draft: { label: 'Qaralama', className: 'bg-gray-100 text-gray-500 border border-gray-200', dot: null },
-  active: { label: 'Aktiv', className: 'bg-[#D1FAF0] text-[#085041] border border-teal-mid', dot: 'bg-[#1D9E75] animate-pulse' },
-  closed: { label: 'Bağlandı', className: 'bg-red-50 text-red-700 border border-red-200', dot: 'bg-red-500' },
+  draft:  { label: 'Qaralama', className: 'bg-[rgba(100,116,139,0.10)] text-[#475569] border border-[rgba(100,116,139,0.22)]', dot: null },
+  active: { label: 'Aktiv',    className: 'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]', dot: 'bg-[#5db8a3] animate-pulse' },
+  closed: { label: 'Bağlandı', className: 'bg-[rgba(239,68,68,0.08)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]', dot: 'bg-red-500' },
 }
 
 
@@ -194,8 +194,8 @@ export default function Surveys() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">Sorğular</h1>
-          <p className="text-sm text-gray-500 mt-1">{surveys.length} sorğu · {activeCount} aktiv · {totalResponses} cavab</p>
+          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Sorğular</span></h1>
+          <p className="text-sm text-[#64748b] mt-1">{surveys.length} sorğu · {activeCount} aktiv · {totalResponses} cavab</p>
         </div>
         <Button onClick={() => { resetForm(); setAddModal(true) }}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Sorğu yarat</span>
@@ -205,26 +205,29 @@ export default function Surveys() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         <Card hover={false} className="p-5">
-          <p className="text-xs text-gray-500 mb-1">Aktiv sorğular</p>
-          <p className="text-3xl font-bold text-purple">{activeCount}</p>
+          <p className="text-xs uppercase tracking-wider font-semibold mb-1" style={{ color: '#64748b' }}>Aktiv sorğular</p>
+          <p className="text-3xl font-bold" style={{ color: '#7c6ee0' }}>{activeCount}</p>
         </Card>
         <Card hover={false} className="p-5">
-          <p className="text-xs text-gray-500 mb-1">Ümumi cavablar</p>
-          <p className="text-3xl font-bold text-teal">{totalResponses}</p>
+          <p className="text-xs uppercase tracking-wider font-semibold mb-1" style={{ color: '#64748b' }}>Ümumi cavablar</p>
+          <p className="text-3xl font-bold" style={{ color: '#5db8a3' }}>{totalResponses}</p>
         </Card>
         <Card hover={false} className="p-5">
-          <p className="text-xs text-gray-500 mb-1">Cəmi sorğu</p>
-          <p className="text-3xl font-bold text-gray-900">{surveys.length}</p>
+          <p className="text-xs uppercase tracking-wider font-semibold mb-1" style={{ color: '#64748b' }}>Cəmi sorğu</p>
+          <p className="text-3xl font-bold" style={{ color: '#1a1a2e' }}>{surveys.length}</p>
         </Card>
       </div>
 
       {/* Filter */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         {[['all', 'Hamısı'], ['draft', 'Qaralama'], ['active', 'Aktiv'], ['closed', 'Bağlandı']].map(([val, label]) => (
           <button
             key={val}
             onClick={() => setFilterStatus(val)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${filterStatus === val ? 'bg-purple text-white' : 'bg-surface text-gray-600 hover:text-purple'}`}
+            className="px-4 py-2 rounded-full text-sm font-semibold transition-all backdrop-blur-md"
+            style={filterStatus === val
+              ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 6px 16px rgba(124,110,224,0.25)' }
+              : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
           >
             {label}
           </button>

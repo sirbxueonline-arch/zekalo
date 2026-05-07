@@ -7,8 +7,12 @@ export default function StudentProgress() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-serif text-3xl text-gray-900">Tərəqqim</h1>
-        <p className="text-sm text-gray-500 mt-1">Fənlər üzrə qiymət dinamikası və inkişaf trendləri</p>
+        <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+          <span className="pastel-text">Tərəqqim</span>
+        </h1>
+        <p className="text-sm mt-2" style={{ color: '#64748b' }}>
+          Fənlər üzrə qiymət dinamikası və inkişaf trendləri
+        </p>
       </div>
       <ProgressView studentId={profile?.id} studentName={profile?.full_name} />
     </div>

@@ -25,21 +25,29 @@ const ROOMS = [
 const HOURS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00']
 
 const roomTypeColors = {
-  classroom: 'bg-blue-50 text-blue-700',
-  lab: 'bg-green-50 text-green-700',
-  meeting: 'bg-purple-light text-purple-dark',
-  sports: 'bg-orange-50 text-orange-700',
-  library: 'bg-amber-50 text-amber-700',
-  arts: 'bg-pink-50 text-pink-700',
+  classroom: 'bg-[rgba(107,157,222,0.14)] text-[#3d6da7]',
+  lab:       'bg-[rgba(93,184,163,0.14)] text-[#3a8170]',
+  meeting:   'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7]',
+  sports:    'bg-[rgba(232,168,124,0.16)] text-[#a55f33]',
+  library:   'bg-[rgba(232,168,124,0.14)] text-[#a55f33]',
+  arts:      'bg-[rgba(157,146,234,0.14)] text-[#5e4fc7]',
 }
 
 const bookingColors = [
-  'bg-purple text-white',
-  'bg-teal text-white',
-  'bg-blue-500 text-white',
-  'bg-orange-400 text-white',
-  'bg-pink-500 text-white',
-  'bg-indigo-500 text-white',
+  'text-white',
+  'text-white',
+  'text-white',
+  'text-white',
+  'text-white',
+  'text-white',
+]
+const bookingGradients = [
+  'linear-gradient(135deg, #7c6ee0 0%, #9d92ea 100%)',
+  'linear-gradient(135deg, #5db8a3 0%, #7fcab8 100%)',
+  'linear-gradient(135deg, #6b9dde 0%, #5283c7 100%)',
+  'linear-gradient(135deg, #e8a87c 0%, #cf8d62 100%)',
+  'linear-gradient(135deg, #9d92ea 0%, #7c6ee0 100%)',
+  'linear-gradient(135deg, #7fcab8 0%, #5db8a3 100%)',
 ]
 
 function formatDate(date) {
@@ -181,8 +189,8 @@ export default function RoomBooking() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">Otaq Rezervasiyası</h1>
-          <p className="text-sm text-gray-500 mt-1">{bookings.length} bu gün üçün rezervasiya</p>
+          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Otaq Rezervasiyası</span></h1>
+          <p className="text-sm text-[#64748b] mt-1">{bookings.length} bu gün üçün rezervasiya</p>
         </div>
         <Button onClick={() => { resetForm(); setAddModal(true) }}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Rezervasiya et</span>
@@ -240,8 +248,8 @@ export default function RoomBooking() {
                     {roomBookings.map((booking, bi) => (
                       <div
                         key={booking.id}
-                        className={`absolute top-1 bottom-1 rounded px-2 flex items-center overflow-hidden ${bookingColors[bi % bookingColors.length]}`}
-                        style={bookingStyle(booking, bi)}
+                        className={`absolute top-1 bottom-1 rounded-lg px-2 flex items-center overflow-hidden ${bookingColors[bi % bookingColors.length]}`}
+                        style={{ ...bookingStyle(booking, bi), background: bookingGradients[bi % bookingGradients.length], boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)' }}
                         title={`${booking.teacher_name}: ${booking.purpose}`}
                       >
                         <span className="text-xs font-medium truncate">{booking.teacher_name} · {booking.purpose}</span>
@@ -270,7 +278,7 @@ export default function RoomBooking() {
                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roomTypeColors[room?.type] || 'bg-surface text-gray-600'}`}>
                       {room?.name || booking.room_id}
                     </span>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${bookingColors[i % bookingColors.length]}`}>
+                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${bookingColors[i % bookingColors.length]}`} style={{ background: bookingGradients[i % bookingGradients.length], boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)' }}>
                       {booking.time_from} – {booking.time_to}
                     </span>
                   </div>

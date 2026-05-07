@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import Card from '../../components/ui/Card'
-import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
 import Input from '../../components/ui/Input'
-import { Select } from '../../components/ui/Input'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import { BookOpen, Plus, Trash2, CheckSquare, Square, AlertCircle, Clock } from 'lucide-react'
@@ -18,25 +16,22 @@ const COMMON_SUBJECTS = [
   'İnformatika', 'Musiqi', 'Təsviri incəsənət', 'Bədən tərbiyəsi',
 ]
 
-const SUBJECT_COLORS = [
-  'bg-purple-light text-purple-dark border border-[#AFA9EC]',
-  'bg-teal-light text-[#085041] border border-teal-mid',
-  'bg-[#faeeda] text-[#633806] border border-[#EF9F27]',
-  'bg-blue-50 text-blue-700 border border-blue-200',
-  'bg-green-50 text-green-700 border border-green-200',
-  'bg-rose-50 text-rose-700 border border-rose-200',
-  'bg-amber-50 text-amber-700 border border-amber-200',
-  'bg-indigo-50 text-indigo-700 border border-indigo-200',
+// Pastel subject palette (rotated)
+const SUBJECT_PALETTES = [
+  { bg: 'rgba(124,110,224,0.16)', color: '#5448a8', border: 'rgba(124,110,224,0.30)' },
+  { bg: 'rgba(93,184,163,0.16)',  color: '#2f7a64', border: 'rgba(93,184,163,0.30)' },
+  { bg: 'rgba(232,168,124,0.20)', color: '#a25e2c', border: 'rgba(232,168,124,0.35)' },
+  { bg: 'rgba(107,157,222,0.16)', color: '#2f5a8c', border: 'rgba(107,157,222,0.30)' },
 ]
 
-function subjectColor(subject) {
-  if (!subject) return SUBJECT_COLORS[0]
+function subjectStyle(subject) {
+  if (!subject) return SUBJECT_PALETTES[0]
   let hash = 0
   for (let i = 0; i < subject.length; i++) {
     hash = ((hash << 5) - hash) + subject.charCodeAt(i)
     hash |= 0
   }
-  return SUBJECT_COLORS[Math.abs(hash) % SUBJECT_COLORS.length]
+  return SUBJECT_PALETTES[Math.abs(hash) % SUBJECT_PALETTES.length]
 }
 
 function isOverdue(item) {
@@ -68,6 +63,50 @@ const TABS = [
   { key: 'completed', label: 'Tamamlanan' },
   { key: 'overdue', label: 'Gecikmiş' },
 ]
+
+function FilterPill({ active, onClick, children, count, countTone = 'periwinkle' }) {
+  const countTones = {
+    periwinkle: { bg: 'rgba(124,110,224,0.20)', color: '#5448a8' },
+    rose:       { bg: 'rgba(239,108,108,0.18)', color: '#b13838' },
+  }
+  const ct = countTones[countTone] || countTones.periwinkle
+  return (
+    <button
+      onClick={onClick}
+      className="transition-all whitespace-nowrap"
+      style={{
+        padding: '8px 16px',
+        borderRadius: 999,
+        fontSize: 13,
+        fontWeight: 600,
+        background: active
+          ? 'linear-gradient(135deg, rgba(124,110,224,0.18) 0%, rgba(93,184,163,0.18) 100%)'
+          : 'rgba(255,255,255,0.55)',
+        border: active ? '1px solid rgba(124,110,224,0.5)' : '1px solid rgba(124,110,224,0.18)',
+        color: active ? '#5448a8' : '#475569',
+        backdropFilter: 'blur(12px)',
+        cursor: 'pointer',
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+      }}
+    >
+      {children}
+      {count > 0 && (
+        <span
+          style={{
+            background: ct.bg,
+            color: ct.color,
+            borderRadius: 999,
+            padding: '2px 8px',
+            fontSize: 10,
+            fontWeight: 700,
+          }}
+        >
+          {count}
+        </span>
+      )}
+    </button>
+  )
+}
 
 export default function StudentHomework() {
   const { profile } = useAuth()
@@ -145,7 +184,6 @@ export default function StudentHomework() {
     setFormError('')
   }
 
-  const today = new Date().toDateString()
   const pendingCount = items.filter(i => !i.completed).length
   const overdueCount = items.filter(i => isOverdue(i)).length
 
@@ -158,7 +196,7 @@ export default function StudentHomework() {
 
   const emptyMessages = {
     all: { title: 'Ev tapşırığı yoxdur', desc: 'Yeni tapşırıq əlavə etmək üçün "Əlavə et" düyməsinə basın.' },
-    pending: { title: 'Gözləyən tapşırıq yoxdur', desc: 'Bütün tapşırıqlar tamamlanıb.' },
+    pending: { title: 'Gözləyən tapşırıq yoxdur', desc: 'Bütün tapşırıqlar tamamlanıb. Əla iş!' },
     completed: { title: 'Tamamlanan tapşırıq yoxdur', desc: 'Hələ heç bir tapşırıq tamamlanmayıb.' },
     overdue: { title: 'Gecikmiş tapşırıq yoxdur', desc: 'Əla! Bütün tapşırıqlar vaxtında yerinə yetirilib.' },
   }
@@ -178,18 +216,20 @@ export default function StudentHomework() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="font-serif text-4xl text-gray-900 tracking-tight">Ev Tapşırıqları</h1>
-          <div className="flex items-center gap-3 mt-2">
+          <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+            <span className="pastel-text">Ev Tapşırıqları</span>
+          </h1>
+          <div className="flex items-center gap-3 mt-2 flex-wrap">
             {pendingCount > 0 && (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-gray-600">
-                <Clock className="w-3.5 h-3.5 text-gray-400" />
+              <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#475569' }}>
+                <Clock className="w-3.5 h-3.5" style={{ color: '#7c6ee0' }} />
                 {pendingCount} gözləyən
               </span>
             )}
             {overdueCount > 0 && (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-red-600">
+              <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#b13838' }}>
                 <AlertCircle className="w-3.5 h-3.5" />
                 {overdueCount} gecikmiş
               </span>
@@ -207,27 +247,15 @@ export default function StudentHomework() {
       {/* Filter tabs */}
       <div className="flex gap-2 overflow-x-auto pb-1">
         {TABS.map(tab => (
-          <button
+          <FilterPill
             key={tab.key}
+            active={activeTab === tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
-              activeTab === tab.key
-                ? 'border-purple bg-purple-light text-purple'
-                : 'border-border-soft text-gray-500 hover:bg-surface'
-            }`}
+            count={tab.key === 'overdue' ? overdueCount : tab.key === 'pending' ? pendingCount : 0}
+            countTone={tab.key === 'overdue' ? 'rose' : 'periwinkle'}
           >
             {tab.label}
-            {tab.key === 'overdue' && overdueCount > 0 && (
-              <span className="ml-1.5 bg-red-100 text-red-600 rounded-full px-1.5 py-0.5 text-[10px] font-semibold">
-                {overdueCount}
-              </span>
-            )}
-            {tab.key === 'pending' && pendingCount > 0 && (
-              <span className="ml-1.5 bg-purple-light text-purple rounded-full px-1.5 py-0.5 text-[10px] font-semibold">
-                {pendingCount}
-              </span>
-            )}
-          </button>
+          </FilterPill>
         ))}
       </div>
 
@@ -244,21 +272,23 @@ export default function StudentHomework() {
         <div className="space-y-3">
           {filtered.map(item => {
             const overdue = isOverdue(item)
+            const sStyle = subjectStyle(item.subject)
             return (
               <Card
                 key={item.id}
                 hover={false}
-                className={`transition-opacity ${item.completed ? 'opacity-50' : ''}`}
+                className={`transition-opacity ${item.completed ? 'opacity-60' : ''}`}
               >
                 <div className="flex items-start gap-4">
                   {/* Checkbox */}
                   <button
                     onClick={() => toggleCompleted(item)}
-                    className="flex-shrink-0 mt-0.5 text-gray-400 hover:text-purple transition-colors"
+                    className="flex-shrink-0 mt-0.5 transition-colors"
+                    style={{ color: item.completed ? '#7c6ee0' : '#94a3b8' }}
                     aria-label={item.completed ? 'Tamamlanmamış kimi işarələ' : 'Tamamlanmış kimi işarələ'}
                   >
                     {item.completed
-                      ? <CheckSquare className="w-5 h-5 text-purple" />
+                      ? <CheckSquare className="w-5 h-5" />
                       : <Square className="w-5 h-5" />
                     }
                   </button>
@@ -266,28 +296,46 @@ export default function StudentHomework() {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
-                      {item.subject && (
-                        <span className={`rounded-full text-xs font-medium px-3 py-0.5 inline-flex items-center ${subjectColor(item.subject)}`}>
+                      {item.subject && item.subject !== '—' && (
+                        <span
+                          style={{
+                            display: 'inline-flex', alignItems: 'center',
+                            background: sStyle.bg,
+                            color: sStyle.color,
+                            border: `1px solid ${sStyle.border}`,
+                            borderRadius: 999,
+                            padding: '3px 10px',
+                            fontSize: 12,
+                            fontWeight: 600,
+                          }}
+                        >
                           {item.subject}
                         </span>
                       )}
                       {overdue && (
-                        <span className="rounded-full text-xs font-medium px-3 py-0.5 inline-flex items-center bg-red-50 text-red-700 border border-red-200">
+                        <span className="pill-rose" style={{ display: 'inline-flex', alignItems: 'center', borderRadius: 999, padding: '3px 10px', fontSize: 12, fontWeight: 600 }}>
                           Gecikmiş
                         </span>
                       )}
                     </div>
-                    <p className={`text-sm font-medium text-gray-900 ${item.completed ? 'line-through text-gray-400' : ''}`}>
+                    <p
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 600,
+                        color: '#1a1a2e',
+                        textDecoration: item.completed ? 'line-through' : 'none',
+                      }}
+                    >
                       {item.title}
                     </p>
                     {item.due_date && (
-                      <p className={`text-xs mt-1 ${
-                        item.completed
-                          ? 'text-gray-400'
-                          : overdue
-                          ? 'text-red-600 font-medium'
-                          : 'text-gray-500'
-                      }`}>
+                      <p
+                        className="text-xs mt-1"
+                        style={{
+                          color: overdue && !item.completed ? '#b13838' : '#64748b',
+                          fontWeight: overdue && !item.completed ? 600 : 400,
+                        }}
+                      >
                         Son tarix: {formatDate(item.due_date)}
                       </p>
                     )}
@@ -296,7 +344,10 @@ export default function StudentHomework() {
                   {/* Delete */}
                   <button
                     onClick={() => deleteItem(item.id)}
-                    className="flex-shrink-0 text-gray-300 hover:text-red-500 transition-colors p-1"
+                    className="flex-shrink-0 transition-all flex items-center justify-center"
+                    style={{ width: 32, height: 32, borderRadius: 8, color: '#94a3b8' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,108,108,0.10)'; e.currentTarget.style.color = '#b13838' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8' }}
                     aria-label="Sil"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -312,13 +363,15 @@ export default function StudentHomework() {
       <Modal open={showAdd} onClose={closeAdd} title="Yeni Tapşırıq">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Fənn</label>
+            <label className="block" style={{ fontSize: 13, fontWeight: 600, color: '#1a1a2e', marginBottom: 6 }}>
+              Fənn
+            </label>
             <input
               list="subjects-datalist"
               value={form.subject}
               onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
               placeholder="Fənni seçin və ya yazın"
-              className="w-full border border-border-soft rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+              className="pastel-input"
             />
             <datalist id="subjects-datalist">
               {COMMON_SUBJECTS.map(s => <option key={s} value={s} />)}

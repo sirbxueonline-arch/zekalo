@@ -239,8 +239,8 @@ export default function AdminExams() {
             Geri
           </button>
           <div>
-            <h1 className="font-serif text-3xl text-gray-900">{resultsExam.title}</h1>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{resultsExam.title}</span></h1>
+            <p className="text-sm text-[#64748b] mt-0.5">
               {resultsExam.class?.name} · {resultsExam.subject?.name} · {formatDate(resultsExam.exam_date)} · Max: {resultsExam.max_score}
             </p>
           </div>
@@ -346,8 +346,8 @@ export default function AdminExams() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-3xl text-gray-900">İmtahanlar</h1>
-          <p className="text-sm text-gray-500 mt-1">Məktəb imtahanlarını idarə edin</p>
+          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">İmtahanlar</span></h1>
+          <p className="text-sm text-[#64748b] mt-1">Məktəb imtahanlarını idarə edin</p>
         </div>
         <Button
           onClick={() => {
@@ -384,7 +384,10 @@ export default function AdminExams() {
             <button
               key={key}
               onClick={() => handleSort(key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center gap-1 ${sortKey === key ? 'bg-purple text-white' : 'bg-surface text-gray-600 hover:text-purple'}`}
+              className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1 backdrop-blur-md"
+              style={sortKey === key
+                ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(124,110,224,0.25)' }
+                : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
             >
               {label}
               {sortKey === key && <span>{sortDir === 'asc' ? '▲' : '▼'}</span>}

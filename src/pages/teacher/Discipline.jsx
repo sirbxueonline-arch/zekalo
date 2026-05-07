@@ -1,16 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Search, Plus, BookOpen, AlertTriangle, Award, FileText } from 'lucide-react'
+import { Search, Plus, BookOpen, AlertTriangle, Award, FileText, X, AlertCircle, Check } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import Button from '../../components/ui/Button'
-import Card from '../../components/ui/Card'
-import Input, { Textarea, Select } from '../../components/ui/Input'
-import Modal from '../../components/ui/Modal'
-import Table from '../../components/ui/Table'
-import { PageSpinner } from '../../components/ui/Spinner'
-import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
-import StatCard from '../../components/ui/StatCard'
 
 const TYPE_LABELS = {
   warning: 'Xəbərdarlıq',
@@ -20,20 +12,16 @@ const TYPE_LABELS = {
   note: 'Qeyd',
 }
 
-const TYPE_BADGE_CLASSES = {
-  warning: 'bg-amber-100 text-amber-800 border border-amber-200',
-  detention: 'bg-orange-100 text-orange-800 border border-orange-200',
-  suspension: 'bg-red-100 text-red-700 border border-red-200',
-  commendation: 'bg-teal-50 text-teal-800 border border-teal-200',
-  note: 'bg-gray-100 text-gray-600 border border-gray-200',
+const TYPE_BADGE = {
+  warning:      'pastel-badge pastel-badge-peach',
+  detention:    'pastel-badge pastel-badge-peach',
+  suspension:   'pastel-badge pastel-badge-rose',
+  commendation: 'pastel-badge pastel-badge-mint',
+  note:         'pastel-badge pastel-badge-slate',
 }
 
 function TypeBadge({ type }) {
-  return (
-    <span className={`rounded-full text-xs font-medium px-3 py-0.5 inline-flex items-center ${TYPE_BADGE_CLASSES[type] || TYPE_BADGE_CLASSES.note}`}>
-      {TYPE_LABELS[type] || type}
-    </span>
-  )
+  return <span className={TYPE_BADGE[type] || TYPE_BADGE.note}>{TYPE_LABELS[type] || type}</span>
 }
 
 function getDateRange(filter) {
@@ -85,7 +73,6 @@ export default function TeacherDiscipline() {
     try {
       setLoading(true)
 
-      // 1. Get teacher's class_ids
       const { data: teacherClassRows, error: tcErr } = await supabase
         .from('teacher_classes')
         .select('class_id')
@@ -101,7 +88,6 @@ export default function TeacherDiscipline() {
         return
       }
 
-      // 2. Get students in those classes
       const { data: memberRows, error: memErr } = await supabase
         .from('class_members')
         .select('student_id, student:profiles(id, full_name)')
@@ -121,7 +107,6 @@ export default function TeacherDiscipline() {
 
       const studentIds = students.map(s => s.id)
 
-      // 3. Get discipline records for those students
       const { data: recs, error: recErr } = await supabase
         .from('discipline_records')
         .select('*, student:profiles!discipline_records_student_id_fkey(id, full_name), recorder:profiles!discipline_records_recorded_by_fkey(id, full_name)')
@@ -165,7 +150,6 @@ export default function TeacherDiscipline() {
       resetForm()
       await fetchData()
     } catch (err) {
-      console.error(err)
       setError(err.message || 'Xəta baş verdi')
     } finally {
       setSaving(false)
@@ -199,205 +183,249 @@ export default function TeacherDiscipline() {
     return `${day}.${m}.${y}`
   }
 
-  const columns = [
-    {
-      key: 'student',
-      label: 'Şagird',
-      render: (val) => (
-        <div className="flex items-center gap-3">
-          <Avatar name={val?.full_name} size="sm" />
-          <span className="font-medium text-gray-900">{val?.full_name || '—'}</span>
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <div className="pastel-skeleton h-12 w-72" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-24" />)}
         </div>
-      ),
-    },
-    {
-      key: 'type',
-      label: 'Növ',
-      render: (val) => <TypeBadge type={val} />,
-    },
-    {
-      key: 'date',
-      label: 'Tarix',
-      render: (val) => <span className="text-gray-600">{formatDate(val)}</span>,
-    },
-    {
-      key: 'description',
-      label: 'Təsvir',
-      render: (val) => (
-        <span className="text-gray-600" title={val}>
-          {val && val.length > 60 ? val.slice(0, 60) + '…' : val || '—'}
-        </span>
-      ),
-    },
-    {
-      key: 'recorder',
-      label: 'Qeyd edən',
-      render: (val) => <span className="text-gray-500">{val?.full_name || '—'}</span>,
-    },
-    {
-      key: 'parent_notified',
-      label: 'Valideyn bildirildi',
-      render: (val) => (
-        <span className={`text-lg ${val ? 'text-teal' : 'text-gray-300'}`}>
-          {val ? '✓' : '✗'}
-        </span>
-      ),
-    },
-  ]
-
-  if (loading) return <PageSpinner />
+        <div className="pastel-skeleton h-96" />
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-serif text-3xl text-gray-900">İntizam Jurnalı</h1>
-        <Button onClick={() => { resetForm(); setAddModal(true) }} disabled={myStudents.length === 0}>
-          <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Qeyd əlavə et</span>
-        </Button>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
+          <span className="pastel-text">İntizam Jurnalı</span>
+        </h1>
+        <button
+          onClick={() => { resetForm(); setAddModal(true) }}
+          disabled={myStudents.length === 0}
+          className="btn-pastel"
+          style={{ padding: '12px 22px', fontSize: 13, opacity: myStudents.length === 0 ? 0.5 : 1 }}
+        >
+          <Plus className="w-4 h-4" /> Qeyd əlavə et
+        </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Xəbərdarlıq (bu ay)" value={statsWarnings} icon={AlertTriangle} />
-        <StatCard label="Uzaqlaşdırma (bu ay)" value={statsSuspensions} icon={AlertTriangle} />
-        <StatCard label="Təşəkkür (bu ay)" value={statsCommendations} icon={Award} />
-        <StatCard label="Cəmi qeydlər" value={statsTotal} icon={FileText} />
+        {[
+          { label: 'Xəbərdarlıq (bu ay)', value: statsWarnings, icon: AlertTriangle, chip: 'icon-chip-peach' },
+          { label: 'Uzaqlaşdırma (bu ay)', value: statsSuspensions, icon: AlertTriangle, chip: 'icon-chip-peach' },
+          { label: 'Təşəkkür (bu ay)', value: statsCommendations, icon: Award, chip: 'icon-chip-mint' },
+          { label: 'Cəmi qeydlər', value: statsTotal, icon: FileText, chip: 'icon-chip-periwinkle' },
+        ].map((s, i) => (
+          <div key={i} className="liquid-card p-4 flex items-start gap-3">
+            <span className={`icon-chip ${s.chip}`}>
+              <s.icon className="w-5 h-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-wider truncate" style={{ color: '#64748b' }}>{s.label}</p>
+              <p className="text-2xl font-bold mt-0.5 leading-none" style={{ color: '#1a1a2e' }}>{s.value}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-end">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Şagird adı ilə axtar..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-border-soft rounded-md pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
-          />
-        </div>
-        <div className="w-44">
-          <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
-            <option value="all">Bütün növlər</option>
-            {Object.entries(TYPE_LABELS).map(([k, v]) => (
-              <option key={k} value={k}>{v}</option>
-            ))}
-          </Select>
-        </div>
-        <div className="w-44">
-          <Select value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}>
-            <option value="week">Bu həftə</option>
-            <option value="month">Bu ay</option>
-            <option value="all">Bütün vaxt</option>
-          </Select>
+      <div className="liquid-card p-4">
+        <div className="flex flex-wrap gap-3 items-end">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#94a3b8' }} />
+            <input
+              type="text"
+              placeholder="Şagird adı ilə axtar..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pastel-input"
+              style={{ paddingLeft: 36 }}
+            />
+          </div>
+          <div className="w-44">
+            <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="pastel-input">
+              <option value="all">Bütün növlər</option>
+              {Object.entries(TYPE_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
+          </div>
+          <div className="w-44">
+            <select value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className="pastel-input">
+              <option value="week">Bu həftə</option>
+              <option value="month">Bu ay</option>
+              <option value="all">Bütün vaxt</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm flex items-center gap-1.5" style={{ color: '#b83b54' }}><AlertCircle className="w-4 h-4" /> {error}</p>}
 
       {/* Table */}
-      <Card hover={false} className="p-0 overflow-hidden">
+      <div className="liquid-card overflow-hidden">
         {myStudents.length === 0 ? (
-          <EmptyState
-            icon={BookOpen}
-            title="Sinif tapılmadı"
-            description="Sizə təyin edilmiş sinif yoxdur"
-          />
+          <div className="p-12 text-center">
+            <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
+              <BookOpen className="w-8 h-8" />
+            </div>
+            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Sinif tapılmadı</p>
+            <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Sizə təyin edilmiş sinif yoxdur</p>
+          </div>
         ) : filtered.length === 0 ? (
-          <EmptyState
-            icon={BookOpen}
-            title="Qeyd tapılmadı"
-            description="Filtrə uyğun intizam qeydi yoxdur"
-            actionLabel="Qeyd əlavə et"
-            onAction={() => { resetForm(); setAddModal(true) }}
-          />
+          <div className="p-12 text-center">
+            <div className="icon-chip icon-chip-mint mx-auto mb-3" style={{ width: 64, height: 64 }}>
+              <Check className="w-8 h-8" />
+            </div>
+            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Qeyd tapılmadı</p>
+            <p className="text-sm mt-1 mb-4" style={{ color: '#94a3b8' }}>Filtrə uyğun intizam qeydi yoxdur</p>
+            <button onClick={() => { resetForm(); setAddModal(true) }} className="btn-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>
+              <Plus className="w-4 h-4" /> Qeyd əlavə et
+            </button>
+          </div>
         ) : (
-          <Table columns={columns} data={filtered} />
+          <div className="overflow-x-auto">
+            <table className="pastel-table">
+              <thead>
+                <tr>
+                  <th>Şagird</th>
+                  <th>Növ</th>
+                  <th>Tarix</th>
+                  <th>Təsvir</th>
+                  <th>Qeyd edən</th>
+                  <th>Valideyn bildirildi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(r => (
+                  <tr key={r.id}>
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <Avatar name={r.student?.full_name} size="sm" />
+                        <span style={{ fontWeight: 600, color: '#1a1a2e' }}>{r.student?.full_name || '—'}</span>
+                      </div>
+                    </td>
+                    <td><TypeBadge type={r.type} /></td>
+                    <td>{formatDate(r.date)}</td>
+                    <td title={r.description} style={{ color: '#475569' }}>
+                      {r.description && r.description.length > 60 ? r.description.slice(0, 60) + '…' : r.description || '—'}
+                    </td>
+                    <td style={{ color: '#64748b' }}>{r.recorder?.full_name || '—'}</td>
+                    <td>
+                      {r.parent_notified
+                        ? <span className="pastel-badge pastel-badge-mint"><Check className="w-3 h-3" /></span>
+                        : <span className="pastel-badge pastel-badge-slate">—</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-      </Card>
+      </div>
 
       {/* Add Modal */}
-      <Modal open={addModal} onClose={() => { setAddModal(false); resetForm() }} title="Qeyd əlavə et" size="md">
-        <div className="space-y-4">
-          {/* Student picker */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Şagird</label>
-            <div className="border border-border-soft rounded-md overflow-hidden">
-              <div className="p-2 border-b border-border-soft">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Axtar..."
-                    value={studentSearch}
-                    onChange={(e) => setStudentSearch(e.target.value)}
-                    className="w-full pl-8 pr-3 py-1.5 text-sm focus:outline-none"
-                  />
+      {addModal && (
+        <div className="liquid-backdrop" onClick={() => { setAddModal(false); resetForm() }}>
+          <div className="liquid-card p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>Qeyd əlavə et</h3>
+              <button onClick={() => { setAddModal(false); resetForm() }} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Şagird</label>
+                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(124,110,224,0.2)', background: 'rgba(255,255,255,0.5)' }}>
+                  <div className="p-2" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: '#94a3b8' }} />
+                      <input
+                        type="text"
+                        placeholder="Axtar..."
+                        value={studentSearch}
+                        onChange={(e) => setStudentSearch(e.target.value)}
+                        className="w-full pl-8 pr-3 py-1.5 text-sm bg-transparent outline-none"
+                        style={{ color: '#1a1a2e' }}
+                      />
+                    </div>
+                  </div>
+                  <div className="max-h-40 overflow-y-auto scrollbar-thin">
+                    {filteredStudents.length === 0 && (
+                      <p className="text-center py-4 text-xs" style={{ color: '#94a3b8' }}>Şagird tapılmadı</p>
+                    )}
+                    {filteredStudents.map(s => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => setForm(f => ({ ...f, student_id: s.id }))}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left smooth-trans"
+                        style={{
+                          background: form.student_id === s.id ? 'rgba(124,110,224,0.10)' : 'transparent',
+                          color: form.student_id === s.id ? '#5b4fb8' : '#1a1a2e',
+                          fontWeight: form.student_id === s.id ? 600 : 400,
+                        }}
+                      >
+                        <Avatar name={s.full_name} size="sm" />
+                        {s.full_name}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div className="max-h-40 overflow-y-auto">
-                {filteredStudents.length === 0 && (
-                  <p className="text-center py-4 text-xs text-gray-400">Şagird tapılmadı</p>
-                )}
-                {filteredStudents.map(s => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setForm(f => ({ ...f, student_id: s.id }))}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-surface transition-colors ${form.student_id === s.id ? 'bg-purple-light text-purple' : 'text-gray-700'}`}
-                  >
-                    <Avatar name={s.full_name} size="sm" />
-                    {s.full_name}
-                  </button>
-                ))}
+
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Tarix</label>
+                <input type="date" className="pastel-input" value={form.date} onChange={(e) => setForm(f => ({ ...f, date: e.target.value }))} />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Növ</label>
+                <select className="pastel-input" value={form.type} onChange={(e) => setForm(f => ({ ...f, type: e.target.value }))}>
+                  {Object.entries(TYPE_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>{v}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Təsvir</label>
+                <textarea
+                  className="pastel-input"
+                  value={form.description}
+                  onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
+                  rows={3}
+                  placeholder="İntizam hadisəsini təsvir edin..."
+                />
+              </div>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.parent_notified}
+                  onChange={(e) => setForm(f => ({ ...f, parent_notified: e.target.checked }))}
+                  className="w-4 h-4 rounded"
+                  style={{ accentColor: '#7c6ee0' }}
+                />
+                <span className="text-sm" style={{ color: '#1a1a2e' }}>Valideyn bildirildi</span>
+              </label>
+
+              {error && <p className="text-sm flex items-center gap-1.5" style={{ color: '#b83b54' }}><AlertCircle className="w-4 h-4" /> {error}</p>}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button onClick={() => { setAddModal(false); resetForm() }} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>Ləğv et</button>
+                <button onClick={handleAdd} disabled={saving} className="btn-pastel" style={{ padding: '10px 22px', fontSize: 13, opacity: saving ? 0.5 : 1 }}>
+                  {saving ? '...' : 'Əlavə et'}
+                </button>
               </div>
             </div>
           </div>
-
-          <Input
-            label="Tarix"
-            type="date"
-            value={form.date}
-            onChange={(e) => setForm(f => ({ ...f, date: e.target.value }))}
-          />
-
-          <Select
-            label="Növ"
-            value={form.type}
-            onChange={(e) => setForm(f => ({ ...f, type: e.target.value }))}
-          >
-            {Object.entries(TYPE_LABELS).map(([k, v]) => (
-              <option key={k} value={k}>{v}</option>
-            ))}
-          </Select>
-
-          <Textarea
-            label="Təsvir"
-            value={form.description}
-            onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
-            rows={3}
-            placeholder="İntizam hadisəsini təsvir edin..."
-          />
-
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.parent_notified}
-              onChange={(e) => setForm(f => ({ ...f, parent_notified: e.target.checked }))}
-              className="w-4 h-4 rounded border-border-soft accent-purple"
-            />
-            <span className="text-sm text-gray-700">Valideyn bildirildi</span>
-          </label>
-
-          {error && <p className="text-sm text-red-600">{error}</p>}
-
-          <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => { setAddModal(false); resetForm() }}>Ləğv et</Button>
-            <Button onClick={handleAdd} loading={saving}>Əlavə et</Button>
-          </div>
         </div>
-      </Modal>
+      )}
     </div>
   )
 }

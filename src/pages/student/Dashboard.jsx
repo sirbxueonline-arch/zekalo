@@ -12,8 +12,21 @@ import {
 } from 'lucide-react'
 import { todayFull, fmtWeekday } from '../../lib/dateUtils'
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ─── Pastel palette ──────────────────────────────────────────────────────────
+const COLOR_PERI  = '#7c6ee0'
+const COLOR_MINT  = '#5db8a3'
+const COLOR_PEACH = '#e8a87c'
+const COLOR_BLUE  = '#6b9dde'
+const COLOR_ROSE  = '#ef6c6c'
 
+const SUBJ_PALETTE = [
+  { color: COLOR_PERI,  bg: 'rgba(124,110,224,0.16)', border: 'rgba(124,110,224,0.30)' },
+  { color: COLOR_MINT,  bg: 'rgba(93,184,163,0.16)',  border: 'rgba(93,184,163,0.30)' },
+  { color: COLOR_PEACH, bg: 'rgba(232,168,124,0.20)', border: 'rgba(232,168,124,0.35)' },
+  { color: COLOR_BLUE,  bg: 'rgba(107,157,222,0.16)', border: 'rgba(107,157,222,0.30)' },
+]
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
 function todayLabel() {
   return todayFull()
 }
@@ -46,46 +59,64 @@ function timeAgo(iso) {
   return `${Math.floor(diff / 86400)} gün əvvəl`
 }
 
-// ── Subject color palette ──────────────────────────────────────────────────
-
-const SUBJ_HEX   = ['#534AB7','#1D9E75','#D97706','#2563EB','#DB2777','#EA580C']
-const SUBJ_LIGHT = ['#EEEDFE','#E1F5EE','#FEF3C7','#DBEAFE','#FCE7F3','#FFEDD5']
-
 function subjectHash(name = '') {
   let h = 0; for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
   return Math.abs(h)
 }
-function subjectHexColor(name = '')  { return SUBJ_HEX[subjectHash(name) % SUBJ_HEX.length] }
-function subjectLightHex(name = '')  { return SUBJ_LIGHT[subjectHash(name) % SUBJ_LIGHT.length] }
+
+function subjectStyle(name = '')  { return SUBJ_PALETTE[subjectHash(name) % SUBJ_PALETTE.length] }
 
 function gradeBarColor(score) {
-  if (score == null) return '#d1d5db'
-  if (score >= 8.5) return '#1D9E75'
-  if (score >= 7)   return '#534AB7'
-  if (score >= 5)   return '#D97706'
-  return '#EF4444'
+  if (score == null) return '#cbd5e1'
+  if (score >= 8.5) return COLOR_MINT
+  if (score >= 7)   return COLOR_BLUE
+  if (score >= 5)   return COLOR_PEACH
+  return COLOR_ROSE
 }
 
-// ── DueDateChip ─────────────────────────────────────────────────────────────
-
+// ─── DueDateChip ─────────────────────────────────────────────────────────────
 function DueDateChip({ dueDate }) {
   const days = daysUntil(dueDate)
   if (days === null) return null
-  if (days < 0)  return <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200">Gecikmiş</span>
-  if (days === 0) return <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Bu gün!</span>
-  if (days === 1) return <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200">Sabah</span>
-  return <span className="flex-shrink-0 text-xs font-medium px-2.5 py-0.5 rounded-full bg-surface text-gray-500 border border-border-soft">{days} gün</span>
+  const baseStyle = {
+    flexShrink: 0,
+    fontSize: 11,
+    fontWeight: 600,
+    padding: '3px 10px',
+    borderRadius: 999,
+  }
+  if (days < 0)  return <span className="pill-rose"  style={baseStyle}>Gecikmiş</span>
+  if (days === 0) return <span className="pill-peach" style={baseStyle}>Bu gün!</span>
+  if (days === 1) return <span className="pill-peach" style={baseStyle}>Sabah</span>
+  return (
+    <span
+      style={{
+        ...baseStyle,
+        background: 'rgba(255,255,255,0.55)',
+        color: '#64748b',
+        border: '1px solid rgba(124,110,224,0.18)',
+        backdropFilter: 'blur(12px)',
+        fontWeight: 500,
+      }}
+    >
+      {days} gün
+    </span>
+  )
 }
 
-// ── Notification dot ─────────────────────────────────────────────────────────
-
+// ─── Notification dot ─────────────────────────────────────────────────────────
 function notifDotColor(type) {
-  const map = { grade: 'bg-teal', assignment: 'bg-purple', attendance: 'bg-amber-400', message: 'bg-blue-400', system: 'bg-gray-400' }
-  return map[type] || 'bg-gray-400'
+  const map = {
+    grade:      COLOR_MINT,
+    assignment: COLOR_PERI,
+    attendance: COLOR_PEACH,
+    message:    COLOR_BLUE,
+    system:     '#94a3b8',
+  }
+  return map[type] || '#94a3b8'
 }
 
-// ── Period detection ─────────────────────────────────────────────────────────
-
+// ─── Period detection ────────────────────────────────────────────────────────
 function isCurrentPeriod(slot) {
   if (!slot.start_time || !slot.end_time) return false
   const now = new Date()
@@ -105,30 +136,44 @@ function isPastPeriod(slot) {
   return curMin > endMin
 }
 
-// ── Assignment tabs ──────────────────────────────────────────────────────────
-
+// ─── Assignment tabs ─────────────────────────────────────────────────────────
 const ASSIGN_TABS = [
   { key: 'pending',   label: 'Gözləyən'  },
   { key: 'thisweek',  label: 'Bu həftə'  },
   { key: 'overdue',   label: 'Gecikmiş'  },
 ]
 
-// ── Stat Card ────────────────────────────────────────────────────────────────
-
-function StatCard({ icon: Icon, label, value, trend, trendLabel, iconBg, iconColor, valueColor }) {
+// ─── Stat Card ───────────────────────────────────────────────────────────────
+function StatCard({ icon: Icon, label, value, trend, trendLabel, iconColor = COLOR_PERI }) {
   return (
-    <div className="bg-white rounded-2xl border border-border-soft shadow-sm hover:shadow-md transition-shadow px-5 py-5 flex items-center gap-4">
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
-        <Icon className={`w-5 h-5 ${iconColor}`} />
+    <div className="liquid-card pastel-hover px-5 py-5 flex items-center gap-4">
+      <div
+        className="flex items-center justify-center flex-shrink-0"
+        style={{
+          width: 48, height: 48, borderRadius: 14,
+          background: `${iconColor}26`,
+          border: `1px solid ${iconColor}33`,
+        }}
+      >
+        <Icon className="w-5 h-5" style={{ color: iconColor }} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">{label}</p>
-        <p className={`font-serif text-3xl font-bold leading-tight mt-0.5 ${valueColor || 'text-gray-900'}`}>{value}</p>
+        <p style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          {label}
+        </p>
+        <p style={{ fontSize: 28, fontWeight: 800, color: '#1a1a2e', lineHeight: 1.1, marginTop: 4, letterSpacing: '-0.02em' }}>
+          {value}
+        </p>
         {trendLabel && (
           <div className="flex items-center gap-1 mt-1">
-            {trend === 'up'   && <TrendingUp className="w-3 h-3 text-teal" />}
-            {trend === 'down' && <TrendingDown className="w-3 h-3 text-red-400" />}
-            <span className={`text-[11px] font-medium ${trend === 'up' ? 'text-teal-600' : trend === 'down' ? 'text-red-400' : 'text-gray-400'}`}>
+            {trend === 'up'   && <TrendingUp   className="w-3 h-3" style={{ color: COLOR_MINT }} />}
+            {trend === 'down' && <TrendingDown className="w-3 h-3" style={{ color: COLOR_ROSE }} />}
+            <span
+              className="text-xs font-semibold"
+              style={{
+                color: trend === 'up' ? '#2f7a64' : trend === 'down' ? '#b13838' : '#94a3b8',
+              }}
+            >
               {trendLabel}
             </span>
           </div>
@@ -138,8 +183,7 @@ function StatCard({ icon: Icon, label, value, trend, trendLabel, iconBg, iconCol
   )
 }
 
-// ── Main component ───────────────────────────────────────────────────────────
-
+// ─── Main component ──────────────────────────────────────────────────────────
 export default function StudentDashboard() {
   const { profile, t } = useAuth()
   const navigate    = useNavigate()
@@ -246,33 +290,90 @@ export default function StudentDashboard() {
   const attTrend = attPct !== null ? (attPct >= 85 ? 'up' : 'down') : null
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-7">
 
-      {/* ── 1. Welcome Banner ─────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-purple to-[#7B75D0] rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-        {/* Decorative circles */}
-        <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5" />
-        <div className="absolute -bottom-12 -right-4 w-56 h-56 rounded-full bg-white/5" />
-        <div className="absolute top-4 right-24 w-16 h-16 rounded-full bg-white/5" />
+      {/* ── 1. Welcome banner ─────────────────────────────────────────────── */}
+      <div
+        className="liquid-card relative overflow-hidden"
+        style={{ padding: 28 }}
+      >
+        {/* Pastel blob accents */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: '-30%', right: '-10%',
+            width: 280, height: 280,
+            borderRadius: '50%',
+            background: 'radial-gradient(ellipse at center, rgba(124,110,224,0.22) 0%, transparent 65%)',
+            filter: 'blur(40px)',
+            pointerEvents: 'none',
+          }}
+        />
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            bottom: '-40%', right: '15%',
+            width: 240, height: 240,
+            borderRadius: '50%',
+            background: 'radial-gradient(ellipse at center, rgba(93,184,163,0.20) 0%, transparent 65%)',
+            filter: 'blur(50px)',
+            pointerEvents: 'none',
+          }}
+        />
 
         <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <p className="text-purple-100 text-sm font-medium">{todayLabel()}</p>
-            <h1 className="font-serif text-4xl text-white mt-1">
-              {t('hello_student')}, {firstName}!
+            <p className="text-sm font-medium" style={{ color: '#64748b' }}>{todayLabel()}</p>
+            <h1
+              style={{
+                fontSize: 36,
+                fontWeight: 800,
+                color: '#1a1a2e',
+                marginTop: 4,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.1,
+              }}
+            >
+              {t('hello_student')}, <span className="pastel-text">{firstName}!</span>
             </h1>
-            <p className="text-purple-100 text-sm mt-2">Bugünkü dərslərə hazır ol.</p>
+            <p className="text-sm mt-2" style={{ color: '#64748b' }}>
+              Bugünkü dərslərə hazır ol.
+            </p>
           </div>
           <div className="flex flex-col items-end gap-2">
             {profile?.streak_count > 0 && (
-              <div className="flex items-center gap-2 bg-white/15 border border-white/20 text-white px-4 py-2 rounded-xl backdrop-blur-sm">
-                <Flame className="w-4 h-4 text-amber-300" />
-                <span className="text-sm font-semibold">{profile.streak_count} günlük zolaq!</span>
+              <div
+                className="flex items-center gap-2"
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 14,
+                  background: 'rgba(232,168,124,0.16)',
+                  border: '1px solid rgba(232,168,124,0.32)',
+                  backdropFilter: 'blur(12px)',
+                }}
+              >
+                <Flame className="w-4 h-4" style={{ color: COLOR_PEACH }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#a25e2c' }}>
+                  {profile.streak_count} günlük zolaq!
+                </span>
               </div>
             )}
-            <div className="flex items-center gap-1.5 bg-white/10 border border-white/15 px-3 py-1.5 rounded-lg">
-              <Star className="w-3.5 h-3.5 text-amber-300" />
-              <span className="text-xs text-white/80 font-medium capitalize">{todayWeekday()}</span>
+            <div
+              className="flex items-center gap-1.5"
+              style={{
+                padding: '5px 12px',
+                borderRadius: 10,
+                background: 'rgba(255,255,255,0.55)',
+                border: '1px solid rgba(124,110,224,0.18)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <Star className="w-3.5 h-3.5" style={{ color: COLOR_PEACH }} />
+              <span className="text-xs capitalize" style={{ color: '#475569', fontWeight: 600 }}>
+                {todayWeekday()}
+              </span>
             </div>
           </div>
         </div>
@@ -286,9 +387,7 @@ export default function StudentDashboard() {
           value={avgStr}
           trend={avgNum !== null ? (avgNum >= 7 ? 'up' : 'down') : null}
           trendLabel={avgNum !== null ? (avgNum >= 8.5 ? 'Əla nəticə' : avgNum >= 7 ? 'Yaxşı' : 'Geliştir') : null}
-          iconBg="bg-purple-light"
-          iconColor="text-purple"
-          valueColor={avgNum !== null && avgNum >= 8.5 ? 'text-teal-700' : avgNum !== null && avgNum < 5 ? 'text-red-600' : 'text-gray-900'}
+          iconColor={COLOR_PERI}
         />
         <StatCard
           icon={Calendar}
@@ -296,9 +395,7 @@ export default function StudentDashboard() {
           value={attStr}
           trend={attTrend}
           trendLabel={attPct !== null ? (attPct >= 85 ? 'Mükəmməl' : attPct >= 75 ? 'Yaxşı' : 'Diqqət et') : null}
-          iconBg="bg-teal-light"
-          iconColor="text-teal"
-          valueColor={attPct !== null && attPct < 75 ? 'text-red-600' : 'text-gray-900'}
+          iconColor={COLOR_MINT}
         />
         <StatCard
           icon={CheckSquare}
@@ -306,9 +403,7 @@ export default function StudentDashboard() {
           value={pendingAssignments.length}
           trend={pendingAssignments.length > 0 ? 'down' : 'up'}
           trendLabel={pendingAssignments.length === 0 ? 'Hamısı bitib!' : `${pendingAssignments.length} qalıb`}
-          iconBg="bg-purple-light"
-          iconColor="text-purple"
-          valueColor={pendingAssignments.length > 0 ? 'text-purple' : 'text-gray-900'}
+          iconColor={COLOR_BLUE}
         />
         <StatCard
           icon={Target}
@@ -316,26 +411,43 @@ export default function StudentDashboard() {
           value={overdueAssignments.length}
           trend={overdueAssignments.length > 0 ? 'down' : null}
           trendLabel={overdueAssignments.length > 0 ? 'Tez bitir!' : 'Hamar gedir'}
-          iconBg={overdueAssignments.length > 0 ? 'bg-red-50' : 'bg-teal-light'}
-          iconColor={overdueAssignments.length > 0 ? 'text-red-500' : 'text-teal'}
-          valueColor={overdueAssignments.length > 0 ? 'text-red-600' : 'text-gray-900'}
+          iconColor={overdueAssignments.length > 0 ? COLOR_ROSE : COLOR_PEACH}
         />
       </div>
 
       {/* ── 3. Today's timetable ──────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-border-soft shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
-          <h2 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
-            <Clock className="w-4 h-4 text-purple" />
+      <div className="liquid-card overflow-hidden" style={{ padding: 0 }}>
+        <div
+          className="flex items-center justify-between px-5 py-4"
+          style={{ borderBottom: '1px solid rgba(124,110,224,0.10)' }}
+        >
+          <h2 className="font-bold flex items-center gap-2" style={{ fontSize: 14, color: '#1a1a2e' }}>
+            <Clock className="w-4 h-4" style={{ color: COLOR_PERI }} />
             {t('todays_lessons')}
           </h2>
-          <span className="text-xs text-gray-400 font-medium capitalize">{todayWeekday()}</span>
+          <span className="text-xs capitalize" style={{ color: '#64748b', fontWeight: 600 }}>
+            {todayWeekday()}
+          </span>
         </div>
 
         {timetable.length === 0 ? (
-          <div className="flex items-center justify-center py-8 gap-2 text-gray-400">
-            <Calendar className="w-4 h-4" />
-            <span className="text-sm">{t('no_lessons_today')}</span>
+          <div className="flex flex-col items-center justify-center py-10 px-6 text-center gap-2">
+            <div
+              className="flex items-center justify-center"
+              style={{
+                width: 44, height: 44, borderRadius: 14,
+                background: 'rgba(124,110,224,0.10)',
+                border: '1px solid rgba(124,110,224,0.18)',
+              }}
+            >
+              <Calendar className="w-5 h-5" style={{ color: COLOR_PERI }} />
+            </div>
+            <p className="text-sm font-medium" style={{ color: '#1a1a2e' }}>
+              {t('no_lessons_today')}
+            </p>
+            <p className="text-xs" style={{ color: '#64748b' }}>
+              Bu gün üçün dərs cədvəli yoxdur.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto scrollbar-thin px-5 py-4">
@@ -343,39 +455,86 @@ export default function StudentDashboard() {
               {timetable.map(slot => {
                 const current = isCurrentPeriod(slot)
                 const past    = !current && isPastPeriod(slot)
-                const accent  = subjectHexColor(slot.subject?.name || '')
-                const light   = subjectLightHex(slot.subject?.name || '')
+                const sStyle  = subjectStyle(slot.subject?.name || '')
                 return (
                   <div
                     key={slot.id}
-                    className={`
-                      relative flex flex-col gap-1.5 rounded-xl px-4 py-3 w-36 flex-shrink-0 transition-all
-                      ${current ? 'ring-2 ring-purple shadow-md bg-white'
-                        : past ? 'bg-gray-50 opacity-60'
-                        : 'bg-surface border border-border-soft'}
-                    `}
+                    className="relative flex flex-col gap-1.5 flex-shrink-0 transition-all"
+                    style={{
+                      padding: '12px 16px',
+                      width: 152,
+                      borderRadius: 14,
+                      background: current
+                        ? 'rgba(255,255,255,0.85)'
+                        : past
+                        ? 'rgba(255,255,255,0.4)'
+                        : 'rgba(255,255,255,0.6)',
+                      border: current
+                        ? `2px solid ${COLOR_PERI}`
+                        : '1px solid rgba(124,110,224,0.16)',
+                      backdropFilter: 'blur(12px)',
+                      opacity: past ? 0.6 : 1,
+                      boxShadow: current ? '0 6px 18px rgba(124,110,224,0.18)' : '0 1px 3px rgba(140,120,200,0.05)',
+                    }}
                   >
                     <div className="flex items-center justify-between">
                       <span
-                        className="w-6 h-6 rounded-full text-white text-xs font-bold flex items-center justify-center"
-                        style={{ backgroundColor: past ? '#d1d5db' : accent }}
+                        style={{
+                          width: 26, height: 26, borderRadius: 999,
+                          background: past ? '#cbd5e1' : sStyle.color,
+                          color: '#fff',
+                          fontSize: 12,
+                          fontWeight: 800,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: past ? 'none' : `0 2px 6px ${sStyle.color}40`,
+                        }}
                       >
                         {slot.period}
                       </span>
                       {current && (
-                        <span className="text-[10px] font-semibold text-purple bg-purple-light px-1.5 py-0.5 rounded-full">İndi</span>
+                        <span
+                          style={{
+                            fontSize: 10, fontWeight: 800,
+                            color: '#5448a8',
+                            background: 'rgba(124,110,224,0.18)',
+                            padding: '2px 8px',
+                            borderRadius: 999,
+                          }}
+                        >
+                          İndi
+                        </span>
                       )}
                     </div>
-                    <p className={`text-sm font-bold leading-tight truncate ${past ? 'text-gray-400' : 'text-gray-900'}`}>
+                    <p
+                      className="truncate"
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: past ? '#94a3b8' : '#1a1a2e',
+                        lineHeight: 1.25,
+                      }}
+                    >
                       {slot.subject?.name || 'Fənn'}
                     </p>
                     {slot.start_time && slot.end_time && (
-                      <p className="text-xs text-gray-400">{slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)}</p>
+                      <p className="text-xs" style={{ color: '#64748b' }}>
+                        {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)}
+                      </p>
                     )}
-                    {slot.room && <p className="text-xs text-gray-400">Otaq {slot.room}</p>}
+                    {slot.room && (
+                      <p className="text-xs" style={{ color: '#64748b' }}>Otaq {slot.room}</p>
+                    )}
                     <div
-                      className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full"
-                      style={{ backgroundColor: past ? '#e5e7eb' : accent, opacity: past ? 0.4 : 0.6 }}
+                      style={{
+                        position: 'absolute',
+                        bottom: 0, left: 16, right: 16,
+                        height: 2,
+                        borderRadius: 999,
+                        background: past ? '#e2e8f0' : sStyle.color,
+                        opacity: past ? 0.4 : 0.6,
+                      }}
                     />
                   </div>
                 )
@@ -392,16 +551,22 @@ export default function StudentDashboard() {
         <div className="lg:col-span-8 space-y-5">
 
           {/* Tapşırıqlar */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-            <div className="px-5 pt-4 pb-0 border-b border-border-soft">
+          <div className="liquid-card overflow-hidden" style={{ padding: 0 }}>
+            <div
+              className="px-5 pt-4 pb-0"
+              style={{ borderBottom: '1px solid rgba(124,110,224,0.10)' }}
+            >
               <div className="flex items-center justify-between mb-3">
-                <h2 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-purple" />
+                <h2 className="font-bold flex items-center gap-2" style={{ fontSize: 14, color: '#1a1a2e' }}>
+                  <CheckSquare className="w-4 h-4" style={{ color: COLOR_PERI }} />
                   {t('all_assignments')}
                 </h2>
                 <button
                   onClick={() => navigate('/tapshiriqlar')}
-                  className="flex items-center gap-1 text-xs text-purple font-medium hover:opacity-75 transition-opacity"
+                  className="flex items-center gap-1 transition-all"
+                  style={{ fontSize: 12, color: COLOR_PERI, fontWeight: 600 }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                 >
                   {t('view_all')} <ArrowRight className="w-3.5 h-3.5" />
                 </button>
@@ -416,17 +581,34 @@ export default function StudentDashboard() {
                     <button
                       key={tab.key}
                       onClick={() => setAssignTab(tab.key)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-t-lg text-xs font-medium transition-colors border-b-2 ${
-                        active
-                          ? 'text-purple border-purple bg-purple-light/40'
-                          : 'text-gray-500 border-transparent hover:text-gray-700'
-                      }`}
+                      className="flex items-center gap-1.5 transition-all"
+                      style={{
+                        padding: '6px 14px',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: active ? COLOR_PERI : '#64748b',
+                        borderBottom: active ? `2px solid ${COLOR_PERI}` : '2px solid transparent',
+                        background: active ? 'rgba(124,110,224,0.08)' : 'transparent',
+                        borderRadius: '10px 10px 0 0',
+                        cursor: 'pointer',
+                      }}
                     >
                       {tab.label}
                       {count > 0 && (
-                        <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full text-[10px] font-bold px-1 ${
-                          isOverdue ? 'bg-red-500 text-white' : 'bg-purple text-white'
-                        }`}>
+                        <span
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                            minWidth: 20, height: 20,
+                            borderRadius: 999,
+                            fontSize: 10,
+                            fontWeight: 800,
+                            padding: '0 6px',
+                            background: isOverdue
+                              ? 'linear-gradient(135deg, #ef6c6c 0%, #d94d4d 100%)'
+                              : 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                            color: '#fff',
+                          }}
+                        >
                           {count}
                         </span>
                       )}
@@ -437,106 +619,174 @@ export default function StudentDashboard() {
             </div>
 
             {tabData[assignTab].length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-                <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
-                  <CheckSquare className="w-5 h-5 text-gray-300" />
+              <div className="flex flex-col items-center justify-center py-12 text-center px-6 gap-2">
+                <div
+                  className="flex items-center justify-center mb-1"
+                  style={{
+                    width: 44, height: 44, borderRadius: 14,
+                    background: 'rgba(93,184,163,0.14)',
+                    border: '1px solid rgba(93,184,163,0.28)',
+                  }}
+                >
+                  <CheckSquare className="w-5 h-5" style={{ color: COLOR_MINT }} />
                 </div>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm font-medium" style={{ color: '#1a1a2e' }}>
                   {assignTab === 'pending'  && 'Gözləyən tapşırıq yoxdur'}
                   {assignTab === 'thisweek' && 'Bu həftə tapşırıq yoxdur'}
                   {assignTab === 'overdue'  && 'Gecikmiş tapşırıq yoxdur'}
                 </p>
+                <p className="text-xs" style={{ color: '#64748b' }}>
+                  {assignTab === 'overdue' ? 'Əla iş! Hamısı vaxtında.' : 'Yeni tapşırıq görünəndə xəbər veriləcək.'}
+                </p>
               </div>
             ) : (
-              <div className="divide-y divide-border-soft">
-                {tabData[assignTab].slice(0, 6).map(a => (
-                  <div
-                    key={a.id}
-                    className="flex items-center gap-3 px-5 py-4 hover:bg-surface/50 transition-colors border-l-4"
-                    style={{ borderLeftColor: subjectHexColor(a.subject?.name || '') }}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span
-                          className="text-xs font-semibold px-2.5 py-0.5 rounded-full"
-                          style={{
-                            background: subjectLightHex(a.subject?.name || ''),
-                            color: subjectHexColor(a.subject?.name || ''),
-                          }}
-                        >
-                          {a.subject?.name || 'Fənn'}
-                        </span>
-                        {a.due_date && (
-                          <span className="text-[11px] text-gray-400">
-                            {formatDate(a.due_date)}
+              <div>
+                {tabData[assignTab].slice(0, 6).map((a, idx, arr) => {
+                  const sStyle = subjectStyle(a.subject?.name || '')
+                  return (
+                    <div
+                      key={a.id}
+                      className="flex items-center gap-3 px-5 py-4 transition-colors"
+                      style={{
+                        borderLeft: `4px solid ${sStyle.color}`,
+                        borderBottom: idx < arr.length - 1 ? '1px solid rgba(124,110,224,0.08)' : 'none',
+                        cursor: 'pointer',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.04)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span
+                            style={{
+                              fontSize: 11, fontWeight: 700,
+                              padding: '3px 10px',
+                              borderRadius: 999,
+                              background: sStyle.bg,
+                              color: sStyle.color,
+                              border: `1px solid ${sStyle.border}`,
+                            }}
+                          >
+                            {a.subject?.name || 'Fənn'}
                           </span>
-                        )}
+                          {a.due_date && (
+                            <span className="text-xs" style={{ color: '#94a3b8' }}>
+                              {formatDate(a.due_date)}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm font-bold truncate" style={{ color: '#1a1a2e' }}>
+                          {a.title}
+                        </p>
                       </div>
-                      <p className="text-sm font-semibold text-gray-900 truncate">{a.title}</p>
+                      <DueDateChip dueDate={a.due_date} />
                     </div>
-                    <DueDateChip dueDate={a.due_date} />
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
 
-          {/* Son Qiymətlər — now with score bars */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
-              <h2 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
-                <BarChart2 className="w-4 h-4 text-teal" />
+          {/* Son Qiymətlər */}
+          <div className="liquid-card overflow-hidden" style={{ padding: 0 }}>
+            <div
+              className="flex items-center justify-between px-5 py-4"
+              style={{ borderBottom: '1px solid rgba(124,110,224,0.10)' }}
+            >
+              <h2 className="font-bold flex items-center gap-2" style={{ fontSize: 14, color: '#1a1a2e' }}>
+                <BarChart2 className="w-4 h-4" style={{ color: COLOR_MINT }} />
                 {t('recent_grades')}
               </h2>
               <button
                 onClick={() => navigate('/qiymetler')}
-                className="flex items-center gap-1 text-xs text-purple font-medium hover:opacity-75 transition-opacity"
+                className="flex items-center gap-1 transition-all"
+                style={{ fontSize: 12, color: COLOR_PERI, fontWeight: 600 }}
+                onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
               >
                 {t('view_all')} <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
             {grades.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-                <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center mb-3">
-                  <BookOpen className="w-5 h-5 text-gray-300" />
+              <div className="flex flex-col items-center justify-center py-12 text-center px-6 gap-2">
+                <div
+                  className="flex items-center justify-center mb-1"
+                  style={{
+                    width: 44, height: 44, borderRadius: 14,
+                    background: 'rgba(124,110,224,0.10)',
+                    border: '1px solid rgba(124,110,224,0.18)',
+                  }}
+                >
+                  <BookOpen className="w-5 h-5" style={{ color: COLOR_PERI }} />
                 </div>
-                <p className="text-sm text-gray-400">{t('no_grades')}</p>
+                <p className="text-sm font-medium" style={{ color: '#1a1a2e' }}>{t('no_grades')}</p>
+                <p className="text-xs" style={{ color: '#64748b' }}>
+                  Müəlliminiz qiymət daxil etdikdə burada görünəcək.
+                </p>
               </div>
             ) : (
-              <div className="divide-y divide-border-soft">
+              <div>
                 {grades.map((g, i) => {
                   const score = g.score != null ? Number(g.score) : null
                   const pct = score != null ? Math.min((score / 10) * 100, 100) : 0
                   const barColor = gradeBarColor(score)
+                  const sStyle = subjectStyle(g.subject?.name || '')
                   return (
-                    <div key={g.id || i} className="px-5 py-4 hover:bg-surface/50 transition-colors">
+                    <div
+                      key={g.id || i}
+                      className="px-5 py-4 transition-colors"
+                      style={{
+                        borderBottom: i < grades.length - 1 ? '1px solid rgba(124,110,224,0.08)' : 'none',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.04)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+                    >
                       <div className="flex items-center gap-3 mb-2">
                         <div
-                          className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center"
-                          style={{ backgroundColor: subjectLightHex(g.subject?.name || '') }}
+                          className="flex items-center justify-center flex-shrink-0"
+                          style={{
+                            width: 36, height: 36, borderRadius: 12,
+                            background: sStyle.bg,
+                            border: `1px solid ${sStyle.border}`,
+                          }}
                         >
-                          <BookOpen
-                            className="w-4 h-4"
-                            style={{ color: subjectHexColor(g.subject?.name || '') }}
-                          />
+                          <BookOpen className="w-4 h-4" style={{ color: sStyle.color }} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">{g.subject?.name || 'Fənn'}</p>
+                          <p className="text-sm font-bold truncate" style={{ color: '#1a1a2e' }}>
+                            {g.subject?.name || 'Fənn'}
+                          </p>
                           {g.assessment?.title && (
-                            <p className="text-xs text-gray-400 truncate">{g.assessment.title}</p>
+                            <p className="text-xs truncate" style={{ color: '#64748b' }}>
+                              {g.assessment.title}
+                            </p>
                           )}
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <GradeBadge score={score} />
-                          <span className="text-xs text-gray-400 whitespace-nowrap">{formatDate(g.created_at)}</span>
+                          <span className="text-xs whitespace-nowrap" style={{ color: '#94a3b8' }}>
+                            {formatDate(g.created_at)}
+                          </span>
                         </div>
                       </div>
-                      {/* Score bar */}
-                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden ml-11">
+                      <div
+                        style={{
+                          height: 6,
+                          borderRadius: 999,
+                          background: 'rgba(124,110,224,0.08)',
+                          overflow: 'hidden',
+                          marginLeft: 48,
+                        }}
+                      >
                         <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{ width: `${pct}%`, backgroundColor: barColor }}
+                          className="transition-all duration-500"
+                          style={{
+                            height: '100%',
+                            borderRadius: 999,
+                            width: `${pct}%`,
+                            background: barColor,
+                          }}
                         />
                       </div>
                     </div>
@@ -551,67 +801,108 @@ export default function StudentDashboard() {
         <div className="lg:col-span-4 space-y-5">
 
           {/* Quick actions */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-border-soft">
-              <h2 className="font-semibold text-gray-900 text-sm">{t('quick_nav')}</h2>
+          <div className="liquid-card overflow-hidden" style={{ padding: 0 }}>
+            <div className="px-5 py-4" style={{ borderBottom: '1px solid rgba(124,110,224,0.10)' }}>
+              <h2 className="font-bold" style={{ fontSize: 14, color: '#1a1a2e' }}>
+                {t('quick_nav')}
+              </h2>
             </div>
             <div className="p-3 space-y-2">
               {[
-                { icon: Upload,    label: 'Tapşırıq Təhvil Ver', sub: `${pendingAssignments.length} gözləyir`,    path: '/tapshiriqlar', color: 'purple' },
-                { icon: BookOpen,  label: 'Qiymətlərim',          sub: `Ortalama: ${avgStr}`,                      path: '/qiymetler',    color: 'teal'   },
-                { icon: Calendar,  label: 'Davamiyyət',            sub: `${attStr} iştirak`,                        path: '/davamiyyet',   color: 'blue'   },
-                { icon: FolderOpen,label: 'Portfelim',             sub: 'İşlərimi gör',                             path: '/portfolio',    color: 'amber'  },
-              ].map(a => {
-                const bgMap  = { purple: 'bg-purple-light', teal: 'bg-teal-light', blue: 'bg-blue-50', amber: 'bg-amber-50' }
-                const icMap  = { purple: 'text-purple', teal: 'text-teal', blue: 'text-blue-600', amber: 'text-amber-600' }
-                return (
-                  <button
-                    key={a.path}
-                    onClick={() => navigate(a.path)}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-border-soft bg-white hover:shadow-sm hover:border-purple/20 transition-all text-left w-full"
+                { icon: Upload,    label: 'Tapşırıq Təhvil Ver', sub: `${pendingAssignments.length} gözləyir`, path: '/tapshiriqlar', color: COLOR_PERI },
+                { icon: BookOpen,  label: 'Qiymətlərim',          sub: `Ortalama: ${avgStr}`,                  path: '/qiymetler',    color: COLOR_MINT  },
+                { icon: Calendar,  label: 'Davamiyyət',            sub: `${attStr} iştirak`,                    path: '/davamiyyet',   color: COLOR_BLUE  },
+                { icon: FolderOpen,label: 'Portfelim',             sub: 'İşlərimi gör',                         path: '/portfolio',    color: COLOR_PEACH },
+              ].map(a => (
+                <button
+                  key={a.path}
+                  onClick={() => navigate(a.path)}
+                  className="flex items-center gap-3 w-full transition-all text-left"
+                  style={{
+                    padding: 12,
+                    borderRadius: 14,
+                    background: 'rgba(255,255,255,0.55)',
+                    border: '1px solid rgba(124,110,224,0.14)',
+                    backdropFilter: 'blur(12px)',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.85)'; e.currentTarget.style.borderColor = `${a.color}55`; e.currentTarget.style.transform = 'translateY(-1px)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.55)'; e.currentTarget.style.borderColor = 'rgba(124,110,224,0.14)'; e.currentTarget.style.transform = 'translateY(0)' }}
+                >
+                  <span
+                    className="flex items-center justify-center flex-shrink-0"
+                    style={{
+                      width: 38, height: 38, borderRadius: 12,
+                      background: `${a.color}22`,
+                      border: `1px solid ${a.color}33`,
+                    }}
                   >
-                    <span className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${bgMap[a.color]}`}>
-                      <a.icon className={`w-4 h-4 ${icMap[a.color]}`} />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-gray-900">{a.label}</p>
-                      <p className="text-xs text-gray-400 truncate">{a.sub}</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-300 ml-auto flex-shrink-0" />
-                  </button>
-                )
-              })}
+                    <a.icon className="w-4 h-4" style={{ color: a.color }} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold" style={{ color: '#1a1a2e' }}>{a.label}</p>
+                    <p className="text-xs truncate" style={{ color: '#64748b' }}>{a.sub}</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: '#cbd5e1' }} />
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Bildirişlər */}
-          <div className="bg-white rounded-2xl border border-border-soft shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-soft">
-              <h2 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
-                <Bell className="w-4 h-4 text-purple" />
+          <div className="liquid-card overflow-hidden" style={{ padding: 0 }}>
+            <div
+              className="flex items-center justify-between px-5 py-4"
+              style={{ borderBottom: '1px solid rgba(124,110,224,0.10)' }}
+            >
+              <h2 className="font-bold flex items-center gap-2" style={{ fontSize: 14, color: '#1a1a2e' }}>
+                <Bell className="w-4 h-4" style={{ color: COLOR_PERI }} />
                 {t('all_notifications')}
               </h2>
-              {notifications.some(n => !n.read) && <span className="w-2 h-2 rounded-full bg-red-500" />}
+              {notifications.some(n => !n.read) && (
+                <span style={{ width: 8, height: 8, borderRadius: 999, background: COLOR_ROSE, display: 'inline-block' }} />
+              )}
             </div>
 
             {notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center px-5">
-                <Bell className="w-6 h-6 text-gray-200 mb-2" />
-                <p className="text-xs text-gray-400">{t('no_notifications')}</p>
+              <div className="flex flex-col items-center justify-center py-10 text-center px-5 gap-2">
+                <div
+                  className="flex items-center justify-center"
+                  style={{
+                    width: 38, height: 38, borderRadius: 12,
+                    background: 'rgba(124,110,224,0.10)',
+                    border: '1px solid rgba(124,110,224,0.18)',
+                  }}
+                >
+                  <Bell className="w-4 h-4" style={{ color: COLOR_PERI }} />
+                </div>
+                <p className="text-xs font-medium" style={{ color: '#1a1a2e' }}>{t('no_notifications')}</p>
               </div>
             ) : (
-              <div className="divide-y divide-border-soft">
-                {notifications.map((n, i) => (
+              <div>
+                {notifications.map((n, i, arr) => (
                   <div
                     key={n.id || i}
-                    className={`flex items-start gap-3 px-5 py-3.5 ${n.read ? '' : 'bg-purple-light/20'}`}
+                    className="flex items-start gap-3 px-5 py-3.5"
+                    style={{
+                      background: !n.read ? 'rgba(124,110,224,0.06)' : 'transparent',
+                      borderBottom: i < arr.length - 1 ? '1px solid rgba(124,110,224,0.08)' : 'none',
+                    }}
                   >
-                    <span className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${notifDotColor(n.type)}`} />
+                    <span
+                      className="mt-1.5 flex-shrink-0"
+                      style={{
+                        width: 8, height: 8, borderRadius: 999,
+                        background: notifDotColor(n.type),
+                      }}
+                    />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-900 leading-snug line-clamp-2">
+                      <p className="text-xs font-medium line-clamp-2" style={{ color: '#1a1a2e', lineHeight: 1.45 }}>
                         {n.message || n.title || 'Bildiriş'}
                       </p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">{timeAgo(n.created_at)}</p>
+                      <p className="mt-0.5" style={{ fontSize: 11, color: '#94a3b8' }}>
+                        {timeAgo(n.created_at)}
+                      </p>
                     </div>
                   </div>
                 ))}

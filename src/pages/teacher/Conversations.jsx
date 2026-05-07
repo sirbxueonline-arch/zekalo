@@ -2,9 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import Avatar from '../../components/ui/Avatar'
-import { PageSpinner } from '../../components/ui/Spinner'
-import EmptyState from '../../components/ui/EmptyState'
-import { MessageSquare, Send } from 'lucide-react'
+import { MessageSquare, Send, AlertCircle } from 'lucide-react'
 import { fmtDayMonth } from '../../lib/dateUtils'
 
 function formatTime(dateStr) {
@@ -50,7 +48,6 @@ export default function TeacherConversations() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Real-time subscription on active conversation
   useEffect(() => {
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current)
@@ -73,7 +70,6 @@ export default function TeacherConversations() {
             if (prev.some(m => m.id === payload.new.id)) return prev
             return [...prev, payload.new]
           })
-          // Mark as read if from parent
           if (payload.new.sender_id !== profile.id) {
             supabase.from('conversation_messages')
               .update({ read: true })
@@ -124,7 +120,6 @@ export default function TeacherConversations() {
     )
     setMessages(sorted)
 
-    // Mark unread messages from parent as read
     const unreadIds = sorted
       .filter(m => m.sender_id !== profile.id && !m.read)
       .map(m => m.id)
@@ -184,7 +179,6 @@ export default function TeacherConversations() {
       setMessages(prev => prev.map(m => m.id === optimistic.id ? data : m))
       loadConversations()
     } catch (err) {
-      // Rollback optimistic message and restore input
       setMessages(prev => prev.filter(m => m.id !== optimistic.id))
       setInput(savedInput)
       setSendError(err.message || 'Mesaj göndərilmədi')
@@ -193,7 +187,6 @@ export default function TeacherConversations() {
     }
   }
 
-  // Total unread across all conversations
   const totalUnread = conversations.reduce((sum, conv) => {
     const count = (conv.conversation_messages || []).filter(
       m => m.sender_id !== profile.id && !m.read
@@ -201,32 +194,49 @@ export default function TeacherConversations() {
     return sum + count
   }, 0)
 
-  if (loading) return <PageSpinner />
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="pastel-skeleton h-12 w-72" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="pastel-skeleton h-96" />
+          <div className="pastel-skeleton h-96 md:col-span-2" />
+        </div>
+      </div>
+    )
+  }
 
-  if (loadError) return (
-    <div className="p-8 text-center text-sm text-red-600 bg-red-50 rounded-xl">{loadError}</div>
-  )
+  if (loadError) {
+    return (
+      <div className="liquid-card p-6">
+        <div className="flex items-center gap-2" style={{ color: '#b83b54' }}>
+          <AlertCircle className="w-5 h-5" />
+          <span className="text-sm font-semibold">{loadError}</span>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] -m-8 overflow-hidden">
-      {/* Left panel */}
-      <div className="w-80 bg-white border-r border-border-soft flex flex-col flex-shrink-0">
-        <div className="p-4 border-b border-border-soft flex items-center justify-between">
+    <div className="liquid-card overflow-hidden flex" style={{ height: 'calc(100vh - 7rem)' }}>
+      {/* Left panel — conversations list */}
+      <div className="w-80 flex flex-col flex-shrink-0" style={{ borderRight: '1px solid rgba(124,110,224,0.12)' }}>
+        <div className="px-4 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
           <div className="flex items-center gap-2">
-            <h2 className="font-serif text-lg text-gray-900">Yazışmalar</h2>
+            <h2 className="text-base font-bold" style={{ color: '#1a1a2e' }}>Yazışmalar</h2>
             {totalUnread > 0 && (
-              <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
-                {totalUnread}
-              </span>
+              <span className="pastel-badge pastel-badge-rose">{totalUnread}</span>
             )}
           </div>
-          <span className="text-xs text-gray-400">Valideynlər yazışır</span>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto scrollbar-thin">
           {conversations.length === 0 ? (
-            <div className="p-6 text-sm text-gray-400 text-center">
-              Hələ heç bir yazışma yoxdur
+            <div className="flex flex-col items-center justify-center gap-3 py-12 px-4 text-center">
+              <div className="icon-chip icon-chip-periwinkle" style={{ width: 48, height: 48 }}>
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <p className="text-sm" style={{ color: '#94a3b8' }}>Hələ heç bir yazışma yoxdur</p>
             </div>
           ) : (
             conversations.map(conv => {
@@ -240,41 +250,40 @@ export default function TeacherConversations() {
                 <button
                   key={conv.id}
                   onClick={() => openConversation(conv)}
-                  className={`w-full text-left px-4 py-3 border-b border-border-soft transition-colors ${
-                    isActive ? 'bg-teal-light' : 'hover:bg-surface'
-                  }`}
+                  className="w-full text-left px-4 py-3 smooth-trans"
+                  style={{
+                    background: isActive ? 'rgba(124,110,224,0.08)' : 'transparent',
+                    borderBottom: '1px solid rgba(124,110,224,0.06)',
+                    borderLeft: isActive ? '3px solid #7c6ee0' : '3px solid transparent',
+                  }}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(124,110,224,0.04)' }}
+                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
                 >
                   <div className="flex items-start gap-3">
-                    <Avatar
-                      name={conv.parent?.full_name}
-                      color={conv.parent?.avatar_color}
-                      size="sm"
-                    />
+                    <Avatar name={conv.parent?.full_name} color={conv.parent?.avatar_color} size="sm" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1">
-                        <p className={`text-sm truncate ${unreadCount > 0 ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                        <p className="text-sm truncate" style={{ fontWeight: unreadCount > 0 ? 700 : 500, color: '#1a1a2e' }}>
                           {conv.parent?.full_name || 'Valideyn'}
                         </p>
                         <div className="flex items-center gap-1.5 flex-shrink-0">
                           {lastMsg && (
-                            <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                            <span className="text-[10px] whitespace-nowrap" style={{ color: '#94a3b8' }}>
                               {formatTime(lastMsg.created_at)}
                             </span>
                           )}
                           {unreadCount > 0 && (
-                            <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
-                              {unreadCount}
-                            </span>
+                            <span className="pastel-badge pastel-badge-rose" style={{ minWidth: 18, fontSize: 10 }}>{unreadCount}</span>
                           )}
                         </div>
                       </div>
                       {conv.student && (
-                        <p className="text-[10px] text-teal font-medium mb-0.5">
+                        <p className="text-[10px] mb-0.5 font-semibold" style={{ color: '#5db8a3' }}>
                           {conv.student.full_name}
                         </p>
                       )}
                       {lastMsg && (
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs truncate" style={{ color: '#64748b' }}>
                           {truncate(lastMsg.content, 40)}
                         </p>
                       )}
@@ -287,35 +296,33 @@ export default function TeacherConversations() {
         </div>
       </div>
 
-      {/* Right panel */}
+      {/* Right panel — chat */}
       <div className="flex-1 flex flex-col min-w-0">
         {!activeConv ? (
-          <EmptyState
-            icon={MessageSquare}
-            title="Yazışma seçin"
-            description="Sol paneldən bir yazışma seçin və valideynin mesajına cavab verin."
-          />
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 px-8 text-center">
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 64, height: 64 }}>
+              <MessageSquare className="w-8 h-8" />
+            </div>
+            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Yazışma seçin</p>
+            <p className="text-sm max-w-sm" style={{ color: '#94a3b8' }}>Sol paneldən bir yazışma seçin və valideynin mesajına cavab verin.</p>
+          </div>
         ) : (
           <>
             {/* Chat header */}
-            <div className="px-6 py-4 border-b border-border-soft flex items-center gap-3 bg-white">
-              <Avatar
-                name={activeConv.parent?.full_name}
-                color={activeConv.parent?.avatar_color}
-                size="sm"
-              />
+            <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
+              <Avatar name={activeConv.parent?.full_name} color={activeConv.parent?.avatar_color} size="sm" />
               <div>
-                <p className="text-sm font-medium text-gray-900">{activeConv.parent?.full_name}</p>
+                <p className="text-sm font-bold" style={{ color: '#1a1a2e' }}>{activeConv.parent?.full_name}</p>
                 {activeConv.student && (
-                  <p className="text-xs text-gray-400">{activeConv.student.full_name} haqqında</p>
+                  <p className="text-xs" style={{ color: '#94a3b8' }}>{activeConv.student.full_name} haqqında</p>
                 )}
               </div>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3 bg-surface">
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
               {messages.length === 0 && (
-                <div className="text-center text-sm text-gray-400 py-8">
+                <div className="text-center text-sm py-8" style={{ color: '#94a3b8' }}>
                   Hələ mesaj yoxdur.
                 </div>
               )}
@@ -324,14 +331,19 @@ export default function TeacherConversations() {
                 return (
                   <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                     <div
-                      className={`max-w-[70%] rounded-xl px-4 py-3 text-sm ${
-                        isMe
-                          ? 'bg-teal text-white'
-                          : 'bg-white border border-border-soft text-gray-900'
-                      }`}
+                      className="max-w-[70%] rounded-2xl px-4 py-2.5 text-sm"
+                      style={{
+                        background: isMe
+                          ? 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)'
+                          : 'rgba(255,255,255,0.7)',
+                        backdropFilter: 'blur(10px)',
+                        color: isMe ? '#fff' : '#1a1a2e',
+                        border: isMe ? 'none' : '1px solid rgba(124,110,224,0.12)',
+                        boxShadow: isMe ? '0 4px 12px rgba(124,110,224,0.18)' : '0 1px 3px rgba(0,0,0,0.04)',
+                      }}
                     >
-                      <p>{msg.content}</p>
-                      <p className={`text-[10px] mt-1 ${isMe ? 'text-teal-light opacity-90' : 'text-gray-400'}`}>
+                      <p style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</p>
+                      <p className="text-[10px] mt-1" style={{ color: isMe ? 'rgba(255,255,255,0.8)' : '#94a3b8' }}>
                         {formatTime(msg.created_at)}
                       </p>
                     </div>
@@ -342,9 +354,11 @@ export default function TeacherConversations() {
             </div>
 
             {/* Input */}
-            <div className="border-t border-border-soft bg-white">
+            <div style={{ borderTop: '1px solid rgba(124,110,224,0.12)' }}>
               {sendError && (
-                <p className="px-6 pt-3 text-xs text-red-600">{sendError}</p>
+                <p className="px-6 pt-3 text-xs flex items-center gap-1.5" style={{ color: '#b83b54' }}>
+                  <AlertCircle className="w-3.5 h-3.5" /> {sendError}
+                </p>
               )}
               <div className="px-6 py-4 flex gap-3">
                 <input
@@ -352,14 +366,15 @@ export default function TeacherConversations() {
                   onChange={e => { setInput(e.target.value); if (sendError) setSendError(null) }}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
                   placeholder="Mesaj yazın..."
-                  className="flex-1 border border-border-soft rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+                  className="pastel-input flex-1"
                 />
                 <button
                   onClick={sendMessage}
                   disabled={!input.trim() || sending}
-                  className="bg-teal text-white rounded-xl px-4 hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center"
+                  className="btn-pastel"
+                  style={{ padding: '0 18px', opacity: (!input.trim() || sending) ? 0.5 : 1 }}
                 >
-                  <Send className="w-5 h-5" />
+                  <Send className="w-4 h-4" />
                 </button>
               </div>
             </div>

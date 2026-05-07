@@ -35,27 +35,27 @@ const VISIBLE_LABELS = {
 }
 
 const TYPE_BADGE_CLASSES = {
-  holiday: 'bg-red-100 text-red-700',
-  exam: 'bg-purple-light text-purple',
-  meeting: 'bg-blue-50 text-blue-700',
-  event: 'bg-teal-light text-teal',
-  other: 'bg-gray-100 text-gray-600',
+  holiday: 'bg-[rgba(239,68,68,0.10)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]',
+  exam:    'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7] border border-[rgba(124,110,224,0.28)]',
+  meeting: 'bg-[rgba(107,157,222,0.14)] text-[#3d6da7] border border-[rgba(107,157,222,0.32)]',
+  event:   'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]',
+  other:   'bg-[rgba(255,255,255,0.6)] text-[#64748b] border border-[rgba(124,110,224,0.18)]',
 }
 
 const TYPE_BORDER_COLORS = {
   holiday: '#EF4444',
-  exam: '#534AB7',
+  exam: '#7c6ee0',
   meeting: '#3B82F6',
-  event: '#1D9E75',
+  event: '#5db8a3',
   other: '#9CA3AF',
 }
 
 const PRESET_COLORS = [
-  { value: '#7C3AED', label: 'Bənövşəyi' },
-  { value: '#0D9488', label: 'Firuzəyi' },
-  { value: '#DC2626', label: 'Qırmızı' },
-  { value: '#2563EB', label: 'Mavi' },
-  { value: '#D97706', label: 'Narıncı' },
+  { value: '#7c6ee0', label: 'Bənövşəyi' },
+  { value: '#5db8a3', label: 'Firuzəyi' },
+  { value: '#e8a87c', label: 'Şəftəli' },
+  { value: '#6b9dde', label: 'Mavi' },
+  { value: '#dc2626', label: 'Qırmızı' },
 ]
 
 const AZ_MONTHS = [
@@ -317,20 +317,26 @@ export default function Events() {
 
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-serif text-3xl text-gray-900">Tədbirlər və Təqvim</h1>
+        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Tədbirlər və Təqvim</span></h1>
         <div className="flex items-center gap-3">
           {/* View toggle */}
-          <div className="flex items-center border border-border-soft rounded-lg overflow-hidden">
+          <div className="flex items-center rounded-full overflow-hidden p-1 backdrop-blur-md" style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(124,110,224,0.18)' }}>
             <button
               onClick={() => setView('calendar')}
-              className={`flex items-center gap-1.5 px-3 py-2 text-sm transition-colors ${view === 'calendar' ? 'bg-purple text-white' : 'text-gray-600 hover:bg-surface'}`}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-full transition-all"
+              style={view === 'calendar'
+                ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(124,110,224,0.25)' }
+                : { color: '#64748b' }}
             >
               <CalendarDays className="w-4 h-4" />
               Təqvim
             </button>
             <button
               onClick={() => setView('list')}
-              className={`flex items-center gap-1.5 px-3 py-2 text-sm transition-colors ${view === 'list' ? 'bg-purple text-white' : 'text-gray-600 hover:bg-surface'}`}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-full transition-all"
+              style={view === 'list'
+                ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(124,110,224,0.25)' }
+                : { color: '#64748b' }}
             >
               <List className="w-4 h-4" />
               Siyahı
@@ -362,7 +368,8 @@ export default function Events() {
               {(currentMonth !== today.getMonth() || currentYear !== today.getFullYear()) && (
                 <button
                   onClick={() => { setCurrentMonth(today.getMonth()); setCurrentYear(today.getFullYear()) }}
-                  className="text-xs font-medium px-2.5 py-1 rounded-full bg-purple-light text-purple hover:bg-purple hover:text-white transition-colors"
+                  className="text-xs font-semibold px-3 py-1 rounded-full transition-all backdrop-blur-md"
+                  style={{ background: 'rgba(124,110,224,0.12)', color: '#5e4fc7', border: '1px solid rgba(124,110,224,0.28)' }}
                 >
                   Bu gün
                 </button>
@@ -404,10 +411,12 @@ export default function Events() {
                 >
                   {day && (
                     <>
-                      <span className={`
-                        inline-flex w-6 h-6 items-center justify-center rounded-full text-xs font-medium mb-1
-                        ${isToday ? 'bg-purple text-white' : 'text-gray-700'}
-                      `}>
+                      <span
+                        className="inline-flex w-7 h-7 items-center justify-center rounded-full text-xs font-bold mb-1"
+                        style={isToday
+                          ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 12px rgba(124,110,224,0.25)' }
+                          : { color: '#1a1a2e' }}
+                      >
                         {day}
                       </span>
                       <div className="space-y-0.5">
@@ -492,7 +501,8 @@ export default function Events() {
                           return (
                             <div
                               key={event.id}
-                              className={`flex items-stretch bg-white rounded-xl border border-border-soft overflow-hidden shadow-sm hover:shadow-md transition-shadow ${isToday ? 'ring-2 ring-purple/20' : ''}`}
+                              className={`liquid-card flex items-stretch overflow-hidden ${isToday ? 'ring-2 ring-[rgba(124,110,224,0.3)]' : ''}`}
+                              style={{ padding: 0 }}
                             >
                               {/* Colored left border */}
                               <div className="w-1 flex-shrink-0" style={{ backgroundColor: borderColor }} />
@@ -506,7 +516,10 @@ export default function Events() {
                                   {AZ_MONTHS[Number(startParts[1]) - 1]?.slice(0, 3) || ''}
                                 </span>
                                 {isToday && (
-                                  <span className="mt-1 px-1.5 py-0.5 rounded-full bg-purple text-white text-[9px] font-bold uppercase tracking-wide leading-none">
+                                  <span
+                                    className="mt-1 px-1.5 py-0.5 rounded-full text-white text-[9px] font-bold uppercase tracking-wide leading-none"
+                                    style={{ background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)' }}
+                                  >
                                     Bu gün
                                   </span>
                                 )}
