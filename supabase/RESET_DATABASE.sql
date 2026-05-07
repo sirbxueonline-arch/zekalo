@@ -74,12 +74,7 @@ RESTART IDENTITY CASCADE;
 DELETE FROM auth.users WHERE true;
 
 -- ───────────────────────────────────────────────
--- 3.  Empty storage objects (uploaded files) but keep buckets
--- ───────────────────────────────────────────────
-DELETE FROM storage.objects WHERE true;
-
--- ───────────────────────────────────────────────
--- 4.  Verify counts (should all be 0)
+-- 3.  Verify counts (should all be 0)
 -- ───────────────────────────────────────────────
 DO $$
 DECLARE
@@ -88,26 +83,40 @@ DECLARE
   v_schools      bigint;
   v_classes      bigint;
   v_grades       bigint;
-  v_storage_obj  bigint;
 BEGIN
-  SELECT count(*) INTO v_users       FROM auth.users;
-  SELECT count(*) INTO v_profiles    FROM public.profiles;
-  SELECT count(*) INTO v_schools     FROM public.schools;
-  SELECT count(*) INTO v_classes     FROM public.classes;
-  SELECT count(*) INTO v_grades      FROM public.grades;
-  SELECT count(*) INTO v_storage_obj FROM storage.objects;
+  SELECT count(*) INTO v_users    FROM auth.users;
+  SELECT count(*) INTO v_profiles FROM public.profiles;
+  SELECT count(*) INTO v_schools  FROM public.schools;
+  SELECT count(*) INTO v_classes  FROM public.classes;
+  SELECT count(*) INTO v_grades   FROM public.grades;
 
-  RAISE NOTICE 'auth.users        = %', v_users;
-  RAISE NOTICE 'profiles          = %', v_profiles;
-  RAISE NOTICE 'schools           = %', v_schools;
-  RAISE NOTICE 'classes           = %', v_classes;
-  RAISE NOTICE 'grades            = %', v_grades;
-  RAISE NOTICE 'storage.objects   = %', v_storage_obj;
+  RAISE NOTICE 'auth.users  = %', v_users;
+  RAISE NOTICE 'profiles    = %', v_profiles;
+  RAISE NOTICE 'schools     = %', v_schools;
+  RAISE NOTICE 'classes     = %', v_classes;
+  RAISE NOTICE 'grades      = %', v_grades;
 END $$;
 
 COMMIT;
 
 -- ============================================================
---  Done. Database is empty but fully ready for fresh signups.
---  First user to register will land in a clean profiles row.
+--  Database tables: empty.  Auth users: gone.
+--  First new signup will trigger handle_new_user() and create
+--  a fresh profile row automatically.
+--
+--  Storage files (uploaded avatars, attachments, portfolio):
+--    Supabase blocks direct DELETE FROM storage.objects to
+--    prevent orphaned files. To clear storage:
+--
+--    Option A — UI:
+--      Supabase → Storage → open each bucket (avatars/
+--      attachments/portfolio) → select all → Delete.
+--
+--    Option B — temporarily disable the protect trigger and
+--      run the deletion, then re-enable. Run the block below
+--      ONLY if you know what you're doing:
+--
+--      ALTER TABLE storage.objects DISABLE TRIGGER protect_delete;
+--      DELETE FROM storage.objects WHERE true;
+--      ALTER TABLE storage.objects ENABLE TRIGGER protect_delete;
 -- ============================================================
