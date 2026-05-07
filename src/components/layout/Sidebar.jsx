@@ -217,6 +217,7 @@ const superAdminGroups = [
     items: [
       { icon: LayoutDashboard, path: '/superadmin/dashboard', label: 'İdarəetmə' },
       { icon: School,          path: '/superadmin/mektebler', label: 'Məktəblər' },
+      { icon: ShieldCheck,     path: '/superadmin/adminler',  label: 'Adminlər' },
     ],
   },
 ]

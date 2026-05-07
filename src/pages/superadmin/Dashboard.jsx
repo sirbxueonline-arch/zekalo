@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   School, Users, GraduationCap, Heart, Clock, Activity,
-  BarChart2, TrendingUp, RefreshCw
+  BarChart2, TrendingUp, RefreshCw, Plus, UserPlus, ListChecks,
+  ShieldCheck, ShieldOff, Shield
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -45,10 +46,14 @@ const ROLE_VARIANTS = {
 export default function SuperAdminDashboard() {
   const { profile } = useAuth()
   const navigate = useNavigate()
+  const L = profile?.language || 'az'
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const [stats, setStats] = useState({ schools: 0, students: 0, teachers: 0, parents: 0 })
+  const [stats, setStats] = useState({
+    schools: 0, students: 0, teachers: 0, parents: 0,
+    totalUsers: 0, activeSchools: 0, blockedSchools: 0, totalAdmins: 0,
+  })
   const [recentSchools, setRecentSchools] = useState([])
   const [recentProfiles, setRecentProfiles] = useState([])
   const [topSchoolsByStudents, setTopSchoolsByStudents] = useState([])
@@ -75,15 +80,21 @@ export default function SuperAdminDashboard() {
         allProfilesRes,
         recentProfilesRes,
         adminProfilesRes,
+        usersCountRes,
+        adminsCountRes,
+        allSchoolsRes,
       ] = await Promise.all([
         supabase.from('schools').select('id', { count: 'exact', head: true }),
         supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'student'),
         supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'teacher'),
         supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'parent'),
-        supabase.from('schools').select('id, name, district, edition, created_at').order('created_at', { ascending: false }).limit(10),
+        supabase.from('schools').select('id, name, district, edition, created_at, blocked').order('created_at', { ascending: false }).limit(10),
         supabase.from('profiles').select('id, school_id, role').limit(500),
         supabase.from('profiles').select('id, full_name, role, created_at, school_id').order('created_at', { ascending: false }).limit(20),
         supabase.from('profiles').select('full_name, school_id').eq('role', 'admin').limit(500),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).in('role', ['admin', 'super_admin']),
+        supabase.from('schools').select('id, blocked').limit(500),
       ])
 
       if (schoolsCountRes.error) throw schoolsCountRes.error
@@ -95,11 +106,19 @@ export default function SuperAdminDashboard() {
       if (recentProfilesRes.error) throw recentProfilesRes.error
       if (adminProfilesRes.error) throw adminProfilesRes.error
 
+      const allSchools = allSchoolsRes.data || []
+      const blockedCount = allSchools.filter(s => !!s.blocked).length
+      const activeCount = allSchools.length - blockedCount
+
       setStats({
         schools: schoolsCountRes.count || 0,
         students: studentsCountRes.count || 0,
         teachers: teachersCountRes.count || 0,
         parents: parentsCountRes.count || 0,
+        totalUsers: usersCountRes.count || 0,
+        activeSchools: activeCount,
+        blockedSchools: blockedCount,
+        totalAdmins: adminsCountRes.count || 0,
       })
 
       // Build counts per school
@@ -179,25 +198,100 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="relative rounded-xl overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple/10 via-purple/5 to-transparent pointer-events-none rounded-xl" />
-        <div className="relative px-8 py-6">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-2 h-2 rounded-full bg-purple" />
-            <span className="text-xs tracking-widest text-purple uppercase font-medium">Super Admin</span>
+      {/* Header — liquid glass pastel */}
+      <div className="liquid-card p-8">
+        <div className="flex items-start justify-between flex-wrap gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-2 h-2 rounded-full" style={{ background: 'linear-gradient(135deg, #7c6ee0, #5db8a3)' }} />
+              <span className="text-xs tracking-widest uppercase font-semibold pastel-text">Super Admin</span>
+            </div>
+            <h1 className="font-serif text-4xl text-[#1a1a2e]">
+              {(L === 'en' ? 'Platform Management'
+                : L === 'ru' ? 'Управление платформой'
+                : L === 'tr' ? 'Platform Yönetimi'
+                : 'Sistem İdarəetməsi')}
+            </h1>
+            <p className="text-sm text-[#64748b] mt-1">
+              {(L === 'en' ? 'Overview of all schools and users on the platform'
+                : L === 'ru' ? 'Обзор всех школ и пользователей платформы'
+                : L === 'tr' ? 'Platformdaki tüm okul ve kullanıcılara genel bakış'
+                : 'Bütün məktəblər və istifadəçilər üzrə ümumi baxış')}
+            </p>
           </div>
-          <h1 className="font-serif text-4xl text-gray-900">Sistem İdarəetməsi</h1>
-          <p className="text-sm text-gray-500 mt-1">Bütün məktəblər və istifadəçilər üzrə ümumi baxış</p>
+
+          {/* Quick actions */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              onClick={() => navigate('/superadmin/mektebler')}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              {(L === 'en' ? 'Create school'
+                : L === 'ru' ? 'Создать школу'
+                : L === 'tr' ? 'Okul oluştur'
+                : 'Məktəb yarat')}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/superadmin/adminler')}
+              className="flex items-center gap-2"
+            >
+              <UserPlus className="w-4 h-4" />
+              {(L === 'en' ? 'Manage admins'
+                : L === 'ru' ? 'Управление админами'
+                : L === 'tr' ? 'Yöneticiler'
+                : 'Adminləri idarə et')}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/superadmin/mektebler')}
+              className="flex items-center gap-2"
+            >
+              <ListChecks className="w-4 h-4" />
+              {(L === 'en' ? 'All schools'
+                : L === 'ru' ? 'Все школы'
+                : L === 'tr' ? 'Tüm okullar'
+                : 'Bütün məktəblər')}
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Stat cards */}
+      {/* Primary stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard label="Ümumi məktəblər"  value={stats.schools}  icon={School}       iconBg="bg-purple-light" iconColor="text-purple" />
-        <StatCard label="Ümumi şagirdlər"  value={stats.students} icon={Users}        iconBg="bg-teal-light"   iconColor="text-teal" />
-        <StatCard label="Ümumi müəllimlər" value={stats.teachers} icon={GraduationCap} iconBg="bg-blue-50"     iconColor="text-blue-500" />
-        <StatCard label="Ümumi valideynlər" value={stats.parents} icon={Heart}        iconBg="bg-pink-50"      iconColor="text-pink-500" />
+        <StatCard label={(L === 'en' ? 'Total schools' : L === 'ru' ? 'Всего школ' : L === 'tr' ? 'Toplam okul' : 'Ümumi məktəblər')}   value={stats.schools}  icon={School}        tone="periwinkle" />
+        <StatCard label={(L === 'en' ? 'Total students' : L === 'ru' ? 'Всего учеников' : L === 'tr' ? 'Toplam öğrenci' : 'Ümumi şagirdlər')}   value={stats.students} icon={Users}         tone="mint" />
+        <StatCard label={(L === 'en' ? 'Total teachers' : L === 'ru' ? 'Всего учителей' : L === 'tr' ? 'Toplam öğretmen' : 'Ümumi müəllimlər')} value={stats.teachers} icon={GraduationCap} tone="blue" />
+        <StatCard label={(L === 'en' ? 'Total parents' : L === 'ru' ? 'Всего родителей' : L === 'tr' ? 'Toplam veli' : 'Ümumi valideynlər')}   value={stats.parents}  icon={Heart}         tone="peach" />
+      </div>
+
+      {/* Platform metrics row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          label={(L === 'en' ? 'Total users' : L === 'ru' ? 'Всего пользователей' : L === 'tr' ? 'Toplam kullanıcı' : 'Ümumi istifadəçilər')}
+          value={stats.totalUsers}
+          icon={Users}
+          tone="periwinkle"
+        />
+        <StatCard
+          label={(L === 'en' ? 'Active schools' : L === 'ru' ? 'Активные школы' : L === 'tr' ? 'Aktif okul' : 'Aktiv məktəblər')}
+          value={stats.activeSchools}
+          icon={ShieldCheck}
+          tone="mint"
+        />
+        <StatCard
+          label={(L === 'en' ? 'Blocked schools' : L === 'ru' ? 'Заблок. школы' : L === 'tr' ? 'Engellenmiş okul' : 'Bloklanmış məktəblər')}
+          value={stats.blockedSchools}
+          icon={ShieldOff}
+          tone="peach"
+        />
+        <StatCard
+          label={(L === 'en' ? 'Total admins' : L === 'ru' ? 'Всего админов' : L === 'tr' ? 'Toplam yönetici' : 'Ümumi adminlər')}
+          value={stats.totalAdmins}
+          icon={Shield}
+          tone="blue"
+        />
       </div>
 
       {/* Recent schools */}

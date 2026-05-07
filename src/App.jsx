@@ -102,6 +102,7 @@ const AdminPTConferences  = lazy(() => import('./pages/admin/PTConferences'))
 const SharedCalendar      = lazy(() => import('./pages/shared/Calendar'))
 const SuperAdminDashboard = lazy(() => import('./pages/superadmin/Dashboard'))
 const SuperAdminSchools   = lazy(() => import('./pages/superadmin/Schools'))
+const SuperAdminAdmins    = lazy(() => import('./pages/superadmin/Admins'))
 const NotFound            = lazy(() => import('./pages/system/NotFound'))
 const ServerError         = lazy(() => import('./pages/system/ServerError'))
 const Maintenance         = lazy(() => import('./pages/system/Maintenance'))
@@ -242,6 +243,7 @@ export default function App() {
         <Route element={<PrivateRoute><RoleRoute role="super_admin"><AppLayout /></RoleRoute></PrivateRoute>}>
           <Route path="/superadmin/dashboard" element={<SuperAdminDashboard />} />
           <Route path="/superadmin/mektebler" element={<SuperAdminSchools />} />
+          <Route path="/superadmin/adminler" element={<SuperAdminAdmins />} />
         </Route>
 
         {/* System routes */}
