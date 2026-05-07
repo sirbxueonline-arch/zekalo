@@ -24,7 +24,13 @@ export default function Login() {
   useEffect(() => {
     if (user && profile) {
       const d = { student:'/dashboard', teacher:'/muellim/dashboard', parent:'/valideyn/dashboard', admin:'/admin/dashboard', super_admin:'/superadmin/dashboard' }
-      navigate(d[profile.role] || '/dashboard', { replace: true })
+      const dest = d[profile.role] || '/dashboard'
+      // If we're on the marketing host in production, switch to the app host.
+      if (typeof window !== 'undefined' && window.location.hostname === 'tryzirva.com') {
+        window.location.replace('https://app.tryzirva.com' + dest)
+        return
+      }
+      navigate(dest, { replace: true })
     }
   }, [user, profile, navigate])
 

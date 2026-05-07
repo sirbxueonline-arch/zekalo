@@ -10,6 +10,37 @@ import { useAuth } from './contexts/AuthContext'
 import { PageSpinner } from './components/ui/Spinner'
 import AppLayout from './components/layout/AppLayout'
 import ErrorBoundary from './components/ui/ErrorBoundary'
+import {
+  PUBLIC_HOST, APP_HOST, isPublicPath, isProductionHost,
+  getCurrentHost, buildHostUrl, rolePath,
+} from './lib/domain'
+
+// Enforce host split: public pages on tryzirva.com, dashboard on app.tryzirva.com.
+// Skips on localhost / preview URLs / non-zirva hosts.
+function HostGuard() {
+  const { pathname, search, hash } = useLocation()
+  useEffect(() => {
+    if (!isProductionHost()) return
+    const host = getCurrentHost()
+    const isPublicUrl = isPublicPath(pathname)
+    // www → bare domain
+    if (host === 'www.' + PUBLIC_HOST) {
+      window.location.replace(buildHostUrl(PUBLIC_HOST, pathname, search, hash))
+      return
+    }
+    // public path served on app host → bounce to public host
+    if (host === APP_HOST && isPublicUrl) {
+      window.location.replace(buildHostUrl(PUBLIC_HOST, pathname, search, hash))
+      return
+    }
+    // dashboard path served on public host → bounce to app host
+    if (host === PUBLIC_HOST && !isPublicUrl) {
+      window.location.replace(buildHostUrl(APP_HOST, pathname, search, hash))
+      return
+    }
+  }, [pathname, search, hash])
+  return null
+}
 
 // Landing page — eager (first paint)
 import Landing from './pages/Landing'
@@ -112,8 +143,14 @@ function PublicOnlyRoute({ children }) {
   const { user, profile, loading } = useAuth()
   if (loading) return <PageSpinner />
   if (user && profile) {
-    const paths = { student: '/dashboard', teacher: '/muellim/dashboard', parent: '/valideyn/dashboard', admin: '/admin/dashboard', super_admin: '/superadmin/dashboard' }
-    return <Navigate to={paths[profile.role] || '/dashboard'} replace />
+    const dest = rolePath(profile.role)
+    // On production: hop hosts (tryzirva.com → app.tryzirva.com).
+    // Anywhere else (localhost, preview): just navigate.
+    if (isProductionHost() && getCurrentHost() === PUBLIC_HOST) {
+      window.location.replace(buildHostUrl(APP_HOST, dest))
+      return <PageSpinner />
+    }
+    return <Navigate to={dest} replace />
   }
   return children
 }
@@ -144,6 +181,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <HostGuard />
       <ErrorBoundary>
       <Suspense fallback={<PageSpinner />}>
       <Routes>
