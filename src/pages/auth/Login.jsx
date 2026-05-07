@@ -276,10 +276,6 @@ export default function Login() {
               </button>
             </form>
 
-            <p style={{ color: '#64748b', fontSize: 13.5, textAlign: 'center', marginTop: 22 }}>
-              {t('no_account')}{' '}
-              <Link to="/qeydiyyat" className="auth-link">{t('signup')}</Link>
-            </p>
           </>
         )}
       </div>

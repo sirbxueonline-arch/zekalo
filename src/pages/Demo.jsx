@@ -2014,7 +2014,7 @@ export default function Demo() {
           </div>
 
           <Link
-            to="/qeydiyyat"
+            to="/contact"
             className="bg-gradient-to-br from-purple to-purple-dark text-white text-sm px-5 py-2 rounded-full hover:shadow-md hover:shadow-purple/40 hover:-translate-y-0.5 transition-all duration-300 font-semibold shadow-sm shadow-purple/30"
           >
             {d.signup}

@@ -148,7 +148,8 @@ export default function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/daxil-ol" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
-        <Route path="/qeydiyyat" element={<PublicOnlyRoute><SignUp /></PublicOnlyRoute>} />
+        {/* Public signup disabled — accounts are created by admins */}
+        <Route path="/qeydiyyat" element={<Navigate to="/daxil-ol" replace />} />
         <Route path="/sifremi-unutdum" element={<PublicOnlyRoute><ForgotPassword /></PublicOnlyRoute>} />
         <Route path="/sifre-yenile" element={<PublicOnlyRoute><ResetPassword /></PublicOnlyRoute>} />
         <Route path="/sifre-sifirla" element={<ResetPassword />} />
