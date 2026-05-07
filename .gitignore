@@ -1,10 +1,39 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
+build/
+
+# Environment
 .env
 .env.local
 .env.*.local
+
+# OS
 .DS_Store
-.claude/settings.local.json
-app/Zekalo/.git.backup/
-app/Zekalo/Zekalo.xcodeproj/xcuserdata/
-app/Zekalo/Zekalo.xcodeproj/project.xcworkspace/xcuserdata/
+Thumbs.db
+
+# Editor / tooling
+.vscode/
+.idea/
+.claude/
+*.swp
+*.swo
+
+# Native iOS app (separate project)
+app/
+
+# Marketing / documentation projects (kept locally, not in app repo)
+carousels/
+ministry-submission/
+
+# Standalone artifacts
+*.pdf
+!supabase/**/*.pdf
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
