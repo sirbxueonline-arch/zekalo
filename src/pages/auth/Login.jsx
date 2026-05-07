@@ -27,16 +27,28 @@ export default function Login() {
   const passwordReset  = searchParams.get('reset')   === '1'
 
   useEffect(() => {
-    if (user && profile) {
-      const d = { student:'/dashboard', teacher:'/muellim/dashboard', parent:'/valideyn/dashboard', admin:'/admin/dashboard', super_admin:'/superadmin/dashboard' }
-      const dest = d[profile.role] || '/dashboard'
-      // If we're on the marketing host in production, switch to the app host.
-      if (typeof window !== 'undefined' && window.location.hostname === 'tryzirva.com') {
-        window.location.replace('https://app.tryzirva.com' + dest)
-        return
-      }
-      navigate(dest, { replace: true })
+    if (!user || !profile) return
+    const d = { student:'/dashboard', teacher:'/muellim/dashboard', parent:'/valideyn/dashboard', admin:'/admin/dashboard', super_admin:'/superadmin/dashboard' }
+    const dest = d[profile.role] || '/dashboard'
+
+    // If we're on the marketing host in production, hop to the app host and
+    // hand the session over via URL hash (localStorage is per-origin).
+    if (typeof window !== 'undefined' && window.location.hostname === 'tryzirva.com') {
+      let cancelled = false
+      ;(async () => {
+        const { data } = await supabase.auth.getSession()
+        if (cancelled) return
+        const session = data?.session
+        let url = 'https://app.tryzirva.com' + dest
+        if (session?.access_token && session?.refresh_token) {
+          const payload = btoa(JSON.stringify({ at: session.access_token, rt: session.refresh_token }))
+          url += '#zauth=' + encodeURIComponent(payload)
+        }
+        window.location.replace(url)
+      })()
+      return () => { cancelled = true }
     }
+    navigate(dest, { replace: true })
   }, [user, profile, navigate])
 
   async function handleSubmit(e) {

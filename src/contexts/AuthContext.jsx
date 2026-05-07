@@ -50,12 +50,52 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id).finally(() => setLoading(false))
+    // ── Cross-domain auth handoff ────────────────────────────
+    // Login happens on tryzirva.com, dashboard lives on app.tryzirva.com.
+    // localStorage is per-origin so the session doesn't transfer automatically.
+    // Login.jsx redirects with `#zauth=<base64-json>` containing the tokens;
+    // we read them here and call setSession() so the user lands authed.
+    async function consumeHandoff() {
+      if (typeof window === 'undefined') return null
+      const hash = window.location.hash || ''
+      if (!hash.startsWith('#zauth=')) return null
+      try {
+        const payload = JSON.parse(atob(decodeURIComponent(hash.slice(7))))
+        if (payload?.at && payload?.rt) {
+          const { data, error } = await supabase.auth.setSession({
+            access_token:  payload.at,
+            refresh_token: payload.rt,
+          })
+          // Strip the hash without reloading the page
+          const cleanUrl = window.location.pathname + window.location.search
+          window.history.replaceState({}, '', cleanUrl)
+          if (error) {
+            console.error('[auth-handoff] setSession failed:', error)
+            return null
+          }
+          return data?.session || null
+        }
+      } catch (e) {
+        console.error('[auth-handoff] could not decode hash:', e)
+      }
+      return null
+    }
+
+    let active = true
+    consumeHandoff().then(handoffSession => {
+      if (!active) return
+      const finish = (session) => {
+        setUser(session?.user ?? null)
+        if (session?.user) {
+          fetchProfile(session.user.id).finally(() => setLoading(false))
+        } else {
+          setLoading(false)
+        }
+      }
+      if (handoffSession) {
+        finish(handoffSession)
       } else {
-        setLoading(false)
+        supabase.auth.getSession().then(({ data: { session } }) => finish(session))
       }
     })
 
@@ -73,7 +113,10 @@ export function AuthProvider({ children }) {
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      active = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   // Check session validity whenever the tab regains focus so that an expired

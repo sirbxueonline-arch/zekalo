@@ -19,8 +19,15 @@ import {
 // Skips on localhost / preview URLs / non-zirva hosts.
 function HostGuard() {
   const { pathname, search, hash } = useLocation()
+  const { loading, user } = useAuth()
   useEffect(() => {
     if (!isProductionHost()) return
+    // Don't redirect while the auth-handoff hash (#zauth=...) is being consumed
+    // or while the auth context is still initialising — otherwise we bounce
+    // an already-arriving session to the wrong host.
+    if (typeof window !== 'undefined' && window.location.hash.startsWith('#zauth=')) return
+    if (loading) return
+
     const host = getCurrentHost()
     const isPublicUrl = isPublicPath(pathname)
     // www → bare domain
@@ -30,6 +37,10 @@ function HostGuard() {
     }
     // public path served on app host → bounce to public host
     if (host === APP_HOST && isPublicUrl) {
+      // Exception: if user is authenticated and lands on /daxil-ol on app host
+      // (e.g. session expired redirect), they belong on a private dashboard
+      // path on the app host, not bounced back to public host.
+      if (user && (pathname === '/daxil-ol' || pathname === '/qeydiyyat')) return
       window.location.replace(buildHostUrl(PUBLIC_HOST, pathname, search, hash))
       return
     }
@@ -38,7 +49,7 @@ function HostGuard() {
       window.location.replace(buildHostUrl(APP_HOST, pathname, search, hash))
       return
     }
-  }, [pathname, search, hash])
+  }, [pathname, search, hash, loading, user])
   return null
 }
 
