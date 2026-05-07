@@ -135,14 +135,6 @@ export function AuthProvider({ children }) {
     setUser(null)
     setProfile(null)
     if (Sentry?.setUser) Sentry.setUser(null)
-    // On production, hop back to the marketing host. Sidebar/Topbar can rely
-    // on this to send users to tryzirva.com after logout.
-    if (typeof window !== 'undefined') {
-      const h = window.location.hostname
-      if (h === 'app.tryzirva.com') {
-        window.location.replace('https://tryzirva.com/daxil-ol')
-      }
-    }
   }
 
   async function updateProfile(updates) {

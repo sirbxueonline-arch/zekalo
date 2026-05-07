@@ -29,14 +29,7 @@ export default function Login() {
   useEffect(() => {
     if (!user || !profile) return
     const d = { student:'/dashboard', teacher:'/muellim/dashboard', parent:'/valideyn/dashboard', admin:'/admin/dashboard', super_admin:'/superadmin/dashboard' }
-    const dest = d[profile.role] || '/dashboard'
-    // Auth session is now stored in a cookie on `.tryzirva.com` so it's
-    // automatically shared with app.tryzirva.com. Just hop hosts.
-    if (typeof window !== 'undefined' && window.location.hostname === 'tryzirva.com') {
-      window.location.replace('https://app.tryzirva.com' + dest)
-      return
-    }
-    navigate(dest, { replace: true })
+    navigate(d[profile.role] || '/dashboard', { replace: true })
   }, [user, profile, navigate])
 
   async function handleSubmit(e) {

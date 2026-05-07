@@ -15,39 +15,11 @@ import {
   getCurrentHost, buildHostUrl, rolePath,
 } from './lib/domain'
 
-// Enforce host split: public pages on tryzirva.com, dashboard on app.tryzirva.com.
-// Skips on localhost / preview URLs / non-zirva hosts.
+// Host enforcement disabled — both tryzirva.com and app.tryzirva.com serve
+// the entire app. Single-host auth is reliable; cross-host was causing
+// session-loss loops because localStorage / cookies don't transparently
+// share between subdomains under all browsers + privacy settings.
 function HostGuard() {
-  const { pathname, search, hash } = useLocation()
-  const { loading, user } = useAuth()
-  useEffect(() => {
-    if (!isProductionHost()) return
-    // Wait for auth context to finish initialising so we don't bounce a
-    // freshly-arrived authenticated user back to the marketing host.
-    if (loading) return
-
-    const host = getCurrentHost()
-    const isPublicUrl = isPublicPath(pathname)
-    // www → bare domain
-    if (host === 'www.' + PUBLIC_HOST) {
-      window.location.replace(buildHostUrl(PUBLIC_HOST, pathname, search, hash))
-      return
-    }
-    // public path served on app host → bounce to public host
-    if (host === APP_HOST && isPublicUrl) {
-      // Exception: if user is authenticated and lands on /daxil-ol on app host
-      // (e.g. session expired redirect), they belong on a private dashboard
-      // path on the app host, not bounced back to public host.
-      if (user && (pathname === '/daxil-ol' || pathname === '/qeydiyyat')) return
-      window.location.replace(buildHostUrl(PUBLIC_HOST, pathname, search, hash))
-      return
-    }
-    // dashboard path served on public host → bounce to app host
-    if (host === PUBLIC_HOST && !isPublicUrl) {
-      window.location.replace(buildHostUrl(APP_HOST, pathname, search, hash))
-      return
-    }
-  }, [pathname, search, hash, loading, user])
   return null
 }
 
