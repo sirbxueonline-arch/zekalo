@@ -15,7 +15,12 @@ export default function Login() {
   const [resetSent, setResetSent]       = useState(false)
   const [resetError, setResetError]     = useState(null)
   const [resetLoading, setResetLoading] = useState(false)
-  const { signIn, user, profile, t }    = useAuth()
+  // MFA challenge state — appears between password success and full login
+  const [mfaFactor, setMfaFactor]       = useState(null)   // { id, friendly_name }
+  const [mfaCode, setMfaCode]           = useState('')
+  const [mfaLoading, setMfaLoading]     = useState(false)
+  const [mfaError, setMfaError]         = useState('')
+  const { signIn, user, profile, t, fetchProfile } = useAuth()
   const navigate                        = useNavigate()
   const [searchParams]                  = useSearchParams()
   const sessionExpired = searchParams.get('expired') === '1'
@@ -36,13 +41,56 @@ export default function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault(); setError(''); setLoading(true)
-    try { await signIn(email, password) }
-    catch (err) {
-      if (err?.message?.includes('Invalid login'))          setError(t('invalid_login'))
+    try {
+      await signIn(email, password)
+      // After password succeeds, check whether MFA is required.
+      const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+      if (aalData?.nextLevel === 'aal2' && aalData.currentLevel === 'aal1') {
+        // User has enrolled MFA and we're not yet at aal2 — show challenge.
+        const { data: factors } = await supabase.auth.mfa.listFactors()
+        const totp = (factors?.totp || []).find(f => f.status === 'verified')
+        if (totp) {
+          setMfaFactor(totp)
+          setLoading(false)
+          return
+        }
+      }
+      // No MFA required — useEffect will redirect once profile loads.
+    } catch (err) {
+      if (err?.message?.includes('Invalid login'))            setError(t('invalid_login'))
       else if (err?.message?.includes('Email not confirmed')) setError(t('email_not_confirmed'))
       else setError(err?.message || t('error'))
       setLoading(false)
     }
+  }
+
+  async function handleMfa(e) {
+    e.preventDefault()
+    setMfaError(''); setMfaLoading(true)
+    try {
+      const code = mfaCode.trim()
+      if (code.length !== 6) throw new Error('6 rəqəmli kod daxil edin')
+      const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({ factorId: mfaFactor.id })
+      if (chErr) throw chErr
+      const { error: vErr } = await supabase.auth.mfa.verify({
+        factorId:    mfaFactor.id,
+        challengeId: ch.id,
+        code,
+      })
+      if (vErr) throw vErr
+      // Refresh profile so the redirect kicks in
+      try { if (user?.id) await fetchProfile?.(user.id) } catch {}
+      setMfaFactor(null); setMfaCode('')
+      // useEffect handles the actual navigation
+    } catch (err) {
+      setMfaError(err.message?.replace('Invalid TOTP code entered', 'Yanlış kod, yenidən cəhd edin') || String(err))
+      setMfaLoading(false)
+    }
+  }
+
+  async function cancelMfa() {
+    await supabase.auth.signOut()
+    setMfaFactor(null); setMfaCode(''); setMfaError('')
   }
 
   async function handleReset() {
@@ -147,7 +195,45 @@ export default function Login() {
           <span style={{ fontWeight: 800, fontSize: 20, color: '#1a1a2e', letterSpacing: '-0.01em' }}>Zirva</span>
         </div>
 
-        {showReset ? (
+        {mfaFactor ? (
+          <>
+            <h1 style={{ fontSize: 'clamp(1.6rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 8, textAlign: 'center', color: '#1a1a2e', lineHeight: 1.15 }}>
+              <span className="pastel-text">İki amilli identifikasiya</span>
+            </h1>
+            <p style={{ color: '#64748b', fontSize: 14, textAlign: 'center', marginBottom: 26, lineHeight: 1.55 }}>
+              Authenticator tətbiqindəki 6 rəqəmli kodu daxil edin.
+            </p>
+            <form onSubmit={handleMfa} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]*"
+                maxLength={6}
+                value={mfaCode}
+                onChange={e => setMfaCode(e.target.value.replace(/\D/g, ''))}
+                placeholder="000000"
+                disabled={mfaLoading}
+                autoFocus
+                className="pastel-input"
+                style={{ width: '100%', textAlign: 'center', fontSize: 26, letterSpacing: '0.45em', fontWeight: 700, padding: '14px 16px' }}
+              />
+              {mfaError && (
+                <div style={{ background: 'rgba(239,68,68,0.1)', borderRadius: 12, padding: '12px 16px', color: '#dc2626', fontSize: 13.5 }}>
+                  {mfaError}
+                </div>
+              )}
+              <button type="submit" disabled={mfaLoading || mfaCode.length !== 6} className="btn-pastel btn-pastel-full" style={{ marginTop: 4 }}>
+                {mfaLoading ? <><SpinIcon /> Yoxlanılır…</> : <>Təsdiqlə <ArrowRight style={{ width: 16, height: 16 }} /></>}
+              </button>
+              <button type="button" onClick={cancelMfa} disabled={mfaLoading}
+                style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '8px 0', marginTop: 4 }}>
+                <ArrowLeft style={{ width: 13, height: 13, display: 'inline', marginRight: 6, verticalAlign: '-2px' }}/>
+                Geri qayıt
+              </button>
+            </form>
+          </>
+        ) : showReset ? (
           <>
             <h1 style={{ fontSize: 'clamp(1.6rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 8, textAlign: 'center', color: '#1a1a2e', lineHeight: 1.15 }}>
               <span className="pastel-text">{t('reset_password')}</span>

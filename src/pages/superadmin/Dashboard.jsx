@@ -14,6 +14,7 @@ import Avatar from '../../components/ui/Avatar'
 import Badge from '../../components/ui/Badge'
 import { EditionBadge } from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
+import MFASection from '../../components/auth/MFASection'
 import { fmtNumeric } from '../../lib/dateUtils'
 
 function formatDate(dateStr) {
@@ -425,6 +426,11 @@ export default function SuperAdminDashboard() {
             </div>
           )}
         </Card>
+      </div>
+
+      {/* Account security */}
+      <div className="mt-6">
+        <MFASection />
       </div>
     </div>
   )

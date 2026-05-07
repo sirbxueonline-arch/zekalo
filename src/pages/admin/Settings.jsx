@@ -9,6 +9,7 @@ import { Select } from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
 import { PageSpinner } from '../../components/ui/Spinner'
 import { EditionBadge } from '../../components/ui/Badge'
+import MFASection from '../../components/auth/MFASection'
 
 export default function Settings() {
   const { profile, fetchProfile, t } = useAuth()
@@ -260,6 +261,8 @@ export default function Settings() {
       <div className="flex justify-end">
         <Button onClick={handleSave} loading={saving}>{t('save')}</Button>
       </div>
+
+      <MFASection />
 
       <Card hover={false} className="border-[rgba(239,68,68,0.25)]" style={{ background: 'linear-gradient(135deg, rgba(254,242,242,0.6) 0%, rgba(255,255,255,0.55) 100%)' }}>
         <div className="flex items-center gap-3 mb-4">
