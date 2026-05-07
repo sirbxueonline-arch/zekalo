@@ -24,17 +24,13 @@
 DO $$
 DECLARE
   -- ▼ EDIT THESE ▼ ─────────────────────────────────────────
-  admin_email      text := 'you@example.com';
-  admin_full_name  text := 'Admin User';
+  admin_email      text := 'kaan.guluzada@gmail.com';
+  admin_full_name  text := 'Kaan Guluzada';
+  admin_role       text := 'super_admin';            -- 'super_admin' (Zirva platform owner) | 'admin' (school admin)
   admin_language   text := 'az';                     -- az / en / tr / ru
-  school_name      text := 'My School';
-  school_district  text := 'Bakı';
-  school_edition   text := 'national';               -- national / ib / hybrid
-  school_language  text := 'az';
   -- ▲ EDIT THESE ▲ ─────────────────────────────────────────
 
   v_user_id  uuid;
-  v_school_id uuid;
 BEGIN
   -- Find the auth user you just created in step 1
   SELECT id INTO v_user_id
@@ -45,41 +41,32 @@ BEGIN
     RAISE EXCEPTION 'No auth user with email %.  Create them in Supabase → Authentication → Users first, then re-run this script.', admin_email;
   END IF;
 
-  -- Create the school (or reuse if it already exists)
-  SELECT id INTO v_school_id
-  FROM   public.schools
-  WHERE  name = school_name
-  LIMIT 1;
-
-  IF v_school_id IS NULL THEN
-    INSERT INTO public.schools (name, district, edition, default_language, blocked)
-    VALUES (school_name, school_district, school_edition, school_language, false)
-    RETURNING id INTO v_school_id;
-    RAISE NOTICE 'Created school: % (id=%)', school_name, v_school_id;
-  ELSE
-    RAISE NOTICE 'Using existing school: % (id=%)', school_name, v_school_id;
-  END IF;
-
   -- Create or upgrade the profile to admin
+  -- super_admin doesn't need school_id (manages all schools).
   INSERT INTO public.profiles (id, email, full_name, role, school_id, language, avatar_color)
   VALUES (
     v_user_id,
     admin_email,
     admin_full_name,
-    'admin',
-    v_school_id,
+    admin_role,
+    NULL,
     admin_language,
     '#7c6ee0'
   )
   ON CONFLICT (id) DO UPDATE
-    SET role         = 'admin',
-        school_id    = v_school_id,
+    SET role         = admin_role,
+        school_id    = CASE WHEN admin_role = 'super_admin' THEN NULL ELSE EXCLUDED.school_id END,
         full_name    = admin_full_name,
         email        = admin_email,
         language     = admin_language;
 
-  RAISE NOTICE '✅ Admin ready: % (role=admin, school=%)', admin_email, school_name;
-  RAISE NOTICE '   Log in at /daxil-ol — you will be sent to /admin/dashboard';
+  RAISE NOTICE '✅ Account ready: % (role=%)', admin_email, admin_role;
+  IF admin_role = 'super_admin' THEN
+    RAISE NOTICE '   Log in at /daxil-ol — you will land at /superadmin/dashboard';
+    RAISE NOTICE '   From there you can create schools and assign school admins.';
+  ELSE
+    RAISE NOTICE '   Log in at /daxil-ol — you will land at /admin/dashboard';
+  END IF;
 END $$;
 
 -- ============================================================
@@ -94,4 +81,5 @@ SELECT  p.id,
         s.edition
 FROM    public.profiles p
 LEFT JOIN public.schools s ON s.id = p.school_id
-WHERE   p.role = 'admin';
+WHERE   p.role IN ('admin', 'super_admin')
+ORDER BY p.role, p.email;
