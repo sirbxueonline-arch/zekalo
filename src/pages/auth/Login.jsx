@@ -28,9 +28,16 @@ export default function Login() {
 
   useEffect(() => {
     if (!user || !profile) return
+    // CRITICAL: do not auto-redirect while:
+    //   - an MFA challenge is being shown (mfaFactor truthy)
+    //   - handleSubmit is still running (loading) — profile may have loaded
+    //     before the AAL check finishes, racing the effect against the
+    //     MFA UI and bouncing the user to a dashboard at AAL1.
+    if (mfaFactor) return
+    if (loading) return
     const d = { student:'/dashboard', teacher:'/muellim/dashboard', parent:'/valideyn/dashboard', admin:'/admin/dashboard', super_admin:'/superadmin/dashboard' }
     navigate(d[profile.role] || '/dashboard', { replace: true })
-  }, [user, profile, navigate])
+  }, [user, profile, navigate, mfaFactor, loading])
 
   async function handleSubmit(e) {
     e.preventDefault(); setError(''); setLoading(true)

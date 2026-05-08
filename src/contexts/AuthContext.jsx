@@ -133,19 +133,13 @@ export function AuthProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Check session validity whenever the tab regains focus so that an expired
-  // token is caught quickly without waiting for the next API call.
-  useEffect(() => {
-    async function handleFocus() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        setUser(null)
-        setProfile(null)
-      }
-    }
-    window.addEventListener('focus', handleFocus)
-    return () => window.removeEventListener('focus', handleFocus)
-  }, [])
+  // NOTE: we used to clear user/profile on tab focus if getSession() returned
+  // null, to catch silently-expired sessions. That listener was racy: during
+  // an AAL1→AAL2 MFA verify the token is briefly mid-swap, a focus event
+  // (very common — user just looked at their phone for the 2FA code) would
+  // see no session, and PrivateRoute would redirect to /daxil-ol?expired=1.
+  // Supabase auto-refreshes tokens; any actually-expired session will surface
+  // on the next API call. The listener was doing more harm than good.
 
   async function signIn(email, password) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
