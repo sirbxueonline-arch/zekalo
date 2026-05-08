@@ -209,10 +209,11 @@ export default function MFASection() {
       )}
 
       {/* Enroll modal */}
-      <Modal open={enrollOpen} onClose={cancelEnroll} title="İki amilli identifikasiyanı qur">
+      <Modal open={enrollOpen} onClose={cancelEnroll} title="İki amilli identifikasiyanı qur" size="full">
+        <div style={{ maxWidth:560, margin:'0 auto', padding:'24px 4px' }}>
         {enrollStep === 'init' && (
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:'40px 20px' }}>
-            <Loader2 style={{ width:32, height:32, color:'#7c6ee0' }} className="animate-spin"/>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:'80px 20px' }}>
+            <Loader2 style={{ width:40, height:40, color:'#7c6ee0' }} className="animate-spin"/>
           </div>
         )}
         {enrollStep === 'error' && (
@@ -324,6 +325,7 @@ export default function MFASection() {
             </div>
           </div>
         )}
+        </div>
       </Modal>
 
       {/* Disable modal */}

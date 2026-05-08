@@ -24,10 +24,13 @@ export default function Modal({ open, onClose, title, children, size = 'md' }) {
     md: 'max-w-lg',
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
+    full: 'max-w-none',
   }
 
+  const isFull = size === 'full'
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isFull ? 'p-0' : 'p-4'}`}>
       <div
         className="absolute inset-0"
         onClick={onClose}
@@ -38,7 +41,7 @@ export default function Modal({ open, onClose, title, children, size = 'md' }) {
         }}
       />
       <div
-        className={`liquid-card relative w-full ${sizes[size]} mx-4 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200`}
+        className={`liquid-card relative ${isFull ? 'w-screen h-screen mx-0 max-h-screen rounded-none' : `w-full ${sizes[size]} mx-4 max-h-[90vh]`} overflow-y-auto animate-in fade-in zoom-in-95 duration-200`}
         style={{ padding: 0 }}
       >
         <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
