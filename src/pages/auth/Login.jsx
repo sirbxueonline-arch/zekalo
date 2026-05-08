@@ -20,6 +20,9 @@ export default function Login() {
   const [mfaCode, setMfaCode]           = useState('')
   const [mfaLoading, setMfaLoading]     = useState(false)
   const [mfaError, setMfaError]         = useState('')
+  // TEMPORARY visible diagnostic — shows the MFA decision on screen
+  // so we can debug "MFA not prompting" without DevTools. Remove once fixed.
+  const [mfaDebug, setMfaDebug]         = useState(null)
   const { signIn, user, profile, t, fetchProfile } = useAuth()
   const navigate                        = useNavigate()
   const [searchParams]                  = useSearchParams()
@@ -60,13 +63,20 @@ export default function Login() {
 
       const verifiedTotp = (factors?.totp || []).find(f => f.status === 'verified')
       const alreadyAal2  = aal?.currentLevel === 'aal2'
+      const allTotp      = factors?.totp || []
+      const allPhone     = factors?.phone || []
 
-      console.log('[login] mfa state', {
-        currentLevel: aal?.currentLevel,
-        nextLevel:    aal?.nextLevel,
-        totpCount:    factors?.totp?.length || 0,
+      const debug = {
+        currentLevel: aal?.currentLevel ?? '(none)',
+        nextLevel:    aal?.nextLevel ?? '(none)',
+        totpCount:    allTotp.length,
+        totpStatuses: allTotp.map(f => f.status).join(',') || '(none)',
+        phoneCount:   allPhone.length,
         verifiedTotp: !!verifiedTotp,
-      })
+        willPrompt:   !!(verifiedTotp && !alreadyAal2),
+      }
+      setMfaDebug(debug)
+      console.log('[login] mfa state', debug)
 
       if (verifiedTotp && !alreadyAal2) {
         setMfaFactor(verifiedTotp)
@@ -353,6 +363,26 @@ export default function Login() {
             {error && (
               <div style={{ background: 'rgba(239,68,68,0.1)', borderRadius: 12, padding: '12px 16px', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>
                 {error}
+              </div>
+            )}
+
+            {/* TEMPORARY MFA debug banner — visible diagnostic. Remove once login is fixed. */}
+            {mfaDebug && (
+              <div style={{
+                background: mfaDebug.willPrompt ? 'rgba(93,184,163,0.15)' : 'rgba(251,191,36,0.18)',
+                border: `1px solid ${mfaDebug.willPrompt ? 'rgba(93,184,163,0.4)' : 'rgba(251,191,36,0.5)'}`,
+                borderRadius: 12, padding: '12px 14px', marginBottom: 16,
+                fontSize: 12, fontFamily: 'monospace', color: '#1a1a2e', lineHeight: 1.55,
+              }}>
+                <div style={{ fontWeight:700, marginBottom:4 }}>
+                  [MFA DEBUG] willPrompt = {String(mfaDebug.willPrompt)}
+                </div>
+                <div>currentLevel: {mfaDebug.currentLevel}</div>
+                <div>nextLevel:    {mfaDebug.nextLevel}</div>
+                <div>totpCount:    {mfaDebug.totpCount}</div>
+                <div>totpStatuses: {mfaDebug.totpStatuses}</div>
+                <div>phoneCount:   {mfaDebug.phoneCount}</div>
+                <div>verifiedTotp: {String(mfaDebug.verifiedTotp)}</div>
               </div>
             )}
 
