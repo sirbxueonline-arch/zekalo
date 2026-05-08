@@ -50,32 +50,71 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    // The Supabase client uses a cookie on .tryzirva.com so the session is
-    // shared between tryzirva.com and app.tryzirva.com automatically.
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id).finally(() => setLoading(false))
-      } else {
+    let mounted = true
+
+    // Hard fallback: if Supabase's auth init hangs (orphaned cross-tab lock,
+    // network stall on getSession, etc.) we force loading=false after 6s so
+    // the app actually renders something instead of a forever-spinner.
+    const failsafeId = setTimeout(() => {
+      if (mounted) {
+        console.warn('[auth] init timed out — forcing loaded state')
         setLoading(false)
       }
-    })
+    }, 6000)
 
+    // Single source of truth: onAuthStateChange always fires INITIAL_SESSION
+    // immediately on subscribe with the current persisted session (or null).
+    // We also kick off a getSession() in parallel as a belt-and-suspenders
+    // path in case the listener doesn't fire for some reason.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT' || (!session && event !== 'INITIAL_SESSION')) {
+      if (!mounted) return
+      clearTimeout(failsafeId)
+
+      if (event === 'SIGNED_OUT' || !session?.user) {
         setUser(null)
         setProfile(null)
         setLoading(false)
-      } else if (event === 'TOKEN_REFRESHED') {
-        setUser(session.user)
-      } else if (session?.user) {
-        setUser(session.user)
-        await fetchProfile(session.user.id)
+        return
+      }
+
+      setUser(session.user)
+      // TOKEN_REFRESHED keeps the existing profile; everything else refetches.
+      if (event === 'TOKEN_REFRESHED' && profile) {
         setLoading(false)
+        return
+      }
+      try {
+        await fetchProfile(session.user.id)
+      } finally {
+        if (mounted) setLoading(false)
       }
     })
 
-    return () => subscription.unsubscribe()
+    // Belt-and-suspenders: if the listener somehow doesn't fire INITIAL_SESSION
+    // within 1s, try a direct read.
+    const directReadId = setTimeout(async () => {
+      if (!mounted || !loading) return
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!mounted) return
+        if (session?.user) {
+          setUser(session.user)
+          await fetchProfile(session.user.id)
+        }
+      } catch (e) {
+        console.error('[auth] direct getSession failed:', e)
+      } finally {
+        if (mounted) setLoading(false)
+      }
+    }, 1000)
+
+    return () => {
+      mounted = false
+      clearTimeout(failsafeId)
+      clearTimeout(directReadId)
+      subscription.unsubscribe()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Check session validity whenever the tab regains focus so that an expired

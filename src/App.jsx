@@ -10,10 +10,7 @@ import { useAuth } from './contexts/AuthContext'
 import { PageSpinner } from './components/ui/Spinner'
 import AppLayout from './components/layout/AppLayout'
 import ErrorBoundary from './components/ui/ErrorBoundary'
-import {
-  PUBLIC_HOST, APP_HOST, isPublicPath, isProductionHost,
-  getCurrentHost, buildHostUrl, rolePath,
-} from './lib/domain'
+import { rolePath } from './lib/domain'
 
 // Host enforcement disabled — both tryzirva.com and app.tryzirva.com serve
 // the entire app. Single-host auth is reliable; cross-host was causing
@@ -37,6 +34,7 @@ const SignUp           = lazy(() => import('./pages/auth/SignUp'))
 const ForgotPassword   = lazy(() => import('./pages/auth/ForgotPassword'))
 const ResetPassword    = lazy(() => import('./pages/auth/ResetPassword'))
 const Verify           = lazy(() => import('./pages/auth/Verify'))
+const Setup2FA         = lazy(() => import('./pages/auth/Setup2FA'))
 
 // Student pages — lazy
 const StudentDashboard   = lazy(() => import('./pages/student/Dashboard'))
@@ -124,14 +122,10 @@ function PublicOnlyRoute({ children }) {
   const { user, profile, loading } = useAuth()
   if (loading) return <PageSpinner />
   if (user && profile) {
-    const dest = rolePath(profile.role)
-    // On production: hop hosts (tryzirva.com → app.tryzirva.com).
-    // Anywhere else (localhost, preview): just navigate.
-    if (isProductionHost() && getCurrentHost() === PUBLIC_HOST) {
-      window.location.replace(buildHostUrl(APP_HOST, dest))
-      return <PageSpinner />
-    }
-    return <Navigate to={dest} replace />
+    // Stay on whichever host the user is on. Both tryzirva.com and
+    // app.tryzirva.com serve the full app, and localStorage isn't shared
+    // between subdomains — host-hopping after login breaks the session.
+    return <Navigate to={rolePath(profile.role)} replace />
   }
   return children
 }
@@ -174,6 +168,9 @@ export default function App() {
         <Route path="/sifre-yenile" element={<PublicOnlyRoute><ResetPassword /></PublicOnlyRoute>} />
         <Route path="/sifre-sifirla" element={<ResetPassword />} />
         <Route path="/dogrulama" element={<PublicOnlyRoute><Verify /></PublicOnlyRoute>} />
+
+        {/* 2FA setup — any logged-in user (no AppLayout, full-page flow) */}
+        <Route path="/tehlukesizlik/2fa" element={<PrivateRoute><Setup2FA /></PrivateRoute>} />
 
         {/* Student routes */}
         <Route element={<PrivateRoute><RoleRoute role="student"><AppLayout /></RoleRoute></PrivateRoute>}>
