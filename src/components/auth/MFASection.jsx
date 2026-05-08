@@ -200,7 +200,7 @@ export default function MFASection() {
       )}
 
       {/* Enroll modal */}
-      <Modal isOpen={enrollOpen} onClose={cancelEnroll} title="İki amilli identifikasiyanı qur">
+      <Modal open={enrollOpen} onClose={cancelEnroll} title="İki amilli identifikasiyanı qur">
         {enrollStep === 'init' && (
           <div style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:'40px 20px' }}>
             <Loader2 style={{ width:32, height:32, color:'#7c6ee0' }} className="animate-spin"/>
@@ -296,7 +296,7 @@ export default function MFASection() {
       </Modal>
 
       {/* Disable modal */}
-      <Modal isOpen={!!disableOpen} onClose={() => setDisableOpen(null)} title="2FA-nı söndür">
+      <Modal open={!!disableOpen} onClose={() => setDisableOpen(null)} title="2FA-nı söndür">
         <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
           <div style={{
             display:'flex', gap:12, padding:'14px 16px',
