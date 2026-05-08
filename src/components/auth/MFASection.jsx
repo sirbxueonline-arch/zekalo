@@ -247,9 +247,12 @@ export default function MFASection() {
               border:'1px solid rgba(124,110,224,0.2)',
               display:'flex', alignItems:'center', justifyContent:'center',
             }}>
-              <div
-                style={{ width:200, height:200 }}
-                dangerouslySetInnerHTML={{ __html: enrollFactor.totp.qr_code }}
+              <img
+                src={enrollFactor.totp.qr_code}
+                alt="2FA QR code"
+                width={200}
+                height={200}
+                style={{ display:'block', imageRendering:'pixelated' }}
               />
             </div>
 
