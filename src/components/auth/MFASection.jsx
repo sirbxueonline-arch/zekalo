@@ -18,6 +18,7 @@ export default function MFASection() {
   // Disable modal
   const [disableOpen, setDisableOpen]       = useState(null) // factor object or null
   const [disableLoading, setDisableLoading] = useState(false)
+  const [disableErr, setDisableErr]         = useState(null)
 
   useEffect(() => { loadFactors() }, [])
 
@@ -35,13 +36,21 @@ export default function MFASection() {
   async function confirmDisable() {
     if (!disableOpen) return
     setDisableLoading(true)
+    setDisableErr(null)
     try {
       const { error } = await supabase.auth.mfa.unenroll({ factorId: disableOpen.id })
       if (error) throw error
       setDisableOpen(null)
       await loadFactors()
     } catch (e) {
-      setError(e.message || String(e))
+      // Most common case: Supabase requires the session to be at AAL2 to
+      // disable MFA. Surface a clear message inside the modal so the user
+      // doesn't think the button is broken.
+      const msg = e.message || String(e)
+      const friendly = /aal2|assurance level/i.test(msg)
+        ? '2FA-nı söndürmək üçün əvvəlcə cari sessiyanı 2FA ilə təsdiqləməlisiniz. Çıxış edib yenidən daxil olun və daxil olarkən authenticator kodunu daxil edin — sonra bu düyməni təkrar işlədin.'
+        : msg
+      setDisableErr(friendly)
     } finally {
       setDisableLoading(false)
     }
@@ -131,7 +140,7 @@ export default function MFASection() {
       )}
 
       {/* Disable modal */}
-      <Modal open={!!disableOpen} onClose={() => setDisableOpen(null)} title="2FA-nı söndür">
+      <Modal open={!!disableOpen} onClose={() => { setDisableOpen(null); setDisableErr(null) }} title="2FA-nı söndür">
         <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
           <div style={{
             display:'flex', gap:12, padding:'14px 16px',
@@ -149,8 +158,19 @@ export default function MFASection() {
             </div>
           </div>
 
+          {disableErr && (
+            <div style={{
+              display:'flex', gap:10, padding:'12px 14px', borderRadius:10,
+              background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)',
+              color:'#991b1b', fontSize:13, lineHeight:1.5,
+            }}>
+              <AlertTriangle style={{ width:16, height:16, flexShrink:0, marginTop:1 }}/>
+              <span>{disableErr}</span>
+            </div>
+          )}
+
           <div style={{ display:'flex', justifyContent:'flex-end', gap:10 }}>
-            <Button variant="ghost" onClick={() => setDisableOpen(null)} disabled={disableLoading}>
+            <Button variant="ghost" onClick={() => { setDisableOpen(null); setDisableErr(null) }} disabled={disableLoading}>
               Ləğv et
             </Button>
             <Button variant="danger" onClick={confirmDisable} disabled={disableLoading}>

@@ -43,17 +43,35 @@ export default function Login() {
     e.preventDefault(); setError(''); setLoading(true)
     try {
       await signIn(email, password)
-      // After password succeeds, check whether MFA is required.
-      const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
-      if (aalData?.nextLevel === 'aal2' && aalData.currentLevel === 'aal1') {
-        // User has enrolled MFA and we're not yet at aal2 — show challenge.
-        const { data: factors } = await supabase.auth.mfa.listFactors()
-        const totp = (factors?.totp || []).find(f => f.status === 'verified')
-        if (totp) {
-          setMfaFactor(totp)
-          setLoading(false)
-          return
-        }
+
+      // Defensive MFA gate: don't trust getAuthenticatorAssuranceLevel alone
+      // (it occasionally returns stale or unexpected payloads). The source
+      // of truth is "does this user have a verified TOTP factor AND is the
+      // current session below AAL2?" — if both, prompt the challenge.
+      let factors = null, aal = null
+      try {
+        const r1 = await supabase.auth.mfa.listFactors()
+        factors = r1.data
+      } catch (e) { console.error('[mfa] listFactors failed:', e) }
+      try {
+        const r2 = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+        aal = r2.data
+      } catch (e) { console.error('[mfa] getAAL failed:', e) }
+
+      const verifiedTotp = (factors?.totp || []).find(f => f.status === 'verified')
+      const alreadyAal2  = aal?.currentLevel === 'aal2'
+
+      console.log('[login] mfa state', {
+        currentLevel: aal?.currentLevel,
+        nextLevel:    aal?.nextLevel,
+        totpCount:    factors?.totp?.length || 0,
+        verifiedTotp: !!verifiedTotp,
+      })
+
+      if (verifiedTotp && !alreadyAal2) {
+        setMfaFactor(verifiedTotp)
+        setLoading(false)
+        return
       }
       // No MFA required — navigate explicitly. We don't rely on the
       // [user, profile] useEffect because it's gated on `loading` (to avoid
