@@ -71,10 +71,23 @@ export default function Login() {
         code,
       })
       if (vErr) throw vErr
-      // Refresh profile so the redirect kicks in
-      try { if (user?.id) await fetchProfile?.(user.id) } catch {}
-      setMfaFactor(null); setMfaCode('')
-      // useEffect handles the actual navigation
+
+      // Get the freshly-verified session and resolve the role from a profile
+      // we fetch right here. We don't trust the [user, profile] useEffect to
+      // fire — TOKEN_REFRESHED can hand back the same user reference and React
+      // will skip the effect, leaving us stuck on /daxil-ol.
+      const { data: { session } } = await supabase.auth.getSession()
+      const uid = session?.user?.id || user?.id
+      let role = profile?.role
+      if (uid) {
+        try {
+          const fresh = await fetchProfile?.(uid)
+          if (fresh?.role) role = fresh.role
+        } catch {}
+      }
+      setMfaFactor(null); setMfaCode(''); setMfaLoading(false)
+      const dest = { student:'/dashboard', teacher:'/muellim/dashboard', parent:'/valideyn/dashboard', admin:'/admin/dashboard', super_admin:'/superadmin/dashboard' }
+      navigate(dest[role] || '/dashboard', { replace: true })
     } catch (err) {
       setMfaError(err.message?.replace('Invalid TOTP code entered', 'Yanlış kod, yenidən cəhd edin') || String(err))
       setMfaLoading(false)

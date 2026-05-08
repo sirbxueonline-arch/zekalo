@@ -70,16 +70,32 @@ export function AuthProvider({ children }) {
       if (!mounted) return
       clearTimeout(failsafeId)
 
-      if (event === 'SIGNED_OUT' || !session?.user) {
+      // Only clear user/profile on an EXPLICIT sign-out. A missing-session
+      // payload on transient events (USER_UPDATED, MFA_CHALLENGE_VERIFIED
+      // mid-flight, etc.) shouldn't kick the user out of the app and trigger
+      // PrivateRoute to redirect to /daxil-ol?expired=1.
+      if (event === 'SIGNED_OUT') {
         setUser(null)
         setProfile(null)
         setLoading(false)
         return
       }
+      if (event === 'INITIAL_SESSION' && !session?.user) {
+        setUser(null)
+        setProfile(null)
+        setLoading(false)
+        return
+      }
+      if (!session?.user) {
+        // Transient: keep current state, just stop the loading spinner.
+        setLoading(false)
+        return
+      }
 
       setUser(session.user)
-      // TOKEN_REFRESHED keeps the existing profile; everything else refetches.
-      if (event === 'TOKEN_REFRESHED' && profile) {
+      // TOKEN_REFRESHED / MFA_CHALLENGE_VERIFIED keep the existing profile;
+      // SIGNED_IN and friends refetch.
+      if ((event === 'TOKEN_REFRESHED' || event === 'MFA_CHALLENGE_VERIFIED') && profile) {
         setLoading(false)
         return
       }
