@@ -47,16 +47,25 @@ export default function MFASection() {
   async function startEnroll() {
     setEnrollOpen(true); setEnrollStep('init'); setEnrollErr(null); setEnrollCode('')
     try {
+      // Clean up any stale unverified TOTP factors from prior aborted attempts —
+      // Supabase rejects new enrolls with "factor friendly name already exists".
+      const { data: list } = await supabase.auth.mfa.listFactors()
+      const stale = (list?.totp || []).filter(f => f.status !== 'verified')
+      for (const f of stale) {
+        try { await supabase.auth.mfa.unenroll({ factorId: f.id }) } catch {}
+      }
+
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: 'totp',
-        friendlyName: 'Authenticator App',
+        friendlyName: `Authenticator App ${Date.now()}`,
       })
       if (error) throw error
+      if (!data?.totp?.qr_code) throw new Error('Supabase did not return a QR code. MFA may be disabled in this project.')
       setEnrollFactor(data)
       setEnrollStep('qr')
     } catch (e) {
       setEnrollErr(e.message || String(e))
-      setEnrollStep('init')
+      setEnrollStep('error')
     }
   }
 
@@ -204,6 +213,25 @@ export default function MFASection() {
         {enrollStep === 'init' && (
           <div style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:'40px 20px' }}>
             <Loader2 style={{ width:32, height:32, color:'#7c6ee0' }} className="animate-spin"/>
+          </div>
+        )}
+        {enrollStep === 'error' && (
+          <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+            <div style={{
+              display:'flex', gap:10, padding:'14px 16px', borderRadius:12,
+              background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.2)',
+              color:'#dc2626', fontSize:13.5,
+            }}>
+              <AlertTriangle style={{ width:18, height:18, flexShrink:0, marginTop:1 }}/>
+              <div>
+                <p style={{ fontWeight:600, margin:0 }}>2FA-nı aktivləşdirmək alınmadı</p>
+                <p style={{ margin:'4px 0 0', color:'#7f1d1d', lineHeight:1.5 }}>{enrollErr}</p>
+              </div>
+            </div>
+            <div style={{ display:'flex', justifyContent:'flex-end', gap:10 }}>
+              <Button variant="ghost" onClick={cancelEnroll}>Bağla</Button>
+              <Button onClick={startEnroll}>Yenidən cəhd et</Button>
+            </div>
           </div>
         )}
         {(enrollStep === 'qr' || enrollStep === 'verifying') && enrollFactor && (
