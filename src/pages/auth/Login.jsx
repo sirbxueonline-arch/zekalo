@@ -55,7 +55,22 @@ export default function Login() {
           return
         }
       }
-      // No MFA required — useEffect will redirect once profile loads.
+      // No MFA required — navigate explicitly. We don't rely on the
+      // [user, profile] useEffect because it's gated on `loading` (to avoid
+      // a different race where it fires mid-MFA-decision), so we have to
+      // drive the redirect ourselves once we know MFA isn't in play.
+      const { data: { session } } = await supabase.auth.getSession()
+      const uid = session?.user?.id
+      let role = null
+      if (uid) {
+        try {
+          const fresh = await fetchProfile?.(uid)
+          role = fresh?.role || null
+        } catch {}
+      }
+      setLoading(false)
+      const dest = { student:'/dashboard', teacher:'/muellim/dashboard', parent:'/valideyn/dashboard', admin:'/admin/dashboard', super_admin:'/superadmin/dashboard' }
+      navigate(dest[role] || '/dashboard', { replace: true })
     } catch (err) {
       if (err?.message?.includes('Invalid login'))            setError(t('invalid_login'))
       else if (err?.message?.includes('Email not confirmed')) setError(t('email_not_confirmed'))
