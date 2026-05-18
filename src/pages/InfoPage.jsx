@@ -264,132 +264,456 @@ const T = {
   },
 }
 
+// Each page entry has per-language `title / subtitle / body` plus shared
+// metadata (color, isContact). Use pickL(page.title, lang) to resolve a
+// translated string. Falls back to English if a lang is missing.
+function pickL(field, lang) {
+  if (field == null) return ''
+  if (typeof field === 'string') return field
+  return field[lang] || field.en || field.az || ''
+}
+
 const PAGES = {
   'ib-diploma': {
-    title: 'IB Diploma (DP)',
-    subtitle: 'Full support for the IB Diploma Programme',
-    body: `The IB Diploma Programme (DP) is a rigorous pre-university course for students aged 16–19. Zirva provides complete DP management including subject selection, assessment criteria tracking (A–D scale), CAS management, Theory of Knowledge documentation, and Extended Essay workflow. Our platform integrates directly with IBIS for exam registration and e-coursework submission.`,
     color: 'purple',
+    title: {
+      az: 'IB Diploma (DP)',
+      en: 'IB Diploma (DP)',
+      tr: 'IB Diploma (DP)',
+      ru: 'IB Diploma (DP)',
+    },
+    subtitle: {
+      az: 'IB Diploma Proqramı üçün tam dəstək',
+      en: 'Full support for the IB Diploma Programme',
+      tr: 'IB Diploma Programı için tam destek',
+      ru: 'Полная поддержка программы IB Diploma',
+    },
+    body: {
+      az: `IB Diploma Proqramı (DP) 16–19 yaş arası şagirdlər üçün universitetə qədərki ciddi bir kursdur. Zirva tam DP idarəçiliyini təmin edir: fənn seçimi, qiymətləndirmə meyarlarının izlənməsi (A–D şkalası), CAS idarəçiliyi, Theory of Knowledge sənədləşdirilməsi və Extended Essay iş axını. Platformamız imtahan qeydiyyatı və e-coursework təqdimatı üçün IBIS ilə birbaşa inteqrasiya olunur.`,
+      en: `The IB Diploma Programme (DP) is a rigorous pre-university course for students aged 16–19. Zirva provides complete DP management including subject selection, assessment criteria tracking (A–D scale), CAS management, Theory of Knowledge documentation, and Extended Essay workflow. Our platform integrates directly with IBIS for exam registration and e-coursework submission.`,
+    },
   },
   'ib-career': {
-    title: 'IB Career-Related (CP)',
-    subtitle: 'Dedicated tools for the IB Career-related Programme',
-    body: `The IB Career-related Programme (CP) combines the rigour of the IB with a career-related study. Zirva supports CP schools with personalised learning records, reflective project management, service learning tracking, and language development documentation — all within a single platform.`,
     color: 'teal',
+    title: {
+      az: 'IB Karyera (CP)',
+      en: 'IB Career-Related (CP)',
+      tr: 'IB Kariyer (CP)',
+      ru: 'IB Career-Related (CP)',
+    },
+    subtitle: {
+      az: 'IB Karyera Proqramı üçün xüsusi alətlər',
+      en: 'Dedicated tools for the IB Career-related Programme',
+      tr: 'IB Kariyer Programı için özel araçlar',
+      ru: 'Специальные инструменты для программы IB Career-related',
+    },
+    body: {
+      az: `IB Karyera Proqramı (CP) IB-nin ciddiliyini karyera yönümlü təhsillə birləşdirir. Zirva CP məktəblərini fərdiləşdirilmiş öyrənmə qeydləri, refleksiv layihə idarəçiliyi, xidmət-öyrənmə izlənməsi və dil inkişafı sənədləşdirilməsi ilə dəstəkləyir — hamısı tək bir platforma daxilində.`,
+      en: `The IB Career-related Programme (CP) combines the rigour of the IB with a career-related study. Zirva supports CP schools with personalised learning records, reflective project management, service learning tracking, and language development documentation — all within a single platform.`,
+    },
   },
   'ib-myp': {
-    title: 'IB Middle Years (MYP)',
-    subtitle: 'Collaborative Programme of Inquiry planning',
-    body: `The IB Middle Years Programme (MYP) provides a framework of academic challenge for students aged 11–16. Zirva's MYP tools include unit planner collaboration, interdisciplinary learning tracking, criterion-referenced assessment (A–D), MYP eAssessment preparation, and personal project management.`,
     color: 'purple',
+    title: {
+      az: 'IB Orta İllər (MYP)',
+      en: 'IB Middle Years (MYP)',
+      tr: 'IB Orta Yıllar (MYP)',
+      ru: 'IB Средние годы (MYP)',
+    },
+    subtitle: {
+      az: 'Birgə Sorğu Proqramı planlaşdırması',
+      en: 'Collaborative Programme of Inquiry planning',
+      tr: 'Ortak Sorgulama Programı planlaması',
+      ru: 'Совместное планирование Программы исследований',
+    },
+    body: {
+      az: `IB Orta İllər Proqramı (MYP) 11–16 yaş arası şagirdlər üçün akademik çağırış çərçivəsi təqdim edir. Zirva-nın MYP alətlərinə vahid plan birgə işi, fənlərarası öyrənmənin izlənməsi, meyar-əsaslı qiymətləndirmə (A–D), MYP eAssessment hazırlığı və şəxsi layihə idarəçiliyi daxildir.`,
+      en: `The IB Middle Years Programme (MYP) provides a framework of academic challenge for students aged 11–16. Zirva's MYP tools include unit planner collaboration, interdisciplinary learning tracking, criterion-referenced assessment (A–D), MYP eAssessment preparation, and personal project management.`,
+    },
   },
   'ib-pyp': {
-    title: 'IB Primary Years (PYP)',
-    subtitle: 'The same powerful support for younger students',
-    body: `The IB Primary Years Programme (PYP) nurtures and develops young students as caring, active participants in a lifelong journey of learning. Zirva supports PYP schools with exhibition planning, transdisciplinary theme tracking, portfolio management, and learner profile documentation.`,
     color: 'teal',
+    title: {
+      az: 'IB İlk İllər (PYP)',
+      en: 'IB Primary Years (PYP)',
+      tr: 'IB İlk Yıllar (PYP)',
+      ru: 'IB Начальные годы (PYP)',
+    },
+    subtitle: {
+      az: 'Kiçik şagirdlər üçün eyni güclü dəstək',
+      en: 'The same powerful support for younger students',
+      tr: 'Küçük öğrenciler için aynı güçlü destek',
+      ru: 'Та же мощная поддержка для младших учеников',
+    },
+    body: {
+      az: `IB İlk İllər Proqramı (PYP) kiçik şagirdləri ömürlük öyrənmə yolunda qayğıkeş, fəal iştirakçı kimi tərbiyə edir. Zirva PYP məktəblərini sərgi planlaşdırması, fənlərüstü mövzu izlənməsi, portfolio idarəçiliyi və öyrənən profili sənədləşdirilməsi ilə dəstəkləyir.`,
+      en: `The IB Primary Years Programme (PYP) nurtures and develops young students as caring, active participants in a lifelong journey of learning. Zirva supports PYP schools with exhibition planning, transdisciplinary theme tracking, portfolio management, and learner profile documentation.`,
+    },
   },
   'government-schools': {
-    title: 'Government Schools',
-    subtitle: 'Dedicated mode for Azerbaijani public schools',
-    body: `Zirva's Government School edition is built specifically for Azerbaijani state schools. It includes full integration with the Ministry of Education reporting system, E-Gov.az export, ASAN Xidmət compatibility, national 10-point grading, and automatic compliance reports. All data is hosted on Azerbaijani servers in full compliance with local legislation.`,
     color: 'teal',
+    title: {
+      az: 'Dövlət Məktəbləri',
+      en: 'Government Schools',
+      tr: 'Devlet Okulları',
+      ru: 'Государственные школы',
+    },
+    subtitle: {
+      az: 'Azərbaycan dövlət məktəbləri üçün xüsusi rejim',
+      en: 'Dedicated mode for Azerbaijani public schools',
+      tr: 'Azerbaycan devlet okulları için özel mod',
+      ru: 'Специальный режим для азербайджанских государственных школ',
+    },
+    body: {
+      az: `Zirva-nın Dövlət Məktəbi versiyası məhz Azərbaycan dövlət məktəbləri üçün hazırlanıb. Bura Təhsil Nazirliyinin hesabat sistemi ilə tam inteqrasiya, E-Gov.az ixracı, ASAN Xidmət uyğunluğu, milli 10 ballıq qiymətləndirmə və avtomatik uyğunluq hesabatları daxildir. Bütün məlumatlar Azərbaycan serverlərində, yerli qanunvericiliyə tam uyğun şəkildə saxlanılır.`,
+      en: `Zirva's Government School edition is built specifically for Azerbaijani state schools. It includes full integration with the Ministry of Education reporting system, E-Gov.az export, ASAN Xidmət compatibility, national 10-point grading, and automatic compliance reports. All data is hosted on Azerbaijani servers in full compliance with local legislation.`,
+    },
   },
   'mobile': {
-    title: 'Mobile App',
-    subtitle: 'Zirva on the go — iOS & Android',
-    body: `The Zirva mobile app gives students, parents, and teachers full access to the platform from their phones. Check grades, record attendance, send messages, view timetables, and receive real-time notifications — all from a native mobile experience. Available on iOS and Android. Coming soon.`,
     color: 'purple',
+    title: {
+      az: 'Mobil Tətbiq',
+      en: 'Mobile App',
+      tr: 'Mobil Uygulama',
+      ru: 'Мобильное приложение',
+    },
+    subtitle: {
+      az: 'Hərəkətdə Zirva — iOS və Android',
+      en: 'Zirva on the go — iOS & Android',
+      tr: 'Hareket halinde Zirva — iOS ve Android',
+      ru: 'Zirva в движении — iOS и Android',
+    },
+    body: {
+      az: `Zirva mobil tətbiqi şagirdlərə, valideynlərə və müəllimlərə telefonlarından platformaya tam giriş imkanı verir. Qiymətləri yoxla, davamiyyəti qeyd et, mesaj göndər, cədvələ bax və real vaxtda bildirişlər al — hamısı native mobil təcrübə daxilində. iOS və Android-də mövcuddur. Tezliklə.`,
+      en: `The Zirva mobile app gives students, parents, and teachers full access to the platform from their phones. Check grades, record attendance, send messages, view timetables, and receive real-time notifications — all from a native mobile experience. Available on iOS and Android. Coming soon.`,
+    },
   },
   'online-exams': {
-    title: 'Online Exams',
-    subtitle: 'Secure digital assessment at scale',
-    body: `Zirva's online exam module supports both IB and national curriculum assessments. Create, distribute, and automatically mark exams. Built-in anti-plagiarism tools, time limits, randomised question banks, and instant result reporting make digital assessment seamless for teachers and students alike.`,
     color: 'teal',
+    title: {
+      az: 'Onlayn İmtahanlar',
+      en: 'Online Exams',
+      tr: 'Çevrimiçi Sınavlar',
+      ru: 'Онлайн-экзамены',
+    },
+    subtitle: {
+      az: 'Geniş miqyaslı təhlükəsiz rəqəmsal qiymətləndirmə',
+      en: 'Secure digital assessment at scale',
+      tr: 'Geniş ölçekli güvenli dijital değerlendirme',
+      ru: 'Безопасная цифровая оценка в больших масштабах',
+    },
+    body: {
+      az: `Zirva-nın onlayn imtahan modulu həm IB, həm də milli kurikulum qiymətləndirmələrini dəstəkləyir. İmtahanları yaradın, paylayın və avtomatik qiymətləndirin. Daxili anti-plagiat alətləri, vaxt məhdudiyyətləri, təsadüfi sual bankları və ani nəticə hesabatları rəqəmsal qiymətləndirməni müəllimlər və şagirdlər üçün rahat edir.`,
+      en: `Zirva's online exam module supports both IB and national curriculum assessments. Create, distribute, and automatically mark exams. Built-in anti-plagiarism tools, time limits, randomised question banks, and instant result reporting make digital assessment seamless for teachers and students alike.`,
+    },
   },
   'ceo-letter': {
-    title: 'CEO Letter',
-    subtitle: 'A message from our founder',
-    body: `Zirva was founded with a single belief: that every student in Azerbaijan — whether in an IB World School or a state school — deserves world-class education technology. We built this platform to eliminate the administrative burden on teachers and give every student a personal AI tutor in their pocket.\n\nWe are just getting started. If you share this vision, we'd love to hear from you.\n\n— Zirva Founding Team`,
     color: 'purple',
+    title: {
+      az: 'CEO Məktubu',
+      en: 'CEO Letter',
+      tr: 'CEO Mektubu',
+      ru: 'Письмо CEO',
+    },
+    subtitle: {
+      az: 'Təsisçimizdən mesaj',
+      en: 'A message from our founder',
+      tr: 'Kurucumuzdan bir mesaj',
+      ru: 'Сообщение от нашего основателя',
+    },
+    body: {
+      az: `Zirva tək bir inamla quruldu: Azərbaycandakı hər bir şagird — istər IB Dünya Məktəbində, istərsə də dövlət məktəbində — dünya səviyyəli təhsil texnologiyasına layiqdir. Biz bu platformanı müəllimlərin üzərindən inzibati yükü götürmək və hər şagirdin cibinə şəxsi AI müəllim qoymaq üçün qurduq.\n\nBiz hələ təzəcə başlamışıq. Bu vizyonu paylaşırsınızsa, sizdən eşitmək istərdik.\n\n— Zirva Təsisçi Komandası`,
+      en: `Zirva was founded with a single belief: that every student in Azerbaijan — whether in an IB World School or a state school — deserves world-class education technology. We built this platform to eliminate the administrative burden on teachers and give every student a personal AI tutor in their pocket.\n\nWe are just getting started. If you share this vision, we'd love to hear from you.\n\n— Zirva Founding Team`,
+    },
   },
   'resources': {
-    title: 'Resource Library',
-    subtitle: 'Guides, templates, and best practices',
-    body: `Our resource library contains implementation guides, curriculum planning templates, assessment rubrics, and best practice articles for IB and government school educators. New resources are added regularly. Get in touch to request specific resources for your school.`,
     color: 'teal',
+    title: {
+      az: 'Resurs Kitabxanası',
+      en: 'Resource Library',
+      tr: 'Kaynak Kütüphanesi',
+      ru: 'Библиотека ресурсов',
+    },
+    subtitle: {
+      az: 'Bələdçilər, şablonlar və ən yaxşı təcrübələr',
+      en: 'Guides, templates, and best practices',
+      tr: 'Rehberler, şablonlar ve en iyi uygulamalar',
+      ru: 'Руководства, шаблоны и лучшие практики',
+    },
+    body: {
+      az: `Resurs kitabxanamızda IB və dövlət məktəbi təhsilçiləri üçün tətbiq bələdçiləri, kurikulum planlaşdırma şablonları, qiymətləndirmə rubrikaları və ən yaxşı təcrübə məqalələri var. Yeni resurslar müntəzəm əlavə olunur. Məktəbiniz üçün xüsusi resurslar tələb etmək üçün bizimlə əlaqə saxlayın.`,
+      en: `Our resource library contains implementation guides, curriculum planning templates, assessment rubrics, and best practice articles for IB and government school educators. New resources are added regularly. Get in touch to request specific resources for your school.`,
+    },
   },
   'events': {
-    title: 'Events & Webinars',
-    subtitle: 'Learn, connect, and grow with Zirva',
-    body: `Join our webinars, workshops, and school visits to learn how leading schools are using Zirva to transform their operations. Events are held online and in Baku. Subscribe to our newsletter or contact us to be notified of upcoming sessions.`,
     color: 'purple',
+    title: {
+      az: 'Tədbirlər və Vebinarlar',
+      en: 'Events & Webinars',
+      tr: 'Etkinlikler ve Web Seminerleri',
+      ru: 'События и вебинары',
+    },
+    subtitle: {
+      az: 'Zirva ilə öyrən, əlaqə qur, inkişaf et',
+      en: 'Learn, connect, and grow with Zirva',
+      tr: 'Zirva ile öğren, bağlan ve büyü',
+      ru: 'Учитесь, общайтесь и развивайтесь вместе с Zirva',
+    },
+    body: {
+      az: `Aparıcı məktəblərin Zirva-nı necə istifadə etdiklərini öyrənmək üçün vebinarlarımıza, seminarlarımıza və məktəb səfərlərimizə qoşulun. Tədbirlər həm onlayn, həm də Bakıda keçirilir. Gələcək sessiyalardan xəbərdar olmaq üçün xəbər bültenimizə abunə olun və ya bizimlə əlaqə saxlayın.`,
+      en: `Join our webinars, workshops, and school visits to learn how leading schools are using Zirva to transform their operations. Events are held online and in Baku. Subscribe to our newsletter or contact us to be notified of upcoming sessions.`,
+    },
   },
   'blog': {
-    title: 'Blog',
-    subtitle: 'Insights on education, technology, and school leadership',
-    body: `The Zirva blog covers topics including AI in education, IB programme management, Azerbaijani education policy, school leadership, and ed-tech trends. Written by our team and guest contributors from the international school community.`,
     color: 'teal',
+    title: {
+      az: 'Bloq',
+      en: 'Blog',
+      tr: 'Blog',
+      ru: 'Блог',
+    },
+    subtitle: {
+      az: 'Təhsil, texnologiya və məktəb rəhbərliyi haqqında fikirlər',
+      en: 'Insights on education, technology, and school leadership',
+      tr: 'Eğitim, teknoloji ve okul liderliği üzerine bilgiler',
+      ru: 'Идеи об образовании, технологиях и управлении школой',
+    },
+    body: {
+      az: `Zirva bloqu təhsildə AI, IB proqram idarəçiliyi, Azərbaycan təhsil siyasəti, məktəb rəhbərliyi və ed-tech trendləri kimi mövzuları əhatə edir. Komandamız və beynəlxalq məktəb cəmiyyətindən qonaq müəlliflər tərəfindən yazılır.`,
+      en: `The Zirva blog covers topics including AI in education, IB programme management, Azerbaijani education policy, school leadership, and ed-tech trends. Written by our team and guest contributors from the international school community.`,
+    },
   },
   'product-portal': {
-    title: 'Product Portal',
-    subtitle: 'Track what we\'re building',
-    body: `The Zirva product portal is where you can see our public roadmap, vote on features, and submit your own ideas. We build Zirva in close collaboration with the schools that use it — your feedback directly shapes every release.`,
     color: 'purple',
+    title: {
+      az: 'Məhsul Portalı',
+      en: 'Product Portal',
+      tr: 'Ürün Portalı',
+      ru: 'Портал продукта',
+    },
+    subtitle: {
+      az: 'Nə qurduğumuzu izləyin',
+      en: "Track what we're building",
+      tr: 'Neler inşa ettiğimizi takip edin',
+      ru: 'Следите за тем, что мы строим',
+    },
+    body: {
+      az: `Zirva məhsul portalı bizim açıq yol xəritəmizi gördüyünüz, xüsusiyyətlərə səs verdiyiniz və öz ideyalarınızı təqdim etdiyiniz yerdir. Biz Zirva-nı onu istifadə edən məktəblərlə sıx əməkdaşlıqda qururuq — sizin rəyiniz hər buraxılışı birbaşa formalaşdırır.`,
+      en: `The Zirva product portal is where you can see our public roadmap, vote on features, and submit your own ideas. We build Zirva in close collaboration with the schools that use it — your feedback directly shapes every release.`,
+    },
   },
   'reviews': {
-    title: 'Customer Reviews',
-    subtitle: 'Stories from schools using Zirva',
-    body: `Hear from IB Coordinators, IT leaders, and school administrators who have deployed Zirva. Our pilot schools have reported significant reductions in administrative time, improved parent communication, and measurable gains in data quality. Get in touch to speak with a reference school.`,
     color: 'teal',
+    title: {
+      az: 'Müştəri Rəyləri',
+      en: 'Customer Reviews',
+      tr: 'Müşteri Yorumları',
+      ru: 'Отзывы клиентов',
+    },
+    subtitle: {
+      az: 'Zirva-dan istifadə edən məktəblərin hekayələri',
+      en: 'Stories from schools using Zirva',
+      tr: 'Zirva kullanan okullardan hikayeler',
+      ru: 'Истории школ, использующих Zirva',
+    },
+    body: {
+      az: `Zirva-nı tətbiq etmiş IB Koordinatorlarından, İT rəhbərlərindən və məktəb administratorlarından eşidin. Pilot məktəblərimiz inzibati vaxtın əhəmiyyətli azalmasını, valideynlərlə təkmilləşmiş ünsiyyəti və məlumat keyfiyyətində ölçülə bilən qazanclar bildirib. Bir referans məktəblə danışmaq üçün bizimlə əlaqə saxlayın.`,
+      en: `Hear from IB Coordinators, IT leaders, and school administrators who have deployed Zirva. Our pilot schools have reported significant reductions in administrative time, improved parent communication, and measurable gains in data quality. Get in touch to speak with a reference school.`,
+    },
   },
   'faq': {
-    title: 'Frequently Asked Questions',
-    subtitle: 'Everything you need to know about Zirva',
-    body: `**How long does implementation take?** Most schools are fully onboarded within 2–4 weeks.\n\n**Is my data safe?** All data is hosted on Azerbaijani servers and is fully compliant with local data protection law and GDPR.\n\n**Does Zirva support both IB and national curriculum?** Yes — Zirva is the only platform in Azerbaijan that natively supports both IB programmes and the national curriculum in a single system.\n\n**How does pricing work?** Pricing is per school, based on student enrolment. Contact us for a quote.`,
     color: 'purple',
+    title: {
+      az: 'Tez-tez Verilən Suallar',
+      en: 'Frequently Asked Questions',
+      tr: 'Sıkça Sorulan Sorular',
+      ru: 'Часто задаваемые вопросы',
+    },
+    subtitle: {
+      az: 'Zirva haqqında bilməli olduğunuz hər şey',
+      en: 'Everything you need to know about Zirva',
+      tr: 'Zirva hakkında bilmeniz gereken her şey',
+      ru: 'Все, что вам нужно знать о Zirva',
+    },
+    body: {
+      az: `**Tətbiq nə qədər çəkir?** Əksər məktəblər 2–4 həftə ərzində tam işə salınır.\n\n**Mənim məlumatlarım təhlükəsizdirmi?** Bütün məlumatlar Azərbaycan serverlərində saxlanılır və yerli məlumatların qorunması qanununa və GDPR-ə tam uyğundur.\n\n**Zirva həm IB, həm də milli kurikulum dəstəkləyirmi?** Bəli — Zirva Azərbaycanda həm IB proqramlarını, həm də milli kurikulumu vahid sistemdə yerli olaraq dəstəkləyən yeganə platformadır.\n\n**Qiymət necə işləyir?** Qiymət şagird sayına əsaslanaraq hər məktəb üçün hesablanır. Təklif üçün bizimlə əlaqə saxlayın.`,
+      en: `**How long does implementation take?** Most schools are fully onboarded within 2–4 weeks.\n\n**Is my data safe?** All data is hosted on Azerbaijani servers and is fully compliant with local data protection law and GDPR.\n\n**Does Zirva support both IB and national curriculum?** Yes — Zirva is the only platform in Azerbaijan that natively supports both IB programmes and the national curriculum in a single system.\n\n**How does pricing work?** Pricing is per school, based on student enrolment. Contact us for a quote.`,
+    },
   },
   'premium-support': {
-    title: 'Premium Support',
-    subtitle: '24/7 dedicated support for your school',
-    body: `Premium Support includes a dedicated account manager, priority response times (under 2 hours), on-site implementation assistance, staff training sessions, and quarterly review calls. Available as an add-on to any Zirva subscription. Contact us to learn more.`,
     color: 'purple',
+    title: {
+      az: 'Premium Dəstək',
+      en: 'Premium Support',
+      tr: 'Premium Destek',
+      ru: 'Премиум-поддержка',
+    },
+    subtitle: {
+      az: 'Məktəbiniz üçün 24/7 xüsusi dəstək',
+      en: '24/7 dedicated support for your school',
+      tr: 'Okulunuz için 7/24 özel destek',
+      ru: 'Круглосуточная поддержка для вашей школы',
+    },
+    body: {
+      az: `Premium Dəstək xüsusi hesab meneceri, prioritet cavab müddətləri (2 saatdan az), yerində tətbiq köməyi, kadr təlim sessiyaları və rüblük baxış zəngləri daxildir. İstənilən Zirva abunəliyinə əlavə olaraq mövcuddur. Daha çox öyrənmək üçün bizimlə əlaqə saxlayın.`,
+      en: `Premium Support includes a dedicated account manager, priority response times (under 2 hours), on-site implementation assistance, staff training sessions, and quarterly review calls. Available as an add-on to any Zirva subscription. Contact us to learn more.`,
+    },
   },
   'support': {
-    title: 'Help & Support',
-    subtitle: 'We\'re here whenever you need us',
-    body: `Our support team is available 24/7 by email and during business hours by phone. For self-service, our knowledge base contains step-by-step guides for every feature in Zirva. For urgent issues, Premium Support customers have access to a dedicated hotline.`,
     color: 'teal',
+    title: {
+      az: 'Yardım və Dəstək',
+      en: 'Help & Support',
+      tr: 'Yardım ve Destek',
+      ru: 'Помощь и поддержка',
+    },
+    subtitle: {
+      az: 'Sizə lazım olanda buradayıq',
+      en: "We're here whenever you need us",
+      tr: 'İhtiyacınız olduğunda buradayız',
+      ru: 'Мы здесь, когда мы вам нужны',
+    },
+    body: {
+      az: `Dəstək komandamız e-poçt ilə 24/7, iş saatlarında isə telefon ilə əlçatandır. Self-servis üçün bilik bazamızda Zirva-nın hər xüsusiyyəti üçün addım-addım bələdçilər var. Təcili məsələlər üçün Premium Dəstək müştəriləri xüsusi qaynar xəttə girişə malikdir.`,
+      en: `Our support team is available 24/7 by email and during business hours by phone. For self-service, our knowledge base contains step-by-step guides for every feature in Zirva. For urgent issues, Premium Support customers have access to a dedicated hotline.`,
+    },
   },
   'about': {
-    title: 'About Zirva',
-    subtitle: 'The digital school infrastructure for Azerbaijan',
-    body: `Zirva is an Azerbaijani ed-tech company building the next generation of school management software. We serve both IB World Schools and government schools with a single, unified platform covering curriculum planning, assessment, attendance, communications, AI tutoring, and ministry reporting.\n\nOur team combines deep experience in international education, enterprise software, and artificial intelligence. We are headquartered in Baku, Azerbaijan.`,
     color: 'purple',
+    title: {
+      az: 'Zirva haqqında',
+      en: 'About Zirva',
+      tr: 'Zirva Hakkında',
+      ru: 'О Zirva',
+    },
+    subtitle: {
+      az: 'Azərbaycan üçün rəqəmsal məktəb infrastrukturu',
+      en: 'The digital school infrastructure for Azerbaijan',
+      tr: 'Azerbaycan için dijital okul altyapısı',
+      ru: 'Цифровая школьная инфраструктура для Азербайджана',
+    },
+    body: {
+      az: `Zirva növbəti nəsil məktəb idarəetmə proqram təminatını quran Azərbaycan ed-tech şirkətidir. Biz həm IB Dünya Məktəblərinə, həm də dövlət məktəblərinə kurikulum planlaşdırması, qiymətləndirmə, davamiyyət, kommunikasiya, AI dərslik və nazirlik hesabatlarını əhatə edən vahid platforma ilə xidmət göstəririk.\n\nKomandamız beynəlxalq təhsil, korporativ proqram təminatı və süni intellekt sahələrində dərin təcrübəni birləşdirir. Mərkəzi ofisimiz Bakı, Azərbaycandadır.`,
+      en: `Zirva is an Azerbaijani ed-tech company building the next generation of school management software. We serve both IB World Schools and government schools with a single, unified platform covering curriculum planning, assessment, attendance, communications, AI tutoring, and ministry reporting.\n\nOur team combines deep experience in international education, enterprise software, and artificial intelligence. We are headquartered in Baku, Azerbaijan.`,
+    },
   },
   'careers': {
-    title: 'Careers at Zirva',
-    subtitle: 'Help us build the future of education in Azerbaijan',
-    body: `We're looking for engineers, designers, and education specialists who are passionate about transforming schools. We offer competitive salaries, flexible working, and the chance to build technology used by thousands of students every day.\n\nTo apply or enquire about open roles, send your CV to hello@tryzirva.com with the subject line "Careers".`,
     color: 'teal',
+    title: {
+      az: 'Zirva-da Karyera',
+      en: 'Careers at Zirva',
+      tr: "Zirva'da Kariyer",
+      ru: 'Карьера в Zirva',
+    },
+    subtitle: {
+      az: 'Azərbaycanda təhsilin gələcəyini qurmağa kömək edin',
+      en: 'Help us build the future of education in Azerbaijan',
+      tr: "Azerbaycan'da eğitimin geleceğini inşa etmemize yardım edin",
+      ru: 'Помогите нам построить будущее образования в Азербайджане',
+    },
+    body: {
+      az: `Məktəbləri dəyişdirməyə həvəsli mühəndislər, dizaynerlər və təhsil mütəxəssisləri axtarırıq. Rəqabətli maaşlar, çevik iş şəraiti və minlərlə şagirdin hər gün istifadə etdiyi texnologiyanı qurmaq şansı təklif edirik.\n\nMüraciət etmək və ya açıq vəzifələr haqqında soruşmaq üçün CV-nizi "Careers" mövzu xətti ilə hello@tryzirva.com ünvanına göndərin.`,
+      en: `We're looking for engineers, designers, and education specialists who are passionate about transforming schools. We offer competitive salaries, flexible working, and the chance to build technology used by thousands of students every day.\n\nTo apply or enquire about open roles, send your CV to hello@tryzirva.com with the subject line "Careers".`,
+    },
   },
   'partners': {
-    title: 'Partners',
-    subtitle: 'Work with us to reach more schools',
-    body: `Zirva partners with education consultancies, IB authorisation advisors, government bodies, and technology resellers across Azerbaijan and the region. If your organisation works with schools and you see value in introducing Zirva, we'd love to explore a partnership.\n\nGet in touch at hello@tryzirva.com.`,
     color: 'purple',
+    title: {
+      az: 'Tərəfdaşlar',
+      en: 'Partners',
+      tr: 'Ortaklar',
+      ru: 'Партнёры',
+    },
+    subtitle: {
+      az: 'Daha çox məktəbə çatmaq üçün bizimlə işləyin',
+      en: 'Work with us to reach more schools',
+      tr: 'Daha fazla okula ulaşmak için bizimle çalışın',
+      ru: 'Работайте с нами, чтобы охватить больше школ',
+    },
+    body: {
+      az: `Zirva Azərbaycan və regiondakı təhsil məsləhət xidmətləri, IB səlahiyyət məsləhətçiləri, dövlət qurumları və texnologiya satıcıları ilə tərəfdaşlıq edir. Təşkilatınız məktəblərlə işləyirsə və Zirva-nı təqdim etməkdə dəyər görürsünüzsə, tərəfdaşlığı müzakirə etməkdən məmnun olarıq.\n\nhello@tryzirva.com ünvanından bizimlə əlaqə saxlayın.`,
+      en: `Zirva partners with education consultancies, IB authorisation advisors, government bodies, and technology resellers across Azerbaijan and the region. If your organisation works with schools and you see value in introducing Zirva, we'd love to explore a partnership.\n\nGet in touch at hello@tryzirva.com.`,
+    },
   },
   'contact': {
-    title: 'Contact Us',
-    subtitle: 'Let\'s talk about your school',
-    body: `Whether you're ready to start a pilot, want a product demo, or just have a question — we'd love to hear from you. Our team typically responds within a few hours.`,
     color: 'teal',
     isContact: true,
+    title: {
+      az: 'Bizimlə Əlaqə',
+      en: 'Contact Us',
+      tr: 'Bize Ulaşın',
+      ru: 'Связаться с нами',
+    },
+    subtitle: {
+      az: 'Məktəbiniz haqqında danışaq',
+      en: "Let's talk about your school",
+      tr: 'Okulunuz hakkında konuşalım',
+      ru: 'Поговорим о вашей школе',
+    },
+    body: {
+      az: `Pilot başlamağa hazır olsanız, məhsul demosu istəsəniz, ya sadəcə sualınız olsa — sizdən eşitmək istərdik. Komandamız adətən bir neçə saat ərzində cavab verir.`,
+      en: `Whether you're ready to start a pilot, want a product demo, or just have a question — we'd love to hear from you. Our team typically responds within a few hours.`,
+    },
   },
   'privacy': {
-    title: 'Privacy Policy',
-    subtitle: 'How Zirva collects, uses, and protects your data',
-    body: `Last updated: 16 April 2026
+    color: 'purple',
+    title: {
+      az: 'Məxfilik Siyasəti',
+      en: 'Privacy Policy',
+      tr: 'Gizlilik Politikası',
+      ru: 'Политика конфиденциальности',
+    },
+    subtitle: {
+      az: 'Zirva məlumatlarınızı necə toplayır, istifadə edir və qoruyur',
+      en: 'How Zirva collects, uses, and protects your data',
+      tr: "Zirva verilerinizi nasıl toplar, kullanır ve korur",
+      ru: 'Как Zirva собирает, использует и защищает ваши данные',
+    },
+    body: {
+      az: `Son yenilənmə: 16 Aprel 2026
+
+Zirva ("biz", "bizim") platformamızı istifadə edən şagirdlərin, valideynlərin, müəllimlərin və məktəb administratorlarının məxfiliyini qorumağa sadiqdir. Bu Məxfilik Siyasəti hansı şəxsi məlumatları topladığımızı, onları necə istifadə etdiyimizi və həmin məlumatlarla bağlı hüquqlarınızı izah edir.
+
+1. Topladığımız Məlumatlar
+
+Aşağıdakı kateqoriyalarda şəxsi məlumatlar toplayırıq: hesab məlumatları (ad, e-poçt, rol); məktəb və sinif məlumatları; akademik qeydlər (qiymətlər, davamiyyət, tapşırıqlar, imtahan nəticələri); platforma vasitəsilə göndərilən kommunikasiyalar; cihaz və istifadə məlumatları (IP ünvanı, brauzer növü, baxılan səhifələr); və lazım gəldikdə Təhsil Nazirliyi hesabatları üçün tələb olunan dövlət identifikasiya nömrələri.
+
+2. Məlumatlarınızı Necə İstifadə Edirik
+
+Məlumatlarınızı Zirva platformasını təmin etmək və təkmilləşdirmək üçün; akademik hesabatlar yaratmaq və Təhsil Nazirliyinin tələblərinə əməl etmək üçün; şagirdlər, valideynlər və müəllimlər arasında ünsiyyəti asanlaşdırmaq üçün; AI əsaslı dərslik və analitika xüsusiyyətləri təmin etmək üçün; hesabınız və məktəbiniz haqqında vacib bildirişlər göndərmək üçün istifadə edirik.
+
+3. Məlumatların Saxlanması və Təhlükəsizliyi
+
+Bütün məlumatlar Azərbaycan Respublikası daxilindəki serverlərdə, Azərbaycan məlumatların qorunması qanunvericiliyinə və GDPR-ə tam uyğun olaraq saxlanılır. Məlumatlarınızı qorumaq üçün sənaye standartı şifrələmə (ötürmədə TLS 1.3, istirahətdə AES-256), rol əsaslı giriş nəzarəti və müntəzəm müstəqil təhlükəsizlik auditləri istifadə edirik.
+
+4. Məlumatların Paylaşılması
+
+Şəxsi məlumatlarınızı satmırıq. Məlumatları yalnız aşağıdakılarla paylaşırıq: məktəb administrasiyanız və səlahiyyətli işçilər; qanunla tələb olunduqda Azərbaycan Təhsil Nazirliyi; sərt məlumat emalı müqavilələri altında etibarlı sub-prosessorlar (bulud infrastrukturu, e-poçt çatdırılması); qanuni tələb olunduqda hüquq-mühafizə və ya tənzimləyici qurumlar.
+
+5. Məlumatların Saxlanma Müddəti
+
+Şagird və işçi qeydləri məktəbin abunəlik müddəti və Azərbaycan təhsil qanunvericiliyinin tələb etdiyi 7 illik əlavə dövr ərzində saxlanılır. Hüquqi saxlanma öhdəliklərinə tabe olmaqla istənilən vaxt şəxsi hesab məlumatlarınızın silinməsini tələb edə bilərsiniz.
+
+6. Hüquqlarınız
+
+Şəxsi məlumatlarınıza giriş etmək, düzəltmək və silinməsini tələb etmək hüququnuz var. Eyni zamanda məlumat daşınması və müəyyən emal fəaliyyətlərinə etiraz etmək hüququnuz var. Bu hüquqları icra etmək üçün privacy@tryzirva.com ünvanından bizimlə əlaqə saxlayın. 30 gün ərzində cavab verəcəyik.
+
+7. Cookies
+
+Zirva yalnız sessiyanızı və üstünlüklərinizi saxlamaq üçün ciddi şəkildə zəruri cookie-lərdən istifadə edir. Reklam və ya izləmə cookie-lərindən istifadə etmirik.
+
+8. Uşaqların Məxfiliyi
+
+Zirva 18 yaşından kiçik uşaqlar daxil olmaqla bütün yaş qruplarından şagirdlər tərəfindən istifadə olunur. Şagirdləri platformaya qeydiyyatdan keçirməzdən əvvəl uyğun valideyn razılığını almaq məktəblərin məsuliyyətindədir. Məktəb səlahiyyəti olmadan uşaqlardan məlumat toplamırıq.
+
+9. Bu Siyasətdəki Dəyişikliklər
+
+Bu siyasəti vaxtaşırı yeniləyə bilərik. Məktəblər material dəyişikliklərdən qüvvəyə minmədən ən azı 30 gün əvvəl e-poçt vasitəsilə xəbərdar ediləcək.
+
+10. Əlaqə
+
+Məxfiliklə bağlı suallar və ya tələblər üçün privacy@tryzirva.com ünvanında Məlumat Mühafizəsi Məsulu ilə əlaqə saxlayın və ya Zirva, Bakı, Azərbaycan ünvanına yazın.`,
+      en: `Last updated: 16 April 2026
 
 Zirva ("we", "us", or "our") is committed to protecting the privacy of students, parents, teachers, and school administrators who use our platform. This Privacy Policy explains what personal data we collect, how we use it, and your rights regarding that data.
 
@@ -432,12 +756,75 @@ We may update this policy periodically. Schools will be notified of material cha
 10. Contact
 
 For any privacy-related questions or requests, contact our Data Protection Officer at privacy@tryzirva.com or write to Zirva, Baku, Azerbaijan.`,
-    color: 'purple',
+    },
   },
   'terms': {
-    title: 'Terms of Service',
-    subtitle: 'The rules governing use of the Zirva platform',
-    body: `Last updated: 16 April 2026
+    color: 'teal',
+    title: {
+      az: 'İstifadə Şərtləri',
+      en: 'Terms of Service',
+      tr: 'Hizmet Şartları',
+      ru: 'Условия использования',
+    },
+    subtitle: {
+      az: 'Zirva platformasının istifadəsini tənzimləyən qaydalar',
+      en: 'The rules governing use of the Zirva platform',
+      tr: 'Zirva platformunun kullanımını düzenleyen kurallar',
+      ru: 'Правила, регулирующие использование платформы Zirva',
+    },
+    body: {
+      az: `Son yenilənmə: 16 Aprel 2026
+
+Bu İstifadə Şərtləri ("Şərtlər") Birclick MMC ("Zirva", "biz") tərəfindən idarə olunan Zirva məktəb idarəetmə platformasına giriş və istifadəni tənzimləyir. Zirva-ya daxil olmaqla və ya onu istifadə etməklə bu Şərtlərə tabe olmağa razılaşırsınız.
+
+1. Uyğunluq
+
+Zirva məktəblərə və təhsil müəssisələrinə lisenziyalaşdırılmış B2B platformasıdır. Fərdi giriş məktəb administratoru tərəfindən verilir. Ən azı 13 yaşında olmalısınız (və ya kiçiksinizsə valideyn razılığı olmalıdır) və platformanı istifadə etmək üçün məktəbiniz tərəfindən səlahiyyətləndirilmiş olmalısınız.
+
+2. Lisenziya
+
+Tətbiq olunan haqların ödənilməsi və bu Şərtlərə əməl edilməsi şərti ilə, abunəlik müddəti ərzində məktəbinizin daxili təhsil idarəetmə məqsədləri üçün Zirva-ya giriş və istifadə üçün eksklüziv olmayan, ötürülə bilməyən lisenziya veririk.
+
+3. Məqbul İstifadə
+
+Aşağıdakılara razılaşırsınız: giriş məlumatlarınızı səlahiyyətsiz şəxslərlə paylaşmamaq; sizə aid olmayan hesab və ya məlumatlara girişə cəhd etməmək; zərərli, təhqiramiz və ya qanunsuz məzmun yükləməmək; platformanı hər hansı şəxsi narahat etmək, zorakılıq və ya ayrı-seçkilik üçün istifadə etməmək; platformanın tərs mühəndislik, dekompilyasiya və ya törəmə işlərini yaratmamaq; platformanı Azərbaycan qanununu və ya tətbiq olunan beynəlxalq qaydaları pozan hər hansı şəkildə istifadə etməmək.
+
+4. Abunəlik və Ödəniş
+
+Zirva-ya giriş ödənişli məktəb abunəliyi tələb edir. Haqlar razılaşdırılmış təklifə uyğun olaraq illik hesablanır. Abunəliklər yenilənmə tarixindən ən azı 30 gün əvvəl ləğv edilmədikdə avtomatik yenilənir. Bütün haqlar qanunla tələb olunduqdan başqa qaytarılmazdır.
+
+5. Məlumat Mülkiyyəti
+
+Məktəbiniz Zirva-ya yüklənən və ya orada yaradılan bütün məlumatların tam mülkiyyətini saxlayır. Biz məktəbiniz adından məlumat emalçısı kimi çıxış edirik. Xitamdan sonra 90 gün ərzində bütün məktəb məlumatlarını standart formatlarda ixrac edə bilərsiniz. Həmin müddətdən sonra məlumatlar silinə bilər.
+
+6. Əlçatanlıq və Dəstək
+
+Planlaşdırılmış texniki xidmət istisna olmaqla 99.5% aylıq istifadəyə hədəfləyirik. Dəstək e-poçt vasitəsilə, Premium Dəstək abunəçiləri üçün isə telefon vasitəsilə təmin olunur. Standart planda xüsusi cavab müddətlərinə zəmanət vermirik.
+
+7. Əqli Mülkiyyət
+
+Zirva platforması — dizaynı, kodu və AI modelləri daxil olmaqla — Birclick MMC-nin əqli mülkiyyətidir. Bu Şərtlərdə heç nə hər hansı əqli mülkiyyət hüququnu sizə ötürmür.
+
+8. Məsuliyyətin Məhdudlaşdırılması
+
+Qanunla icazə verilən maksimum dərəcədə, Zirva-nın bu Şərtlərdən irəli gələn və ya onlarla bağlı hər hansı iddiaya görə məsuliyyəti iddiadan əvvəlki 12 ay ərzində məktəbinizin ödədiyi haqlarla məhdudlaşır. Dolayı, təsadüfi və ya nəticə zərərlərə görə məsuliyyət daşımırıq.
+
+9. Xitam
+
+Hər iki tərəf istənilən abunəlik müddətinin sonunda abunəliyə xitam verə bilər. Bu Şərtləri material şəkildə pozsanız və yazılı bildirişdən 14 gün ərzində pozuntunu aradan qaldırmasanız, girişi dərhal dayandıra və ya xitam verə bilərik.
+
+10. Tətbiq olunan Qanun
+
+Bu Şərtlər Azərbaycan Respublikasının qanunları ilə tənzimlənir. Hər hansı mübahisə Bakı, Azərbaycan məhkəmələri tərəfindən həll edilməlidir.
+
+11. Bu Şərtlərdə Dəyişikliklər
+
+Bu Şərtləri vaxtaşırı yeniləyə bilərik. Məktəblər material dəyişikliklərdən qüvvəyə minmədən ən azı 30 gün əvvəl e-poçt vasitəsilə xəbərdar ediləcək. Həmin tarixdən sonra davam edən istifadə yenilənmiş Şərtlərin qəbulu mənasını verir.
+
+12. Əlaqə
+
+Bu Şərtlərlə bağlı suallar üçün hello@tryzirva.com ünvanından bizimlə əlaqə saxlayın və ya Zirva, Bakı, Azərbaycan ünvanına yazın.`,
+      en: `Last updated: 16 April 2026
 
 These Terms of Service ("Terms") govern access to and use of the Zirva school management platform operated by Birclick LLC ("Zirva", "we", "us"). By accessing or using Zirva, you agree to be bound by these Terms.
 
@@ -488,7 +875,7 @@ We may update these Terms from time to time. Schools will be notified of materia
 12. Contact
 
 For questions about these Terms, contact us at hello@tryzirva.com or write to Zirva, Baku, Azerbaijan.`,
-    color: 'teal',
+    },
   },
 }
 
@@ -913,8 +1300,8 @@ export default function InfoPage({ type: typeProp }) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background:'#f8f7fb' }}>
         <div className="text-center">
-          <p style={{ color:'#64748b', marginBottom:16 }}>Page not found</p>
-          <Link to="/" style={{ color:'#7c6ee0', fontWeight:600, textDecoration:'none' }}>← Back to home</Link>
+          <p style={{ color:'#64748b', marginBottom:16 }}>Səhifə tapılmadı</p>
+          <Link to="/" style={{ color:'#7c6ee0', fontWeight:600, textDecoration:'none' }}>← Ana səhifəyə qayıt</Link>
         </div>
       </div>
     )
@@ -927,7 +1314,11 @@ export default function InfoPage({ type: typeProp }) {
   const isPurpleAccent = page.color !== 'teal'
   const accentColor = isPurpleAccent ? '#7c6ee0' : '#5db8a3'
 
-  const paragraphs = page.body.split('\n\n').filter(Boolean)
+  // Per-language fields — see pickL() helper above PAGES.
+  const titleStr    = pickL(page.title,    lang)
+  const subtitleStr = pickL(page.subtitle, lang)
+  const bodyStr     = pickL(page.body,     lang)
+  const paragraphs  = bodyStr.split('\n\n').filter(Boolean)
 
   return (
     <div style={{ minHeight:'100vh', background:'#f8f7fb', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif' }}>
@@ -956,13 +1347,13 @@ export default function InfoPage({ type: typeProp }) {
             fontSize:'clamp(2.6rem,5.5vw,4rem)', fontWeight:800,
             letterSpacing:'-0.035em', lineHeight:1.07, marginBottom:16, color:'#1a1a2e',
           }}>
-            <span className="pastel-text">{page.title}</span>
+            <span className="pastel-text">{titleStr}</span>
           </h1>
           <p style={{
             fontSize:'clamp(1rem,1.8vw,1.2rem)', color:'#1a1a2e', opacity:0.72,
             fontWeight:500, lineHeight:1.6, maxWidth:560,
           }}>
-            {page.subtitle}
+            {subtitleStr}
           </p>
         </div>
       </div>
@@ -976,7 +1367,7 @@ export default function InfoPage({ type: typeProp }) {
             fontSize:'1.45rem', fontWeight:800, color:'#1a1a2e',
             letterSpacing:'-0.02em', marginBottom:28, lineHeight:1.25,
           }}>
-            {page.title}
+            {titleStr}
           </h2>
 
           <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
