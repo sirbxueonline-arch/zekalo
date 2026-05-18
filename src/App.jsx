@@ -7,10 +7,24 @@ function ScrollToTop() {
   return null
 }
 import { useAuth } from './contexts/AuthContext'
+import { useLang } from './contexts/LanguageContext'
 import { PageSpinner } from './components/ui/Spinner'
 import AppLayout from './components/layout/AppLayout'
 import ErrorBoundary from './components/ui/ErrorBoundary'
-import { rolePath } from './lib/domain'
+import { rolePath, isPublicPath } from './lib/domain'
+
+// Lock the UI language to Azerbaijani on every public page (landing,
+// marketing/info pages, auth flows). Logged-in app routes keep the user's
+// chosen preference. This sets a transient `forcedLang` in LanguageContext —
+// it does NOT mutate the user's stored localStorage preference.
+function PublicLangGuard() {
+  const { pathname } = useLocation()
+  const { setForcedLang } = useLang()
+  useEffect(() => {
+    setForcedLang(isPublicPath(pathname) ? 'az' : null)
+  }, [pathname, setForcedLang])
+  return null
+}
 
 // Host enforcement disabled — both tryzirva.com and app.tryzirva.com serve
 // the entire app. Single-host auth is reliable; cross-host was causing
@@ -157,6 +171,7 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <HostGuard />
+      <PublicLangGuard />
       <ErrorBoundary>
       <Suspense fallback={<PageSpinner />}>
       <Routes>
