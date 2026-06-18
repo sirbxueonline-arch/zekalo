@@ -71,6 +71,11 @@ export default function LevelRing({
     <div
       className={`relative inline-flex items-center justify-center ${className}`}
       style={{ width: size, height: size, ...style }}
+      role="progressbar"
+      aria-valuenow={Math.round(value)}
+      aria-valuemin={0}
+      aria-valuemax={Math.round(safeMax)}
+      aria-label={label || 'Səviyyə'}
       {...props}
     >
       <svg

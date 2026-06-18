@@ -51,6 +51,7 @@ export default function StatCard({
         {trend != null && (
           <span
             className="text-xs font-semibold mt-2 inline-flex items-center gap-1 tabular-nums"
+            aria-label={`${trend > 0 ? 'artım' : trend < 0 ? 'azalma' : 'dəyişiklik yoxdur'} ${trend}%`}
             style={{
               color: trend > 0 ? '#15803D' : trend < 0 ? '#B91C1C' : 'var(--ink-600)',
             }}

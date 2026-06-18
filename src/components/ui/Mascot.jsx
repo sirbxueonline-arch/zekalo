@@ -22,9 +22,6 @@
 
 const POSES = ['waving', 'reading', 'cheering', 'thinking', 'sleeping', 'pointing']
 
-// Stable per-instance ids so multiple mascots on one page don't collide.
-let _uid = 0
-
 export default function Mascot({
   pose = 'thinking',
   size = 140,
@@ -34,7 +31,6 @@ export default function Mascot({
   ...props
 }) {
   const p = POSES.includes(pose) ? pose : 'thinking'
-  const uid = `mascot-${++_uid}`
 
   // ---- pose-driven flags --------------------------------------------------
   const asleep = p === 'sleeping'

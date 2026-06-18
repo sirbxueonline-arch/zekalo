@@ -51,7 +51,7 @@ export default function XPBar({
               labelText
             ) : (
               <>
-                {Math.round(raw)} / {Math.round(safeTarget)} XP
+                {Math.round(clamped)} / {Math.round(safeTarget)} XP
               </>
             )}
           </span>
@@ -61,6 +61,7 @@ export default function XPBar({
       <div
         className="xp-track relative"
         role="progressbar"
+        aria-label="XP"
         aria-valuenow={Math.round(clamped)}
         aria-valuemin={0}
         aria-valuemax={Math.round(safeTarget)}

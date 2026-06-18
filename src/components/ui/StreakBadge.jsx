@@ -45,7 +45,7 @@ export default function StreakBadge({
       <div
         className="relative animate-flame"
         style={{ width: size, height }}
-        aria-label={`${days}`}
+        aria-label={`${days} günlük seriya`}
       >
         <svg
           width={size}

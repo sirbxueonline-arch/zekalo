@@ -58,6 +58,14 @@ export default function Table({ columns, data, onRowClick, emptyMessage = 'Məlu
                   <th
                     key={col.key}
                     onClick={() => col.sortable && handleSort(col.key)}
+                    onKeyDown={col.sortable ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        handleSort(col.key)
+                      }
+                    } : undefined}
+                    tabIndex={col.sortable ? 0 : undefined}
+                    aria-sort={col.sortable ? (sortKey === col.key ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none') : undefined}
                     className={`${isNum ? 'num' : ''}${col.sortable ? ' cursor-pointer select-none' : ''}`}
                     style={col.sortable ? { transition: 'color .15s var(--ease-out-quint)' } : undefined}
                   >
@@ -86,6 +94,14 @@ export default function Table({ columns, data, onRowClick, emptyMessage = 'Məlu
                 key={row.id || i}
                 className={onRowClick ? 'cursor-pointer' : ''}
                 onClick={() => onRowClick?.(row)}
+                role={onRowClick ? 'button' : undefined}
+                tabIndex={onRowClick ? 0 : undefined}
+                onKeyDown={onRowClick ? (e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    onRowClick(row)
+                  }
+                } : undefined}
               >
                 {columns.map((col) => (
                   <td key={col.key} className={col.align === 'right' ? 'num' : ''}>

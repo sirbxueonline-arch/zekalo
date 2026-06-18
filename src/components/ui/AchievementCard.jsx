@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { Award } from 'lucide-react'
 
 // <AchievementCard> — a colored shield/hexagon badge with a white lucide glyph,
@@ -44,7 +45,7 @@ export default function AchievementCard({
   className = '',
 }) {
   const c = COLORS[color] || COLORS.brand
-  const gradId = `ach-${color}`
+  const gradId = useId()
 
   const hasProgress =
     !locked &&

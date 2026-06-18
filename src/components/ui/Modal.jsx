@@ -1,7 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import { X } from 'lucide-react'
 
 export default function Modal({ open, onClose, title, children, size = 'md' }) {
+  const titleId = useId()
+  const panelRef = useRef(null)
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden'
@@ -12,10 +15,13 @@ export default function Modal({ open, onClose, title, children, size = 'md' }) {
   }, [open])
 
   useEffect(() => {
+    if (!open) return
     const handler = e => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', handler)
+    // Move focus into the dialog for keyboard + screen-reader users.
+    panelRef.current?.focus()
     return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
+  }, [open, onClose])
 
   if (!open) return null
 
@@ -33,7 +39,12 @@ export default function Modal({ open, onClose, title, children, size = 'md' }) {
     <div className={`liquid-backdrop ${isFull ? '!p-0' : ''}`}>
       <div className="absolute inset-0" onClick={onClose} />
       <div
-        className={`liquid-modal relative flex flex-col ${
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? titleId : undefined}
+        tabIndex={-1}
+        className={`liquid-modal relative flex flex-col outline-none ${
           isFull
             ? 'w-screen h-screen mx-0 max-h-screen !rounded-none'
             : `w-full ${sizes[size]} mx-4 max-h-[90vh]`
@@ -41,7 +52,7 @@ export default function Modal({ open, onClose, title, children, size = 'md' }) {
       >
         {/* Header */}
         <div className="flex items-center justify-between gap-4 px-6 pt-5 pb-4 border-b border-hairline shrink-0">
-          <h2 className="font-display font-semibold text-[18px] leading-tight text-ink-900 truncate">{title}</h2>
+          <h2 id={titleId} className="font-display font-semibold text-[18px] leading-tight text-ink-900 truncate">{title}</h2>
           <button
             onClick={onClose}
             aria-label="Bağla"
