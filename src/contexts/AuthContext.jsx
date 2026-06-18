@@ -12,6 +12,9 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [profileError, setProfileError] = useState(false)
   const fetchingRef = useRef(false)
+  // Mirror of `profile` readable from stable callbacks (the onAuthStateChange
+  // closure has `[]` deps, so reading `profile` there is always stale/null).
+  const profileRef = useRef(null)
 
   async function fetchProfile(userId) {
     if (fetchingRef.current) return
@@ -30,6 +33,7 @@ export function AuthProvider({ children }) {
         return null
       }
       setProfile(data)
+      profileRef.current = data
       setProfileError(false)
       if (data && Sentry?.setUser) {
         Sentry.setUser({
@@ -77,12 +81,14 @@ export function AuthProvider({ children }) {
       if (event === 'SIGNED_OUT') {
         setUser(null)
         setProfile(null)
+        profileRef.current = null
         setLoading(false)
         return
       }
       if (event === 'INITIAL_SESSION' && !session?.user) {
         setUser(null)
         setProfile(null)
+        profileRef.current = null
         setLoading(false)
         return
       }
@@ -95,7 +101,7 @@ export function AuthProvider({ children }) {
       setUser(session.user)
       // TOKEN_REFRESHED / MFA_CHALLENGE_VERIFIED keep the existing profile;
       // SIGNED_IN and friends refetch.
-      if ((event === 'TOKEN_REFRESHED' || event === 'MFA_CHALLENGE_VERIFIED') && profile) {
+      if ((event === 'TOKEN_REFRESHED' || event === 'MFA_CHALLENGE_VERIFIED') && profileRef.current) {
         setLoading(false)
         return
       }
@@ -193,6 +199,7 @@ export function AuthProvider({ children }) {
     if (error) throw error
     setUser(null)
     setProfile(null)
+    profileRef.current = null
     if (Sentry?.setUser) Sentry.setUser(null)
   }
 
@@ -205,6 +212,7 @@ export function AuthProvider({ children }) {
       .single()
     if (error) throw error
     setProfile(data)
+    profileRef.current = data
     if (updates.language) setLang(updates.language)
     return data
   }

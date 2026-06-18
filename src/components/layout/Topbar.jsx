@@ -184,6 +184,8 @@ export default function Topbar({ title, onMenuClick }) {
               }
             }}
             aria-label="Bildirişlər"
+            aria-expanded={showDropdown}
+            aria-haspopup="true"
           >
             <Bell className="w-[18px] h-[18px]" />
             {unreadCount > 0 && (

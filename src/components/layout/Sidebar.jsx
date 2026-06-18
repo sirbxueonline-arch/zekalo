@@ -260,6 +260,10 @@ export default function Sidebar({ open, onClose }) {
           className="fixed inset-0 z-40 lg:hidden"
           style={{ background: 'rgba(30,34,51,0.30)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
           onClick={onClose}
+          role="button"
+          tabIndex={0}
+          aria-label="Yan paneli bağla"
+          onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onClose()}
         />
       )}
       <aside
@@ -328,7 +332,7 @@ export default function Sidebar({ open, onClose }) {
         </div>
 
         {/* Navigation */}
-        <nav className={`flex-1 overflow-y-auto px-3 ${playful ? 'py-4' : 'py-3'}`}>
+        <nav className={`flex-1 overflow-y-auto px-3 ${playful ? 'py-4' : 'py-3'}`} aria-label="Əsas naviqasiya">
           {resolvedGroups.map((group, gi) => (
             <div key={gi} className={gi > 0 ? (playful ? 'mt-5' : 'mt-4') : ''}>
               <p

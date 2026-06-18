@@ -34,13 +34,13 @@ function HostGuard() {
   return null
 }
 
-// Landing page — eager (first paint)
-import Landing from './pages/Landing'
-import InfoPage from './pages/InfoPage'
-import Solutions from './pages/Solutions'
-import Features from './pages/Features'
-import FeaturePage from './pages/FeaturePage'
-import ZekaAIPage from './pages/ZekaAIPage'
+// Marketing/info pages — lazy
+const Landing     = lazy(() => import('./pages/Landing'))
+const InfoPage    = lazy(() => import('./pages/InfoPage'))
+const Solutions   = lazy(() => import('./pages/Solutions'))
+const Features    = lazy(() => import('./pages/Features'))
+const FeaturePage = lazy(() => import('./pages/FeaturePage'))
+const ZekaAIPage  = lazy(() => import('./pages/ZekaAIPage'))
 
 // Auth pages — lazy
 const Login            = lazy(() => import('./pages/auth/Login'))

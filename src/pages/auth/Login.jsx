@@ -183,6 +183,7 @@ export default function Login() {
                   placeholder="000000"
                   disabled={mfaLoading}
                   autoFocus
+                  aria-label="6 rəqəmli kod"
                   className="auth-input auth-otp"
                 />
                 {mfaError && <div className="auth-alert auth-alert-danger">{mfaError}</div>}
