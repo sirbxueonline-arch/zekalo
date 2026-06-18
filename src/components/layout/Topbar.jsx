@@ -101,36 +101,32 @@ export default function Topbar({ title, onMenuClick }) {
 
   return (
     <header
-      className="sticky top-0 z-30 h-16 flex items-center justify-between px-4 lg:px-6 gap-4"
-      style={{
-        background: 'rgba(255,255,255,0.65)',
-        backdropFilter: 'blur(24px) saturate(1.6)',
-        WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
-        borderBottom: '1px solid rgba(255,255,255,0.6)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.85), 0 1px 12px rgba(140,120,200,0.05)',
-      }}
+      className="sticky top-0 z-30 flex items-center justify-between gap-4 bg-surface px-4 lg:px-6"
+      style={{ height: 60, borderBottom: '1px solid var(--hairline)' }}
     >
       {/* Left: hamburger + breadcrumb */}
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-xl transition-colors flex-shrink-0"
-          style={{ color: '#64748b', background: 'rgba(255,255,255,0.5)' }}
+          className="lg:hidden p-2 rounded-chip transition-colors flex-shrink-0"
+          style={{ color: 'var(--ink-600)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(20,22,40,.04)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
           aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs font-medium hidden sm:block" style={{ color: '#94a3b8' }}>Zirva</span>
-          <span className="hidden sm:block" style={{ color: '#cbd5e1' }}>/</span>
-          <h1 className="text-sm font-semibold truncate" style={{ color: '#1a1a2e' }}>{title}</h1>
+          <span className="font-display text-[13px] font-bold hidden sm:block" style={{ color: 'var(--ink-400)', letterSpacing: '-0.01em' }}>Zirva</span>
+          <span className="hidden sm:block" style={{ color: 'var(--hairline-strong)' }}>/</span>
+          <h1 className="text-[15px] font-semibold truncate" style={{ color: 'var(--ink-900)' }}>{title}</h1>
         </div>
 
-        {/* Search bar — hidden on mobile, glass pill */}
+        {/* Search bar — hidden on mobile, surface-2 pill */}
         <div className="hidden md:flex ml-4 relative" style={{ minWidth: 220, maxWidth: 320 }}>
           <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
-            style={{ width: 14, height: 14, color: '#94a3b8' }}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ width: 15, height: 15, color: 'var(--ink-400)' }}
           />
           <input
             type="text"
@@ -138,73 +134,65 @@ export default function Topbar({ title, onMenuClick }) {
             aria-label="Axtarış"
             className="topbar-search w-full text-[13px]"
             style={{
-              background: 'rgba(255,255,255,0.6)',
-              border: '1px solid rgba(124,110,224,0.2)',
+              background: 'var(--surface-2)',
+              border: '1px solid var(--hairline)',
               borderRadius: '999px',
-              padding: '8px 16px 8px 38px',
-              color: '#1a1a2e',
+              padding: '8px 16px 8px 36px',
+              color: 'var(--ink-900)',
               outline: 'none',
-              transition: 'all 0.2s ease',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
+              transition: 'all 0.15s var(--ease-out-quint)',
             }}
             onFocus={e => {
-              e.currentTarget.style.borderColor = 'rgba(124,110,224,0.4)'
-              e.currentTarget.style.background = 'rgba(255,255,255,0.85)'
-              e.currentTarget.style.boxShadow = '0 0 0 4px rgba(124,110,224,0.08)'
+              e.currentTarget.style.borderColor = 'var(--brand-500)'
+              e.currentTarget.style.background = 'var(--surface)'
+              e.currentTarget.style.boxShadow = '0 0 0 3px rgba(87,79,207,0.15)'
             }}
             onBlur={e => {
-              e.currentTarget.style.borderColor = 'rgba(124,110,224,0.2)'
-              e.currentTarget.style.background = 'rgba(255,255,255,0.6)'
+              e.currentTarget.style.borderColor = 'var(--hairline)'
+              e.currentTarget.style.background = 'var(--surface-2)'
               e.currentTarget.style.boxShadow = 'none'
             }}
           />
           <style>{`
-            .topbar-search::placeholder { color: #94a3b8; }
+            .topbar-search::placeholder { color: var(--ink-400); }
           `}</style>
         </div>
       </div>
 
       {/* Right: actions */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-1.5 flex-shrink-0">
 
         {/* Notification bell */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={toggleDropdown}
-            className="relative rounded-xl w-10 h-10 flex items-center justify-center"
+            className="relative rounded-chip w-9 h-9 flex items-center justify-center transition-colors"
             style={{
-              color: showDropdown ? '#7c6ee0' : '#64748b',
-              background: showDropdown
-                ? 'linear-gradient(135deg, rgba(124,110,224,0.15), rgba(93,184,163,0.10))'
-                : 'rgba(255,255,255,0.5)',
-              border: showDropdown ? '1px solid rgba(124,110,224,0.25)' : '1px solid rgba(255,255,255,0.6)',
-              transition: 'all 0.2s ease',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
+              color: showDropdown ? 'var(--brand-700)' : 'var(--ink-600)',
+              background: showDropdown ? 'var(--brand-50)' : 'transparent',
             }}
             onMouseEnter={e => {
               if (!showDropdown) {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.8)'
-                e.currentTarget.style.color = '#1a1a2e'
+                e.currentTarget.style.background = 'rgba(20,22,40,.04)'
+                e.currentTarget.style.color = 'var(--ink-900)'
               }
             }}
             onMouseLeave={e => {
               if (!showDropdown) {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.5)'
-                e.currentTarget.style.color = '#64748b'
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = 'var(--ink-600)'
               }
             }}
             aria-label="Bildirişlər"
           >
-            <Bell className="w-[17px] h-[17px]" />
+            <Bell className="w-[18px] h-[18px]" />
             {unreadCount > 0 && (
               <span
-                className="absolute top-1 right-1 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
+                className="absolute top-1 right-1 text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] px-1 flex items-center justify-center"
                 style={{
-                  background: 'linear-gradient(135deg, #7c6ee0 0%, #6b9dde 100%)',
-                  boxShadow: '0 2px 6px rgba(124,110,224,0.4), inset 0 1px 0 rgba(255,255,255,0.4)',
-                  border: '2px solid rgba(255,255,255,0.85)',
+                  background: 'var(--brand-500)',
+                  border: '2px solid var(--surface)',
+                  fontVariantNumeric: 'tabular-nums',
                 }}
               >
                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -214,31 +202,23 @@ export default function Topbar({ title, onMenuClick }) {
 
           {showDropdown && (
             <div
-              className="absolute right-0 top-[calc(100%+10px)] w-80 sm:w-[360px] z-50 overflow-hidden"
+              className="absolute right-0 top-[calc(100%+10px)] w-80 sm:w-[360px] z-50 overflow-hidden animate-pop bg-surface shadow-pop"
               style={{
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.78) 100%)',
-                backdropFilter: 'blur(24px) saturate(1.6)',
-                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
-                border: '1px solid rgba(255,255,255,0.7)',
-                borderRadius: '20px',
-                boxShadow:
-                  'inset 0 1px 0 rgba(255,255,255,0.95), 0 16px 40px rgba(140,120,200,0.18), 0 4px 12px rgba(0,0,0,0.04)',
+                border: '1px solid var(--hairline)',
+                borderRadius: '16px',
               }}
             >
               <div
                 className="flex items-center justify-between px-4 py-3"
-                style={{ borderBottom: '1px solid rgba(124,110,224,0.10)' }}
+                style={{ borderBottom: '1px solid var(--hairline)' }}
               >
                 <div className="flex items-center gap-2">
-                  <Bell className="w-4 h-4" style={{ color: '#7c6ee0' }} />
-                  <h3 className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>Bildirişlər</h3>
+                  <Bell className="w-4 h-4" style={{ color: 'var(--brand-500)' }} />
+                  <h3 className="text-sm font-semibold" style={{ color: 'var(--ink-900)' }}>Bildirişlər</h3>
                   {unreadCount > 0 && (
                     <span
                       className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full text-[11px] font-bold"
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(124,110,224,0.18), rgba(93,184,163,0.12))',
-                        color: '#7c6ee0',
-                      }}
+                      style={{ background: 'var(--brand-100)', color: 'var(--brand-700)', fontVariantNumeric: 'tabular-nums' }}
                     >
                       {unreadCount}
                     </span>
@@ -248,9 +228,9 @@ export default function Topbar({ title, onMenuClick }) {
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllRead}
-                      className="text-xs font-medium flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-colors"
-                      style={{ color: '#7c6ee0' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.10)' }}
+                      className="text-xs font-medium flex items-center gap-1 px-2.5 py-1.5 rounded-chip transition-colors"
+                      style={{ color: 'var(--brand-700)' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--brand-50)' }}
                       onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
                     >
                       <CheckCheck className="w-3.5 h-3.5" />
@@ -259,14 +239,14 @@ export default function Topbar({ title, onMenuClick }) {
                   )}
                   <button
                     onClick={() => setShowDropdown(false)}
-                    className="p-1.5 rounded-lg transition-colors"
-                    style={{ color: '#94a3b8' }}
+                    className="p-1.5 rounded-chip transition-colors"
+                    style={{ color: 'var(--ink-400)' }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.color = '#1a1a2e'
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.7)'
+                      e.currentTarget.style.color = 'var(--ink-900)'
+                      e.currentTarget.style.background = 'var(--surface-2)'
                     }}
                     onMouseLeave={e => {
-                      e.currentTarget.style.color = '#94a3b8'
+                      e.currentTarget.style.color = 'var(--ink-400)'
                       e.currentTarget.style.background = 'transparent'
                     }}
                     aria-label="Close"
@@ -281,51 +261,46 @@ export default function Topbar({ title, onMenuClick }) {
                   <div className="flex items-center justify-center py-12">
                     <div
                       className="w-6 h-6 border-2 rounded-full animate-spin"
-                      style={{ borderColor: 'rgba(124,110,224,0.18)', borderTopColor: '#7c6ee0' }}
+                      style={{ borderColor: 'var(--brand-100)', borderTopColor: 'var(--brand-500)' }}
                     />
                   </div>
                 ) : notifications.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-14 text-center">
                     <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center mb-3"
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(124,110,224,0.10), rgba(93,184,163,0.08))',
-                      }}
+                      className="w-12 h-12 rounded-tile flex items-center justify-center mb-3"
+                      style={{ background: 'var(--brand-50)' }}
                     >
-                      <Bell className="w-5 h-5" style={{ color: '#7c6ee0', opacity: 0.6 }} />
+                      <Bell className="w-5 h-5" style={{ color: 'var(--brand-400)' }} />
                     </div>
-                    <p className="text-sm" style={{ color: '#94a3b8' }}>Bildiriş yoxdur</p>
+                    <p className="text-sm" style={{ color: 'var(--ink-400)' }}>Bildiriş yoxdur</p>
                   </div>
                 ) : (
-                  <ul style={{ borderColor: 'rgba(124,110,224,0.06)' }}>
+                  <ul>
                     {notifications.map((n, idx) => (
                       <li
                         key={n.id}
                         className="flex items-start gap-3 px-4 py-3 transition-colors"
                         style={{
-                          background: !n.read ? 'rgba(124,110,224,0.05)' : 'transparent',
-                          borderTop: idx === 0 ? 'none' : '1px solid rgba(124,110,224,0.06)',
+                          background: !n.read ? 'var(--brand-50)' : 'transparent',
+                          borderTop: idx === 0 ? 'none' : '1px solid var(--hairline)',
                         }}
                         onMouseEnter={e => {
-                          e.currentTarget.style.background = 'rgba(255,255,255,0.6)'
+                          e.currentTarget.style.background = 'rgba(20,22,40,.04)'
                         }}
                         onMouseLeave={e => {
-                          e.currentTarget.style.background = !n.read ? 'rgba(124,110,224,0.05)' : 'transparent'
+                          e.currentTarget.style.background = !n.read ? 'var(--brand-50)' : 'transparent'
                         }}
                       >
                         <span
                           className="mt-1.5 w-2 h-2 rounded-full flex-shrink-0"
-                          style={{
-                            background: !n.read ? '#7c6ee0' : 'transparent',
-                            boxShadow: !n.read ? '0 0 6px rgba(124,110,224,0.4)' : 'none',
-                          }}
+                          style={{ background: !n.read ? 'var(--brand-500)' : 'transparent' }}
                         />
                         <div className="flex-1 min-w-0">
                           <p
                             className="text-xs leading-snug"
                             style={{
                               fontWeight: !n.read ? 600 : 500,
-                              color: !n.read ? '#1a1a2e' : '#475569',
+                              color: !n.read ? 'var(--ink-900)' : 'var(--ink-600)',
                             }}
                           >
                             {n.title}
@@ -333,12 +308,12 @@ export default function Topbar({ title, onMenuClick }) {
                           {n.body && (
                             <p
                               className="text-[11px] mt-0.5 line-clamp-2 leading-relaxed"
-                              style={{ color: '#94a3b8' }}
+                              style={{ color: 'var(--ink-400)' }}
                             >
                               {n.body}
                             </p>
                           )}
-                          <p className="text-[10px] mt-1" style={{ color: '#cbd5e1' }}>{timeAgo(n.created_at)}</p>
+                          <p className="text-[10px] mt-1" style={{ color: 'var(--ink-400)' }}>{timeAgo(n.created_at)}</p>
                         </div>
                       </li>
                     ))}
@@ -348,13 +323,13 @@ export default function Topbar({ title, onMenuClick }) {
 
               <div
                 className="px-4 py-2.5"
-                style={{ borderTop: '1px solid rgba(124,110,224,0.10)' }}
+                style={{ borderTop: '1px solid var(--hairline)' }}
               >
                 <button
                   onClick={() => { setShowDropdown(false); navigate(allNotifsPath) }}
-                  className="w-full text-center text-xs font-medium py-1.5 rounded-lg transition-colors"
-                  style={{ color: '#7c6ee0' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.08)' }}
+                  className="w-full text-center text-xs font-medium py-1.5 rounded-chip transition-colors"
+                  style={{ color: 'var(--brand-700)' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--brand-50)' }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
                 >
                   Bütün bildirişlərə bax →
@@ -364,48 +339,31 @@ export default function Topbar({ title, onMenuClick }) {
           )}
         </div>
 
-        {/* Avatar + name (profile pill) */}
+        {/* Avatar + name (profile menu) */}
         <button
           onClick={() => navigate(profilePath)}
-          className="group flex items-center gap-2 pl-1 pr-3 py-1 rounded-full"
-          style={{
-            background: 'rgba(255,255,255,0.5)',
-            border: '1px solid rgba(255,255,255,0.6)',
-            transition: 'all 0.2s ease',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.85)'
-            e.currentTarget.style.borderColor = 'rgba(124,110,224,0.25)'
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.5)'
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)'
-          }}
+          className="group flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-pill transition-colors"
+          style={{ background: 'transparent' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(20,22,40,.04)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
           aria-label="Profil"
         >
-          <div
-            className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
-            style={{
-              background: profile?.avatar_color
-                ? profile.avatar_color
-                : 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 6px rgba(124,110,224,0.18)',
-            }}
-          >
-            {initials}
-          </div>
+          <Avatar
+            name={profile?.full_name}
+            color={profile?.avatar_color}
+            size={32}
+            ring={false}
+          />
           <div className="hidden sm:block text-left min-w-0">
             <p
-              className="text-xs font-semibold leading-tight truncate max-w-[120px]"
-              style={{ color: '#1a1a2e' }}
+              className="text-[13px] font-semibold leading-tight truncate max-w-[120px]"
+              style={{ color: 'var(--ink-900)' }}
             >
               {profile?.full_name}
             </p>
-            <p className="text-[10px] leading-tight" style={{ color: '#94a3b8' }}>{roleLabel}</p>
+            <p className="text-[10.5px] leading-tight" style={{ color: 'var(--ink-400)' }}>{roleLabel}</p>
           </div>
-          <ChevronDown className="w-3 h-3 hidden sm:block flex-shrink-0" style={{ color: '#94a3b8' }} />
+          <ChevronDown className="w-3.5 h-3.5 hidden sm:block flex-shrink-0" style={{ color: 'var(--ink-400)' }} />
         </button>
       </div>
     </header>

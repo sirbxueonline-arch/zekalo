@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import Avatar from '../../components/ui/Avatar'
+import EmptyState from '../../components/ui/EmptyState'
 import { MessageSquare, Send, AlertCircle } from 'lucide-react'
 import { fmtDayMonth } from '../../lib/dateUtils'
 
@@ -197,10 +198,10 @@ export default function TeacherConversations() {
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="pastel-skeleton h-12 w-72" />
+        <div className="pastel-skeleton h-12 w-72 rounded-tile" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="pastel-skeleton h-96" />
-          <div className="pastel-skeleton h-96 md:col-span-2" />
+          <div className="pastel-skeleton h-96 rounded-card" />
+          <div className="pastel-skeleton h-96 md:col-span-2 rounded-card" />
         </div>
       </div>
     )
@@ -208,11 +209,11 @@ export default function TeacherConversations() {
 
   if (loadError) {
     return (
-      <div className="liquid-card p-6">
-        <div className="flex items-center gap-2" style={{ color: '#b83b54' }}>
-          <AlertCircle className="w-5 h-5" />
-          <span className="text-sm font-semibold">{loadError}</span>
-        </div>
+      <div className="liquid-card p-5 flex items-center gap-3 border border-danger/25 bg-danger/5">
+        <span className="icon-chip icon-chip-coral flex-shrink-0" style={{ width: 36, height: 36 }}>
+          <AlertCircle className="w-4 h-4" />
+        </span>
+        <span className="text-sm font-semibold text-ink-900">{loadError}</span>
       </div>
     )
   }
@@ -220,23 +221,24 @@ export default function TeacherConversations() {
   return (
     <div className="liquid-card overflow-hidden flex" style={{ height: 'calc(100vh - 7rem)' }}>
       {/* Left panel — conversations list */}
-      <div className="w-80 flex flex-col flex-shrink-0" style={{ borderRight: '1px solid rgba(124,110,224,0.12)' }}>
-        <div className="px-4 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
+      <div className="w-80 flex flex-col flex-shrink-0 border-r border-hairline">
+        <div className="px-4 py-4 flex items-center justify-between border-b border-hairline">
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold" style={{ color: '#1a1a2e' }}>Yazışmalar</h2>
+            <h2 className="text-base font-bold text-ink-900">Yazışmalar</h2>
             {totalUnread > 0 && (
-              <span className="pastel-badge pastel-badge-rose">{totalUnread}</span>
+              <span className="pill-danger">{totalUnread}</span>
             )}
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto scrollbar-thin">
           {conversations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 py-12 px-4 text-center">
+            <div className="flex flex-col items-center justify-center gap-2 py-12 px-4 text-center">
               <div className="icon-chip icon-chip-periwinkle" style={{ width: 48, height: 48 }}>
                 <MessageSquare className="w-5 h-5" />
               </div>
-              <p className="text-sm" style={{ color: '#94a3b8' }}>Hələ heç bir yazışma yoxdur</p>
+              <p className="text-sm font-medium text-ink-600">Hələ heç bir yazışma yoxdur</p>
+              <p className="text-xs text-ink-400">Valideynlər sizinlə əlaqə saxladıqda burada görünəcək</p>
             </div>
           ) : (
             conversations.map(conv => {
@@ -250,40 +252,42 @@ export default function TeacherConversations() {
                 <button
                   key={conv.id}
                   onClick={() => openConversation(conv)}
-                  className="w-full text-left px-4 py-3 smooth-trans"
+                  className="w-full text-left px-4 py-3 transition-colors duration-150 border-b border-hairline/60"
                   style={{
-                    background: isActive ? 'rgba(124,110,224,0.08)' : 'transparent',
-                    borderBottom: '1px solid rgba(124,110,224,0.06)',
-                    borderLeft: isActive ? '3px solid #7c6ee0' : '3px solid transparent',
+                    background: isActive ? 'var(--brand-50)' : 'transparent',
+                    borderLeft: isActive ? '3px solid var(--brand-500)' : '3px solid transparent',
                   }}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(124,110,224,0.04)' }}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'var(--canvas)' }}
                   onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
                 >
                   <div className="flex items-start gap-3">
                     <Avatar name={conv.parent?.full_name} color={conv.parent?.avatar_color} size="sm" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1">
-                        <p className="text-sm truncate" style={{ fontWeight: unreadCount > 0 ? 700 : 500, color: '#1a1a2e' }}>
+                        <p
+                          className="text-sm truncate"
+                          style={{ fontWeight: unreadCount > 0 ? 700 : 500, color: 'var(--ink-900)' }}
+                        >
                           {conv.parent?.full_name || 'Valideyn'}
                         </p>
                         <div className="flex items-center gap-1.5 flex-shrink-0">
                           {lastMsg && (
-                            <span className="text-[10px] whitespace-nowrap" style={{ color: '#94a3b8' }}>
+                            <span className="text-[10px] whitespace-nowrap text-ink-400">
                               {formatTime(lastMsg.created_at)}
                             </span>
                           )}
                           {unreadCount > 0 && (
-                            <span className="pastel-badge pastel-badge-rose" style={{ minWidth: 18, fontSize: 10 }}>{unreadCount}</span>
+                            <span className="pill-danger" style={{ minWidth: 18, fontSize: 10 }}>{unreadCount}</span>
                           )}
                         </div>
                       </div>
                       {conv.student && (
-                        <p className="text-[10px] mb-0.5 font-semibold" style={{ color: '#5db8a3' }}>
+                        <p className="text-[10px] mb-0.5 font-semibold text-brand-600">
                           {conv.student.full_name}
                         </p>
                       )}
                       {lastMsg && (
-                        <p className="text-xs truncate" style={{ color: '#64748b' }}>
+                        <p className="text-xs truncate text-ink-600">
                           {truncate(lastMsg.content, 40)}
                         </p>
                       )}
@@ -299,31 +303,35 @@ export default function TeacherConversations() {
       {/* Right panel — chat */}
       <div className="flex-1 flex flex-col min-w-0">
         {!activeConv ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-3 px-8 text-center">
-            <div className="icon-chip icon-chip-periwinkle" style={{ width: 64, height: 64 }}>
-              <MessageSquare className="w-8 h-8" />
-            </div>
-            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Yazışma seçin</p>
-            <p className="text-sm max-w-sm" style={{ color: '#94a3b8' }}>Sol paneldən bir yazışma seçin və valideynin mesajına cavab verin.</p>
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <EmptyState
+              icon={MessageSquare}
+              title="Yazışma seçin"
+              description="Sol paneldən bir yazışma seçin və valideynin mesajına cavab verin."
+              className="border-none shadow-none"
+            />
           </div>
         ) : (
           <>
             {/* Chat header */}
-            <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
+            <div className="px-6 py-3.5 flex items-center gap-3 border-b border-hairline bg-surface">
               <Avatar name={activeConv.parent?.full_name} color={activeConv.parent?.avatar_color} size="sm" />
               <div>
-                <p className="text-sm font-bold" style={{ color: '#1a1a2e' }}>{activeConv.parent?.full_name}</p>
+                <p className="text-sm font-bold text-ink-900">{activeConv.parent?.full_name}</p>
                 {activeConv.student && (
-                  <p className="text-xs" style={{ color: '#94a3b8' }}>{activeConv.student.full_name} haqqında</p>
+                  <p className="text-xs text-ink-400">{activeConv.student.full_name} haqqında</p>
                 )}
               </div>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2.5 bg-canvas">
               {messages.length === 0 && (
-                <div className="text-center text-sm py-8" style={{ color: '#94a3b8' }}>
-                  Hələ mesaj yoxdur.
+                <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                  <div className="icon-chip icon-chip-periwinkle" style={{ width: 40, height: 40 }}>
+                    <MessageSquare className="w-4 h-4" />
+                  </div>
+                  <p className="text-sm text-ink-400">Hələ mesaj yoxdur. Söhbəti başlayın!</p>
                 </div>
               )}
               {messages.map(msg => {
@@ -331,19 +339,21 @@ export default function TeacherConversations() {
                 return (
                   <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                     <div
-                      className="max-w-[70%] rounded-2xl px-4 py-2.5 text-sm"
+                      className="max-w-[70%] text-sm leading-relaxed"
                       style={{
-                        background: isMe
-                          ? 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)'
-                          : 'rgba(255,255,255,0.7)',
-                        backdropFilter: 'blur(10px)',
-                        color: isMe ? '#fff' : '#1a1a2e',
-                        border: isMe ? 'none' : '1px solid rgba(124,110,224,0.12)',
-                        boxShadow: isMe ? '0 4px 12px rgba(124,110,224,0.18)' : '0 1px 3px rgba(0,0,0,0.04)',
+                        padding: '10px 16px',
+                        background: isMe ? 'var(--brand-500)' : 'var(--surface)',
+                        color: isMe ? '#fff' : 'var(--ink-900)',
+                        border: isMe ? 'none' : '1px solid var(--hairline)',
+                        boxShadow: isMe ? 'none' : '0 1px 2px rgba(20,22,40,.04)',
+                        borderRadius: isMe ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                       }}
                     >
                       <p style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</p>
-                      <p className="text-[10px] mt-1" style={{ color: isMe ? 'rgba(255,255,255,0.8)' : '#94a3b8' }}>
+                      <p
+                        className="text-[10px] mt-1"
+                        style={{ color: isMe ? 'rgba(255,255,255,0.75)' : 'var(--ink-400)' }}
+                      >
                         {formatTime(msg.created_at)}
                       </p>
                     </div>
@@ -354,13 +364,13 @@ export default function TeacherConversations() {
             </div>
 
             {/* Input */}
-            <div style={{ borderTop: '1px solid rgba(124,110,224,0.12)' }}>
+            <div className="border-t border-hairline bg-surface">
               {sendError && (
-                <p className="px-6 pt-3 text-xs flex items-center gap-1.5" style={{ color: '#b83b54' }}>
+                <p className="px-6 pt-3 text-xs flex items-center gap-1.5 text-danger">
                   <AlertCircle className="w-3.5 h-3.5" /> {sendError}
                 </p>
               )}
-              <div className="px-6 py-4 flex gap-3">
+              <div className="px-6 py-3.5 flex gap-3">
                 <input
                   value={input}
                   onChange={e => { setInput(e.target.value); if (sendError) setSendError(null) }}
@@ -371,8 +381,8 @@ export default function TeacherConversations() {
                 <button
                   onClick={sendMessage}
                   disabled={!input.trim() || sending}
-                  className="btn-pastel"
-                  style={{ padding: '0 18px', opacity: (!input.trim() || sending) ? 0.5 : 1 }}
+                  className="btn-pastel flex items-center justify-center"
+                  style={{ padding: '0 18px', opacity: (!input.trim() || sending) ? 0.5 : 1, minWidth: 48 }}
                 >
                   <Send className="w-4 h-4" />
                 </button>

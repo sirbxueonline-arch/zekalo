@@ -6,6 +6,8 @@ import {
   ClipboardList, Plus, Sparkles, Loader2, Filter, Eye, BarChart2, Clock,
   CheckSquare, Paperclip, Download, Check, AlertCircle, Save, Trash2, Users, BookOpen, X,
 } from 'lucide-react'
+import EmptyState from '../../components/ui/EmptyState'
+import StatCard from '../../components/ui/StatCard'
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -18,20 +20,20 @@ function DueDateChip({ dueDate }) {
 
   if (diffDays < 0) {
     return (
-      <span className="pastel-badge pastel-badge-rose">
+      <span className="pill-danger">
         <Clock className="w-3 h-3" /> {Math.abs(diffDays)} gün keçdi
       </span>
     )
   }
   if (diffDays === 0) {
     return (
-      <span className="pastel-badge pastel-badge-peach">
+      <span className="pill-warning">
         <Clock className="w-3 h-3" /> Bu gün!
       </span>
     )
   }
   return (
-    <span className="pastel-badge pastel-badge-slate">
+    <span className="pill-neutral">
       <Clock className="w-3 h-3" /> {diffDays} gün qaldı
     </span>
   )
@@ -39,16 +41,16 @@ function DueDateChip({ dueDate }) {
 
 function SubStatusBadge({ status }) {
   const map = {
-    graded:    'pastel-badge pastel-badge-mint',
-    submitted: 'pastel-badge pastel-badge-periwinkle',
-    late:      'pastel-badge pastel-badge-peach',
+    graded:    'pill-success',
+    submitted: 'pill-brand',
+    late:      'pill-warning',
   }
   const labelMap = {
     graded: 'Qiymətləndirildi',
     submitted: 'Təhvil verildi',
     late: 'Gecikən',
   }
-  return <span className={map[status] || 'pastel-badge pastel-badge-slate'}>{labelMap[status] || status || 'Naməlum'}</span>
+  return <span className={map[status] || 'pill-neutral'}>{labelMap[status] || status || 'Naməlum'}</span>
 }
 
 function getAssignmentStatus(assignment) {
@@ -67,14 +69,14 @@ function getAssignmentStatus(assignment) {
 }
 
 const STATUS_BORDER_COLOR = {
-  overdue:   '#e56b7f',
-  active:    '#7c6ee0',
-  completed: '#5db8a3',
+  overdue:   'var(--danger)',
+  active:    'var(--brand-500)',
+  completed: 'var(--mint)',
 }
-const STATUS_BADGE_CLASS = {
-  overdue:   'pastel-badge pastel-badge-rose',
-  active:    'pastel-badge pastel-badge-periwinkle',
-  completed: 'pastel-badge pastel-badge-mint',
+const STATUS_PILL_CLASS = {
+  overdue:   'pill-danger',
+  active:    'pill-brand',
+  completed: 'pill-success',
 }
 const STATUS_LABEL = {
   overdue: 'Gecikib',
@@ -92,45 +94,47 @@ function AssignmentCard({ assignment, onClick, onDelete }) {
   const total      = assignment.totalStudents   || 0
   const pct        = total > 0 ? Math.round((submitted / total) * 100) : 0
 
+  const progressColor = status === 'overdue'
+    ? 'var(--danger)'
+    : status === 'completed'
+    ? 'var(--mint)'
+    : 'var(--brand-500)'
+
   return (
     <div
-      className="liquid-card p-5 cursor-pointer overflow-hidden flex flex-col"
-      style={{ borderLeft: `4px solid ${STATUS_BORDER_COLOR[status]}` }}
+      className="liquid-card p-5 cursor-pointer overflow-hidden flex flex-col hover:-translate-y-0.5 transition-transform duration-150"
+      style={{ borderLeft: `3px solid ${STATUS_BORDER_COLOR[status]}` }}
       onClick={() => onClick(assignment)}
     >
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={STATUS_BADGE_CLASS[status]}>{STATUS_LABEL[status]}</span>
+          <span className={STATUS_PILL_CLASS[status]}>{STATUS_LABEL[status]}</span>
           {subjectName && (
-            <span className="pastel-badge pastel-badge-slate">
+            <span className="pill-neutral">
               <BookOpen className="w-2.5 h-2.5" /> {subjectName}
             </span>
           )}
           {className && (
-            <span className="pastel-badge pastel-badge-blue">{className}</span>
+            <span className="pill-neutral">{className}</span>
           )}
         </div>
         <button
           onClick={e => { e.stopPropagation(); onDelete(assignment) }}
-          className="p-1.5 rounded-lg smooth-trans"
-          style={{ color: '#cbd5e1' }}
-          onMouseEnter={e => { e.currentTarget.style.color = '#e56b7f'; e.currentTarget.style.background = 'rgba(229,107,127,0.08)' }}
-          onMouseLeave={e => { e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.background = 'transparent' }}
+          className="p-1.5 rounded-tile transition-colors duration-150 text-ink-400 hover:text-danger hover:bg-danger/10"
           aria-label="Sil"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      <h3 className="text-base font-bold leading-snug mb-1.5" style={{ color: '#1a1a2e' }}>
+      <h3 className="text-base font-bold leading-snug mb-1.5 text-ink-900">
         {assignment.title}
       </h3>
 
       {assignment.description && (
         <p
-          className="text-sm leading-relaxed"
+          className="text-sm leading-relaxed text-ink-600"
           style={{
-            color: '#64748b',
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
@@ -145,34 +149,26 @@ function AssignmentCard({ assignment, onClick, onDelete }) {
 
       <div className="flex items-center justify-between mt-4 mb-3 gap-2 flex-wrap">
         <DueDateChip dueDate={assignment.due_date} />
-        <span className="pastel-badge pastel-badge-slate">
+        <span className="pill-neutral">
           <Users className="w-3 h-3" /> {submitted}/{total} təhvil
         </span>
       </div>
 
-      <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'rgba(124,110,224,0.10)' }}>
+      <div className="h-1.5 w-full rounded-full overflow-hidden bg-hairline">
         <div
-          className="h-full rounded-full smooth-trans"
-          style={{
-            width: `${pct}%`,
-            background: status === 'overdue'
-              ? 'linear-gradient(90deg, #e56b7f, #d85268)'
-              : status === 'completed'
-              ? 'linear-gradient(90deg, #5db8a3, #6b9dde)'
-              : 'linear-gradient(90deg, #7c6ee0, #5db8a3)',
-          }}
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, background: progressColor }}
         />
       </div>
 
-      <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: '1px solid rgba(124,110,224,0.08)' }}>
-        <span className="text-xs" style={{ color: '#94a3b8' }}>{pct}% tamamlandı</span>
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-hairline">
+        <span className="text-xs text-ink-400 tabular-nums">{pct}% tamamlandı</span>
         <div className="flex items-center gap-2">
           {ungradedCount > 0 && (
-            <span className="pastel-badge pastel-badge-peach">{ungradedCount} gözləyir</span>
+            <span className="pill-warning">{ungradedCount} gözləyir</span>
           )}
           <button
-            className="flex items-center gap-1 text-xs font-semibold smooth-trans hover:opacity-70"
-            style={{ color: '#7c6ee0' }}
+            className="flex items-center gap-1 text-xs font-semibold text-brand-500 hover:text-brand-600 transition-colors"
             onClick={e => { e.stopPropagation(); onClick(assignment) }}
           >
             <Eye className="w-3.5 h-3.5" /> Bax
@@ -516,12 +512,12 @@ export default function TeacherAssignments() {
   if (loading) {
     return (
       <div className="space-y-5">
-        <div className="pastel-skeleton h-12 w-72" />
+        <div className="pastel-skeleton h-12 w-72 rounded-tile" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-24" />)}
+          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-24 rounded-card" />)}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-56" />)}
+          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-56 rounded-card" />)}
         </div>
       </div>
     )
@@ -537,38 +533,27 @@ export default function TeacherAssignments() {
 
   return (
     <div className="space-y-5">
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
-          <span className="pastel-text">Tapşırıqlar</span>
+        <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-ink-900">
+          Tapşırıqlar
         </h1>
-        <button onClick={() => setShowNewModal(true)} className="btn-pastel" style={{ padding: '12px 22px', fontSize: 13 }}>
+        <button onClick={() => setShowNewModal(true)} className="btn-pastel flex items-center gap-2">
           <Plus className="w-4 h-4" /> Yeni tapşırıq
         </button>
       </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Ümumi tapşırıq', value: totalCount, icon: ClipboardList, chip: 'icon-chip-blue' },
-          { label: 'Gözləyən qiymətləndir.', value: ungradedTotal, icon: Clock, chip: 'icon-chip-peach' },
-          { label: 'Bu həftə son tarix', value: thisWeekCount, icon: CheckSquare, chip: 'icon-chip-mint' },
-          { label: 'Ortalama təhvil %', value: `${avgPct}%`, icon: BarChart2, chip: 'icon-chip-periwinkle' },
-        ].map((s, i) => (
-          <div key={i} className="liquid-card p-4 flex items-center gap-4">
-            <span className={`icon-chip ${s.chip}`}>
-              <s.icon className="w-5 h-5" />
-            </span>
-            <div>
-              <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: '#64748b' }}>{s.label}</p>
-              <p className="text-2xl font-bold mt-0.5" style={{ color: '#1a1a2e' }}>{s.value}</p>
-            </div>
-          </div>
-        ))}
+        <StatCard label="Ümumi tapşırıq" value={totalCount} icon={ClipboardList} tone="periwinkle" />
+        <StatCard label="Gözləyən qiymətləndir." value={ungradedTotal} icon={Clock} tone="peach" />
+        <StatCard label="Bu həftə son tarix" value={thisWeekCount} icon={CheckSquare} tone="periwinkle" />
+        <StatCard label="Ortalama təhvil %" value={`${avgPct}%`} icon={BarChart2} tone="periwinkle" />
       </div>
 
       {/* Filter tabs */}
       <div className="flex items-center gap-2 flex-wrap">
-        <Filter className="w-4 h-4" style={{ color: '#94a3b8' }} />
+        <Filter className="w-4 h-4 text-ink-400" />
         <div className="pastel-tabs">
           {FILTERS.map(f => (
             <button
@@ -578,10 +563,11 @@ export default function TeacherAssignments() {
             >
               {f.label}
               {f.key === 'ungraded' && ungradedTotal > 0 && (
-                <span className="ml-1.5 inline-flex items-center justify-center text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                <span
+                  className="ml-1.5 inline-flex items-center justify-center text-[10px] font-bold px-1.5 py-0.5 rounded-pill"
                   style={{
-                    background: activeFilter === f.key ? 'rgba(255,255,255,0.25)' : 'rgba(232,168,124,0.25)',
-                    color: activeFilter === f.key ? '#fff' : '#b46a3e',
+                    background: activeFilter === f.key ? 'rgba(255,255,255,0.25)' : 'rgba(250,204,21,0.25)',
+                    color: activeFilter === f.key ? '#fff' : '#92400e',
                   }}
                 >
                   {ungradedTotal}
@@ -594,31 +580,23 @@ export default function TeacherAssignments() {
 
       {/* Assignment grid / empty state */}
       {filteredAssignments.length === 0 ? (
-        <div className="liquid-card p-12">
-          <div className="flex flex-col items-center justify-center text-center gap-4">
-            <div className="icon-chip icon-chip-periwinkle" style={{ width: 72, height: 72 }}>
-              <ClipboardList className="w-9 h-9" />
-            </div>
-            <div>
-              <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>
-                {activeFilter === 'all' ? 'Hələ tapşırıq əlavə edilməyib' :
-                 activeFilter === 'active' ? 'Aktiv tapşırıq yoxdur' :
-                 activeFilter === 'ungraded' ? 'Qiymətləndirilməmiş tapşırıq yoxdur' :
-                 'Bitmiş tapşırıq yoxdur'}
-              </p>
-              <p className="text-sm mt-1 max-w-sm mx-auto" style={{ color: '#94a3b8' }}>
-                {activeFilter === 'all'
-                  ? 'Şagirdlərə tapşırıq vermək üçün "Yeni tapşırıq" düyməsinə basın'
-                  : 'Filteri dəyişdirərək digər tapşırıqlara baxa bilərsiniz'}
-              </p>
-            </div>
-            {activeFilter === 'all' && (
-              <button onClick={() => setShowNewModal(true)} className="btn-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>
-                <Plus className="w-4 h-4" /> Yeni tapşırıq
-              </button>
-            )}
-          </div>
-        </div>
+        <EmptyState
+          tier={1}
+          icon={ClipboardList}
+          title={
+            activeFilter === 'all' ? 'Hələ tapşırıq əlavə edilməyib' :
+            activeFilter === 'active' ? 'Aktiv tapşırıq yoxdur' :
+            activeFilter === 'ungraded' ? 'Qiymətləndirilməmiş tapşırıq yoxdur' :
+            'Bitmiş tapşırıq yoxdur'
+          }
+          description={
+            activeFilter === 'all'
+              ? 'Şagirdlərə tapşırıq vermək üçün "Yeni tapşırıq" düyməsinə basın'
+              : 'Filteri dəyişdirərək digər tapşırıqlara baxa bilərsiniz'
+          }
+          actionLabel={activeFilter === 'all' ? 'Yeni tapşırıq' : undefined}
+          onAction={activeFilter === 'all' ? () => setShowNewModal(true) : undefined}
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredAssignments.map(a => (
@@ -630,32 +608,38 @@ export default function TeacherAssignments() {
       {/* New assignment modal */}
       {showNewModal && (
         <div className="liquid-backdrop" onClick={() => { setShowNewModal(false); setSaveError(null) }}>
-          <div className="liquid-card p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>Yeni tapşırıq</h3>
-              <button onClick={() => { setShowNewModal(false); setSaveError(null) }} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
+          <div
+            className="bg-surface rounded-card shadow-modal w-full max-w-lg max-h-[90vh] overflow-y-auto p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-ink-900">Yeni tapşırıq</h3>
+              <button
+                onClick={() => { setShowNewModal(false); setSaveError(null) }}
+                className="p-1.5 rounded-tile text-ink-400 hover:text-ink-700 hover:bg-canvas transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Başlıq</label>
+                <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">Başlıq</label>
                 <input className="pastel-input" placeholder="Tapşırığın adını daxil edin" value={newAssignment.title} onChange={e => setNewAssignment(p => ({ ...p, title: e.target.value }))} />
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Açıqlama</label>
+                <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">Açıqlama</label>
                 <textarea className="pastel-input" rows={4} placeholder="Tapşırıq haqqında ətraflı məlumat..." value={newAssignment.description} onChange={e => setNewAssignment(p => ({ ...p, description: e.target.value }))} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Sinif</label>
+                  <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">Sinif</label>
                   <select className="pastel-input" value={newAssignment.class_id} onChange={e => setNewAssignment(p => ({ ...p, class_id: e.target.value, subject_id: '' }))}>
                     <option value="">Sinif seçin</option>
                     {uniqueClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Fənn</label>
+                  <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">Fənn</label>
                   <select className="pastel-input" value={newAssignment.subject_id} onChange={e => setNewAssignment(p => ({ ...p, subject_id: e.target.value }))} disabled={!newAssignment.class_id}>
                     <option value="">Fənn seçin</option>
                     {subjectsForClass(newAssignment.class_id).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -664,45 +648,61 @@ export default function TeacherAssignments() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Son tarix</label>
+                  <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">Son tarix</label>
                   <input type="date" className="pastel-input" value={newAssignment.due_date} onChange={e => setNewAssignment(p => ({ ...p, due_date: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Maksimal bal</label>
+                  <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">Maksimal bal</label>
                   <input type="number" min={1} max={100} className="pastel-input" value={newAssignment.max_score} onChange={e => setNewAssignment(p => ({ ...p, max_score: e.target.value }))} />
                 </div>
               </div>
+
+              {/* Toggle */}
               <label className="flex items-center gap-3 cursor-pointer select-none">
                 <button
                   type="button"
                   onClick={() => setNewAssignment(p => ({ ...p, notify: !p.notify }))}
-                  className="relative smooth-trans"
+                  className="relative transition-colors duration-200 flex-shrink-0"
                   style={{
                     width: 44, height: 24, borderRadius: 999,
-                    background: newAssignment.notify ? 'linear-gradient(135deg, #7c6ee0, #5db8a3)' : 'rgba(124,110,224,0.18)',
-                    boxShadow: newAssignment.notify ? '0 4px 12px rgba(124,110,224,0.25)' : 'none',
+                    background: newAssignment.notify ? 'var(--brand-500)' : 'var(--hairline-strong)',
                   }}
                 >
                   <span
-                    className="absolute top-1 smooth-trans"
+                    className="absolute top-1 transition-all duration-200"
                     style={{
                       width: 16, height: 16, borderRadius: '50%', background: '#fff',
                       left: newAssignment.notify ? 24 : 4,
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.18)',
                     }}
                   />
                 </button>
                 <div>
-                  <span className="text-sm font-medium" style={{ color: '#1a1a2e' }}>Valideyn/şagirdlərə bildiriş göndər</span>
-                  <p className="text-xs" style={{ color: '#94a3b8' }}>Tapşırıq yaradıldıqda avtomatik bildiriş</p>
+                  <span className="text-sm font-medium text-ink-900">Valideyn/şagirdlərə bildiriş göndər</span>
+                  <p className="text-xs text-ink-400">Tapşırıq yaradıldıqda avtomatik bildiriş</p>
                 </div>
               </label>
 
-              {saveError && <p className="pastel-badge pastel-badge-rose"><AlertCircle className="w-3 h-3" /> {saveError}</p>}
+              {saveError && (
+                <p className="pill-danger flex items-center gap-1.5">
+                  <AlertCircle className="w-3 h-3" /> {saveError}
+                </p>
+              )}
 
-              <div className="flex justify-end gap-2 pt-2">
-                <button onClick={() => { setShowNewModal(false); setSaveError(null) }} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>Ləğv et</button>
-                <button onClick={handleCreate} disabled={saving || !newAssignment.title || !newAssignment.class_id || !newAssignment.subject_id} className="btn-pastel" style={{ padding: '10px 22px', fontSize: 13, opacity: (saving || !newAssignment.title || !newAssignment.class_id || !newAssignment.subject_id) ? 0.5 : 1 }}>
+              <div className="flex justify-end gap-2 pt-2 border-t border-hairline">
+                <button
+                  onClick={() => { setShowNewModal(false); setSaveError(null) }}
+                  className="btn-ghost-pastel"
+                  style={{ padding: '10px 20px', fontSize: 13 }}
+                >
+                  Ləğv et
+                </button>
+                <button
+                  onClick={handleCreate}
+                  disabled={saving || !newAssignment.title || !newAssignment.class_id || !newAssignment.subject_id}
+                  className="btn-pastel"
+                  style={{ padding: '10px 22px', fontSize: 13, opacity: (saving || !newAssignment.title || !newAssignment.class_id || !newAssignment.subject_id) ? 0.5 : 1 }}
+                >
                   {saving ? '...' : 'Yarat'}
                 </button>
               </div>
@@ -714,55 +714,63 @@ export default function TeacherAssignments() {
       {/* Submission review modal */}
       {showDetailModal && selectedAssignment && (
         <div className="liquid-backdrop" onClick={() => setShowDetailModal(false)}>
-          <div className="liquid-card p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div
+            className="bg-surface rounded-card shadow-modal w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6"
+            onClick={e => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{selectedAssignment.title}</h3>
-              <button onClick={() => setShowDetailModal(false)} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
+              <h3 className="text-lg font-bold text-ink-900">{selectedAssignment.title}</h3>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="p-1.5 rounded-tile text-ink-400 hover:text-ink-700 hover:bg-canvas transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="flex flex-wrap gap-2 items-center mb-4">
               {selectedAssignment.class?.name && (
-                <span className="pastel-badge pastel-badge-blue">{selectedAssignment.class.name}</span>
+                <span className="pill-neutral">{selectedAssignment.class.name}</span>
               )}
               {selectedAssignment.subject?.name && (
-                <span className="pastel-badge pastel-badge-periwinkle">{selectedAssignment.subject.name}</span>
+                <span className="pill-brand">{selectedAssignment.subject.name}</span>
               )}
               {selectedAssignment.due_date && (
-                <span className="text-xs" style={{ color: '#64748b' }}>Son tarix: {formatDate(selectedAssignment.due_date)}</span>
+                <span className="text-xs text-ink-600">Son tarix: {formatDate(selectedAssignment.due_date)}</span>
               )}
               {selectedAssignment.max_score && (
-                <span className="text-xs" style={{ color: '#64748b' }}>Maks. bal: {selectedAssignment.max_score}</span>
+                <span className="text-xs text-ink-600">Maks. bal: {selectedAssignment.max_score}</span>
               )}
             </div>
 
             {selectedAssignment.description && (
-              <p className="text-sm rounded-xl p-3 mb-4" style={{ color: '#475569', background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(124,110,224,0.10)' }}>
+              <p className="text-sm rounded-tile p-3 mb-4 text-ink-700 bg-brand-50 border border-hairline">
                 {selectedAssignment.description}
               </p>
             )}
 
-            <div className="flex items-center gap-4 py-3 px-4 rounded-xl mb-4 text-sm flex-wrap"
-              style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(124,110,224,0.12)' }}
-            >
-              <span style={{ color: '#64748b' }}><span className="font-bold" style={{ color: '#1a1a2e' }}>{submittedCount}</span> təhvil</span>
-              <span className="w-px h-4" style={{ background: 'rgba(124,110,224,0.18)' }} />
-              <span style={{ color: '#64748b' }}><span className="font-bold" style={{ color: '#3d8a73' }}>{gradedCount}</span> qiymətləndirildi</span>
-              <span className="w-px h-4" style={{ background: 'rgba(124,110,224,0.18)' }} />
-              <span style={{ color: '#64748b' }}><span className="font-bold" style={{ color: '#b46a3e' }}>{pendingCount}</span> gözləyir</span>
+            {/* Summary row */}
+            <div className="flex items-center gap-4 py-3 px-4 rounded-tile mb-4 text-sm flex-wrap bg-canvas border border-hairline">
+              <span className="text-ink-600">
+                <span className="font-bold text-ink-900 tabular-nums">{submittedCount}</span> təhvil
+              </span>
+              <span className="w-px h-4 bg-hairline-strong" />
+              <span className="text-ink-600">
+                <span className="font-bold tabular-nums" style={{ color: 'var(--mint)' }}>{gradedCount}</span> qiymətləndirildi
+              </span>
+              <span className="w-px h-4 bg-hairline-strong" />
+              <span className="text-ink-600">
+                <span className="font-bold tabular-nums" style={{ color: 'var(--warning)' }}>{pendingCount}</span> gözləyir
+              </span>
             </div>
 
             {detailSubmissions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-                <div className="icon-chip icon-chip-periwinkle" style={{ width: 56, height: 56 }}>
-                  <ClipboardList className="w-7 h-7" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>Hələ heç bir cavab yoxdur</p>
-                  <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>Şagirdlər tapşırığı təhvil verdikdə burada görünəcək</p>
-                </div>
-              </div>
+              <EmptyState
+                tier={1}
+                icon={ClipboardList}
+                title="Hələ heç bir cavab yoxdur"
+                description="Şagirdlər tapşırığı təhvil verdikdə burada görünəcək"
+              />
             ) : (
               <div className="space-y-3">
                 {detailSubmissions.map(sub => {
@@ -772,20 +780,17 @@ export default function TeacherAssignments() {
                     ? new Date(sub.submitted_at).toLocaleString('az-AZ', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
                     : null
                   return (
-                    <div key={sub.id} className="rounded-2xl overflow-hidden"
-                      style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(124,110,224,0.12)' }}
-                    >
-                      <div className="flex items-center justify-between gap-3 px-4 py-3 flex-wrap"
-                        style={{ background: 'rgba(248,247,251,0.6)', borderBottom: '1px solid rgba(124,110,224,0.08)' }}
-                      >
+                    <div key={sub.id} className="rounded-tile overflow-hidden border border-hairline">
+                      {/* Sub-header */}
+                      <div className="flex items-center justify-between gap-3 px-4 py-3 flex-wrap bg-canvas border-b border-hairline">
                         <div className="flex items-center gap-3 flex-wrap">
                           <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36, fontSize: 12, fontWeight: 700 }}>
                             {initials}
                           </div>
                           <div className="min-w-0">
-                            <span className="text-sm font-semibold block" style={{ color: '#1a1a2e' }}>{sub.student?.full_name}</span>
+                            <span className="text-sm font-semibold block text-ink-900">{sub.student?.full_name}</span>
                             {submittedTime && (
-                              <span className="text-[11px] flex items-center gap-1 mt-0.5" style={{ color: '#94a3b8' }}>
+                              <span className="text-[11px] flex items-center gap-1 mt-0.5 text-ink-400">
                                 <Clock className="w-2.5 h-2.5" /> {submittedTime}
                               </span>
                             )}
@@ -795,14 +800,12 @@ export default function TeacherAssignments() {
 
                         <div className="flex items-center gap-2 flex-shrink-0">
                           {status === 'saved' && (
-                            <span className="pastel-badge pastel-badge-mint"><Check className="w-3 h-3" /> Saxlandı</span>
+                            <span className="pill-success"><Check className="w-3 h-3" /> Saxlandı</span>
                           )}
                           {status === 'error' && (
-                            <span className="pastel-badge pastel-badge-rose"><AlertCircle className="w-3 h-3" /> Xəta</span>
+                            <span className="pill-danger"><AlertCircle className="w-3 h-3" /> Xəta</span>
                           )}
-                          <div className="flex items-center gap-1.5 rounded-xl px-3 py-1.5"
-                            style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(124,110,224,0.18)' }}
-                          >
+                          <div className="flex items-center gap-1.5 rounded-tile px-3 py-1.5 bg-surface border border-hairline">
                             <input
                               key={sub.id}
                               type="number"
@@ -810,29 +813,29 @@ export default function TeacherAssignments() {
                               max={selectedAssignment?.max_score || 10}
                               defaultValue={sub.score ?? ''}
                               placeholder="—"
-                              className="w-12 text-sm text-center font-bold focus:outline-none bg-transparent smooth-trans"
+                              className="w-12 text-sm text-center font-bold focus:outline-none bg-transparent transition-colors"
                               style={{
-                                color: status === 'saving' ? '#7c6ee0'
-                                     : status === 'saved' ? '#3d8a73'
-                                     : status === 'error' ? '#b83b54'
-                                     : '#1a1a2e',
+                                color: status === 'saving' ? 'var(--brand-500)'
+                                     : status === 'saved' ? 'var(--mint)'
+                                     : status === 'error' ? 'var(--danger)'
+                                     : 'var(--ink-900)',
                               }}
                               onBlur={e => gradeSubmission(sub.id, e.target.value)}
                               onKeyDown={e => e.key === 'Enter' && e.target.blur()}
                             />
-                            <span className="text-xs font-medium" style={{ color: '#94a3b8' }}>/ {selectedAssignment?.max_score}</span>
+                            <span className="text-xs font-medium text-ink-400">/ {selectedAssignment?.max_score}</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="px-4 py-3 space-y-3">
+                      {/* Content */}
+                      <div className="px-4 py-3 space-y-3 bg-surface">
                         {sub.file_url && (
                           <a
                             href={sub.file_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium smooth-trans"
-                            style={{ background: 'rgba(107,157,222,0.10)', color: '#4a7cb5', border: '1px solid rgba(107,157,222,0.25)' }}
+                            className="inline-flex items-center gap-2 px-3 py-2 rounded-tile text-sm font-medium transition-colors bg-brand-50 text-brand-600 border border-hairline hover:bg-brand-100"
                           >
                             <Paperclip className="w-4 h-4 flex-shrink-0" />
                             <span className="truncate max-w-[240px]">{sub.file_url.split('/').pop()?.split('?')[0] || 'Fayl'}</span>
@@ -841,26 +844,22 @@ export default function TeacherAssignments() {
                         )}
 
                         {sub.content && (
-                          <p className="text-sm rounded-lg p-3 leading-relaxed whitespace-pre-wrap"
-                            style={{ color: '#475569', background: 'rgba(248,247,251,0.6)' }}
-                          >
+                          <p className="text-sm rounded-tile p-3 leading-relaxed whitespace-pre-wrap text-ink-700 bg-canvas">
                             {sub.content}
                           </p>
                         )}
 
                         {!sub.content && !sub.file_url && (
-                          <div className="flex items-center gap-2 px-3 py-2 rounded-lg"
-                            style={{ background: 'rgba(232,168,124,0.10)', border: '1px solid rgba(232,168,124,0.25)' }}
-                          >
-                            <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#d68a5a' }} />
-                            <p className="text-xs" style={{ color: '#b46a3e' }}>
+                          <div className="flex items-center gap-2 px-3 py-2 rounded-tile bg-warning/10 border border-warning/25">
+                            <AlertCircle className="w-4 h-4 flex-shrink-0 text-warning" />
+                            <p className="text-xs text-ink-700">
                               Şagird fayl yükləyib, lakin keçmiş cavablar üçün fayl linki saxlanılmayıb. Yeni göndərmələr düzgün görünəcək.
                             </p>
                           </div>
                         )}
 
                         <div>
-                          <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Müəllim rəyi</label>
+                          <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">Müəllim rəyi</label>
                           <textarea
                             rows={2}
                             placeholder="Şagirdə rəy yazın..."
@@ -873,7 +872,7 @@ export default function TeacherAssignments() {
                             <button
                               onClick={() => generateAIFeedback(sub)}
                               disabled={aiLoading === sub.id}
-                              className="btn-ghost-pastel"
+                              className="btn-ghost-pastel flex items-center gap-1.5"
                               style={{ padding: '6px 12px', fontSize: 12, opacity: aiLoading === sub.id ? 0.5 : 1 }}
                             >
                               {aiLoading === sub.id
@@ -885,7 +884,7 @@ export default function TeacherAssignments() {
                             <button
                               onClick={() => saveTeacherFeedback(sub.id)}
                               disabled={feedbackSaving === sub.id}
-                              className="btn-pastel"
+                              className="btn-pastel flex items-center gap-1.5"
                               style={{ padding: '6px 14px', fontSize: 12, opacity: feedbackSaving === sub.id ? 0.5 : 1 }}
                             >
                               <Save className="w-3.5 h-3.5" /> Rəyi saxla
@@ -894,11 +893,11 @@ export default function TeacherAssignments() {
                         </div>
 
                         {sub.feedback && (
-                          <div className="rounded-lg p-3" style={{ background: 'rgba(124,110,224,0.08)' }}>
-                            <p className="text-xs font-bold mb-1.5 flex items-center gap-1" style={{ color: '#5b4fb8' }}>
+                          <div className="rounded-tile p-3 bg-brand-50 border border-brand-100">
+                            <p className="text-xs font-bold mb-1.5 flex items-center gap-1 text-brand-600">
                               <Sparkles className="w-3.5 h-3.5" /> Mövcud rəy
                             </p>
-                            <p className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: '#1a1a2e' }}>{sub.feedback}</p>
+                            <p className="text-sm whitespace-pre-wrap leading-relaxed text-ink-900">{sub.feedback}</p>
                           </div>
                         )}
                       </div>
@@ -914,32 +913,40 @@ export default function TeacherAssignments() {
       {/* Delete confirm modal */}
       {deleteTarget && (
         <div className="liquid-backdrop" onClick={() => setDeleteTarget(null)}>
-          <div className="liquid-card p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center gap-3 mb-3">
-              <span className="icon-chip icon-chip-peach" style={{ width: 40, height: 40 }}>
+          <div
+            className="bg-surface rounded-card shadow-modal w-full max-w-sm p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <span className="icon-chip icon-chip-coral" style={{ width: 40, height: 40 }}>
                 <Trash2 className="w-5 h-5" />
               </span>
-              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>Tapşırığı sil</h3>
+              <h3 className="text-lg font-bold text-ink-900">Tapşırığı sil</h3>
             </div>
-            <div className="flex items-start gap-3 p-3 rounded-xl mb-4"
-              style={{ background: 'rgba(229,107,127,0.08)', border: '1px solid rgba(229,107,127,0.25)' }}
-            >
+            <div className="flex items-start gap-3 p-3 rounded-tile mb-5 bg-danger/8 border border-danger/25">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>{deleteTarget.title}</p>
-                <p className="text-xs mt-1" style={{ color: '#b83b54' }}>
+                <p className="text-sm font-semibold text-ink-900">{deleteTarget.title}</p>
+                <p className="text-xs mt-1 text-danger">
                   Bu tapşırıq və bütün təhvil edilmiş cavablar birdəfəlik silinəcək.
                 </p>
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <button onClick={() => setDeleteTarget(null)} disabled={deleting} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>Ləğv et</button>
+              <button
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+                className="btn-ghost-pastel"
+                style={{ padding: '10px 20px', fontSize: 13 }}
+              >
+                Ləğv et
+              </button>
               <button
                 onClick={confirmDelete}
                 disabled={deleting}
-                className="px-5 py-2.5 rounded-full font-semibold text-white text-sm smooth-trans flex items-center gap-1.5"
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-pill font-semibold text-white text-sm transition-opacity"
                 style={{
-                  background: 'linear-gradient(135deg, #e56b7f, #d85268)',
-                  boxShadow: '0 4px 12px rgba(229,107,127,0.3)',
+                  background: 'var(--danger)',
+                  boxShadow: '0 1px 2px rgba(20,22,40,.08)',
                   opacity: deleting ? 0.5 : 1,
                 }}
               >

@@ -4,6 +4,9 @@ import { supabase } from '../../lib/supabase'
 import { StatusBadge } from '../../components/ui/Badge'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
+import LevelRing from '../../components/ui/LevelRing'
+import CountUp from '../../components/ui/CountUp'
+import StatCard from '../../components/ui/StatCard'
 import { Calendar, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
 import { fmtNumeric } from '../../lib/dateUtils'
 
@@ -14,66 +17,60 @@ const MONTH_NAMES = [
 
 const DAY_HEADERS = ['B.e', 'Ç.a', 'Ç', 'C.a', 'C', 'Ş', 'B']
 
-// Pastel palette
-const COLOR_MINT  = '#5db8a3'
-const COLOR_PERI  = '#7c6ee0'
-const COLOR_PEACH = '#e8a87c'
-const COLOR_ROSE  = '#ef6c6c'
-
-// ─── SVG Ring percentage display ─────────────────────────────────────────────
+// ─── Attendance ring ──────────────────────────────────────────────────────────
 function AttendanceRing({ pct }) {
-  const radius = 70
-  const stroke = 10
-  const normalizedRadius = radius - stroke / 2
-  const circumference = normalizedRadius * 2 * Math.PI
-  const strokeDashoffset = circumference - (pct / 100) * circumference
+  const ringColor =
+    pct >= 85 ? 'var(--mint)'
+    : pct >= 70 ? 'var(--brand-500)'
+    : pct >= 50 ? 'var(--sun)'
+    : 'var(--coral)'
 
-  const ringColor = pct >= 85 ? COLOR_MINT : pct >= 70 ? COLOR_PERI : pct >= 50 ? COLOR_PEACH : COLOR_ROSE
-  const label    = pct >= 85 ? 'Mükəmməl' : pct >= 70 ? 'Yaxşı' : pct >= 50 ? 'Orta' : 'Aşağı'
+  const label =
+    pct >= 85 ? 'Mükəmməl'
+    : pct >= 70 ? 'Yaxşı'
+    : pct >= 50 ? 'Orta'
+    : 'Aşağı'
+
+  const labelBg =
+    pct >= 85 ? 'rgba(31,168,85,0.10)'
+    : pct >= 70 ? 'var(--brand-50)'
+    : pct >= 50 ? 'rgba(234,179,8,0.12)'
+    : 'rgba(244,103,126,0.10)'
+
+  const labelBorder =
+    pct >= 85 ? 'rgba(31,168,85,0.26)'
+    : pct >= 70 ? 'var(--brand-200)'
+    : pct >= 50 ? 'rgba(234,179,8,0.28)'
+    : 'rgba(244,103,126,0.26)'
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <div className="relative inline-flex items-center justify-center">
-        <svg width={radius * 2} height={radius * 2} className="-rotate-90">
-          {/* Background track */}
-          <circle
-            cx={radius}
-            cy={radius}
-            r={normalizedRadius}
-            fill="none"
-            stroke="rgba(124,110,224,0.12)"
-            strokeWidth={stroke}
-          />
-          {/* Progress arc */}
-          <circle
-            cx={radius}
-            cy={radius}
-            r={normalizedRadius}
-            fill="none"
-            stroke={ringColor}
-            strokeWidth={stroke}
-            strokeLinecap="round"
-            strokeDasharray={`${circumference} ${circumference}`}
-            strokeDashoffset={strokeDashoffset}
-            className="transition-all duration-700"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span style={{ fontSize: 36, fontWeight: 800, color: ringColor, lineHeight: 1, letterSpacing: '-0.02em' }}>
-            {pct}%
-          </span>
-          <span className="text-xs mt-0.5" style={{ color: '#64748b', fontWeight: 500 }}>iştirak</span>
-        </div>
-      </div>
+      <LevelRing
+        value={pct}
+        max={100}
+        size={140}
+        stroke={11}
+        color={ringColor}
+        center={
+          <div className="flex flex-col items-center leading-none">
+            <span
+              className="font-display font-extrabold tabular-nums"
+              style={{ fontSize: 34, color: ringColor }}
+            >
+              <CountUp to={pct} suffix="%" />
+            </span>
+            <span className="text-xs font-medium mt-1" style={{ color: 'var(--ink-400)' }}>
+              iştirak
+            </span>
+          </div>
+        }
+      />
       <span
+        className="font-semibold"
         style={{
-          padding: '5px 14px',
-          borderRadius: 999,
-          fontSize: 12,
-          fontWeight: 700,
-          background: `${ringColor}22`,
-          color: ringColor,
-          border: `1px solid ${ringColor}55`,
+          padding: '5px 18px', borderRadius: 9999,
+          fontSize: 12, fontWeight: 700,
+          background: labelBg, color: ringColor, border: `1px solid ${labelBorder}`,
         }}
       >
         {label}
@@ -82,10 +79,42 @@ function AttendanceRing({ pct }) {
   )
 }
 
+// ─── Calendar day cell style ──────────────────────────────────────────────────
+function dayCellStyle(cell, todayStr) {
+  if (!cell) return {}
+  const isToday = cell.dateStr === todayStr
+  const base = {
+    borderRadius: 12,
+    aspectRatio: '1 / 1',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 14,
+    fontWeight: 600,
+    transition: 'all .2s var(--ease-out-quint)',
+    cursor: 'default',
+    position: 'relative',
+  }
+  let extra = {}
+  if (cell.status === 'present')
+    extra = { background: 'var(--mint)', color: '#fff', fontWeight: 700 }
+  else if (cell.status === 'absent')
+    extra = { background: 'var(--coral)', color: '#fff', fontWeight: 700 }
+  else if (cell.status === 'late')
+    extra = { background: 'var(--sun)', color: '#fff', fontWeight: 700 }
+  else
+    extra = { color: 'var(--ink-400)' }
+
+  if (isToday)
+    extra = { ...extra, outline: '2.5px solid var(--brand-500)', outlineOffset: '2px' }
+
+  return { ...base, ...extra }
+}
+
 export default function StudentAttendance() {
   const { profile } = useAuth()
-  const [loading, setLoading] = useState(true)
-  const [records, setRecords] = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [records, setRecords]       = useState([])
   const [fetchError, setFetchError] = useState(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
 
@@ -108,6 +137,7 @@ export default function StudentAttendance() {
   }, [profile])
 
   if (loading) return <PageSpinner />
+
   if (fetchError)
     return (
       <EmptyState
@@ -116,14 +146,18 @@ export default function StudentAttendance() {
         description={fetchError}
       />
     )
+
   if (records.length === 0)
     return (
       <div className="space-y-6">
-        <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-          <span className="pastel-text">Davamiyyət</span>
+        <h1
+          className="font-display"
+          style={{ fontSize: 32, fontWeight: 800, color: 'var(--ink-900)', letterSpacing: '-0.02em', lineHeight: 1.12 }}
+        >
+          Davamiyyət
         </h1>
         <EmptyState
-          icon={Calendar}
+          pose="sleeping"
           title="Davamiyyət yoxdur"
           description="Hələ heç bir davamiyyət qeydi tapılmadı. Müəlliminiz davamiyyət qeyd etdikdə burada görünəcək."
         />
@@ -135,13 +169,12 @@ export default function StudentAttendance() {
   const late    = records.filter(r => r.status === 'late').length
   const pct     = records.length ? Math.round((present / records.length) * 100) : 0
 
-  // Calendar logic
+  // ── Calendar logic ────────────────────────────────────────────────────────
   const year     = currentMonth.getFullYear()
   const month    = currentMonth.getMonth()
   const firstDay = new Date(year, month, 1)
   const lastDay  = new Date(year, month + 1, 0)
-  // Monday-based week (0=Mon … 6=Sun)
-  const startDow = (firstDay.getDay() + 6) % 7
+  const startDow = (firstDay.getDay() + 6) % 7   // Monday-based
 
   const recordMap = {}
   records.forEach(r => { recordMap[r.date] = r.status })
@@ -156,186 +189,175 @@ export default function StudentAttendance() {
     calendarDays.push({ day: d, dateStr, status: recordMap[dateStr] || null })
   }
 
-  function dayCellStyle(cell) {
-    if (!cell) return {}
-    const isToday = cell.dateStr === todayStr
-    const base = {
-      borderRadius: 12,
-      aspectRatio: '1 / 1',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: 14,
-      fontWeight: 600,
-      transition: 'all .25s cubic-bezier(.22,1,.36,1)',
-      cursor: 'default',
-      position: 'relative',
-    }
-    let extra = {}
-    if (cell.status === 'present')      extra = { background: COLOR_MINT,  color: '#fff', fontWeight: 700, boxShadow: '0 2px 6px rgba(93,184,163,0.25)' }
-    else if (cell.status === 'absent')  extra = { background: COLOR_ROSE,  color: '#fff', fontWeight: 700, boxShadow: '0 2px 6px rgba(239,108,108,0.25)' }
-    else if (cell.status === 'late')    extra = { background: COLOR_PEACH, color: '#fff', fontWeight: 700, boxShadow: '0 2px 6px rgba(232,168,124,0.25)' }
-    else                                 extra = { color: '#94a3b8' }
-    if (isToday) extra = { ...extra, boxShadow: `0 0 0 2px ${COLOR_PERI}, 0 0 0 4px #fff, ${extra.boxShadow || ''}` }
-    return { ...base, ...extra }
-  }
-
-  // Non-present records for the log, sorted by date desc
   const missedRecords = records.filter(r => r.status !== 'present')
-
-  const StatPill = ({ icon: Icon, color, count, label }) => (
-    <div
-      className="flex items-center justify-between"
-      style={{
-        padding: '14px 18px',
-        borderRadius: 16,
-        background: `${color}14`,
-        border: `1px solid ${color}33`,
-      }}
-    >
-      <div className="flex items-center gap-3">
-        <div
-          className="flex items-center justify-center flex-shrink-0"
-          style={{ width: 36, height: 36, borderRadius: 12, background: color }}
-        >
-          <Icon className="w-4 h-4 text-white" />
-        </div>
-        <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>{label}</span>
-      </div>
-      <span style={{ fontSize: 22, fontWeight: 800, color, letterSpacing: '-0.01em' }}>
-        {count} <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>gün</span>
-      </span>
-    </div>
-  )
 
   return (
     <div className="space-y-8">
 
-      {/* Page header */}
-      <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-        <span className="pastel-text">Davamiyyət</span>
-      </h1>
+      {/* ── Page header ── */}
+      <div className="flex items-center gap-3">
+        <div className="icon-chip icon-chip-mint" style={{ width: 44, height: 44 }}>
+          <Calendar className="w-5 h-5" />
+        </div>
+        <h1
+          className="font-display"
+          style={{ fontSize: 32, fontWeight: 800, color: 'var(--ink-900)', letterSpacing: '-0.02em', lineHeight: 1.12 }}
+        >
+          Davamiyyət
+        </h1>
+      </div>
 
-      {/* Hero: Ring + Stats side-by-side */}
+      {/* ── Hero card: Ring + Stat cards ── */}
       <div className="liquid-card p-8">
         <div className="flex flex-col sm:flex-row items-center gap-8">
           <AttendanceRing pct={pct} />
 
-          <div className="hidden sm:block w-px h-32" style={{ background: 'rgba(124,110,224,0.15)' }} />
+          <div className="hidden sm:block w-px self-stretch" style={{ background: 'var(--hairline)' }} />
 
           <div className="flex-1 grid grid-cols-1 gap-3 w-full sm:w-auto">
-            <StatPill icon={CheckCircle} color={COLOR_MINT}  count={present} label="İştirak" />
-            <StatPill icon={XCircle}     color={COLOR_ROSE}  count={absent}  label="Qayıb" />
-            <StatPill icon={Clock}       color={COLOR_PEACH} count={late}    label="Gecikmə" />
+            <StatCard
+              label="İştirak"
+              value={<CountUp to={present} />}
+              icon={CheckCircle}
+              tone="mint"
+            />
+            <StatCard
+              label="Qayıb"
+              value={<CountUp to={absent} />}
+              icon={XCircle}
+              tone="coral"
+            />
+            <StatCard
+              label="Gecikmə"
+              value={<CountUp to={late} />}
+              icon={Clock}
+              tone="peach"
+            />
           </div>
         </div>
       </div>
 
-      {/* Monthly calendar */}
+      {/* ── Monthly calendar ── */}
       <div className="liquid-card p-6">
+
+        {/* Month navigation */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setCurrentMonth(new Date(year, month - 1))}
+            aria-label="Əvvəlki ay"
             className="flex items-center justify-center transition-all"
             style={{
-              width: 36, height: 36, borderRadius: 999,
-              background: 'rgba(124,110,224,0.08)',
-              color: '#7c6ee0',
-              border: '1px solid rgba(124,110,224,0.18)',
+              width: 38, height: 38, borderRadius: 12,
+              background: 'var(--brand-50)',
+              color: 'var(--brand-500)',
+              border: '1.5px solid var(--brand-200)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.15)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.08)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--brand-100)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--brand-50)' }}
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a2e' }}>
+
+          <h3
+            className="font-semibold"
+            style={{ fontSize: 16, color: 'var(--ink-900)' }}
+          >
             {MONTH_NAMES[month]} {year}
           </h3>
+
           <button
             onClick={() => setCurrentMonth(new Date(year, month + 1))}
+            aria-label="Növbəti ay"
             className="flex items-center justify-center transition-all"
             style={{
-              width: 36, height: 36, borderRadius: 999,
-              background: 'rgba(124,110,224,0.08)',
-              color: '#7c6ee0',
-              border: '1px solid rgba(124,110,224,0.18)',
+              width: 38, height: 38, borderRadius: 12,
+              background: 'var(--brand-50)',
+              color: 'var(--brand-500)',
+              border: '1.5px solid var(--brand-200)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.15)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.08)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--brand-100)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--brand-50)' }}
           >
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
+        {/* Day headers */}
         <div className="grid grid-cols-7 gap-1 mb-1">
           {DAY_HEADERS.map(d => (
             <div
               key={d}
-              className="text-xs text-center py-2 font-semibold"
-              style={{ color: '#64748b', letterSpacing: '0.04em' }}
+              className="text-xs text-center py-2 font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--ink-400)' }}
             >
               {d}
             </div>
           ))}
         </div>
 
+        {/* Calendar grid */}
         <div className="grid grid-cols-7 gap-1.5">
           {calendarDays.map((cell, i) => (
-            <div key={i} style={dayCellStyle(cell)}>
+            <div key={i} style={dayCellStyle(cell, todayStr)}>
               {cell?.day}
             </div>
           ))}
         </div>
 
+        {/* Legend */}
         <div
           className="flex items-center gap-5 mt-5 pt-4 flex-wrap"
-          style={{ borderTop: '1px solid rgba(124,110,224,0.10)' }}
+          style={{ borderTop: '1px solid var(--hairline)' }}
         >
-          <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#475569' }}>
-            <span style={{ width: 14, height: 14, borderRadius: 999, background: COLOR_MINT, display: 'inline-block' }} />
-            İştirak
-          </span>
-          <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#475569' }}>
-            <span style={{ width: 14, height: 14, borderRadius: 999, background: COLOR_ROSE, display: 'inline-block' }} />
-            Qayıb
-          </span>
-          <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#475569' }}>
-            <span style={{ width: 14, height: 14, borderRadius: 999, background: COLOR_PEACH, display: 'inline-block' }} />
-            Gecikmə
-          </span>
-          <span className="flex items-center gap-1.5 text-xs" style={{ color: '#64748b' }}>
-            <span style={{ width: 14, height: 14, borderRadius: 999, border: `2px solid ${COLOR_PERI}`, display: 'inline-block' }} />
+          {[
+            { color: 'var(--mint)',  label: 'İştirak' },
+            { color: 'var(--coral)', label: 'Qayıb' },
+            { color: 'var(--sun)',   label: 'Gecikmə' },
+          ].map(({ color, label }) => (
+            <span key={label} className="flex items-center gap-1.5 text-xs font-medium" style={{ color: 'var(--ink-600)' }}>
+              <span style={{ width: 14, height: 14, borderRadius: 999, background: color, display: 'inline-block' }} />
+              {label}
+            </span>
+          ))}
+          <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--ink-400)' }}>
+            <span style={{ width: 14, height: 14, borderRadius: 999, outline: '2px solid var(--brand-500)', display: 'inline-block' }} />
             Bu gün
           </span>
         </div>
       </div>
 
-      {/* Attendance log — only non-present days */}
+      {/* ── Missed days log — calm data surface ── */}
       <div className="liquid-card overflow-hidden" style={{ padding: 0 }}>
         <div
           className="px-6 py-4 flex items-center justify-between"
-          style={{ borderBottom: '1px solid rgba(124,110,224,0.10)' }}
+          style={{ borderBottom: '1px solid var(--hairline)' }}
         >
-          <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e' }}>Buraxılmış dərslər</h2>
+          <div className="flex items-center gap-2">
+            <div className="icon-chip icon-chip-coral" style={{ width: 30, height: 30 }}>
+              <XCircle className="w-3.5 h-3.5" />
+            </div>
+            <h2 className="font-semibold" style={{ fontSize: 15, color: 'var(--ink-900)' }}>
+              Buraxılmış dərslər
+            </h2>
+          </div>
           {missedRecords.length > 0 && (
-            <span className="text-xs" style={{ color: '#64748b' }}>{missedRecords.length} qeyd</span>
+            <span className="text-xs" style={{ color: 'var(--ink-400)' }}>
+              {missedRecords.length} qeyd
+            </span>
           )}
         </div>
 
         {missedRecords.length === 0 ? (
-          <div className="px-6 py-12 flex flex-col items-center gap-3 text-center">
-            <div
-              className="flex items-center justify-center"
-              style={{
-                width: 56, height: 56, borderRadius: 18,
-                background: 'rgba(93,184,163,0.16)',
-                border: '1px solid rgba(93,184,163,0.30)',
-              }}
-            >
-              <CheckCircle className="w-6 h-6" style={{ color: COLOR_MINT }} />
+          <div className="px-6 py-10 flex flex-col items-center gap-3 text-center">
+            <div className="icon-chip icon-chip-mint" style={{ width: 48, height: 48 }}>
+              <CheckCircle className="w-6 h-6" />
             </div>
-            <p style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e' }}>Buraxılmış dərs yoxdur</p>
-            <p className="text-xs" style={{ color: '#64748b' }}>Əla! Bütün dərslərə qatılmısınız.</p>
+            <p className="font-semibold" style={{ fontSize: 15, color: 'var(--ink-900)' }}>
+              Buraxılmış dərs yoxdur
+            </p>
+            <p className="text-xs" style={{ color: 'var(--ink-400)' }}>
+              Əla! Bütün dərslərə qatılmısınız.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -349,14 +371,18 @@ export default function StudentAttendance() {
                 </tr>
               </thead>
               <tbody>
-                {missedRecords.map((r) => (
+                {missedRecords.map(r => (
                   <tr key={r.id}>
-                    <td style={{ color: '#475569', whiteSpace: 'nowrap' }}>{fmtNumeric(r.date)}</td>
-                    <td style={{ fontWeight: 600, color: '#1a1a2e' }}>{r.class?.name || '—'}</td>
+                    <td style={{ color: 'var(--ink-600)', whiteSpace: 'nowrap' }}>
+                      {fmtNumeric(r.date)}
+                    </td>
+                    <td style={{ fontWeight: 600, color: 'var(--ink-900)' }}>
+                      {r.class?.name || '—'}
+                    </td>
                     <td>
                       <StatusBadge status={r.status} />
                     </td>
-                    <td style={{ color: '#64748b' }}>{r.note || '—'}</td>
+                    <td style={{ color: 'var(--ink-600)' }}>{r.note || '—'}</td>
                   </tr>
                 ))}
               </tbody>

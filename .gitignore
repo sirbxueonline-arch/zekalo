@@ -38,3 +38,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 ruvector.db
+
+# ruflo agent db (local state)
+agentdb.rvf
+agentdb.rvf.lock

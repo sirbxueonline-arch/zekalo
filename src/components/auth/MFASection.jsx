@@ -60,73 +60,59 @@ export default function MFASection() {
   const isEnrolled = verified.length > 0
 
   return (
-    <div className="liquid-card" style={{ padding:24 }}>
-      <div style={{ display:'flex', alignItems:'flex-start', gap:14, marginBottom:18 }}>
-        <div style={{
-          width:44, height:44, borderRadius:12,
-          background: isEnrolled
-            ? 'linear-gradient(135deg, rgba(93,184,163,0.25), rgba(93,184,163,0.1))'
-            : 'linear-gradient(135deg, rgba(124,110,224,0.18), rgba(124,110,224,0.06))',
-          border: `1px solid ${isEnrolled ? 'rgba(93,184,163,0.3)' : 'rgba(124,110,224,0.25)'}`,
-          display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
-        }}>
+    <div className="liquid-card" style={{ padding: 24 }}>
+      <div className="flex items-start gap-3.5 mb-5">
+        <div className={`icon-chip ${isEnrolled ? 'icon-chip-mint' : 'icon-chip-periwinkle'}`}>
           {isEnrolled
-            ? <ShieldCheck style={{ width:20, height:20, color:'#5db8a3' }}/>
-            : <Shield style={{ width:20, height:20, color:'#7c6ee0' }}/>}
+            ? <ShieldCheck className="w-5 h-5" />
+            : <Shield className="w-5 h-5" />}
         </div>
-        <div style={{ flex:1 }}>
-          <h3 style={{ fontSize:16, fontWeight:700, color:'#1a1a2e', marginBottom:4, letterSpacing:'-0.01em' }}>
+        <div className="flex-1">
+          <h3 className="font-display text-[17px] font-bold text-ink-900 mb-1 tracking-tight">
             İki amilli identifikasiya (2FA)
           </h3>
-          <p style={{ fontSize:13.5, color:'#64748b', lineHeight:1.55, margin:0 }}>
+          <p className="text-[13.5px] text-ink-600 leading-relaxed m-0">
             {isEnrolled
               ? 'Hesabınız autentikator tətbiqi ilə qorunur. Daxil olarkən hər dəfə 6 rəqəmli kod tələb olunacaq.'
               : 'Authenticator (Google Authenticator, 1Password, Authy, və s.) ilə hesabınızı qoruyun. Yüksək imtiyazlı hesablar üçün məcburidir.'}
           </p>
         </div>
+        {isEnrolled && (
+          <span className="pill-mint shrink-0 mt-0.5">Aktiv</span>
+        )}
       </div>
 
       {error && (
-        <div style={{
-          padding:'10px 14px', borderRadius:10, marginBottom:14,
-          background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.2)',
-          color:'#dc2626', fontSize:13,
-        }}>{error}</div>
+        <div className="mb-3.5 rounded-tile bg-danger/[0.08] border border-danger/20 text-[#DC2626] text-[13px] px-3.5 py-2.5">
+          {error}
+        </div>
       )}
 
       {loading ? (
-        <div style={{ display:'flex', alignItems:'center', gap:10, color:'#64748b', fontSize:13.5 }}>
-          <Loader2 style={{ width:16, height:16 }} className="animate-spin"/> Yoxlanılır…
+        <div className="flex items-center gap-2.5 text-ink-600 text-[13.5px]">
+          <Loader2 className="w-4 h-4 animate-spin" /> Yoxlanılır…
         </div>
       ) : isEnrolled ? (
-        <div>
+        <div className="space-y-2.5">
           {verified.map(f => (
-            <div key={f.id} style={{
-              display:'flex', alignItems:'center', justifyContent:'space-between',
-              padding:'14px 16px', borderRadius:12,
-              background:'rgba(93,184,163,0.08)', border:'1px solid rgba(93,184,163,0.2)',
-              marginBottom:10,
-            }}>
-              <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                <ShieldCheck style={{ width:16, height:16, color:'#5db8a3' }}/>
+            <div
+              key={f.id}
+              className="flex items-center justify-between gap-3 rounded-tile bg-mint/[0.08] border border-mint/25 px-4 py-3.5"
+            >
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-success shrink-0" />
                 <div>
-                  <p style={{ fontSize:13.5, fontWeight:600, color:'#1a1a2e', margin:0 }}>
+                  <p className="text-[13.5px] font-semibold text-ink-900 m-0">
                     {f.friendly_name || 'Authenticator App'}
                   </p>
-                  <p style={{ fontSize:12, color:'#64748b', margin:'2px 0 0' }}>
+                  <p className="text-[12px] text-ink-400 mt-0.5 mb-0 tabular-nums">
                     Aktiv · TOTP
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setDisableOpen(f)}
-                style={{
-                  fontSize:12.5, fontWeight:600, color:'#dc2626', cursor:'pointer',
-                  background:'transparent', border:'none', padding:'6px 10px', borderRadius:8,
-                  transition:'background .15s ease',
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                className="shrink-0 text-[12.5px] font-semibold text-danger rounded-lg px-2.5 py-1.5 transition-colors hover:bg-danger/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/30"
               >
                 Söndür
               </button>
@@ -135,48 +121,40 @@ export default function MFASection() {
         </div>
       ) : (
         <Button onClick={() => navigate('/tehlukesizlik/2fa')}>
-          <Shield style={{ width:14, height:14 }}/> 2FA-nı aktivləşdir
+          <Shield className="w-3.5 h-3.5" /> 2FA-nı aktivləşdir
         </Button>
       )}
 
       {/* Disable modal */}
       <Modal open={!!disableOpen} onClose={() => { setDisableOpen(null); setDisableErr(null) }} title="2FA-nı söndür">
-        <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-          <div style={{
-            display:'flex', gap:12, padding:'14px 16px',
-            background:'rgba(239,68,68,0.06)', border:'1px solid rgba(239,68,68,0.18)',
-            borderRadius:12,
-          }}>
-            <AlertTriangle style={{ width:20, height:20, color:'#dc2626', flexShrink:0, marginTop:2 }}/>
+        <div className="flex flex-col gap-3.5">
+          <div className="flex gap-3 rounded-tile bg-danger/[0.06] border border-danger/[0.18] px-4 py-3.5">
+            <AlertTriangle className="w-5 h-5 text-danger shrink-0 mt-0.5" />
             <div>
-              <p style={{ fontSize:14, fontWeight:600, color:'#1a1a2e', margin:0 }}>
+              <p className="text-[14px] font-semibold text-ink-900 m-0">
                 Hesabın qorunma səviyyəsi azalacaq
               </p>
-              <p style={{ fontSize:13, color:'#64748b', lineHeight:1.55, margin:'4px 0 0' }}>
+              <p className="text-[13px] text-ink-600 leading-relaxed mt-1 mb-0">
                 2FA söndürüldükdən sonra hesabınız yalnız parol ilə qorunacaq. Bunu yalnız zərurət olduqda edin.
               </p>
             </div>
           </div>
 
           {disableErr && (
-            <div style={{
-              display:'flex', gap:10, padding:'12px 14px', borderRadius:10,
-              background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)',
-              color:'#991b1b', fontSize:13, lineHeight:1.5,
-            }}>
-              <AlertTriangle style={{ width:16, height:16, flexShrink:0, marginTop:1 }}/>
+            <div className="flex gap-2.5 rounded-tile bg-danger/[0.08] border border-danger/[0.22] text-[#991B1B] text-[13px] leading-normal px-3.5 py-3">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{disableErr}</span>
             </div>
           )}
 
-          <div style={{ display:'flex', justifyContent:'flex-end', gap:10 }}>
+          <div className="flex justify-end gap-2.5 pt-1">
             <Button variant="ghost" onClick={() => { setDisableOpen(null); setDisableErr(null) }} disabled={disableLoading}>
               Ləğv et
             </Button>
             <Button variant="danger" onClick={confirmDisable} disabled={disableLoading}>
               {disableLoading
-                ? <><Loader2 style={{ width:14, height:14 }} className="animate-spin"/> Söndürülür…</>
-                : <><ShieldOff style={{ width:14, height:14 }}/> Bəli, söndür</>}
+                ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Söndürülür…</>
+                : <><ShieldOff className="w-3.5 h-3.5" /> Bəli, söndür</>}
             </Button>
           </div>
         </div>

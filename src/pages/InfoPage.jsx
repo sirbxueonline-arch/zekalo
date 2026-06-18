@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import emailjs from '@emailjs/browser'
 import { useLang } from '../contexts/LanguageContext'
 import LandingNav from '../components/layout/LandingNav'
+import Mascot from '../components/ui/Mascot'
 
 const NAV_S = {
   az: { nav_solutions:'Həllər', nav_features:'Xüsusiyyətlər', nav_signin:'Daxil ol', nav_contact:'Bizimlə Əlaqə' },
@@ -879,28 +880,10 @@ For questions about these Terms, contact us at hello@tryzirva.com or write to Zi
   },
 }
 
-/* ─── Pastel accent remap ─── */
-const PASTEL_REMAP = {
-  '#f59e0b': '#e8a87c',
-  '#fbbf24': '#f0c19a',
-  '#ef4444': '#e8a87c',
-  '#f87171': '#f0c19a',
-  '#3b82f6': '#6b9dde',
-  '#60a5fa': '#92b8e8',
-  '#a855f7': '#7c6ee0',
-  '#c084fc': '#a89ee8',
-  '#1D9E75': '#5db8a3',
-  '#34d399': '#85ccba',
-  '#534AB7': '#7c6ee0',
-  '#7C3AED': '#7c6ee0',
-}
-const toPastel = (c) => PASTEL_REMAP[c] || c
-
-/* ─── Shared hero gradient + keyframes injected per page ─── */
-const PASTEL_HERO_BG = 'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)'
-const HERO_KEYFRAMES = `
-  @keyframes heroGradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-`
+/* ─── Shared hero wash + keyframes injected per page ─── */
+/* V3: calm single-hue brand wash (was an animated 6-stop candy gradient). Static. */
+const PASTEL_HERO_BG = 'linear-gradient(180deg, var(--brand-50) 0%, var(--canvas) 100%)'
+const HERO_KEYFRAMES = ``
 
 /* ─── CONTACT PAGE ─── */
 function ContactPage() {
@@ -939,20 +922,19 @@ function ContactPage() {
     setSent(true)
   }
 
-  const focus = e => { e.target.style.borderColor='rgba(124,110,224,0.55)'; e.target.style.boxShadow='0 0 0 3px rgba(124,110,224,0.15)' }
-  const blur  = e => { e.target.style.borderColor='rgba(124,110,224,0.25)'; e.target.style.boxShadow='none' }
+  const focus = e => { e.target.style.borderColor='var(--brand-500)'; e.target.style.boxShadow='0 0 0 3px rgba(87,79,207,0.15)' }
+  const blur  = e => { e.target.style.borderColor='var(--hairline-strong)'; e.target.style.boxShadow='none' }
 
   const inp = {
-    width:'100%', padding:'12px 14px', borderRadius:12,
-    background:'rgba(255,255,255,0.6)', border:'1.5px solid rgba(124,110,224,0.25)',
-    color:'#1a1a2e', fontSize:14, fontWeight:500,
-    outline:'none', transition:'all .18s ease', fontFamily:'inherit', boxSizing:'border-box',
-    backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)',
+    width:'100%', padding:'10px 13px', borderRadius:10,
+    background:'var(--surface)', border:'1px solid var(--hairline-strong)',
+    color:'var(--ink-900)', fontSize:14, fontWeight:500,
+    outline:'none', transition:'all .15s ease', fontFamily:'inherit', boxSizing:'border-box',
   }
-  const lbl = { display:'block', fontSize:12, fontWeight:600, color:'#1a1a2e', marginBottom:7 }
+  const lbl = { display:'block', fontSize:13, fontWeight:600, color:'var(--ink-700)', marginBottom:7 }
 
   return (
-    <div style={{ minHeight:'100vh', background:'#f8f7fb', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif', position:'relative', overflow:'hidden' }}>
+    <div style={{ minHeight:'100vh', background:'var(--canvas)', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif', position:'relative', overflow:'hidden' }}>
       <style>{`
         ${HERO_KEYFRAMES}
         @keyframes ctFadeUp  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
@@ -962,24 +944,26 @@ function ContactPage() {
         .ct-submit { transition: transform .2s ease, box-shadow .2s ease; }
         .ct-submit:hover:not(:disabled) { transform:translateY(-2px); }
         .ct-submit:active:not(:disabled) { transform:translateY(0); }
-        .ct-foot-link { color:#64748b; text-decoration:none; font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:8px; justify-content:center; transition:color .15s; }
-        .ct-foot-link:hover { color:#7c6ee0; }
-        input::placeholder, textarea::placeholder { color:#94a3b8; }
+        .ct-foot-link { color:var(--ink-600); text-decoration:none; font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:8px; justify-content:center; transition:color .15s; }
+        .ct-foot-link:hover { color:var(--brand-500); }
+        input::placeholder, textarea::placeholder { color:var(--ink-400); }
         textarea { resize:vertical; scrollbar-width:thin; }
+        @media (prefers-reduced-motion: reduce) {
+          .ct-card { animation:none !important; }
+          .ct-submit:hover:not(:disabled) { transform:none !important; }
+        }
       `}</style>
 
       <LandingNav s={NAV_S[lang]||NAV_S.az} lang={lang} setLang={setLang} lightHero />
 
-      {/* Animated pastel hero */}
+      {/* Calm static brand wash hero */}
       <div style={{
         position:'absolute', top:0, left:0, right:0, height:'70vh',
         background: PASTEL_HERO_BG,
-        backgroundSize:'400% 400%',
-        animation:'heroGradient 12s ease infinite',
         zIndex:0,
       }}/>
       <div style={{ position:'absolute', top:0, left:0, right:0, height:'70vh', overflow:'hidden', pointerEvents:'none', zIndex:0 }}>
-        <div className="hb1"/><div className="hb2"/><div className="hb4"/><div className="hb6"/>
+        <div className="hb1"/>
       </div>
 
       {/* Main */}
@@ -987,10 +971,18 @@ function ContactPage() {
 
         {/* Header */}
         <div style={{ marginBottom:36, textAlign:'center' }}>
-          <h1 style={{ fontSize:'clamp(2.2rem,5vw,3.2rem)', fontWeight:800, letterSpacing:'-0.03em', lineHeight:1.05, marginBottom:14, color:'#1a1a2e' }}>
+          <span style={{
+            display:'inline-flex', alignItems:'center', gap:6, marginBottom:16,
+            padding:'5px 14px', borderRadius:9999,
+            background:'var(--brand-50)', border:'1px solid var(--brand-100)',
+          }}>
+            <Sparkles style={{ width:13, height:13, color:'var(--brand-500)' }}/>
+            <span style={{ fontSize:12.5, fontWeight:700, color:'var(--brand-600)' }}>{ct.ct_eyebrow}</span>
+          </span>
+          <h1 className="font-display" style={{ fontSize:'clamp(2.4rem,5vw,3.4rem)', fontWeight:800, letterSpacing:'-0.02em', lineHeight:1.05, marginBottom:14, color:'var(--ink-900)' }}>
             <span className="pastel-text">{ct.ct_heading}</span>
           </h1>
-          <p style={{ color:'#64748b', fontSize:15.5, lineHeight:1.65, margin:'0 auto', maxWidth:400 }}>
+          <p style={{ color:'var(--ink-600)', fontSize:15.5, lineHeight:1.65, margin:'0 auto', maxWidth:400 }}>
             {ct.ct_sub}
           </p>
         </div>
@@ -998,15 +990,11 @@ function ContactPage() {
         {/* Card */}
         <div className="ct-card liquid-card" style={{ padding:'36px 32px' }}>
           {sent ? (
-            <div style={{ textAlign:'center', padding:'24px 0' }}>
-              <div style={{ position:'relative', width:68, height:68, margin:'0 auto 20px' }}>
-                <div style={{ width:68, height:68, borderRadius:'50%', background:'rgba(200,230,224,0.6)', border:'1.5px solid rgba(93,184,163,0.4)', display:'flex', alignItems:'center', justifyContent:'center', animation:'ctCheckPop .5s cubic-bezier(.34,1.56,.64,1)' }}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5db8a3" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                </div>
-              </div>
-              <p style={{ color:'#1a1a2e', fontWeight:800, fontSize:22, marginBottom:10, letterSpacing:'-0.015em' }}>{ct.ct_success_title}</p>
-              <p style={{ color:'#64748b', fontSize:14, lineHeight:1.6, maxWidth:320, margin:'0 auto 24px' }}>
-                <strong style={{ color:'#7c6ee0' }}>{form.email}</strong> — {ct.ct_success_body}
+            <div style={{ textAlign:'center', padding:'12px 0' }}>
+              <Mascot pose="cheering" size={120} bob className="mx-auto mb-2" />
+              <p className="font-display" style={{ color:'var(--ink-900)', fontWeight:800, fontSize:22, marginBottom:10, letterSpacing:'-0.015em' }}>{ct.ct_success_title}</p>
+              <p style={{ color:'var(--ink-600)', fontSize:14, lineHeight:1.6, maxWidth:320, margin:'0 auto 24px' }}>
+                <strong style={{ color:'var(--brand-500)' }}>{form.email}</strong> — {ct.ct_success_body}
               </p>
               <Link to="/" className="btn-ghost-pastel">
                 <ArrowLeft style={{ width:13, height:13 }}/> {ct.ct_back}
@@ -1046,7 +1034,7 @@ function ContactPage() {
                   <>{ct.ct_send} <ArrowRight style={{ width:15, height:15 }}/></>
                 )}
               </button>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, color:'#94a3b8', fontSize:11.5, fontWeight:500 }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, color:'var(--ink-400)', fontSize:11.5, fontWeight:500 }}>
                 <Shield style={{ width:11, height:11 }}/><span>{ct.ct_privacy}</span>
               </div>
             </form>
@@ -1054,15 +1042,15 @@ function ContactPage() {
         </div>
 
         {/* Footer strip */}
-        <div className="liquid-card" style={{ marginTop:24, display:'grid', gridTemplateColumns:'1fr auto 1fr auto 1fr', alignItems:'center', padding:'13px 16px', borderRadius:18 }}>
+        <div className="liquid-card" style={{ marginTop:24, display:'grid', gridTemplateColumns:'1fr auto 1fr auto 1fr', alignItems:'center', padding:'13px 16px', borderRadius:14 }}>
           <a href="mailto:hello@tryzirva.com" className="ct-foot-link">
             <Mail style={{ width:13, height:13 }}/><span>hello@tryzirva.com</span>
           </a>
-          <span style={{ width:1, height:16, background:'rgba(124,110,224,0.2)' }}/>
+          <span style={{ width:1, height:16, background:'var(--hairline-strong)' }}/>
           <a href="tel:+994502411442" className="ct-foot-link">
             <Phone style={{ width:13, height:13 }}/><span>+994 50 241 14 42</span>
           </a>
-          <span style={{ width:1, height:16, background:'rgba(124,110,224,0.2)' }}/>
+          <span style={{ width:1, height:16, background:'var(--hairline-strong)' }}/>
           <span className="ct-foot-link" style={{ cursor:'default' }}>
             <MapPin style={{ width:13, height:13 }}/><span>Baku, Azerbaijan</span>
           </span>
@@ -1078,7 +1066,7 @@ const PROGRAMME_META = {
   'ib-myp':            { code:'MYP', age:'11–16', accent:'#ef4444', accent2:'#f87171', logo:'/myp.png', typeKey:'ui_ib_programme',  hlKey:'ib-myp_hl' },
   'ib-diploma':        { code:'DP',  age:'16–19', accent:'#3b82f6', accent2:'#60a5fa', logo:'/dp.png',  typeKey:'ui_ib_programme',  hlKey:'ib-diploma_hl' },
   'ib-career':         { code:'CP',  age:'16–19', accent:'#a855f7', accent2:'#c084fc', logo:'/cp.png',  typeKey:'ui_ib_programme',  hlKey:'ib-career_hl' },
-  'government-schools':{ code:'GOV', age:'6–18',  accent:'#1D9E75', accent2:'#34d399', logo:null,       typeKey:'ui_state_schools', hlKey:'government-schools_hl' },
+  'government-schools':{ code:'GOV', age:'6–18',  accent:'#14B8A6', accent2:'#5DCAA5', logo:null,       typeKey:'ui_state_schools', hlKey:'government-schools_hl' },
 }
 
 const RELATED_IB_BASE = [
@@ -1092,8 +1080,10 @@ function ProgrammePage({ type }) {
   const { lang, setLang } = useLang()
   const t = T[lang] || T.en
   const meta = PROGRAMME_META[type]
-  const accent = toPastel(meta.accent)
-  const accent2 = toPastel(meta.accent2)
+  // V3 colour restraint: one brand accent across all programme chrome
+  // (was a per-programme rainbow keyed off meta.accent).
+  const accent = 'var(--brand-500)'
+  const accent2 = 'var(--brand-400)'
   const related = RELATED_IB_BASE.filter(r => r.key !== type)
   const isIB = type.startsWith('ib-')
 
@@ -1106,39 +1096,41 @@ function ProgrammePage({ type }) {
   const typeLabel  = t[meta.typeKey]
 
   return (
-    <div style={{ minHeight:'100vh', background:'#f8f7fb', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif' }}>
+    <div style={{ minHeight:'100vh', background:'var(--canvas)', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif' }}>
       <style>{`
         ${HERO_KEYFRAMES}
-        .pp-related-card { transition: all .3s cubic-bezier(.22,1,.36,1); }
-        .pp-related-card:hover { transform: translateY(-3px); }
-        .pp-related-card:hover .pp-related-arrow { transform: translateX(3px); }
-        .pp-related-arrow { transition: transform .3s ease; }
-        .pp-check-item { transition: all .2s ease; }
-        .pp-check-item:hover { background: rgba(124,110,224,0.05); }
+        .pp-related-card { transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
+        .pp-related-card:hover { transform: translateY(-2px); border-color: var(--brand-300) !important; box-shadow: var(--shadow-soft); }
+        .pp-related-card:hover .pp-related-arrow { transform: translateX(2px); }
+        .pp-related-arrow { transition: transform .15s ease; }
+        .pp-check-item { transition: background .15s ease; }
+        .pp-check-item:hover { background: var(--brand-50); }
+        @media (prefers-reduced-motion: reduce) {
+          .pp-related-card:hover { transform:none !important; }
+          .pp-related-card:hover .pp-related-arrow { transform:none !important; }
+        }
       `}</style>
 
       <LandingNav s={NAV_S[lang]||NAV_S.az} lang={lang} setLang={setLang} lightHero />
 
-      {/* Pastel animated hero */}
+      {/* Calm static brand wash hero */}
       <div className="relative overflow-hidden" style={{
         background: PASTEL_HERO_BG,
-        backgroundSize:'400% 400%',
-        animation:'heroGradient 12s ease infinite',
       }}>
-        <div className="hb1"/><div className="hb2"/><div className="hb4"/><div className="hb6"/>
+        <div className="hb1"/>
 
         <div className="relative max-w-5xl mx-auto px-6 pt-32 pb-24">
           {/* Meta strip */}
           <div className="flex items-center gap-3 mb-6">
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
-              style={{ background:'rgba(255,255,255,0.65)', border:'1px solid rgba(124,110,224,0.25)', backdropFilter:'blur(12px)' }}>
+              style={{ background:'var(--surface)', border:'1px solid var(--hairline-strong)', boxShadow:'var(--shadow-soft)' }}>
               <span style={{ width:6, height:6, borderRadius:'50%', background:accent }}/>
-              <span style={{ fontSize:12, fontWeight:600, color:'#1a1a2e' }}>{typeLabel}</span>
+              <span style={{ fontSize:12, fontWeight:600, color:'var(--ink-900)' }}>{typeLabel}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-              style={{ background:'rgba(255,255,255,0.55)', border:'1px solid rgba(124,110,224,0.2)', backdropFilter:'blur(12px)' }}>
-              <Users style={{ width:12, height:12, color:'#7c6ee0' }}/>
-              <span style={{ fontSize:12, fontWeight:600, color:'#1a1a2e' }}>{t.ui_ages} {meta.age}</span>
+              style={{ background:'var(--surface)', border:'1px solid var(--hairline-strong)', boxShadow:'var(--shadow-soft)' }}>
+              <Users style={{ width:12, height:12, color:'var(--brand-500)' }}/>
+              <span style={{ fontSize:12, fontWeight:600, color:'var(--ink-900)' }}>{t.ui_ages} {meta.age}</span>
             </span>
           </div>
 
@@ -1149,10 +1141,10 @@ function ProgrammePage({ type }) {
               </div>
             )}
             <div className="flex-1">
-              <h1 style={{ fontSize:'clamp(2.4rem,5vw,3.8rem)', fontWeight:800, letterSpacing:'-0.035em', lineHeight:1.05, marginBottom:12, color:'#1a1a2e' }}>
+              <h1 className="font-display" style={{ fontSize:'clamp(2.4rem,5vw,3.8rem)', fontWeight:800, letterSpacing:'-0.025em', lineHeight:1.05, marginBottom:12, color:'var(--ink-900)' }}>
                 <span className="pastel-text">{page.title}</span>
               </h1>
-              <p style={{ color:'#1a1a2e', opacity:0.75, fontSize:18, fontWeight:500, lineHeight:1.5, maxWidth:620 }}>
+              <p style={{ color:'var(--ink-700)', fontSize:18, fontWeight:500, lineHeight:1.5, maxWidth:620 }}>
                 {page.subtitle}
               </p>
             </div>
@@ -1168,39 +1160,39 @@ function ProgrammePage({ type }) {
             <div className="liquid-card p-8 md:p-12 relative overflow-hidden">
               <div className="space-y-5">
                 {page.body.split('\n\n').map((para, i) => (
-                  <p key={i} style={{ color:'#1a1a2e', opacity:0.85, fontSize:15.5, lineHeight:1.75, fontWeight:500 }}>{para}</p>
+                  <p key={i} style={{ color:'var(--ink-700)', fontSize:15.5, lineHeight:1.75, fontWeight:500 }}>{para}</p>
                 ))}
               </div>
 
               {/* What's included */}
-              <div className="mt-12 pt-8" style={{ borderTop:'1px solid rgba(124,110,224,0.12)' }}>
+              <div className="mt-12 pt-8" style={{ borderTop:'1px solid var(--hairline)' }}>
                 <div className="flex items-center gap-2 mb-6">
                   <Sparkles style={{ width:18, height:18, color:accent }}/>
-                  <span style={{ fontSize:16, fontWeight:700, color:'#1a1a2e' }}>
+                  <span style={{ fontSize:16, fontWeight:600, color:'var(--ink-900)' }}>
                     {t.ui_whats_included}
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {highlights.map((h, i) => (
-                    <div key={i} className="pp-check-item flex items-start gap-3 p-3 rounded-xl">
-                      <div className="shrink-0 w-6 h-6 rounded-lg flex items-center justify-center mt-0.5"
-                        style={{ background:`${accent}22`, border:`1px solid ${accent}33` }}>
+                    <div key={i} className="pp-check-item flex items-start gap-3 p-3" style={{ borderRadius:10 }}>
+                      <div className="shrink-0 w-6 h-6 flex items-center justify-center mt-0.5"
+                        style={{ background:'var(--brand-50)', border:'1px solid var(--brand-100)', borderRadius:8 }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12"/>
                         </svg>
                       </div>
-                      <span style={{ color:'#1a1a2e', fontSize:14, fontWeight:600, lineHeight:1.5 }}>{h}</span>
+                      <span style={{ color:'var(--ink-900)', fontSize:14, fontWeight:600, lineHeight:1.5 }}>{h}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* CTA */}
-              <div className="mt-10 pt-8 flex flex-col sm:flex-row items-start sm:items-center gap-4" style={{ borderTop:'1px solid rgba(124,110,224,0.12)' }}>
+              <div className="mt-10 pt-8 flex flex-col sm:flex-row items-start sm:items-center gap-4" style={{ borderTop:'1px solid var(--hairline)' }}>
                 <Link to="/contact" className="btn-pastel">
                   {t.ui_book_demo} <ArrowRight className="w-4 h-4"/>
                 </Link>
-                <a href="mailto:hello@tryzirva.com" className="text-sm font-semibold hover:underline" style={{ color:'#7c6ee0' }}>
+                <a href="mailto:hello@tryzirva.com" className="text-sm font-semibold hover:underline" style={{ color:'var(--brand-500)' }}>
                   hello@tryzirva.com
                 </a>
               </div>
@@ -1211,25 +1203,25 @@ function ProgrammePage({ type }) {
           <div className="space-y-4">
             {/* Quick facts card */}
             <div className="liquid-card p-6">
-              <p style={{ fontSize:14, fontWeight:700, color:'#1a1a2e', marginBottom:16 }}>{t.ui_quick_facts}</p>
+              <p style={{ fontSize:15, fontWeight:600, color:'var(--ink-900)', marginBottom:16 }}>{t.ui_quick_facts}</p>
 
               <div className="space-y-4">
                 <div>
-                  <div style={{ fontSize:11, fontWeight:700, color:'#64748b', letterSpacing:'0.04em', marginBottom:4 }}>{t.ui_programme}</div>
-                  <div style={{ fontSize:15, fontWeight:700, color:'#1a1a2e' }}>{typeLabel}</div>
+                  <div style={{ fontSize:11, fontWeight:700, color:'var(--ink-400)', letterSpacing:'0.04em', marginBottom:4 }}>{t.ui_programme}</div>
+                  <div style={{ fontSize:15, fontWeight:700, color:'var(--ink-900)' }}>{typeLabel}</div>
                 </div>
-                <div style={{ height:1, background:'rgba(124,110,224,0.12)' }}/>
+                <div style={{ height:1, background:'var(--hairline)' }}/>
                 <div>
-                  <div style={{ fontSize:11, fontWeight:700, color:'#64748b', letterSpacing:'0.04em', marginBottom:4 }}>{t.ui_age_range}</div>
-                  <div style={{ fontSize:15, fontWeight:700, color:'#1a1a2e' }}>{meta.age} {t.ui_years}</div>
+                  <div style={{ fontSize:11, fontWeight:700, color:'var(--ink-400)', letterSpacing:'0.04em', marginBottom:4 }}>{t.ui_age_range}</div>
+                  <div style={{ fontSize:15, fontWeight:700, color:'var(--ink-900)' }}>{meta.age} {t.ui_years}</div>
                 </div>
                 {isIB && (
                   <>
-                    <div style={{ height:1, background:'rgba(124,110,224,0.12)' }}/>
+                    <div style={{ height:1, background:'var(--hairline)' }}/>
                     <div>
-                      <div style={{ fontSize:11, fontWeight:700, color:'#64748b', letterSpacing:'0.04em', marginBottom:4 }}>{t.ui_ib_code}</div>
+                      <div style={{ fontSize:11, fontWeight:700, color:'var(--ink-400)', letterSpacing:'0.04em', marginBottom:4 }}>{t.ui_ib_code}</div>
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-                        style={{ background:`${accent}22`, border:`1px solid ${accent}33` }}>
+                        style={{ background:'var(--brand-50)', border:'1px solid var(--brand-100)' }}>
                         <span style={{ width:6, height:6, borderRadius:'50%', background:accent }}/>
                         <span style={{ fontSize:12, fontWeight:700, color:accent, letterSpacing:'0.04em' }}>IB {meta.code}</span>
                       </div>
@@ -1242,40 +1234,37 @@ function ProgrammePage({ type }) {
             {/* Related programmes */}
             {isIB && (
               <div className="liquid-card p-6">
-                <p style={{ fontSize:14, fontWeight:700, color:'#1a1a2e', marginBottom:14 }}>{t.ui_related}</p>
+                <p style={{ fontSize:15, fontWeight:600, color:'var(--ink-900)', marginBottom:14 }}>{t.ui_related}</p>
                 <div className="space-y-2">
-                  {related.map(r => {
-                    const ra = toPastel(r.accent)
-                    return (
-                      <Link key={r.key} to={`/${r.key}`} className="pp-related-card flex items-center gap-3 p-3 rounded-xl no-underline"
-                        style={{ border:'1px solid rgba(124,110,224,0.15)', background:'rgba(255,255,255,0.55)' }}>
-                        <span className="inline-flex items-center justify-center rounded-lg shrink-0"
-                          style={{ width:36, height:36, background:`${ra}22`, border:`1px solid ${ra}33`, color:ra, fontSize:11, fontWeight:800, letterSpacing:'0.04em' }}>
+                  {related.map(r => (
+                      <Link key={r.key} to={`/${r.key}`} className="pp-related-card flex items-center gap-3 p-3 no-underline"
+                        style={{ border:'1px solid var(--hairline)', background:'var(--surface)', borderRadius:10 }}>
+                        <span className="inline-flex items-center justify-center shrink-0"
+                          style={{ width:36, height:36, background:'var(--brand-50)', border:'1px solid var(--brand-100)', color:'var(--brand-600)', fontSize:11, fontWeight:800, letterSpacing:'0.04em', borderRadius:8 }}>
                           {r.label}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <div style={{ fontSize:13, fontWeight:700, color:'#1a1a2e', lineHeight:1.3 }}>{t[r.relKey]}</div>
-                          <div style={{ fontSize:11, fontWeight:600, color:'#64748b', marginTop:1 }}>{t.ui_ages} {r.age}</div>
+                          <div style={{ fontSize:13, fontWeight:700, color:'var(--ink-900)', lineHeight:1.3 }}>{t[r.relKey]}</div>
+                          <div style={{ fontSize:11, fontWeight:600, color:'var(--ink-400)', marginTop:1 }}>{t.ui_ages} {r.age}</div>
                         </div>
-                        <ArrowRight className="pp-related-arrow w-3.5 h-3.5 shrink-0" style={{ color:ra, opacity:.7 }}/>
+                        <ArrowRight className="pp-related-arrow w-3.5 h-3.5 shrink-0" style={{ color:'var(--brand-500)', opacity:.7 }}/>
                       </Link>
-                    )
-                  })}
+                  ))}
                 </div>
               </div>
             )}
 
             {/* Direct contact */}
             <div className="liquid-card p-6 relative overflow-hidden">
-              <p style={{ fontSize:14, fontWeight:700, color:'#1a1a2e', marginBottom:10 }}>{t.ui_questions}</p>
-              <p style={{ fontSize:13.5, fontWeight:500, color:'#64748b', lineHeight:1.6, marginBottom:14 }}>
+              <p style={{ fontSize:15, fontWeight:600, color:'var(--ink-900)', marginBottom:10 }}>{t.ui_questions}</p>
+              <p style={{ fontSize:13.5, fontWeight:500, color:'var(--ink-600)', lineHeight:1.6, marginBottom:14 }}>
                 {t.ui_questions_body}
               </p>
               <div className="flex flex-col gap-2">
-                <a href="mailto:hello@tryzirva.com" className="flex items-center gap-2 text-sm font-semibold hover:underline" style={{ color:'#7c6ee0' }}>
+                <a href="mailto:hello@tryzirva.com" className="flex items-center gap-2 text-sm font-semibold hover:underline" style={{ color:'var(--brand-500)' }}>
                   <Mail style={{ width:13, height:13 }}/> hello@tryzirva.com
                 </a>
-                <a href="tel:+994502411442" className="flex items-center gap-2 text-sm font-semibold hover:underline" style={{ color:'#7c6ee0' }}>
+                <a href="tel:+994502411442" className="flex items-center gap-2 text-sm font-semibold hover:underline" style={{ color:'var(--brand-500)' }}>
                   <Phone style={{ width:13, height:13 }}/> +994 50 241 14 42
                 </a>
               </div>
@@ -1298,10 +1287,13 @@ export default function InfoPage({ type: typeProp }) {
 
   if (!page) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background:'#f8f7fb' }}>
+      <div className="min-h-screen flex items-center justify-center px-6" style={{ background:'var(--canvas)' }}>
         <div className="text-center">
-          <p style={{ color:'#64748b', marginBottom:16 }}>Səhifə tapılmadı</p>
-          <Link to="/" style={{ color:'#7c6ee0', fontWeight:600, textDecoration:'none' }}>← Ana səhifəyə qayıt</Link>
+          <Mascot pose="thinking" size={140} bob className="mx-auto mb-4" />
+          <p className="font-display" style={{ color:'var(--ink-900)', fontSize:20, fontWeight:700, marginBottom:16 }}>Səhifə tapılmadı</p>
+          <Link to="/" className="btn-ghost-pastel" style={{ textDecoration:'none' }}>
+            <ArrowLeft style={{ width:13, height:13 }}/> Ana səhifəyə qayıt
+          </Link>
         </div>
       </div>
     )
@@ -1312,7 +1304,7 @@ export default function InfoPage({ type: typeProp }) {
 
   // Pastel accent variation per page color
   const isPurpleAccent = page.color !== 'teal'
-  const accentColor = isPurpleAccent ? '#7c6ee0' : '#5db8a3'
+  const accentColor = isPurpleAccent ? 'var(--brand-500)' : 'var(--mint)'
 
   // Per-language fields — see pickL() helper above PAGES.
   const titleStr    = pickL(page.title,    lang)
@@ -1321,36 +1313,40 @@ export default function InfoPage({ type: typeProp }) {
   const paragraphs  = bodyStr.split('\n\n').filter(Boolean)
 
   return (
-    <div style={{ minHeight:'100vh', background:'#f8f7fb', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif' }}>
+    <div style={{ minHeight:'100vh', background:'var(--canvas)', fontFamily:'Plus Jakarta Sans, system-ui, sans-serif' }}>
       <style>{`
         ${HERO_KEYFRAMES}
         @keyframes ip-fade-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
         .ip-card { animation: ip-fade-up .5s cubic-bezier(.22,1,.36,1) both .08s; }
         .ip-contact-link { transition: color .15s; }
         .ip-contact-link:hover { text-decoration: underline; }
+        .ip-contact-card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+        .ip-contact-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-soft); border-color: var(--brand-300) !important; }
+        @media (prefers-reduced-motion: reduce) {
+          .ip-card { animation:none !important; }
+          .ip-contact-card:hover { transform:none !important; }
+        }
       `}</style>
 
       <LandingNav s={NAV_S[lang]||NAV_S.az} lang={lang} setLang={setLang} lightHero />
 
-      {/* Pastel animated hero */}
+      {/* Calm static brand wash hero */}
       <div style={{
         background: PASTEL_HERO_BG,
-        backgroundSize:'400% 400%',
-        animation:'heroGradient 12s ease infinite',
         position:'relative', overflow:'hidden',
-        paddingTop:140, paddingBottom:96,
+        paddingTop:140, paddingBottom:88,
       }}>
-        <div className="hb1"/><div className="hb2"/><div className="hb4"/><div className="hb6"/>
+        <div className="hb1"/>
 
-        <div style={{ maxWidth:780, margin:'0 auto', padding:'0 28px', position:'relative' }}>
-          <h1 style={{
-            fontSize:'clamp(2.6rem,5.5vw,4rem)', fontWeight:800,
-            letterSpacing:'-0.035em', lineHeight:1.07, marginBottom:16, color:'#1a1a2e',
+        <div style={{ maxWidth:720, margin:'0 auto', padding:'0 28px', position:'relative' }}>
+          <h1 className="font-display" style={{
+            fontSize:'clamp(2.4rem,5vw,3.4rem)', fontWeight:800,
+            letterSpacing:'-0.025em', lineHeight:1.08, marginBottom:16, color:'var(--ink-900)',
           }}>
             <span className="pastel-text">{titleStr}</span>
           </h1>
           <p style={{
-            fontSize:'clamp(1rem,1.8vw,1.2rem)', color:'#1a1a2e', opacity:0.72,
+            fontSize:'clamp(1rem,1.6vw,1.15rem)', color:'var(--ink-700)',
             fontWeight:500, lineHeight:1.6, maxWidth:560,
           }}>
             {subtitleStr}
@@ -1358,30 +1354,30 @@ export default function InfoPage({ type: typeProp }) {
         </div>
       </div>
 
-      {/* Content card */}
-      <div style={{ maxWidth:780, margin:'-40px auto 0', padding:'0 24px 80px', position:'relative', zIndex:2 }}>
+      {/* Content card — calm editorial column */}
+      <div style={{ maxWidth:720, margin:'-36px auto 0', padding:'0 24px 80px', position:'relative', zIndex:2 }}>
         <div className="ip-card liquid-card" style={{
           padding:'clamp(32px,5vw,56px) clamp(28px,5vw,52px)',
         }}>
-          <h2 style={{
-            fontSize:'1.45rem', fontWeight:800, color:'#1a1a2e',
+          <h2 className="font-display" style={{
+            fontSize:'1.5rem', fontWeight:800, color:'var(--ink-900)',
             letterSpacing:'-0.02em', marginBottom:28, lineHeight:1.25,
           }}>
             {titleStr}
           </h2>
 
-          <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:22 }}>
             {paragraphs.map((para, i) => (
               <div key={i} style={{ display:'flex', gap:16, alignItems:'flex-start' }}>
                 {i === 0 && (
                   <div style={{
-                    width:4, minHeight:48, alignSelf:'stretch', borderRadius:4,
-                    background:`linear-gradient(180deg, #7c6ee0 0%, #5db8a3 100%)`,
+                    width:3, minHeight:48, alignSelf:'stretch', borderRadius:3,
+                    background:'var(--brand-500)',
                     flexShrink:0, marginTop:2,
                   }}/>
                 )}
                 <p style={{
-                  color:'#1a1a2e', opacity:0.85, fontSize:16, lineHeight:1.8, fontWeight:400,
+                  color:'var(--ink-700)', fontSize:16, lineHeight:1.8, fontWeight:400,
                   flex:1, margin:0,
                 }}>
                   {para}
@@ -1393,40 +1389,30 @@ export default function InfoPage({ type: typeProp }) {
           {/* Inline contact details if isContact page */}
           {page.isContact && (
             <div style={{ marginTop:36, display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-              <a href="mailto:hello@tryzirva.com" style={{
+              <a href="mailto:hello@tryzirva.com" className="ip-contact-card" style={{
                 display:'flex', alignItems:'center', gap:12, padding:'16px 18px',
                 borderRadius:14, textDecoration:'none',
-                background:'rgba(255,255,255,0.6)', border:'1px solid rgba(124,110,224,0.25)',
-                backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)',
+                background:'var(--surface)', border:'1px solid var(--hairline-strong)',
               }}>
-                <div style={{
-                  width:40, height:40, borderRadius:12, flexShrink:0,
-                  background:'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                }}>
-                  <Mail style={{ width:18, height:18, color:'#fff' }}/>
+                <div className="icon-chip icon-chip-periwinkle" style={{ width:40, height:40 }}>
+                  <Mail style={{ width:18, height:18 }}/>
                 </div>
                 <div>
-                  <p style={{ fontSize:11, color:'#64748b', fontWeight:700, marginBottom:2 }}>Email</p>
-                  <p style={{ fontSize:13.5, fontWeight:700, color:'#1a1a2e' }}>hello@tryzirva.com</p>
+                  <p style={{ fontSize:11, color:'var(--ink-400)', fontWeight:700, marginBottom:2 }}>Email</p>
+                  <p style={{ fontSize:13.5, fontWeight:700, color:'var(--ink-900)' }}>hello@tryzirva.com</p>
                 </div>
               </a>
-              <a href="tel:+994502411442" style={{
+              <a href="tel:+994502411442" className="ip-contact-card" style={{
                 display:'flex', alignItems:'center', gap:12, padding:'16px 18px',
                 borderRadius:14, textDecoration:'none',
-                background:'rgba(255,255,255,0.6)', border:'1px solid rgba(124,110,224,0.25)',
-                backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)',
+                background:'var(--surface)', border:'1px solid var(--hairline-strong)',
               }}>
-                <div style={{
-                  width:40, height:40, borderRadius:12, flexShrink:0,
-                  background:'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                }}>
-                  <Phone style={{ width:18, height:18, color:'#fff' }}/>
+                <div className="icon-chip icon-chip-periwinkle" style={{ width:40, height:40 }}>
+                  <Phone style={{ width:18, height:18 }}/>
                 </div>
                 <div>
-                  <p style={{ fontSize:11, color:'#64748b', fontWeight:700, marginBottom:2 }}>Phone</p>
-                  <p style={{ fontSize:13.5, fontWeight:700, color:'#1a1a2e' }}>+994 50 241 14 42</p>
+                  <p style={{ fontSize:11, color:'var(--ink-400)', fontWeight:700, marginBottom:2 }}>Phone</p>
+                  <p style={{ fontSize:13.5, fontWeight:700, color:'var(--ink-900)' }}>+994 50 241 14 42</p>
                 </div>
               </a>
             </div>
@@ -1436,11 +1422,11 @@ export default function InfoPage({ type: typeProp }) {
           {!page.isContact && (
             <div style={{
               marginTop:44, paddingTop:32,
-              borderTop:'1px solid rgba(124,110,224,0.12)',
+              borderTop:'1px solid var(--hairline)',
               display:'flex', flexWrap:'wrap', alignItems:'center', gap:16,
             }}>
               <Link to="/contact" className="btn-pastel">
-                Contact Us <ArrowRight style={{ width:15, height:15 }}/>
+                {(T[lang] || T.az).ui_contact_us} <ArrowRight style={{ width:15, height:15 }}/>
               </Link>
               <a href="mailto:hello@tryzirva.com" className="ip-contact-link" style={{
                 color:accentColor, fontSize:14, fontWeight:600, textDecoration:'none',
@@ -1452,27 +1438,26 @@ export default function InfoPage({ type: typeProp }) {
         </div>
       </div>
 
-      {/* Pastel footer CTA strip */}
+      {/* Footer CTA strip — single calm brand wash */}
       <div style={{
         position:'relative', overflow:'hidden',
         padding:'72px 28px 96px',
+        borderTop:'1px solid var(--hairline)',
       }}>
-        <div className="section-blob" style={{ width:520, height:520, top:-120, left:'12%', background:'rgba(184,192,255,0.55)' }}/>
-        <div className="section-blob" style={{ width:480, height:480, bottom:-160, right:'10%', background:'rgba(200,230,224,0.5)' }}/>
-        <div className="section-blob" style={{ width:380, height:380, top:'30%', right:'30%', background:'rgba(245,230,216,0.45)' }}/>
+        <div className="section-blob" style={{ width:520, height:520, top:-160, left:'50%', transform:'translateX(-50%)', background:'rgba(87,79,207,0.10)' }}/>
 
         <div style={{ maxWidth:640, margin:'0 auto', textAlign:'center', position:'relative' }}>
-          <p style={{
+          <p className="font-display" style={{
             fontSize:'clamp(1.5rem,3.5vw,2.2rem)', fontWeight:800,
-            letterSpacing:'-0.025em', lineHeight:1.2, marginBottom:14, color:'#1a1a2e',
+            letterSpacing:'-0.02em', lineHeight:1.2, marginBottom:14, color:'var(--ink-900)',
           }}>
             Ready to see <span className="pastel-text">Zirva</span> in action?
           </p>
-          <p style={{ color:'#64748b', fontSize:15, fontWeight:400, lineHeight:1.6, marginBottom:32 }}>
+          <p style={{ color:'var(--ink-600)', fontSize:15, fontWeight:400, lineHeight:1.6, marginBottom:32 }}>
             Book a live demo and see how Zirva works for your school.
           </p>
           <Link to="/contact" className="btn-pastel">
-            Get in touch <ArrowRight style={{ width:16, height:16 }}/>
+            {(T[lang] || T.az).ui_contact_us} <ArrowRight style={{ width:16, height:16 }}/>
           </Link>
         </div>
       </div>

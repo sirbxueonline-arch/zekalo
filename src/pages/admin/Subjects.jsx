@@ -5,25 +5,18 @@ import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
-import { PageSpinner } from '../../components/ui/Spinner'
+import { TableRowSkeleton } from '../../components/ui/Skeleton'
 import EmptyState from '../../components/ui/EmptyState'
 
-// Deterministically pick one of 8 palette entries based on subject name
+// V3: subject palette collapsed to a single brand chip + neutral-grey ramp.
+// Color is reserved for status, not categorical decoration. The function
+// signature is preserved so call sites stay unchanged.
 const SUBJECT_PALETTE = [
-  { bg: 'bg-[rgba(124,110,224,0.12)]', text: 'text-[#5e4fc7]', dot: '#7c6ee0' },
-  { bg: 'bg-[rgba(93,184,163,0.14)]',  text: 'text-[#3a8170]', dot: '#5db8a3' },
-  { bg: 'bg-[rgba(232,168,124,0.16)]', text: 'text-[#a55f33]', dot: '#e8a87c' },
-  { bg: 'bg-[rgba(107,157,222,0.14)]', text: 'text-[#3d6da7]', dot: '#6b9dde' },
-  { bg: 'bg-[rgba(157,146,234,0.14)]', text: 'text-[#5e4fc7]', dot: '#9d92ea' },
-  { bg: 'bg-[rgba(127,202,184,0.16)]', text: 'text-[#3a8170]', dot: '#7fcab8' },
-  { bg: 'bg-[rgba(231,154,98,0.14)]',  text: 'text-[#a55f33]', dot: '#e79a62' },
-  { bg: 'bg-[rgba(82,131,199,0.14)]',  text: 'text-[#3d6da7]', dot: '#5283c7' },
+  { chip: 'icon-chip-periwinkle', dot: 'var(--brand-500)' },
 ]
 
-function subjectColor(name = '') {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  return SUBJECT_PALETTE[Math.abs(hash) % SUBJECT_PALETTE.length]
+function subjectPalette() {
+  return SUBJECT_PALETTE[0]
 }
 
 export default function AdminSubjects() {
@@ -55,21 +48,27 @@ export default function AdminSubjects() {
   }, [profile?.school_id])
 
   async function fetchSubjects() {
-    setLoading(true)
-    const [subjectsRes, timetableRes] = await Promise.all([
-      supabase.from('subjects').select('*').eq('school_id', profile.school_id).order('name'),
-      supabase.from('timetable').select('subject_id').eq('school_id', profile.school_id),
-    ])
-    const subs = subjectsRes.data || []
-    setSubjects(subs)
+    try {
+      setLoading(true)
+      const [subjectsRes, timetableRes] = await Promise.all([
+        supabase.from('subjects').select('*').eq('school_id', profile.school_id).order('name'),
+        supabase.from('timetable').select('subject_id').eq('school_id', profile.school_id),
+      ])
+      const subs = subjectsRes.data || []
+      setSubjects(subs)
 
-    // Count how many timetable entries (proxy for class usage) each subject has
-    const counts = {}
-    for (const row of (timetableRes.data || [])) {
-      if (row.subject_id) counts[row.subject_id] = (counts[row.subject_id] || 0) + 1
+      // Count how many timetable entries (proxy for class usage) each subject has
+      const counts = {}
+      for (const row of (timetableRes.data || [])) {
+        if (row.subject_id) counts[row.subject_id] = (counts[row.subject_id] || 0) + 1
+      }
+      setClassCounts(counts)
+    } catch (err) {
+      console.error(err)
+      setError('Məlumat yüklənərkən xəta baş verdi')
+    } finally {
+      setLoading(false)
     }
-    setClassCounts(counts)
-    setLoading(false)
   }
 
   function openAdd() {
@@ -132,66 +131,97 @@ export default function AdminSubjects() {
       return sortDir === 'asc' ? cmp : -cmp
     })
 
-  if (loading) return <PageSpinner />
+  if (loading) return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="pastel-skeleton h-8 w-40 rounded-input" />
+        <div className="pastel-skeleton h-9 w-36 rounded-input" />
+      </div>
+      <div className="pastel-skeleton h-10 rounded-input" />
+      <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-hairline bg-canvas">
+              {['Fənn adı', 'Azərbaycan adı', ''].map((h) => (
+                <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-ink-400 uppercase tracking-wider">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <TableRowSkeleton key={i} cols={3} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Fənlər</span></h1>
-          <p className="text-sm text-[#64748b] mt-0.5">{subjects.length} fənn qeydə alınıb</p>
+      <div className="bg-surface rounded-tile border border-hairline px-6 py-5">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 44, height: 44 }}>
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="font-display text-2xl font-bold text-ink-900 leading-tight">Fənlər</h1>
+              <span className="pill-muted mt-1 inline-block">{subjects.length} fənn qeydə alınıb</span>
+            </div>
+          </div>
+          <Button size="sm" onClick={openAdd}>
+            <span className="flex items-center gap-1.5"><Plus className="w-4 h-4" /> Fənn əlavə et</span>
+          </Button>
         </div>
-        <Button onClick={openAdd}>
-          <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Fənn əlavə et</span>
-        </Button>
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
         <input
           type="text"
           placeholder="Fənn axtar..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+          className="pastel-input w-full pl-10"
         />
       </div>
 
       {/* List */}
       {filtered.length === 0 ? (
         <EmptyState
+          tier={1}
           icon={BookOpen}
           title="Fənn yoxdur"
-          description="Məktəbiniz üçün fənn əlavə edin"
+          description="Məktəbiniz üçün fənn əlavə edin."
           actionLabel="Fənn əlavə et"
           onAction={openAdd}
         />
       ) : (
-        <div className="liquid-card overflow-hidden" style={{ padding: 0 }}>
-          <table className="w-full text-sm">
+        <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
+          <table className="w-full text-[13px]">
             <thead>
-              <tr className="bg-surface border-b border-border-soft">
+              <tr className="border-b border-hairline bg-canvas">
                 <th
-                  className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-surface"
+                  className="text-left px-5 py-3 text-xs font-semibold text-ink-400 uppercase tracking-wider cursor-pointer select-none hover:text-ink-700 transition-colors"
                   onClick={() => handleSort('name')}
                 >
                   <span className="flex items-center gap-1">
                     Fənn adı
-                    <span className="text-gray-400 text-xs">
+                    <span className="text-ink-400 text-xs">
                       {sortKey === 'name' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
                     </span>
                   </span>
                 </th>
                 <th
-                  className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell cursor-pointer select-none hover:bg-surface"
+                  className="text-left px-5 py-3 text-xs font-semibold text-ink-400 uppercase tracking-wider hidden sm:table-cell cursor-pointer select-none hover:text-ink-700 transition-colors"
                   onClick={() => handleSort('name_az')}
                 >
                   <span className="flex items-center gap-1">
                     Azərbaycan adı
-                    <span className="text-gray-400 text-xs">
+                    <span className="text-ink-400 text-xs">
                       {sortKey === 'name_az' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
                     </span>
                   </span>
@@ -199,42 +229,40 @@ export default function AdminSubjects() {
                 <th className="w-20" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-border-soft">
+            <tbody className="divide-y divide-hairline">
               {filtered.map(sub => {
-                const palette = subjectColor(sub.name)
+                const palette = subjectPalette(sub.name)
                 const usageCount = classCounts[sub.id] || 0
                 return (
-                  <tr key={sub.id} className="hover:bg-purple-light/20 transition-colors duration-100">
+                  <tr key={sub.id} className="group hover:bg-[rgba(20,22,40,0.025)] transition-colors duration-100">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <span className={`w-9 h-9 rounded-xl ${palette.bg} flex items-center justify-center flex-shrink-0`}>
-                          <BookOpen className="w-4 h-4" style={{ color: palette.dot }} />
-                        </span>
+                        <div className={`icon-chip ${palette.chip} flex-shrink-0`} style={{ width: 36, height: 36 }}>
+                          <BookOpen className="w-4 h-4" />
+                        </div>
                         <div>
-                          <span className="font-semibold text-gray-900">{sub.name}</span>
+                          <span className="font-semibold text-ink-900">{sub.name}</span>
                           {usageCount > 0 && (
-                            <span className={`ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${palette.bg} ${palette.text}`}>
-                              {usageCount} dərs
-                            </span>
+                            <span className="ml-2 pill-peri text-xs">{usageCount} dərs</span>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-gray-500 hidden sm:table-cell">
-                      {sub.name_az || <span className="text-gray-300 italic">—</span>}
+                    <td className="px-5 py-3.5 text-ink-600 hidden sm:table-cell">
+                      {sub.name_az || <span className="text-ink-400 italic">—</span>}
                     </td>
                     <td className="px-4 py-3.5">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => openEdit(sub)}
-                          className="p-1.5 text-gray-400 hover:text-purple transition-colors rounded-lg hover:bg-purple-light"
+                          className="p-1.5 rounded-input text-ink-400 hover:text-brand-500 hover:bg-brand-50 transition-colors"
                           aria-label="Redaktə et"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => setDeleteModal(sub)}
-                          className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
+                          className="p-1.5 rounded-input text-ink-400 hover:text-danger-text hover:bg-danger-tint transition-colors"
                           aria-label="Sil"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -264,7 +292,9 @@ export default function AdminSubjects() {
             onChange={e => setForm({ ...form, name_az: e.target.value })}
             placeholder="məs. Riyaziyyat, Fizika..."
           />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+          {error && (
+            <p className="text-sm rounded-input px-3 py-2 bg-danger-tint text-danger-text border border-danger/20">{error}</p>
+          )}
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={() => setAddModal(false)}>Ləğv et</Button>
             <Button onClick={handleAdd} loading={saving} disabled={!form.name.trim()}>Əlavə et</Button>
@@ -285,7 +315,9 @@ export default function AdminSubjects() {
             value={form.name_az}
             onChange={e => setForm({ ...form, name_az: e.target.value })}
           />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+          {error && (
+            <p className="text-sm rounded-input px-3 py-2 bg-danger-tint text-danger-text border border-danger/20">{error}</p>
+          )}
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={() => setEditModal(null)}>Ləğv et</Button>
             <Button onClick={handleEdit} loading={saving} disabled={!form.name.trim()}>Saxla</Button>
@@ -295,8 +327,8 @@ export default function AdminSubjects() {
 
       {/* Delete Modal */}
       <Modal open={!!deleteModal} onClose={() => setDeleteModal(null)} title="Fənni sil" size="sm">
-        <p className="text-sm text-gray-600 mb-6">
-          <strong>{deleteModal?.name}</strong> fənnini silmək istədiyinizə əminsiniz?
+        <p className="text-sm text-ink-600 mb-6">
+          <strong className="text-ink-900">{deleteModal?.name}</strong> fənnini silmək istədiyinizə əminsiniz?
           Bu fənnə aid qiymətlər və cədvəl məlumatları da təsirlənə bilər.
         </p>
         <div className="flex justify-end gap-3">

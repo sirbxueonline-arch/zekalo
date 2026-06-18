@@ -11,20 +11,22 @@ import { useAuth } from '../../contexts/AuthContext'
 import { fmtNumeric } from '../../lib/dateUtils'
 import Avatar from '../../components/ui/Avatar'
 import { GradeBadge } from '../../components/ui/Badge'
+import EmptyState from '../../components/ui/EmptyState'
 
 // ── Quick-action button ────────────────────────────────────────────────────
 
-const ACTION_CHIPS = ['icon-chip-periwinkle', 'icon-chip-mint', 'icon-chip-blue', 'icon-chip-peach', 'icon-chip-periwinkle', 'icon-chip-peach', 'icon-chip-mint', 'icon-chip-blue']
-
 function ActionBtn({ icon: Icon, label, sublabel, chipClass, onClick }) {
   return (
-    <button onClick={onClick} className="liquid-card text-left p-5 group cursor-pointer flex flex-col items-start gap-3">
+    <button
+      onClick={onClick}
+      className="liquid-card text-left p-4 group cursor-pointer flex flex-col items-start gap-3 hover:-translate-y-0.5 transition-transform duration-150"
+    >
       <span className={`icon-chip ${chipClass}`}>
         <Icon className="w-5 h-5" />
       </span>
       <div>
-        <p className="text-sm font-bold" style={{ color: '#1a1a2e' }}>{label}</p>
-        {sublabel && <p className="text-xs mt-0.5" style={{ color: '#94a3b8' }}>{sublabel}</p>}
+        <p className="text-sm font-semibold text-ink-900">{label}</p>
+        {sublabel && <p className="text-xs mt-0.5 text-ink-400">{sublabel}</p>}
       </div>
     </button>
   )
@@ -32,16 +34,21 @@ function ActionBtn({ icon: Icon, label, sublabel, chipClass, onClick }) {
 
 // ── Stat card ──────────────────────────────────────────────────────────────
 
-function StatCard({ icon: Icon, chipClass, label, value, sub, alert }) {
+function ClassStatCard({ icon: Icon, chipClass, label, value, sub, alert }) {
   return (
     <div className="liquid-card p-4 flex items-center gap-4">
       <span className={`icon-chip ${chipClass}`}>
         <Icon className="w-5 h-5" />
       </span>
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>{label}</p>
-        <p className="text-2xl font-bold leading-tight" style={{ color: alert ? '#b83b54' : '#1a1a2e' }}>{value}</p>
-        {sub && <p className="text-xs mt-0.5" style={{ color: '#94a3b8' }}>{sub}</p>}
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">{label}</p>
+        <p
+          className="font-display text-2xl font-bold leading-tight tabular-nums"
+          style={{ color: alert ? 'var(--danger)' : 'var(--ink-900)' }}
+        >
+          {value}
+        </p>
+        {sub && <p className="text-xs mt-0.5 text-ink-400">{sub}</p>}
       </div>
     </div>
   )
@@ -149,14 +156,14 @@ export default function TeacherClasses() {
     const stats = classStats || {}
 
     const actions = [
-      { icon: BookOpen,      label: 'Jurnal',      sublabel: 'Qiymətləri daxil et', chip: 'icon-chip-periwinkle', path: '/muellim/jurnal' },
-      { icon: CalendarCheck, label: 'Davamiyyət',  sublabel: 'Günlük qeydiyyat',    chip: 'icon-chip-mint',        path: '/muellim/davamiyyet' },
-      { icon: ClipboardList, label: 'Tapşırıqlar', sublabel: 'Tapşırıq ver',         chip: 'icon-chip-blue',        path: '/muellim/tapshiriqlar' },
-      { icon: Clock,         label: 'Cədvəl',      sublabel: 'Dərs cədvəli',         chip: 'icon-chip-peach',       path: '/muellim/cedvel' },
-      { icon: GraduationCap, label: 'İmtahanlar',  sublabel: 'Test',                 chip: 'icon-chip-periwinkle', path: '/muellim/imtahanlar' },
-      { icon: AlertTriangle, label: 'İntizam',     sublabel: 'Davranış qeydləri',    chip: 'icon-chip-peach',       path: '/muellim/intizam' },
-      { icon: BarChart2,     label: 'Analitika',   sublabel: 'Sinif statistikası',   chip: 'icon-chip-mint',        path: '/muellim/analitika' },
-      { icon: MessagesSquare,label: 'Yazışmalar',  sublabel: 'Valideynlərə mesaj',   chip: 'icon-chip-blue',        path: '/muellim/yazismalar' },
+      { icon: BookOpen,       label: 'Jurnal',      sublabel: 'Qiymətləri daxil et', chip: 'icon-chip-periwinkle', path: '/muellim/jurnal' },
+      { icon: CalendarCheck,  label: 'Davamiyyət',  sublabel: 'Günlük qeydiyyat',    chip: 'icon-chip-periwinkle', path: '/muellim/davamiyyet' },
+      { icon: ClipboardList,  label: 'Tapşırıqlar', sublabel: 'Tapşırıq ver',         chip: 'icon-chip-periwinkle', path: '/muellim/tapshiriqlar' },
+      { icon: Clock,          label: 'Cədvəl',      sublabel: 'Dərs cədvəli',         chip: 'icon-chip-periwinkle', path: '/muellim/cedvel' },
+      { icon: GraduationCap,  label: 'İmtahanlar',  sublabel: 'Test',                 chip: 'icon-chip-periwinkle', path: '/muellim/imtahanlar' },
+      { icon: AlertTriangle,  label: 'İntizam',     sublabel: 'Davranış qeydləri',    chip: 'icon-chip-periwinkle', path: '/muellim/intizam' },
+      { icon: BarChart2,      label: 'Analitika',   sublabel: 'Sinif statistikası',   chip: 'icon-chip-periwinkle', path: '/muellim/analitika' },
+      { icon: MessagesSquare, label: 'Yazışmalar',  sublabel: 'Valideynlərə mesaj',   chip: 'icon-chip-periwinkle', path: '/muellim/yazismalar' },
     ]
 
     return (
@@ -165,27 +172,24 @@ export default function TeacherClasses() {
         <div className="flex items-start gap-4">
           <button
             onClick={() => { setSelected(null); setClassStats(null) }}
-            className="mt-1 p-2 rounded-xl smooth-trans"
-            style={{ color: '#64748b', background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(124,110,224,0.15)' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#7c6ee0'; e.currentTarget.style.background = 'rgba(124,110,224,0.08)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'rgba(255,255,255,0.5)' }}
+            className="mt-1 p-2 rounded-tile text-ink-400 hover:text-brand-500 hover:bg-brand-50 border border-hairline transition-colors duration-150"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: '#1a1a2e' }}>
-              <span className="pastel-text">{cls.name}</span>
+            <h1 className="font-display text-3xl md:text-4xl font-bold leading-tight text-ink-900">
+              {cls.name}
             </h1>
             <div className="flex flex-wrap items-center gap-2 mt-1.5">
               {cls.grade_level && (
-                <span className="text-sm" style={{ color: '#94a3b8' }}>Səviyyə {cls.grade_level}</span>
+                <span className="text-sm text-ink-400">Səviyyə {cls.grade_level}</span>
               )}
               {cls.subjects.length > 0 && (
                 <>
-                  <span style={{ color: '#cbd5e1' }}>·</span>
+                  <span className="text-hairline-strong">·</span>
                   <div className="flex flex-wrap gap-1.5">
                     {cls.subjects.map(s => (
-                      <span key={s.id} className="pastel-badge pastel-badge-periwinkle">{s.name}</span>
+                      <span key={s.id} className="pill-brand">{s.name}</span>
                     ))}
                   </div>
                 </>
@@ -197,29 +201,29 @@ export default function TeacherClasses() {
         {detailLoading ? (
           <div className="space-y-4">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-24" />)}
+              {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-24 rounded-card" />)}
             </div>
-            <div className="pastel-skeleton h-64" />
+            <div className="pastel-skeleton h-64 rounded-card" />
           </div>
         ) : (
           <>
             {/* Stats row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard icon={Users} chipClass="icon-chip-periwinkle" label="Şagird sayı" value={stats.studentCount ?? '—'} />
-              <StatCard
+              <ClassStatCard icon={Users} chipClass="icon-chip-periwinkle" label="Şagird sayı" value={stats.studentCount ?? '—'} />
+              <ClassStatCard
                 icon={CalendarCheck}
                 chipClass={stats.attPct >= 85 ? 'icon-chip-mint' : 'icon-chip-peach'}
                 label="Bu həftə davamiyyət"
                 value={stats.attPct != null ? `${stats.attPct}%` : '—'}
-                sub={stats.attPct != null ? (stats.attPct >= 85 ? '✓ Yaxşı' : '⚠ Aşağı') : null}
+                sub={stats.attPct != null ? (stats.attPct >= 85 ? 'Yaxşı' : 'Aşağı') : null}
               />
-              <StatCard icon={GraduationCap} chipClass="icon-chip-blue" label="Sinif ortalama" value={stats.classAvg != null ? stats.classAvg : '—'} />
-              <StatCard icon={AlertTriangle} chipClass="icon-chip-peach" label="Risk altında" value={stats.atRisk ?? 0} sub="Orta < 5" alert={stats.atRisk > 0} />
+              <ClassStatCard icon={GraduationCap} chipClass="icon-chip-periwinkle" label="Sinif ortalama" value={stats.classAvg != null ? stats.classAvg : '—'} />
+              <ClassStatCard icon={AlertTriangle} chipClass="icon-chip-peach" label="Risk altında" value={stats.atRisk ?? 0} sub="Orta < 5" alert={stats.atRisk > 0} />
             </div>
 
             {/* Quick actions */}
             <div>
-              <p className="text-xs tracking-widest uppercase font-semibold mb-3" style={{ color: '#64748b' }}>Tez Keçid</p>
+              <p className="text-[11px] tracking-widest uppercase font-semibold mb-3 text-ink-400">Tez Keçid</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {actions.map(a => (
                   <ActionBtn key={a.path} icon={a.icon} label={a.label} sublabel={a.sublabel} chipClass={a.chip} onClick={() => navigate(a.path)} />
@@ -231,16 +235,21 @@ export default function TeacherClasses() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {/* Students roster */}
               <div className="liquid-card overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
-                  <h2 className="font-bold flex items-center gap-2" style={{ color: '#1a1a2e' }}>
-                    <Users className="w-4 h-4" style={{ color: '#7c6ee0' }} />
+                <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
+                  <h2 className="text-sm font-bold flex items-center gap-2 text-ink-900">
+                    <Users className="w-4 h-4 text-brand-500" />
                     Şagirdlər
                   </h2>
-                  <span className="pastel-badge pastel-badge-periwinkle">{students.length} nəfər</span>
+                  <span className="pill-brand">{students.length} nəfər</span>
                 </div>
                 {students.length === 0 ? (
-                  <div className="text-center py-10 px-6">
-                    <p className="text-sm" style={{ color: '#94a3b8' }}>Şagird yoxdur</p>
+                  <div className="py-10 px-6">
+                    <EmptyState
+                      tier={1}
+                      icon={Users}
+                      title="Şagird yoxdur"
+                      description="Bu sinfə hələ şagird əlavə edilməyib"
+                    />
                   </div>
                 ) : (
                   <div className="overflow-y-auto max-h-[380px] scrollbar-thin">
@@ -251,18 +260,16 @@ export default function TeacherClasses() {
                         return (
                           <div
                             key={s.id}
-                            className="flex items-center gap-3 px-5 py-3 smooth-trans"
+                            className="flex items-center gap-3 px-5 py-3 transition-colors duration-100 hover:bg-brand-50"
                             style={{
-                              background: isLow ? 'rgba(229,107,127,0.05)' : 'transparent',
-                              borderTop: i === 0 ? 'none' : '1px solid rgba(124,110,224,0.06)',
+                              background: isLow ? 'rgba(239,68,68,0.05)' : 'transparent',
+                              borderTop: i === 0 ? 'none' : '1px solid var(--hairline)',
                             }}
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(124,110,224,0.04)'}
-                            onMouseLeave={e => e.currentTarget.style.background = isLow ? 'rgba(229,107,127,0.05)' : 'transparent'}
                           >
-                            <span className="text-xs w-5 flex-shrink-0 font-medium" style={{ color: '#cbd5e1' }}>{i + 1}</span>
+                            <span className="text-xs w-5 flex-shrink-0 font-medium text-ink-400 tabular-nums">{i + 1}</span>
                             <Avatar name={s.full_name} size="sm" color={s.avatar_color} />
-                            <p className="flex-1 text-sm font-medium truncate" style={{ color: '#1a1a2e' }}>{s.full_name}</p>
-                            {s.avg !== null ? <GradeBadge score={s.avg} /> : <span className="text-xs" style={{ color: '#cbd5e1' }}>—</span>}
+                            <p className="flex-1 text-sm font-medium truncate text-ink-900">{s.full_name}</p>
+                            {s.avg !== null ? <GradeBadge score={s.avg} /> : <span className="text-xs text-ink-400">—</span>}
                           </div>
                         )
                       })}
@@ -272,32 +279,28 @@ export default function TeacherClasses() {
 
               {/* Upcoming assignments */}
               <div className="liquid-card overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
-                  <h2 className="font-bold flex items-center gap-2" style={{ color: '#1a1a2e' }}>
-                    <ClipboardList className="w-4 h-4" style={{ color: '#5db8a3' }} />
+                <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
+                  <h2 className="text-sm font-bold flex items-center gap-2 text-ink-900">
+                    <ClipboardList className="w-4 h-4 text-brand-500" />
                     Yaxın Tapşırıqlar
                   </h2>
                   <button
                     onClick={() => navigate('/muellim/tapshiriqlar')}
-                    className="flex items-center gap-1 text-xs font-semibold smooth-trans hover:opacity-70"
-                    style={{ color: '#7c6ee0' }}
+                    className="flex items-center gap-1 text-xs font-semibold text-brand-500 hover:text-brand-600 transition-colors"
                   >
                     Hamısı <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
                 {(stats.upcomingAssignments || []).length === 0 ? (
-                  <div className="flex flex-col items-center justify-center gap-3 py-12 px-6 text-center">
-                    <div className="icon-chip icon-chip-blue" style={{ width: 48, height: 48 }}>
-                      <ClipboardList className="w-5 h-5" />
-                    </div>
-                    <p className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>Yaxın tapşırıq yoxdur</p>
-                    <button
-                      onClick={() => navigate('/muellim/tapshiriqlar')}
-                      className="text-xs font-semibold smooth-trans hover:opacity-70"
-                      style={{ color: '#7c6ee0' }}
-                    >
-                      Tapşırıq əlavə et →
-                    </button>
+                  <div className="py-10 px-6">
+                    <EmptyState
+                      tier={1}
+                      icon={ClipboardList}
+                      title="Yaxın tapşırıq yoxdur"
+                      description="Tapşırıq əlavə etmək üçün Tapşırıqlar bölməsinə keçin"
+                      actionLabel="Tapşırıq əlavə et"
+                      onAction={() => navigate('/muellim/tapshiriqlar')}
+                    />
                   </div>
                 ) : (
                   <div>
@@ -308,16 +311,19 @@ export default function TeacherClasses() {
                       return (
                         <div
                           key={a.id}
-                          className="flex items-center gap-3 px-5 py-4 smooth-trans"
-                          style={{ borderTop: i === 0 ? 'none' : '1px solid rgba(124,110,224,0.06)' }}
+                          className="flex items-center gap-3 px-5 py-4 transition-colors duration-100 hover:bg-canvas"
+                          style={{ borderTop: i === 0 ? 'none' : '1px solid var(--hairline)' }}
                         >
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate" style={{ color: '#1a1a2e' }}>{a.title}</p>
-                            <p className="text-xs mt-0.5 font-medium" style={{ color: urgent ? '#b83b54' : '#94a3b8' }}>
-                              {urgent ? '⚡ ' : ''}{fmtNumeric(due)}
+                            <p className="text-sm font-medium truncate text-ink-900">{a.title}</p>
+                            <p
+                              className="text-xs mt-0.5 font-medium"
+                              style={{ color: urgent ? 'var(--danger)' : 'var(--ink-400)' }}
+                            >
+                              {fmtNumeric(due)}
                             </p>
                           </div>
-                          <span className={urgent ? 'pastel-badge pastel-badge-rose' : 'pastel-badge pastel-badge-slate'}>
+                          <span className={urgent ? 'pill-danger' : 'pill-neutral'}>
                             {daysLeft}g
                           </span>
                         </div>
@@ -337,38 +343,43 @@ export default function TeacherClasses() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: '#1a1a2e' }}>
-          <span className="pastel-text">Siniflərim</span>
+        <h1 className="font-display text-3xl md:text-4xl font-bold leading-tight text-ink-900">
+          Siniflərim
         </h1>
-        <p className="text-sm mt-1" style={{ color: '#64748b' }}>Sinfə klikləyin — jurnal, davamiyyət, tapşırıqlar və daha çoxuna keçin</p>
+        <p className="text-sm mt-1 text-ink-600">
+          Sinfə klikləyin — jurnal, davamiyyət, tapşırıqlar və daha çoxuna keçin
+        </p>
       </div>
 
       {classes.length === 0 ? (
-        <div className="liquid-card p-12">
-          <div className="text-center">
-            <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
-              <School className="w-8 h-8" />
-            </div>
-            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Sinif tapılmadı</p>
-            <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Sizə hələ heç bir sinif təyin edilməyib. Admin ilə əlaqə saxlayın.</p>
-          </div>
-        </div>
+        <EmptyState
+          tier={1}
+          icon={School}
+          title="Sinif tapılmadı"
+          description="Sizə hələ heç bir sinif təyin edilməyib. Admin ilə əlaqə saxlayın."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {classes.map(cls => (
             <button
               key={cls.id}
               onClick={() => openClass(cls)}
-              className="liquid-card text-left overflow-hidden p-0 group cursor-pointer"
+              className="liquid-card text-left overflow-hidden p-0 group cursor-pointer hover:-translate-y-0.5 transition-transform duration-150"
             >
-              <div className="h-1.5" style={{ background: 'linear-gradient(90deg, #7c6ee0, #5db8a3)' }} />
+              {/* Accent top bar */}
+              <div
+                className="h-1.5"
+                style={{ background: 'var(--brand-500)' }}
+              />
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-2xl font-bold" style={{ color: '#1a1a2e' }}>{cls.name}</h3>
-                    {cls.grade_level && <p className="text-xs mt-0.5" style={{ color: '#94a3b8' }}>Səviyyə {cls.grade_level}</p>}
+                    <h3 className="text-lg font-bold text-ink-900">{cls.name}</h3>
+                    {cls.grade_level && (
+                      <p className="text-xs mt-0.5 text-ink-400">Səviyyə {cls.grade_level}</p>
+                    )}
                   </div>
-                  <span className="icon-chip icon-chip-periwinkle">
+                  <span className="icon-chip icon-chip-periwinkle flex-shrink-0">
                     <ChevronRight className="w-4 h-4" />
                   </span>
                 </div>
@@ -376,12 +387,12 @@ export default function TeacherClasses() {
                 {cls.subjects.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mb-4">
                     {cls.subjects.map(s => (
-                      <span key={s.id} className="pastel-badge pastel-badge-periwinkle">{s.name}</span>
+                      <span key={s.id} className="pill-brand">{s.name}</span>
                     ))}
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 pt-3" style={{ borderTop: '1px solid rgba(124,110,224,0.10)' }}>
+                <div className="flex items-center gap-2 pt-3 border-t border-hairline">
                   {[
                     { Icon: BookOpen,      label: 'Jurnal' },
                     { Icon: CalendarCheck, label: 'Davamiyyət' },
@@ -391,13 +402,12 @@ export default function TeacherClasses() {
                     <span
                       key={label}
                       title={label}
-                      className="w-7 h-7 rounded-lg flex items-center justify-center smooth-trans"
-                      style={{ background: 'rgba(124,110,224,0.08)', color: '#7c6ee0' }}
+                      className="w-7 h-7 rounded-tile flex items-center justify-center bg-brand-50 text-brand-500 transition-colors duration-100 group-hover:bg-brand-100"
                     >
                       <Icon className="w-3.5 h-3.5" />
                     </span>
                   ))}
-                  <span className="ml-auto text-xs font-semibold" style={{ color: '#7c6ee0' }}>Daxil ol →</span>
+                  <span className="ml-auto flex items-center gap-0.5 text-xs font-semibold text-brand-500">Daxil ol <ChevronRight className="w-3.5 h-3.5" /></span>
                 </div>
               </div>
             </button>

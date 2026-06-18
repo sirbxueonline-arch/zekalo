@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Edit2, Trash2, ClipboardList, Eye, EyeOff, ChevronLeft, Save } from 'lucide-react'
+import { Plus, Edit2, Trash2, ClipboardList, Eye, EyeOff, ChevronLeft, Save, CalendarDays, Clock, Check } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
@@ -230,17 +230,17 @@ export default function AdminExams() {
   if (resultsExam) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-4">
           <button
             onClick={() => setResultsExam(null)}
-            className="flex items-center gap-2 text-sm text-gray-500 hover:text-purple transition-colors"
+            className="flex items-center gap-1.5 text-sm text-ink-400 hover:text-brand-500 transition-colors mt-1"
           >
             <ChevronLeft className="w-4 h-4" />
             Geri
           </button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{resultsExam.title}</span></h1>
-            <p className="text-sm text-[#64748b] mt-0.5">
+            <h1 className="text-2xl font-display font-bold text-ink-900 tracking-tight">{resultsExam.title}</h1>
+            <p className="text-sm text-ink-400 mt-0.5">
               {resultsExam.class?.name} · {resultsExam.subject?.name} · {formatDate(resultsExam.exam_date)} · Max: {resultsExam.max_score}
             </p>
           </div>
@@ -249,44 +249,43 @@ export default function AdminExams() {
         {resultsLoading ? (
           <PageSpinner />
         ) : students.length === 0 ? (
-          <EmptyState icon={ClipboardList} title="Şagird yoxdur" description="Bu sinfə heç bir şagird əlavə edilməyib." />
+          <EmptyState tier={1} icon={ClipboardList} title="Şagird yoxdur" description="Bu sinfə heç bir şagird əlavə edilməyib." />
         ) : (
           <Card hover={false}>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-serif text-xl text-gray-900">İmtahan nəticələri</h2>
+              <h2 className="text-[15px] font-semibold text-ink-900">İmtahan nəticələri</h2>
               <div className="flex items-center gap-3">
                 {resultsSaved && (
-                  <span className="text-sm text-teal-700 bg-teal-50 border border-teal-200 rounded-md px-3 py-1.5">
-                    ✓ Nəticələr saxlandı
+                  <span className="pill-mint text-xs inline-flex items-center gap-1">
+                    <Check className="w-3 h-3" />
+                    Nəticələr saxlandı
                   </span>
                 )}
                 {resultsError && (
-                  <span className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-1.5">
-                    {resultsError}
-                  </span>
+                  <span className="pill-rose text-xs">{resultsError}</span>
                 )}
-                <Button onClick={saveResults} loading={savingResults}>
-                  <Save className="w-4 h-4 mr-2 inline" />
+                <Button size="sm" onClick={saveResults} loading={savingResults}>
+                  <Save className="w-4 h-4 mr-1.5" />
                   Saxla
                 </Button>
               </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="overflow-x-auto rounded-tile border border-hairline">
+              <table className="pastel-table w-full">
                 <thead>
-                  <tr className="bg-surface">
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">Şagird</th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">
+                  <tr>
+                    <th className="text-left">Şagird</th>
+                    <th className="text-center">
                       Bal (max: {resultsExam.max_score})
                     </th>
-                    <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">Qeyd</th>
+                    <th className="text-left">Qeyd</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border-soft">
+                <tbody>
                   {students.map(student => (
-                    <tr key={student.id} className="hover:bg-surface transition-colors">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{student.full_name}</td>
-                      <td className="px-6 py-4 text-center">
+                    <tr key={student.id}>
+                      <td className="font-medium text-ink-900">{student.full_name}</td>
+                      <td className="text-center">
                         <input
                           type="number"
                           min={0}
@@ -299,11 +298,11 @@ export default function AdminExams() {
                               [student.id]: { ...prev[student.id], score: e.target.value },
                             }))
                           }
-                          className="w-24 border border-border-soft rounded-md px-3 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple"
+                          className="pastel-input w-24 text-center tabular-nums"
                           placeholder="—"
                         />
                       </td>
-                      <td className="px-6 py-4">
+                      <td>
                         <input
                           type="text"
                           value={scores[student.id]?.notes ?? ''}
@@ -313,7 +312,7 @@ export default function AdminExams() {
                               [student.id]: { ...prev[student.id], notes: e.target.value },
                             }))
                           }
-                          className="w-full border border-border-soft rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple"
+                          className="pastel-input w-full"
                           placeholder="Qeyd əlavə et..."
                         />
                       </td>
@@ -346,24 +345,25 @@ export default function AdminExams() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">İmtahanlar</span></h1>
-          <p className="text-sm text-[#64748b] mt-1">Məktəb imtahanlarını idarə edin</p>
+          <h1 className="text-2xl font-display font-bold text-ink-900 tracking-tight">İmtahanlar</h1>
+          <p className="text-sm text-ink-400 mt-0.5">Məktəb imtahanlarını idarə edin</p>
         </div>
         <Button
+          size="sm"
           onClick={() => {
             setForm(emptyForm)
             setError(null)
             setAddModal(true)
           }}
         >
-          <Plus className="w-4 h-4 mr-2 inline" />
+          <Plus className="w-4 h-4 mr-1.5" />
           İmtahan planla
         </Button>
       </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
-        <div className="w-48">
+        <div className="w-44">
           <Select value={filterClass} onChange={e => setFilterClass(e.target.value)}>
             <option value="">Bütün siniflər</option>
             {classes.map(c => (
@@ -371,7 +371,7 @@ export default function AdminExams() {
             ))}
           </Select>
         </div>
-        <div className="w-48">
+        <div className="w-44">
           <Select value={filterSubject} onChange={e => setFilterSubject(e.target.value)}>
             <option value="">Bütün fənlər</option>
             {subjects.map(s => (
@@ -384,13 +384,14 @@ export default function AdminExams() {
             <button
               key={key}
               onClick={() => handleSort(key)}
-              className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1 backdrop-blur-md"
-              style={sortKey === key
-                ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(124,110,224,0.25)' }
-                : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
+              className={`px-3 py-1.5 rounded-pill text-xs font-semibold transition-colors flex items-center gap-1 border ${
+                sortKey === key
+                  ? 'bg-brand-500 text-white border-brand-500'
+                  : 'bg-surface text-ink-600 border-hairline-strong hover:border-brand-300 hover:text-brand-600'
+              }`}
             >
               {label}
-              {sortKey === key && <span>{sortDir === 'asc' ? '▲' : '▼'}</span>}
+              {sortKey === key && <span className="text-[10px]">{sortDir === 'asc' ? '▲' : '▼'}</span>}
             </button>
           ))}
         </div>
@@ -399,6 +400,7 @@ export default function AdminExams() {
       {/* Exams list */}
       {filtered.length === 0 ? (
         <EmptyState
+          tier={1}
           icon={ClipboardList}
           title="İmtahan yoxdur"
           description="Hələ heç bir imtahan planlanmayıb."
@@ -408,59 +410,65 @@ export default function AdminExams() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(exam => (
-            <Card key={exam.id} className="flex flex-col gap-4">
-              <div className="flex items-start justify-between">
+            <div key={exam.id} className="liquid-card p-5 flex flex-col gap-4">
+              <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-serif text-lg text-gray-900 truncate">{exam.title}</h3>
-                  <p className="text-sm text-gray-500 mt-0.5">{exam.class?.name} · {exam.subject?.name}</p>
+                  <h3 className="font-semibold text-[15px] text-ink-900 truncate">{exam.title}</h3>
+                  <p className="text-xs text-ink-400 mt-0.5">{exam.class?.name} · {exam.subject?.name}</p>
                 </div>
                 <Badge variant={exam.published ? 'present' : 'default'}>
                   {exam.published ? 'Dərc edilib' : 'Qaralama'}
                 </Badge>
               </div>
 
-              <div className="flex items-center gap-4 text-xs text-gray-500">
-                <span>📅 {formatDate(exam.exam_date)}</span>
-                <span>⏱ {exam.duration_minutes} dəq</span>
-                <span>Max: {exam.max_score}</span>
+              <div className="flex items-center gap-4 text-xs text-ink-600">
+                <span className="flex items-center gap-1">
+                  <CalendarDays className="w-3.5 h-3.5 text-ink-400" />
+                  {formatDate(exam.exam_date)}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-ink-400" />
+                  {exam.duration_minutes} dəq
+                </span>
+                <span className="text-ink-400">Max: <span className="font-semibold text-ink-700 tabular-nums">{exam.max_score}</span></span>
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-border-soft">
+              <div className="flex items-center gap-2 flex-wrap pt-3 border-t border-hairline">
                 <Button
                   variant="ghost"
-                  className="text-xs px-3 py-2"
+                  size="sm"
                   onClick={() => openResults(exam)}
                 >
-                  <ClipboardList className="w-3.5 h-3.5 mr-1 inline" />
+                  <ClipboardList className="w-3.5 h-3.5 mr-1" />
                   Nəticələr
                 </Button>
                 <Button
-                  variant="teal"
-                  className="text-xs px-3 py-2"
+                  variant="secondary"
+                  size="sm"
                   onClick={() => togglePublish(exam)}
                 >
                   {exam.published ? (
-                    <><EyeOff className="w-3.5 h-3.5 mr-1 inline" />Gizlət</>
+                    <><EyeOff className="w-3.5 h-3.5 mr-1" />Gizlət</>
                   ) : (
-                    <><Eye className="w-3.5 h-3.5 mr-1 inline" />Dərc et</>
+                    <><Eye className="w-3.5 h-3.5 mr-1" />Dərc et</>
                   )}
                 </Button>
                 <button
                   onClick={() => openEdit(exam)}
-                  className="p-2 text-gray-400 hover:text-purple transition-colors rounded-md hover:bg-purple-light"
+                  className="p-2 text-ink-400 hover:text-brand-500 transition-colors rounded-tile hover:bg-brand-50"
                   aria-label="Redaktə et"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setDeleteModal(exam)}
-                  className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-md hover:bg-red-50"
+                  className="p-2 text-ink-400 hover:text-danger-text transition-colors rounded-tile hover:bg-danger-tint"
                   aria-label="Sil"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       )}
@@ -473,7 +481,11 @@ export default function AdminExams() {
         size="md"
       >
         <div className="space-y-4">
-          {error && <p className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-md">{error}</p>}
+          {error && (
+            <p className="text-sm text-danger-text bg-danger-tint border border-danger/20 px-4 py-2.5 rounded-input">
+              {error}
+            </p>
+          )}
           <Input
             label="Başlıq *"
             value={form.title}
@@ -523,9 +535,9 @@ export default function AdminExams() {
               type="checkbox"
               checked={form.published}
               onChange={e => setForm(f => ({ ...f, published: e.target.checked }))}
-              className="w-4 h-4 accent-purple"
+              className="w-4 h-4 accent-brand-500 rounded"
             />
-            <span className="text-sm text-gray-700">Şagirdlərə dərc et</span>
+            <span className="text-sm text-ink-700">Şagirdlərə dərc et</span>
           </label>
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={() => { setAddModal(false); setEditModal(null); setError(null) }}>
@@ -545,8 +557,8 @@ export default function AdminExams() {
         title="İmtahanı sil"
         size="sm"
       >
-        <p className="text-sm text-gray-600 mb-6">
-          <strong>{deleteModal?.title}</strong> imtahanını silmək istədiyinizə əminsiniz? Bütün nəticələr də silinəcək.
+        <p className="text-sm text-ink-600 mb-6">
+          <strong className="text-ink-900">{deleteModal?.title}</strong> imtahanını silmək istədiyinizə əminsiniz? Bütün nəticələr də silinəcək.
         </p>
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setDeleteModal(null)}>Ləğv et</Button>

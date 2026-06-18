@@ -3,25 +3,40 @@ import { Search, Plus, BookOpen, AlertTriangle, Award, FileText, X, AlertCircle,
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Avatar from '../../components/ui/Avatar'
+import Button from '../../components/ui/Button'
+import EmptyState from '../../components/ui/EmptyState'
+import StatCard from '../../components/ui/StatCard'
+import Modal from '../../components/ui/Modal'
+import Badge from '../../components/ui/Badge'
 
 const TYPE_LABELS = {
-  warning: 'Xəbərdarlıq',
-  detention: 'Qalma',
-  suspension: 'Uzaqlaşdırma',
+  warning:      'Xəbərdarlıq',
+  detention:    'Qalma',
+  suspension:   'Uzaqlaşdırma',
   commendation: 'Təşəkkür',
-  note: 'Qeyd',
+  note:         'Qeyd',
 }
 
-const TYPE_BADGE = {
-  warning:      'pastel-badge pastel-badge-peach',
-  detention:    'pastel-badge pastel-badge-peach',
-  suspension:   'pastel-badge pastel-badge-rose',
-  commendation: 'pastel-badge pastel-badge-mint',
-  note:         'pastel-badge pastel-badge-slate',
+// Map discipline types to Badge variant
+const TYPE_VARIANT = {
+  warning:      'warning',
+  detention:    'warning',
+  suspension:   'error',
+  commendation: 'success',
+  note:         'neutral',
+}
+
+// Left-border accent per type — semantic token colors
+const TYPE_ROW_BORDER = {
+  warning:      '#F59E0B',
+  detention:    '#F59E0B',
+  suspension:   '#EF4444',
+  commendation: 'var(--mint)',
+  note:         'var(--hairline-strong)',
 }
 
 function TypeBadge({ type }) {
-  return <span className={TYPE_BADGE[type] || TYPE_BADGE.note}>{TYPE_LABELS[type] || type}</span>
+  return <Badge variant={TYPE_VARIANT[type] || 'neutral'}>{TYPE_LABELS[type] || type}</Badge>
 }
 
 function getDateRange(filter) {
@@ -167,11 +182,11 @@ export default function TeacherDiscipline() {
     return true
   })
 
-  const thisMonthRecords = records.filter(r => r.date >= MONTH_START && r.date <= TODAY)
-  const statsWarnings = thisMonthRecords.filter(r => r.type === 'warning').length
-  const statsSuspensions = thisMonthRecords.filter(r => r.type === 'suspension').length
+  const thisMonthRecords   = records.filter(r => r.date >= MONTH_START && r.date <= TODAY)
+  const statsWarnings      = thisMonthRecords.filter(r => r.type === 'warning').length
+  const statsSuspensions   = thisMonthRecords.filter(r => r.type === 'suspension').length
   const statsCommendations = thisMonthRecords.filter(r => r.type === 'commendation').length
-  const statsTotal = records.length
+  const statsTotal         = records.length
 
   const filteredStudents = myStudents.filter(s =>
     s.full_name.toLowerCase().includes(studentSearch.toLowerCase())
@@ -186,67 +201,65 @@ export default function TeacherDiscipline() {
   if (loading) {
     return (
       <div className="space-y-5">
-        <div className="pastel-skeleton h-12 w-72" />
+        <div className="pastel-skeleton h-10 w-64 rounded-tile" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-24" />)}
+          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-24 rounded-card" />)}
         </div>
-        <div className="pastel-skeleton h-96" />
+        <div className="pastel-skeleton h-96 rounded-tile" />
       </div>
     )
   }
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
-          <span className="pastel-text">İntizam Jurnalı</span>
-        </h1>
-        <button
-          onClick={() => { resetForm(); setAddModal(true) }}
+      {/* ── Page header ── */}
+      <div className="flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="font-display text-2xl md:text-3xl font-extrabold text-ink-900 tracking-tight leading-tight">
+            İntizam Jurnalı
+          </h1>
+          <p className="text-sm mt-1 text-ink-400">
+            Sinif intizam qeydlərini izləyin
+          </p>
+        </div>
+        <Button
+          variant="primary"
+          size="md"
           disabled={myStudents.length === 0}
-          className="btn-pastel"
-          style={{ padding: '12px 22px', fontSize: 13, opacity: myStudents.length === 0 ? 0.5 : 1 }}
+          onClick={() => { resetForm(); setAddModal(true) }}
         >
           <Plus className="w-4 h-4" /> Qeyd əlavə et
-        </button>
+        </Button>
       </div>
 
-      {/* Stats */}
+      {/* ── KPI strip ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Xəbərdarlıq (bu ay)', value: statsWarnings, icon: AlertTriangle, chip: 'icon-chip-peach' },
-          { label: 'Uzaqlaşdırma (bu ay)', value: statsSuspensions, icon: AlertTriangle, chip: 'icon-chip-peach' },
-          { label: 'Təşəkkür (bu ay)', value: statsCommendations, icon: Award, chip: 'icon-chip-mint' },
-          { label: 'Cəmi qeydlər', value: statsTotal, icon: FileText, chip: 'icon-chip-periwinkle' },
-        ].map((s, i) => (
-          <div key={i} className="liquid-card p-4 flex items-start gap-3">
-            <span className={`icon-chip ${s.chip}`}>
-              <s.icon className="w-5 h-5" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-wider truncate" style={{ color: '#64748b' }}>{s.label}</p>
-              <p className="text-2xl font-bold mt-0.5 leading-none" style={{ color: '#1a1a2e' }}>{s.value}</p>
-            </div>
-          </div>
-        ))}
+        <StatCard label="Xəbərdarlıq (bu ay)"  value={statsWarnings}      icon={AlertTriangle} tone="periwinkle" />
+        <StatCard label="Uzaqlaşdırma (bu ay)" value={statsSuspensions}   icon={AlertTriangle} tone="periwinkle" />
+        <StatCard label="Təşəkkür (bu ay)"      value={statsCommendations} icon={Award}         tone="periwinkle" />
+        <StatCard label="Cəmi qeydlər"          value={statsTotal}         icon={FileText}      tone="periwinkle" />
       </div>
 
-      {/* Filters */}
+      {/* ── Filters toolbar ── */}
       <div className="liquid-card p-4">
         <div className="flex flex-wrap gap-3 items-end">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#94a3b8' }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
             <input
               type="text"
               placeholder="Şagird adı ilə axtar..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={e => setSearch(e.target.value)}
               className="pastel-input"
               style={{ paddingLeft: 36 }}
             />
           </div>
           <div className="w-44">
-            <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="pastel-input">
+            <select
+              value={typeFilter}
+              onChange={e => setTypeFilter(e.target.value)}
+              className="pastel-input"
+            >
               <option value="all">Bütün növlər</option>
               {Object.entries(TYPE_LABELS).map(([k, v]) => (
                 <option key={k} value={k}>{v}</option>
@@ -254,7 +267,11 @@ export default function TeacherDiscipline() {
             </select>
           </div>
           <div className="w-44">
-            <select value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className="pastel-input">
+            <select
+              value={dateFilter}
+              onChange={e => setDateFilter(e.target.value)}
+              className="pastel-input"
+            >
               <option value="week">Bu həftə</option>
               <option value="month">Bu ay</option>
               <option value="all">Bütün vaxt</option>
@@ -263,29 +280,33 @@ export default function TeacherDiscipline() {
         </div>
       </div>
 
-      {error && <p className="text-sm flex items-center gap-1.5" style={{ color: '#b83b54' }}><AlertCircle className="w-4 h-4" /> {error}</p>}
+      {/* Global error banner */}
+      {error && (
+        <p className="text-sm flex items-center gap-1.5 text-danger">
+          <AlertCircle className="w-4 h-4" /> {error}
+        </p>
+      )}
 
-      {/* Table */}
-      <div className="liquid-card overflow-hidden">
+      {/* ── Records table ── */}
+      <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
         {myStudents.length === 0 ? (
-          <div className="p-12 text-center">
-            <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
-              <BookOpen className="w-8 h-8" />
-            </div>
-            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Sinif tapılmadı</p>
-            <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Sizə təyin edilmiş sinif yoxdur</p>
-          </div>
+          <EmptyState
+            tier={1}
+            icon={BookOpen}
+            title="Sinif tapılmadı"
+            description="Sizə təyin edilmiş sinif yoxdur."
+            className="border-0 shadow-none"
+          />
         ) : filtered.length === 0 ? (
-          <div className="p-12 text-center">
-            <div className="icon-chip icon-chip-mint mx-auto mb-3" style={{ width: 64, height: 64 }}>
-              <Check className="w-8 h-8" />
-            </div>
-            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Qeyd tapılmadı</p>
-            <p className="text-sm mt-1 mb-4" style={{ color: '#94a3b8' }}>Filtrə uyğun intizam qeydi yoxdur</p>
-            <button onClick={() => { resetForm(); setAddModal(true) }} className="btn-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>
-              <Plus className="w-4 h-4" /> Qeyd əlavə et
-            </button>
-          </div>
+          <EmptyState
+            tier={1}
+            icon={FileText}
+            title="Qeyd tapılmadı"
+            description="Filtrə uyğun intizam qeydi yoxdur."
+            actionLabel="Qeyd əlavə et"
+            onAction={() => { resetForm(); setAddModal(true) }}
+            className="border-0 shadow-none"
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="pastel-table">
@@ -301,23 +322,28 @@ export default function TeacherDiscipline() {
               </thead>
               <tbody>
                 {filtered.map(r => (
-                  <tr key={r.id}>
+                  <tr
+                    key={r.id}
+                    style={{ borderLeft: `3px solid ${TYPE_ROW_BORDER[r.type] || 'transparent'}` }}
+                  >
                     <td>
                       <div className="flex items-center gap-3">
                         <Avatar name={r.student?.full_name} size="sm" />
-                        <span style={{ fontWeight: 600, color: '#1a1a2e' }}>{r.student?.full_name || '—'}</span>
+                        <span className="font-semibold text-ink-900">{r.student?.full_name || '—'}</span>
                       </div>
                     </td>
                     <td><TypeBadge type={r.type} /></td>
-                    <td>{formatDate(r.date)}</td>
-                    <td title={r.description} style={{ color: '#475569' }}>
-                      {r.description && r.description.length > 60 ? r.description.slice(0, 60) + '…' : r.description || '—'}
+                    <td className="tabular-nums text-ink-600 whitespace-nowrap">{formatDate(r.date)}</td>
+                    <td className="text-ink-600 max-w-[280px]" title={r.description}>
+                      {r.description && r.description.length > 60
+                        ? r.description.slice(0, 60) + '…'
+                        : r.description || '—'}
                     </td>
-                    <td style={{ color: '#64748b' }}>{r.recorder?.full_name || '—'}</td>
+                    <td className="text-ink-400">{r.recorder?.full_name || '—'}</td>
                     <td>
                       {r.parent_notified
-                        ? <span className="pastel-badge pastel-badge-mint"><Check className="w-3 h-3" /></span>
-                        : <span className="pastel-badge pastel-badge-slate">—</span>}
+                        ? <Badge variant="success"><Check className="w-3 h-3" /></Badge>
+                        : <Badge variant="neutral">—</Badge>}
                     </td>
                   </tr>
                 ))}
@@ -327,105 +353,135 @@ export default function TeacherDiscipline() {
         )}
       </div>
 
-      {/* Add Modal */}
-      {addModal && (
-        <div className="liquid-backdrop" onClick={() => { setAddModal(false); resetForm() }}>
-          <div className="liquid-card p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>Qeyd əlavə et</h3>
-              <button onClick={() => { setAddModal(false); resetForm() }} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Şagird</label>
-                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(124,110,224,0.2)', background: 'rgba(255,255,255,0.5)' }}>
-                  <div className="p-2" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: '#94a3b8' }} />
-                      <input
-                        type="text"
-                        placeholder="Axtar..."
-                        value={studentSearch}
-                        onChange={(e) => setStudentSearch(e.target.value)}
-                        className="w-full pl-8 pr-3 py-1.5 text-sm bg-transparent outline-none"
-                        style={{ color: '#1a1a2e' }}
-                      />
-                    </div>
-                  </div>
-                  <div className="max-h-40 overflow-y-auto scrollbar-thin">
-                    {filteredStudents.length === 0 && (
-                      <p className="text-center py-4 text-xs" style={{ color: '#94a3b8' }}>Şagird tapılmadı</p>
-                    )}
-                    {filteredStudents.map(s => (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => setForm(f => ({ ...f, student_id: s.id }))}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left smooth-trans"
-                        style={{
-                          background: form.student_id === s.id ? 'rgba(124,110,224,0.10)' : 'transparent',
-                          color: form.student_id === s.id ? '#5b4fb8' : '#1a1a2e',
-                          fontWeight: form.student_id === s.id ? 600 : 400,
-                        }}
-                      >
-                        <Avatar name={s.full_name} size="sm" />
-                        {s.full_name}
-                      </button>
-                    ))}
-                  </div>
+      {/* ── Add Record Modal ── */}
+      <Modal
+        open={addModal}
+        onClose={() => { setAddModal(false); resetForm() }}
+        title="Qeyd əlavə et"
+        size="md"
+      >
+        <div className="space-y-4">
+          {/* Student picker */}
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Şagird</label>
+            <div
+              className="rounded-tile overflow-hidden"
+              style={{ border: '1px solid var(--hairline-strong)' }}
+            >
+              {/* Search within picker */}
+              <div className="p-2" style={{ borderBottom: '1px solid var(--hairline)' }}>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="Axtar..."
+                    value={studentSearch}
+                    onChange={e => setStudentSearch(e.target.value)}
+                    className="w-full pl-8 pr-3 py-1.5 text-sm bg-transparent outline-none text-ink-900"
+                  />
                 </div>
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Tarix</label>
-                <input type="date" className="pastel-input" value={form.date} onChange={(e) => setForm(f => ({ ...f, date: e.target.value }))} />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Növ</label>
-                <select className="pastel-input" value={form.type} onChange={(e) => setForm(f => ({ ...f, type: e.target.value }))}>
-                  {Object.entries(TYPE_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>{v}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Təsvir</label>
-                <textarea
-                  className="pastel-input"
-                  value={form.description}
-                  onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
-                  rows={3}
-                  placeholder="İntizam hadisəsini təsvir edin..."
-                />
-              </div>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.parent_notified}
-                  onChange={(e) => setForm(f => ({ ...f, parent_notified: e.target.checked }))}
-                  className="w-4 h-4 rounded"
-                  style={{ accentColor: '#7c6ee0' }}
-                />
-                <span className="text-sm" style={{ color: '#1a1a2e' }}>Valideyn bildirildi</span>
-              </label>
-
-              {error && <p className="text-sm flex items-center gap-1.5" style={{ color: '#b83b54' }}><AlertCircle className="w-4 h-4" /> {error}</p>}
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button onClick={() => { setAddModal(false); resetForm() }} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>Ləğv et</button>
-                <button onClick={handleAdd} disabled={saving} className="btn-pastel" style={{ padding: '10px 22px', fontSize: 13, opacity: saving ? 0.5 : 1 }}>
-                  {saving ? '...' : 'Əlavə et'}
-                </button>
+              <div className="max-h-44 overflow-y-auto">
+                {filteredStudents.length === 0 && (
+                  <p className="text-center py-4 text-xs text-ink-400">Şagird tapılmadı</p>
+                )}
+                {filteredStudents.map(s => {
+                  const isSelected = form.student_id === s.id
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, student_id: s.id }))}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left smooth-trans"
+                      style={{
+                        background: isSelected ? 'var(--brand-50)' : 'transparent',
+                        color: isSelected ? 'var(--brand-700)' : 'var(--ink-900)',
+                        fontWeight: isSelected ? 600 : 400,
+                        borderLeft: isSelected ? '3px solid var(--brand-500)' : '3px solid transparent',
+                      }}
+                    >
+                      <Avatar name={s.full_name} size="sm" />
+                      {s.full_name}
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 ml-auto text-brand-500" />
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           </div>
+
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Tarix</label>
+            <input
+              type="date"
+              className="pastel-input"
+              value={form.date}
+              onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+            />
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Növ</label>
+            <select
+              className="pastel-input"
+              value={form.type}
+              onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
+            >
+              {Object.entries(TYPE_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Təsvir</label>
+            <textarea
+              className="pastel-input"
+              value={form.description}
+              onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+              rows={3}
+              placeholder="İntizam hadisəsini təsvir edin..."
+            />
+          </div>
+
+          <label className="flex items-center gap-2.5 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={form.parent_notified}
+              onChange={e => setForm(f => ({ ...f, parent_notified: e.target.checked }))}
+              className="w-4 h-4 rounded"
+              style={{ accentColor: 'var(--brand-500)' }}
+            />
+            <span className="text-sm text-ink-900 group-hover:text-ink-700">Valideyn bildirildi</span>
+          </label>
+
+          {error && (
+            <p className="text-sm flex items-center gap-1.5 text-danger">
+              <AlertCircle className="w-4 h-4" /> {error}
+            </p>
+          )}
+
+          <div
+            className="flex justify-end gap-2 pt-3"
+            style={{ borderTop: '1px solid var(--hairline)' }}
+          >
+            <Button variant="ghost" size="sm" onClick={() => { setAddModal(false); resetForm() }}>
+              Ləğv et
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={saving}
+              disabled={saving}
+              onClick={handleAdd}
+            >
+              Əlavə et
+            </Button>
+          </div>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

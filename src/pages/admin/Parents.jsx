@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Edit2, Trash2, Search, UserPlus, Heart, X } from 'lucide-react'
+import { Plus, Edit2, Trash2, Search, UserPlus, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -8,10 +8,9 @@ import Card from '../../components/ui/Card'
 import Input from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
 import Table from '../../components/ui/Table'
-import { PageSpinner } from '../../components/ui/Spinner'
+import { TableRowSkeleton } from '../../components/ui/Skeleton'
 import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
-import Badge from '../../components/ui/Badge'
 import BulkAddModal from '../../components/ui/BulkAddModal'
 
 export default function Parents() {
@@ -217,39 +216,106 @@ export default function Parents() {
     p.email?.toLowerCase().includes(search.toLowerCase())
   )
 
+  // Family-connection status (§4.1) — derived from already-fetched data, no new
+  // logic. A parent linked to ≥1 child is treated as Connected; otherwise the
+  // account exists but is not yet attached to a family → Not connected.
+  // ("Invite sent" is reserved for a pending-invite signal the data may carry.)
+  function connectionStatus(parent) {
+    const linked = (parent.children || []).length
+    if (linked > 0) return { hue: 'pill-mint', label: 'Bağlı' }
+    if (parent.invite_pending) return { hue: 'pill-peach', label: 'Dəvət göndərilib' }
+    return { hue: 'pill-muted', label: 'Bağlı deyil' }
+  }
+
+  // Overlapping avatar stack for linked children (caps at 3 + "+N" count).
+  function ChildrenStack({ children }) {
+    if (!children || children.length === 0) {
+      return <span className="text-ink-400" style={{ fontSize: 13 }}>—</span>
+    }
+    const shown = children.slice(0, 3)
+    const extra = children.length - shown.length
+    return (
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center -space-x-2 shrink-0">
+          {shown.map(c => (
+            <Avatar
+              key={c.id}
+              name={c.full_name}
+              variant="gem"
+              size="xs"
+              ring
+              title={c.full_name}
+            />
+          ))}
+          {extra > 0 && (
+            <span
+              className="inline-flex items-center justify-center rounded-full font-semibold tabular-nums"
+              style={{
+                width: 24, height: 24, fontSize: 11,
+                background: 'var(--brand-50)', color: 'var(--brand-700)',
+                boxShadow: '0 0 0 2px var(--surface)',
+              }}
+            >
+              +{extra}
+            </span>
+          )}
+        </div>
+        <span className="truncate text-ink-600" style={{ fontSize: 13 }}>
+          {children.length === 1 ? children[0].full_name : `${children.length} şagird`}
+        </span>
+      </div>
+    )
+  }
+
   const columns = [
     {
       key: 'full_name',
       label: 'Ad Soyad',
-      render: (val) => (
+      render: (val, row) => (
         <div className="flex items-center gap-3">
-          <Avatar name={val} size="sm" />
-          <span className="font-medium text-gray-900">{val}</span>
+          <Avatar name={val} size="sm" ring={false} />
+          <div className="min-w-0">
+            <p className="font-semibold text-ink-900 truncate leading-tight">{val}</p>
+            <p className="text-ink-400 truncate mt-0.5" style={{ fontSize: 12 }}>{row.email}</p>
+          </div>
         </div>
       ),
     },
-    { key: 'email', label: t('email') },
+    {
+      key: 'email',
+      label: t('email'),
+      render: () => null,
+    },
     {
       key: 'children',
       label: 'Şagirdlər',
-      render: (val) => {
-        if (!val || val.length === 0) return <span className="text-gray-400">—</span>
-        return (
-          <div className="flex flex-wrap gap-1">
-            {val.map(c => <Badge key={c.id} variant="default">{c.full_name}</Badge>)}
-          </div>
-        )
+      render: (val) => <ChildrenStack children={val} />,
+    },
+    {
+      key: 'connection',
+      label: 'Əlaqə',
+      render: (_, row) => {
+        const s = connectionStatus(row)
+        return <span className={s.hue}>{s.label}</span>
       },
     },
     {
       key: 'actions',
       label: '',
       render: (_, row) => (
-        <div className="flex items-center gap-2">
-          <button onClick={(e) => { e.stopPropagation(); openEditModal(row) }} className="p-1.5 text-gray-400 hover:text-purple transition-colors">
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={(e) => { e.stopPropagation(); openEditModal(row) }}
+            className="p-1.5 rounded-input text-ink-400 hover:text-brand-500 hover:bg-brand-50 transition-colors"
+            aria-label="Redaktə et"
+          >
             <Edit2 className="w-4 h-4" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); setDeleteModal(row) }} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors">
+          <button
+            onClick={(e) => { e.stopPropagation(); setDeleteModal(row) }}
+            className="p-1.5 rounded-input text-ink-400 hover:text-danger hover:bg-red-50 transition-colors"
+            aria-label="Sil"
+          >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -257,80 +323,129 @@ export default function Parents() {
     },
   ]
 
-  // Inline student multi-select component for modals
+  // Inline student multi-select component for modals — LOW dial: token styling, no glass
   const StudentPicker = ({ selected, onToggle }) => (
     <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-        Şagirdlər <span className="text-red-400">*</span>
+      <label className="block text-xs font-semibold text-ink-700 uppercase tracking-wide mb-1.5">
+        Şagirdlər <span className="text-danger normal-case font-normal">*</span>
       </label>
       {students.length === 0 ? (
-        <div className="border border-border-soft rounded-md p-4 text-center">
-          <p className="text-xs text-gray-400">Hələ şagird əlavə edilməyib. Əvvəlcə şagirdlər əlavə edin.</p>
+        <div className="border border-hairline rounded-input p-4 text-center bg-canvas">
+          <p className="text-xs text-ink-400">Hələ şagird əlavə edilməyib. Əvvəlcə şagirdlər əlavə edin.</p>
         </div>
       ) : (
-        <div className="border border-border-soft rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
+        <div className="border border-hairline rounded-input p-3 max-h-48 overflow-y-auto space-y-1.5 bg-surface">
           {students.map(s => (
-            <label key={s.id} className="flex items-center gap-3 cursor-pointer hover:bg-surface rounded px-1 py-0.5">
+            <label key={s.id} className="flex items-center gap-3 cursor-pointer rounded-ctl px-1.5 py-1 hover:bg-brand-50 transition-colors">
               <input
                 type="checkbox"
                 checked={selected.includes(s.id)}
                 onChange={() => onToggle(s.id)}
-                className="rounded border-border-soft text-purple focus:ring-purple"
+                className="rounded border-hairline text-brand-500 focus:ring-brand-500 focus:ring-offset-0"
               />
-              <Avatar name={s.full_name} size="sm" />
-              <span className="text-sm">{s.full_name}</span>
+              <Avatar name={s.full_name} variant="gem" size="xs" ring={false} />
+              <span className="text-ink-700" style={{ fontSize: 13 }}>{s.full_name}</span>
             </label>
           ))}
         </div>
       )}
       {selected.length > 0 && (
-        <p className="text-xs text-purple mt-1">{selected.length} şagird seçilib</p>
+        <p className="text-xs text-brand-500 font-medium mt-1">{selected.length} şagird seçilib</p>
       )}
     </div>
   )
 
-  if (loading) return <PageSpinner />
+  if (loading) return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="pastel-skeleton h-8 w-40 rounded-input" />
+        <div className="flex gap-2">
+          <div className="pastel-skeleton h-9 w-28 rounded-input" />
+          <div className="pastel-skeleton h-9 w-36 rounded-input" />
+        </div>
+      </div>
+      <div className="pastel-skeleton h-10 rounded-input" />
+      <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-hairline bg-canvas">
+              {['Ad Soyad', 'Şagirdlər', 'Əlaqə', ''].map((h, i) => (
+                <th key={h || i} className="text-left px-5 py-3 text-xs font-semibold text-ink-400 uppercase tracking-wider">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <TableRowSkeleton key={i} cols={4} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Valideynlər</span></h1>
-        <div className="flex items-center gap-3 flex-wrap">
-          <Button variant="ghost" onClick={() => setBulkModal(true)}>
-            <span className="flex items-center gap-2"><UserPlus className="w-4 h-4" /> Toplu əlavə</span>
-          </Button>
-          <Button onClick={() => { resetForm(); setAddModal(true) }}>
-            <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Valideyn əlavə et</span>
-          </Button>
+    <div className="space-y-5">
+      {/* Page header — LOW dial: surface card, single brand accent, hairline only */}
+      <div className="bg-surface rounded-tile border border-hairline px-6 py-5">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 44, height: 44 }}>
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="font-display text-2xl font-bold text-ink-900 leading-tight">Valideynlər</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="pill-muted">{parents.length} ümumi</span>
+                {filtered.length !== parents.length && (
+                  <span className="pill-muted">{filtered.length} nəticə</span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button variant="ghost" size="sm" onClick={() => setBulkModal(true)}>
+              <span className="flex items-center gap-1.5"><UserPlus className="w-4 h-4" /> Toplu əlavə</span>
+            </Button>
+            <Button size="sm" onClick={() => { resetForm(); setAddModal(true) }}>
+              <span className="flex items-center gap-1.5"><Plus className="w-4 h-4" /> Valideyn əlavə et</span>
+            </Button>
+          </div>
         </div>
       </div>
 
+      {/* Warning banner — token styling, no glass */}
       {students.length === 0 && (
-        <div className="rounded-2xl px-4 py-3 text-sm backdrop-blur-md" style={{ background: 'rgba(232,168,124,0.12)', border: '1px solid rgba(232,168,124,0.36)', color: '#a55f33' }}>
+        <div className="rounded-input px-4 py-3 text-sm" style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#B45309' }}>
           Valideyn əlavə etmək üçün əvvəlcə şagirdlər əlavə edilməlidir.
         </div>
       )}
 
+      {/* Search bar */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
         <input
           type="text"
           placeholder={t('search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+          className="pastel-input w-full pl-10"
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="rounded-input px-4 py-2.5 text-sm font-medium" style={{ background: '#FEE2E2', color: '#B91C1C', border: '1px solid #FECACA' }}>
+          {error}
+        </div>
+      )}
 
-      <Card hover={false} className="p-0 overflow-hidden">
+      <Card hover={false} className="p-0 overflow-hidden rounded-tile">
         {filtered.length === 0 ? (
           <EmptyState
-            icon={Heart}
+            tier={1}
+            icon={Users}
             title="Valideyn yoxdur"
-            description="Valideyn əlavə et düyməsini basın"
+            description="Valideyn əlavə et düyməsini basın."
             actionLabel="Valideyn əlavə et"
             onAction={() => { resetForm(); setAddModal(true) }}
           />
@@ -363,7 +478,9 @@ export default function Parents() {
             placeholder="Minimum 6 simvol"
           />
           <StudentPicker selected={form.child_ids} onToggle={toggleChild} />
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="text-sm rounded-input px-3 py-2" style={{ background: '#FEE2E2', color: '#B91C1C' }}>{error}</p>
+          )}
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
             <Button
@@ -392,7 +509,9 @@ export default function Parents() {
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
           <StudentPicker selected={form.child_ids} onToggle={toggleChild} />
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="text-sm rounded-input px-3 py-2" style={{ background: '#FEE2E2', color: '#B91C1C' }}>{error}</p>
+          )}
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="ghost" onClick={() => { setEditModal(null); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleEdit} loading={saving}>{t('save')}</Button>
@@ -402,8 +521,8 @@ export default function Parents() {
 
       {/* Delete Confirmation */}
       <Modal open={!!deleteModal} onClose={() => setDeleteModal(null)} title={t('delete')} size="sm">
-        <p className="text-sm text-gray-600 mb-6">
-          <strong>{deleteModal?.full_name}</strong> adlı valideyni silmək istədiyinizə əminsiniz?
+        <p className="text-sm text-ink-600 mb-6">
+          <strong className="text-ink-900">{deleteModal?.full_name}</strong> adlı valideyni silmək istədiyinizə əminsiniz?
           Bu əməliyyat geri qaytarıla bilməz.
         </p>
         <div className="flex justify-end gap-3">

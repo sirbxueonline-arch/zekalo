@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { CheckCircle, Building2, ArrowRight, ArrowUpRight } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 import LandingNav from '../components/layout/LandingNav'
+import Mascot from '../components/ui/Mascot'
 import { useSEO } from '../hooks/useSEO'
 
 const STR = {
@@ -87,13 +88,14 @@ const STR = {
   },
 }
 
-// Pastel palette mapping (replaces the bright per-card accents)
-const PASTEL = {
-  peach:      { accent: '#e8a87c', soft: 'rgba(245,230,216,0.55)' },
-  periwinkle: { accent: '#7c6ee0', soft: 'rgba(232,236,255,0.55)' },
-  blue:       { accent: '#6b9dde', soft: 'rgba(232,236,255,0.55)' },
-  lavender:   { accent: '#9b8fe6', soft: 'rgba(220,215,245,0.55)' },
-  mint:       { accent: '#5db8a3', soft: 'rgba(200,230,224,0.55)' },
+// Audience-accent mapping — each programme (audience) owns ONE muted hue (V3 §2.2).
+// Keys preserved so card `tone` data stays unchanged; values mapped to V3 tokens.
+const TONES = {
+  peach:      { accent: '#B45309', soft: 'rgba(234,179,8,0.10)',   chip: 'icon-chip-peach' },
+  periwinkle: { accent: '#574FCF', soft: 'rgba(87,79,207,0.08)',   chip: 'icon-chip-periwinkle' },
+  blue:       { accent: '#1D7FB8', soft: 'rgba(59,168,230,0.10)',  chip: 'icon-chip-blue' },
+  lavender:   { accent: '#6D28D9', soft: 'rgba(124,92,224,0.09)',  chip: 'icon-chip-grape' },
+  mint:       { accent: '#15803D', soft: 'rgba(31,168,85,0.09)',   chip: 'icon-chip-mint' },
 }
 
 const CARDS = {
@@ -138,20 +140,19 @@ export default function Solutions() {
     keywords: 'IB school Azerbaijan, IB PYP MYP DP CP Azerbaijan, məktəb həlləri, school solutions Azerbaijan, dövlət məktəbi idarəetmə',
   })
   return (
-    <div style={{ background: '#f8f7fb', fontFamily: 'inherit', color: '#1a1a2e' }}>
+    <div style={{ background: 'var(--canvas)', fontFamily: 'inherit', color: 'var(--ink-900)' }}>
       <style>{`
-        @keyframes heroGradient {
-          0%   { background-position: 0%   50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0%   50%; }
-        }
-        .sol-row-inner { transition: transform .3s ease; }
-        .sol-learn { transition: gap .15s ease, opacity .15s ease; }
+        .sol-learn { transition: gap .15s ease; }
         .sol-learn:hover { gap: 8px !important; }
+        .sol-logo-card { transition: transform .15s var(--ease-out-quint), box-shadow .15s ease; }
+        .sol-logo-card:hover { transform: translateY(-2px); }
         @media (max-width: 767px) {
           .sol-row-inner { flex-direction: column !important; }
           .sol-row-inner.reverse { flex-direction: column !important; }
           .sol-row-left, .sol-row-right { width: 100% !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .sol-logo-card { transition: none !important; }
         }
       `}</style>
 
@@ -163,33 +164,25 @@ export default function Solutions() {
         overflow: 'hidden',
         padding: '160px 24px 110px',
         textAlign: 'center',
-        background: 'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)',
-        backgroundSize: '400% 400%',
-        animation: 'heroGradient 12s ease infinite',
+        background: 'var(--canvas)',
       }}>
-        {/* Drifting pastel blobs (shared classes from index.css) */}
+        {/* Single static brand wash (shared class from index.css) */}
         <div className="hb1" />
-        <div className="hb2" />
-        <div className="hb3" />
-        <div className="hb4" />
-
-        {/* Subtle SVG noise overlay for organic texture */}
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          opacity: 0.35,
-          backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
-          mixBlendMode: 'overlay',
-        }} />
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 820, margin: '0 auto' }}>
+          {/* Eyebrow pill */}
+          <div style={{ display:'flex', justifyContent:'center', marginBottom:22 }}>
+            <span className="pill-peri" style={{ fontSize:12.5, padding:'6px 14px' }}>{s.hero_eyebrow}</span>
+          </div>
+
           {/* Headline */}
-          <h1 style={{
-            fontSize: 'clamp(2.6rem,6.5vw,4.6rem)',
-            fontWeight: 900,
+          <h1 className="font-display" style={{
+            fontSize: 'clamp(2.7rem,6.6vw,4.7rem)',
+            fontWeight: 800,
             lineHeight: 1.06,
-            letterSpacing: '-0.035em',
+            letterSpacing: '-0.03em',
             marginBottom: 24,
-            color: '#1a1a2e',
+            color: 'var(--ink-900)',
           }}>
             {s.hero_h1a}{' '}
             <span className="pastel-text">{s.hero_h1b}</span>
@@ -197,7 +190,7 @@ export default function Solutions() {
 
           <p style={{
             fontSize: 'clamp(1rem,2.2vw,1.18rem)',
-            color: '#64748b',
+            color: 'var(--ink-600)',
             lineHeight: 1.78,
             maxWidth: 560,
             margin: '0 auto 40px',
@@ -218,29 +211,29 @@ export default function Solutions() {
           {/* Programme logo strip */}
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             {['/pyp.png', '/myp.png', '/dp.png', '/cp.png'].map((src, i) => (
-              <div key={i} className="liquid-card" style={{
+              <div key={i} className="liquid-card sol-logo-card" style={{
                 width: 60, height: 60,
-                borderRadius: 18,
+                borderRadius: 14,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 padding: 0,
               }}>
                 <img src={src} alt="" style={{ width: 38, height: 38, objectFit: 'contain' }} />
               </div>
             ))}
-            <div className="liquid-card" style={{
+            <div className="liquid-card sol-logo-card" style={{
               width: 60, height: 60,
-              borderRadius: 18,
+              borderRadius: 14,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               padding: 0,
             }}>
-              <Building2 style={{ width: 26, height: 26, color: '#5db8a3' }} />
+              <Building2 style={{ width: 26, height: 26, color: 'var(--ink-400)' }} />
             </div>
           </div>
         </div>
       </section>
 
       {/* ── Stats Bar ── */}
-      <section style={{ background: '#f8f7fb', padding: '0 24px', position: 'relative' }}>
+      <section style={{ background: 'var(--canvas)', padding: '0 24px', position: 'relative' }}>
         <div className="liquid-card" style={{
           maxWidth: 1100,
           margin: '-40px auto 0',
@@ -259,20 +252,21 @@ export default function Solutions() {
             <div key={i} style={{
               padding: '24px 16px',
               textAlign: 'center',
-              borderRight: i < 3 ? '1px solid rgba(124,110,224,0.12)' : 'none',
+              borderRight: i < 3 ? '1px solid var(--hairline)' : 'none',
             }}>
-              <div style={{
-                fontSize: 'clamp(1.2rem,2.5vw,1.7rem)',
+              <div className="font-display" style={{
+                fontSize: 'clamp(1.3rem,2.6vw,1.8rem)',
                 fontWeight: 800,
-                color: '#1a1a2e',
+                color: 'var(--ink-900)',
                 letterSpacing: '-0.02em',
                 lineHeight: 1,
+                fontVariantNumeric: 'tabular-nums',
               }}>{stat.n}</div>
               <div style={{
                 fontSize: 12,
-                color: '#64748b',
+                color: 'var(--ink-400)',
                 fontWeight: 600,
-                marginTop: 6,
+                marginTop: 8,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
               }}>{stat.l}</div>
@@ -282,22 +276,21 @@ export default function Solutions() {
       </section>
 
       {/* ── Programme Stacked Rows ── */}
-      <section style={{ background: '#f8f7fb', padding: '96px 24px 120px', position: 'relative', overflow: 'hidden' }}>
-        {/* Soft section blobs */}
-        <div className="section-blob" style={{ width: 480, height: 480, top: '8%', left: '-10%', background: 'rgba(184,192,255,0.45)' }} />
-        <div className="section-blob" style={{ width: 420, height: 420, bottom: '5%', right: '-8%', background: 'rgba(200,230,224,0.45)' }} />
+      <section style={{ background: 'var(--canvas)', padding: '96px 24px 120px', position: 'relative', overflow: 'hidden' }}>
+        {/* Single soft brand wash */}
+        <div className="section-blob" style={{ width: 480, height: 480, top: '8%', left: '-12%', background: 'rgba(87,79,207,0.07)' }} />
 
         <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
           {/* Section heading */}
           <div style={{ textAlign: 'center', marginBottom: 72 }}>
-            <h2 style={{
+            <h2 className="font-display" style={{
               fontSize: 'clamp(1.8rem,3.2vw,2.6rem)',
-              fontWeight: 900,
-              color: '#1a1a2e',
+              fontWeight: 800,
+              color: 'var(--ink-900)',
               marginBottom: 14,
-              letterSpacing: '-0.03em',
+              letterSpacing: '-0.025em',
             }}>{s.programmes_title}</h2>
-            <p style={{ fontSize: 16.5, color: '#64748b', fontWeight: 500 }}>{s.programmes_sub}</p>
+            <p style={{ fontSize: 16.5, color: 'var(--ink-600)', fontWeight: 500 }}>{s.programmes_sub}</p>
           </div>
 
           {/* Rows */}
@@ -305,7 +298,7 @@ export default function Solutions() {
             {cards.map((card, idx) => {
               const IC = card.icon
               const isReverse = idx % 2 === 1
-              const tone = PASTEL[card.tone] || PASTEL.periwinkle
+              const tone = TONES[card.tone] || TONES.periwinkle
               return (
                 <div
                   key={card.name}
@@ -333,33 +326,23 @@ export default function Solutions() {
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'center',
-                        borderRight: isReverse ? 'none' : '1px solid rgba(124,110,224,0.10)',
-                        borderLeft: isReverse ? '1px solid rgba(124,110,224,0.10)' : 'none',
+                        borderRight: isReverse ? 'none' : '1px solid var(--hairline)',
+                        borderLeft: isReverse ? '1px solid var(--hairline)' : 'none',
                       }}
                     >
                       {/* Icon */}
                       <div style={{ marginBottom: 20 }}>
                         {card.img ? (
-                          <div style={{
-                            width: 80, height: 80, borderRadius: 22,
-                            background: 'rgba(255,255,255,0.7)',
-                            backdropFilter: 'blur(12px)',
-                            border: `1px solid ${tone.accent}33`,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            boxShadow: `0 4px 16px ${tone.accent}22`,
+                          <div className={`icon-chip ${tone.chip}`} style={{
+                            width: 72, height: 72, borderRadius: 14,
                           }}>
-                            <img src={card.img} alt={card.name} style={{ width: 54, height: 54, objectFit: 'contain' }} />
+                            <img src={card.img} alt={card.name} style={{ width: 48, height: 48, objectFit: 'contain' }} />
                           </div>
                         ) : (
-                          <div style={{
-                            width: 80, height: 80, borderRadius: 22,
-                            background: 'rgba(255,255,255,0.7)',
-                            backdropFilter: 'blur(12px)',
-                            border: `1px solid ${tone.accent}33`,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            boxShadow: `0 4px 16px ${tone.accent}22`,
+                          <div className={`icon-chip ${tone.chip}`} style={{
+                            width: 72, height: 72, borderRadius: 14,
                           }}>
-                            <IC style={{ width: 34, height: 34, color: tone.accent }} />
+                            <IC style={{ width: 32, height: 32, color: tone.accent }} />
                           </div>
                         )}
                       </div>
@@ -368,10 +351,11 @@ export default function Solutions() {
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
                         <h3 style={{
                           fontSize: 'clamp(1.05rem,1.8vw,1.25rem)',
-                          fontWeight: 800,
-                          color: '#1a1a2e',
+                          fontWeight: 700,
+                          color: 'var(--ink-900)',
                           lineHeight: 1.25,
                           margin: 0,
+                          letterSpacing: '-0.01em',
                         }}>{card.name}</h3>
                         <span style={{
                           fontSize: 12,
@@ -383,13 +367,13 @@ export default function Solutions() {
                           whiteSpace: 'nowrap',
                           alignSelf: 'flex-start',
                           marginTop: 3,
-                          border: `1px solid ${tone.accent}30`,
+                          letterSpacing: '0.01em',
                         }}>
                           {card.ages}
                         </span>
                       </div>
 
-                      <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7, margin: '0 0 24px' }}>{card.desc}</p>
+                      <p style={{ fontSize: 14, color: 'var(--ink-600)', lineHeight: 1.7, margin: '0 0 24px' }}>{card.desc}</p>
 
                       <Link
                         to={card.link}
@@ -435,7 +419,7 @@ export default function Solutions() {
                             }}>
                               <CheckCircle style={{ width: 12, height: 12, color: tone.accent }} />
                             </span>
-                            <span style={{ fontSize: 14, color: '#1a1a2e', fontWeight: 600, lineHeight: 1.5 }}>{f}</span>
+                            <span style={{ fontSize: 14, color: 'var(--ink-900)', fontWeight: 600, lineHeight: 1.5 }}>{f}</span>
                           </div>
                         ))}
                       </div>
@@ -448,42 +432,54 @@ export default function Solutions() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* ── CTA band ── */}
       <section style={{
-        background: '#f8f7fb',
+        background: 'var(--canvas)',
         position: 'relative',
-        overflow: 'hidden',
-        padding: '110px 24px',
+        padding: '40px 24px 110px',
         textAlign: 'center',
       }}>
-        {/* Pastel glow blobs */}
-        <div className="section-blob" style={{ width: 560, height: 560, top: '-20%', left: '15%', background: 'rgba(184,192,255,0.55)' }} />
-        <div className="section-blob" style={{ width: 420, height: 420, bottom: '-15%', right: '10%', background: 'rgba(245,230,216,0.55)' }} />
-        <div className="section-blob" style={{ width: 380, height: 380, bottom: '-10%', left: '5%', background: 'rgba(200,230,224,0.5)' }} />
-
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 620, margin: '0 auto' }}>
-          <h2 style={{
-            fontSize: 'clamp(1.8rem,3.5vw,2.7rem)',
-            fontWeight: 900,
-            color: '#1a1a2e',
-            marginBottom: 16,
-            lineHeight: 1.18,
-            letterSpacing: '-0.03em',
-          }}>{s.cta_h}</h2>
-          <p style={{ fontSize: 16, color: '#64748b', marginBottom: 40, lineHeight: 1.75 }}>{s.cta_sub}</p>
-          <Link to="/contact" className="btn-pastel">
-            {s.cta_btn} <ArrowRight style={{ width: 16, height: 16 }} />
-          </Link>
+        <div style={{
+          position: 'relative',
+          overflow: 'hidden',
+          maxWidth: 1000,
+          margin: '0 auto',
+          borderRadius: 18,
+          padding: '80px 32px',
+          background: 'linear-gradient(135deg, var(--brand-600) 0%, var(--brand-500) 100%)',
+          boxShadow: '0 12px 28px -10px rgba(20,22,40,.14)',
+        }}>
+          <div style={{ position: 'relative', zIndex: 1, maxWidth: 620, margin: '0 auto' }}>
+            <h2 className="font-display" style={{
+              fontSize: 'clamp(1.8rem,3.5vw,2.7rem)',
+              fontWeight: 800,
+              color: '#ffffff',
+              marginBottom: 16,
+              lineHeight: 1.18,
+              letterSpacing: '-0.025em',
+            }}>{s.cta_h}</h2>
+            <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.88)', marginBottom: 40, lineHeight: 1.75 }}>{s.cta_sub}</p>
+            <Link to="/contact" className="btn-pastel" style={{
+              background: '#ffffff',
+              color: 'var(--brand-600)',
+              boxShadow: '0 1px 2px rgba(20,22,40,.10)',
+            }}>
+              {s.cta_btn} <ArrowRight style={{ width: 16, height: 16 }} />
+            </Link>
+          </div>
         </div>
       </section>
 
       <footer style={{
-        background: '#f8f7fb',
-        borderTop: '1px solid rgba(124,110,224,0.12)',
-        padding: '24px',
+        background: 'var(--canvas)',
+        borderTop: '1px solid var(--hairline)',
+        padding: '28px 24px',
         textAlign: 'center',
       }}>
-        <p style={{ color: '#64748b', fontSize: 12.5 }}>{s.footer}</p>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:10 }}>
+          <Mascot pose="waving" size={36} title="Zirva" />
+          <p style={{ color: 'var(--ink-400)', fontSize: 12.5, fontWeight: 500, margin: 0 }}>{s.footer}</p>
+        </div>
       </footer>
     </div>
   )

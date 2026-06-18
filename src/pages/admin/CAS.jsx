@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, Plus, BookOpen, ChevronLeft, TrendingUp, Activity, Heart } from 'lucide-react'
+import { Search, Plus, BookOpen, ChevronLeft, TrendingUp, Activity, Heart, CheckCircle, AlertTriangle, Clock } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
@@ -10,6 +10,7 @@ import Badge from '../../components/ui/Badge'
 import { PageSpinner } from '../../components/ui/Spinner'
 import { fmtNumeric } from '../../lib/dateUtils'
 import EmptyState from '../../components/ui/EmptyState'
+import StatCard from '../../components/ui/StatCard'
 import Avatar from '../../components/ui/Avatar'
 import Input from '../../components/ui/Input'
 import { Textarea, Select } from '../../components/ui/Input'
@@ -23,12 +24,20 @@ function casStatus(c, a, s) {
   return 'at_risk'
 }
 
-const statusStyles = {
-  complete: 'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]',
-  on_track: 'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7] border border-[rgba(124,110,224,0.28)]',
-  at_risk:  'bg-[rgba(239,68,68,0.08)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]',
+// LOW dial: pill-* classes, no glass, tight tokens
+const STATUS_PILLS = {
+  complete: 'pill-mint',
+  on_track: 'pill-peri',
+  at_risk:  'pill-rose',
 }
-const statusLabels = { complete: 'Tamamlandı', on_track: 'Yolundadır', at_risk: 'Risk altında' }
+const STATUS_LABELS = { complete: 'Tamamlandı', on_track: 'Yolundadır', at_risk: 'Risk altında' }
+
+// CAS type chip styles (muted tints — data surface)
+const TYPE_CHIPS = {
+  creativity: { pill: 'pill-peri',  label: 'Yaradıcılıq' },
+  activity:   { pill: 'pill-mint',  label: 'Fəaliyyət' },
+  service:    { pill: 'pill-peach', label: 'Xidmət' },
+}
 
 export default function CAS() {
   const { profile, t } = useAuth()
@@ -146,46 +155,64 @@ export default function CAS() {
     s.full_name?.toLowerCase().includes(search.toLowerCase())
   )
 
+  // KPI aggregates for the overview
+  const completeCount  = students.filter(s => casStatus(s.creativity, s.activity, s.service) === 'complete').length
+  const onTrackCount   = students.filter(s => casStatus(s.creativity, s.activity, s.service) === 'on_track').length
+  const atRiskCount    = students.filter(s => casStatus(s.creativity, s.activity, s.service) === 'at_risk').length
+
   const columns = [
     {
       key: 'full_name',
       label: 'Şagird',
-      render: (val, row) => (
+      render: (val) => (
         <div className="flex items-center gap-3">
           <Avatar name={val} size="sm" />
-          <span className="font-medium text-gray-900">{val}</span>
+          <span className="font-semibold text-ink-900 text-sm">{val}</span>
         </div>
       ),
     },
     {
       key: 'creativity',
-      label: <span className="flex items-center gap-1"><TrendingUp className="w-3.5 h-3.5 text-purple" /> Yaradıcılıq</span>,
-      render: (val) => <span className="font-medium">{val}s</span>,
+      label: (
+        <span className="flex items-center gap-1 text-ink-400">
+          <TrendingUp className="w-3.5 h-3.5" /> Yaradıcılıq
+        </span>
+      ),
+      render: (val) => <span className="font-semibold text-ink-700 tabular-nums">{val}s</span>,
     },
     {
       key: 'activity',
-      label: <span className="flex items-center gap-1"><Activity className="w-3.5 h-3.5 text-teal" /> Fəaliyyət</span>,
-      render: (val) => <span className="font-medium">{val}s</span>,
+      label: (
+        <span className="flex items-center gap-1 text-ink-400">
+          <Activity className="w-3.5 h-3.5" /> Fəaliyyət
+        </span>
+      ),
+      render: (val) => <span className="font-semibold text-ink-700 tabular-nums">{val}s</span>,
     },
     {
       key: 'service',
-      label: <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5 text-red-400" /> Xidmət</span>,
-      render: (val) => <span className="font-medium">{val}s</span>,
+      label: (
+        <span className="flex items-center gap-1 text-ink-400">
+          <Heart className="w-3.5 h-3.5" /> Xidmət
+        </span>
+      ),
+      render: (val) => <span className="font-semibold text-ink-700 tabular-nums">{val}s</span>,
     },
     {
       key: 'total',
       label: 'Cəmi',
       render: (_, row) => {
         const total = row.creativity + row.activity + row.service
+        const pct = Math.min(100, (total / TARGET_HOURS) * 100)
         return (
-          <div className="flex items-center gap-2">
-            <div className="w-20 bg-gray-100 rounded-full h-2">
+          <div className="flex items-center gap-2.5 min-w-[120px]">
+            <div className="flex-1 h-1.5 rounded-pill bg-hairline overflow-hidden">
               <div
-                className="bg-purple h-2 rounded-full"
-                style={{ width: `${Math.min(100, (total / TARGET_HOURS) * 100)}%` }}
+                className="h-full rounded-pill bg-brand-500 transition-all duration-500"
+                style={{ width: `${pct}%` }}
               />
             </div>
-            <span className="text-xs text-gray-500">{total}/{TARGET_HOURS}s</span>
+            <span className="text-xs text-ink-400 tabular-nums shrink-0">{total}/{TARGET_HOURS}s</span>
           </div>
         )
       },
@@ -195,11 +222,7 @@ export default function CAS() {
       label: 'Status',
       render: (_, row) => {
         const st = casStatus(row.creativity, row.activity, row.service)
-        return (
-          <span className={`rounded-full text-xs font-medium px-3 py-0.5 inline-flex items-center ${statusStyles[st]}`}>
-            {statusLabels[st]}
-          </span>
-        )
+        return <span className={`pill ${STATUS_PILLS[st]}`}>{STATUS_LABELS[st]}</span>
       },
     },
   ]
@@ -208,66 +231,105 @@ export default function CAS() {
     {
       key: 'date',
       label: 'Tarix',
-      render: (val) => val ? fmtNumeric(val) : '—',
+      render: (val) => <span className="text-ink-600 tabular-nums">{val ? fmtNumeric(val) : '—'}</span>,
     },
     {
       key: 'type',
       label: 'Növ',
       render: (val) => {
-        const labels = { creativity: 'Yaradıcılıq', activity: 'Fəaliyyət', service: 'Xidmət' }
-        const colors = { creativity: 'bg-purple-light text-purple-dark', activity: 'bg-teal-light text-[#085041]', service: 'bg-red-50 text-red-700' }
-        return <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${colors[val] || ''}`}>{labels[val] || val}</span>
+        const chip = TYPE_CHIPS[val]
+        return chip
+          ? <span className={`pill ${chip.pill}`}>{chip.label}</span>
+          : <span className="pill pill-muted">{val}</span>
       },
     },
-    { key: 'hours', label: 'Saat', render: (val) => `${val}s` },
-    { key: 'description', label: 'Açıqlama', render: (val) => <span className="text-gray-600">{val}</span> },
+    {
+      key: 'hours',
+      label: 'Saat',
+      render: (val) => <span className="font-semibold text-ink-700 tabular-nums">{val}s</span>,
+    },
+    {
+      key: 'description',
+      label: 'Açıqlama',
+      render: (val) => <span className="text-ink-600 text-sm">{val}</span>,
+    },
   ]
 
   if (loading) return <PageSpinner />
 
+  // ── Student detail view ──────────────────────────────────────────────────
   if (selectedStudent) {
     const total = selectedStudent.creativity + selectedStudent.activity + selectedStudent.service
-    const st = casStatus(selectedStudent.creativity, selectedStudent.activity, selectedStudent.service)
+    const pct   = Math.min(100, (total / TARGET_HOURS) * 100)
+    const st    = casStatus(selectedStudent.creativity, selectedStudent.activity, selectedStudent.service)
+
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <button onClick={() => setSelectedStudent(null)} className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors">
+        {/* Back + header */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            onClick={() => setSelectedStudent(null)}
+            className="flex items-center gap-1.5 text-sm font-medium text-ink-400 hover:text-brand-500 transition-colors"
+          >
             <ChevronLeft className="w-4 h-4" /> Geri
           </button>
-          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{selectedStudent.full_name} — CAS Jurnalı</span></h1>
+          <span className="text-ink-300">/</span>
+          <h1 className="text-2xl font-bold text-ink-900 font-display">
+            {selectedStudent.full_name} — CAS Jurnalı
+          </h1>
+          <span className={`pill ${STATUS_PILLS[st]} ml-auto`}>{STATUS_LABELS[st]}</span>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Yaradıcılıq', val: selectedStudent.creativity, color: 'text-purple', bg: 'bg-purple-light' },
-            { label: 'Fəaliyyət', val: selectedStudent.activity, color: 'text-teal', bg: 'bg-teal-light' },
-            { label: 'Xidmət', val: selectedStudent.service, color: 'text-red-500', bg: 'bg-red-50' },
-            { label: 'Cəmi', val: total, color: 'text-gray-900', bg: 'bg-surface' },
-          ].map(({ label, val, color, bg }) => (
-            <Card key={label} hover={false} className={`p-5 ${bg}`}>
-              <p className="text-xs text-gray-500 mb-1">{label}</p>
-              <p className={`text-2xl font-bold ${color}`}>{val}s</p>
-            </Card>
-          ))}
+        {/* Hour breakdown — one calm brand accent across all dimensions (color restraint) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <StatCard label="Yaradıcılıq" value={`${selectedStudent.creativity}s`} icon={TrendingUp} tone="periwinkle" />
+          <StatCard label="Fəaliyyət"   value={`${selectedStudent.activity}s`}   icon={Activity}   tone="periwinkle" />
+          <StatCard label="Xidmət"      value={`${selectedStudent.service}s`}    icon={Heart}      tone="periwinkle" />
+          <StatCard label="Cəmi"        value={`${total}s`}                      icon={BookOpen}   tone="periwinkle" />
         </div>
 
-        <div className="flex items-center justify-between">
-          <span className={`rounded-full text-sm font-medium px-4 py-1 ${statusStyles[st]}`}>{statusLabels[st]}</span>
+        {/* Overall progress bar */}
+        <Card hover={false} className="p-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[13px] font-semibold text-ink-400 uppercase tracking-[0.04em]">
+              Ümumi tərəqqi — hədəf {TARGET_HOURS} saat
+            </span>
+            <span className="text-sm font-bold text-ink-700 tabular-nums">{total} / {TARGET_HOURS}s</span>
+          </div>
+          <div className="h-2 rounded-pill bg-hairline overflow-hidden">
+            <div
+              className="h-full rounded-pill bg-brand-500 transition-all duration-700"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </Card>
+
+        {/* Actions */}
+        <div className="flex justify-end">
           <Button onClick={() => { setForm(f => ({ ...f, student_id: selectedStudent.id })); setAddModal(true) }}>
             <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Giriş əlavə et</span>
           </Button>
         </div>
 
+        {/* Entries table */}
         <Card hover={false} className="p-0 overflow-hidden">
           {entriesLoading ? <PageSpinner /> : (
             entries.length === 0 ? (
-              <EmptyState icon={BookOpen} title="CAS girişi yoxdur" description="Bu şagird hələ CAS fəaliyyəti qeyd etməyib." actionLabel="Giriş əlavə et" onAction={() => { setForm(f => ({ ...f, student_id: selectedStudent.id })); setAddModal(true) }} />
+              <EmptyState
+                tier={1}
+                icon={BookOpen}
+                title="CAS girişi yoxdur"
+                description="Bu şagird hələ CAS fəaliyyəti qeyd etməyib."
+                actionLabel="Giriş əlavə et"
+                onAction={() => { setForm(f => ({ ...f, student_id: selectedStudent.id })); setAddModal(true) }}
+              />
             ) : (
               <Table columns={entryColumns} data={entries} />
             )
           )}
         </Card>
 
+        {/* Add entry modal */}
         <Modal open={addModal} onClose={() => { setAddModal(false); setError(null) }} title="CAS Girişi Əlavə Et">
           <div className="space-y-4">
             <Select label="Növ" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
@@ -278,8 +340,12 @@ export default function CAS() {
             <Input label="Saat sayı" type="number" min="0.5" step="0.5" value={form.hours} onChange={e => setForm({ ...form, hours: e.target.value })} placeholder="5" />
             <Input label="Tarix" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
             <Textarea label="Açıqlama" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} placeholder="Bu fəaliyyət haqqında..." />
-            {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
-            <div className="flex justify-end gap-3 pt-4">
+            {error && (
+              <p className="text-sm text-danger bg-[rgba(239,68,68,0.08)] rounded-input px-3 py-2 border border-[rgba(239,68,68,0.2)]">
+                {error}
+              </p>
+            )}
+            <div className="flex justify-end gap-3 pt-2">
               <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
               <Button onClick={handleAdd} loading={saving} disabled={!form.hours || !form.date}>{t('add')}</Button>
             </div>
@@ -289,40 +355,62 @@ export default function CAS() {
     )
   }
 
+  // ── Overview list ────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      {/* Page header */}
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">CAS Tracker</span></h1>
-          <p className="text-sm text-[#64748b] mt-1">Creativity · Activity · Service — IB DP tələbi: {TARGET_HOURS} saat</p>
+          <h1 className="text-2xl font-bold text-ink-900 font-display">CAS Tracker</h1>
+          <p className="text-sm text-ink-400 mt-0.5">
+            Creativity · Activity · Service — IB DP tələbi: {TARGET_HOURS} saat
+          </p>
         </div>
         <Button onClick={() => { setForm({ student_id: '', type: 'creativity', hours: '', description: '', date: '' }); setAddModal(true) }}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Giriş əlavə et</span>
         </Button>
       </div>
 
+      {/* KPI strip */}
+      <div className="grid grid-cols-3 gap-4">
+        <StatCard label="Tamamlandı"    value={completeCount}  icon={CheckCircle}    tone="mint" />
+        <StatCard label="Yolundadır"    value={onTrackCount}   icon={TrendingUp}     tone="periwinkle" />
+        <StatCard label="Risk altında"  value={atRiskCount}    icon={AlertTriangle}  tone="coral" />
+      </div>
+
+      {/* Search */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
         <input
           type="text"
           placeholder="Şagird axtar..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+          className="pastel-input w-full pl-10 pr-4"
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="text-sm text-danger bg-[rgba(239,68,68,0.08)] rounded-input px-3 py-2 border border-[rgba(239,68,68,0.2)]">
+          {error}
+        </p>
+      )}
 
+      {/* Table */}
       <Card hover={false} className="p-0 overflow-hidden">
         {filtered.length === 0 ? (
-          <EmptyState icon={BookOpen} title="Şagird tapılmadı" description="CAS izləmə üçün şagird qeydiyyatı tələb olunur." />
+          <EmptyState
+            tier={1}
+            icon={BookOpen}
+            title="Şagird tapılmadı"
+            description="CAS izləmə üçün şagird qeydiyyatı tələb olunur."
+          />
         ) : (
           <Table columns={columns} data={filtered} onRowClick={openStudent} />
         )}
       </Card>
 
+      {/* Add global entry modal */}
       <Modal open={addModal} onClose={() => { setAddModal(false); setError(null) }} title="CAS Girişi Əlavə Et">
         <div className="space-y-4">
           <Select label="Şagird" value={form.student_id} onChange={e => setForm({ ...form, student_id: e.target.value })}>
@@ -337,8 +425,12 @@ export default function CAS() {
           <Input label="Saat sayı" type="number" min="0.5" step="0.5" value={form.hours} onChange={e => setForm({ ...form, hours: e.target.value })} placeholder="5" />
           <Input label="Tarix" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
           <Textarea label="Açıqlama" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} placeholder="Bu fəaliyyət haqqında..." />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
-          <div className="flex justify-end gap-3 pt-4">
+          {error && (
+            <p className="text-sm text-danger bg-[rgba(239,68,68,0.08)] rounded-input px-3 py-2 border border-[rgba(239,68,68,0.2)]">
+              {error}
+            </p>
+          )}
+          <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleAdd} loading={saving} disabled={!form.student_id || !form.hours || !form.date}>{t('add')}</Button>
           </div>

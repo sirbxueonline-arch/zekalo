@@ -1,56 +1,38 @@
 import { useState, useEffect } from 'react'
-import { TrendingUp, TrendingDown, Minus, BookOpen, Award, BarChart2, Check } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, BookOpen, Award, BarChart2, Check, Star } from 'lucide-react'
 import { GradeBadge } from '../../components/ui/Badge'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
+import LevelRing from '../../components/ui/LevelRing'
+import CountUp from '../../components/ui/CountUp'
+import StatCard from '../../components/ui/StatCard'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { fmtNumeric } from '../../lib/dateUtils'
 
-// ─── Pastel palette ──────────────────────────────────────────────────────────
-const COLOR_PERI  = '#7c6ee0'
-const COLOR_MINT  = '#5db8a3'
-const COLOR_PEACH = '#e8a87c'
-const COLOR_BLUE  = '#6b9dde'
-const COLOR_ROSE  = '#ef6c6c'
-
-// Subject accent rotation
-const SUBJ_PALETTE = [
-  { color: COLOR_PERI,  bg: 'rgba(124,110,224,0.16)', border: 'rgba(124,110,224,0.30)' },
-  { color: COLOR_MINT,  bg: 'rgba(93,184,163,0.16)',  border: 'rgba(93,184,163,0.30)' },
-  { color: COLOR_PEACH, bg: 'rgba(232,168,124,0.20)', border: 'rgba(232,168,124,0.35)' },
-  { color: COLOR_BLUE,  bg: 'rgba(107,157,222,0.16)', border: 'rgba(107,157,222,0.30)' },
-]
-
-function subjectPalette(name = '') {
-  let h = 0
-  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
-  return SUBJ_PALETTE[Math.abs(h) % SUBJ_PALETTE.length]
-}
-
-// ─── GPA color helpers ──────────────────────────────────────────────────────
+// ─── GPA semantic color + tone (color = meaning-bearing status only) ─────────
 function gpaColor(avg) {
-  if (avg >= 8.5) return COLOR_MINT
-  if (avg >= 7)   return COLOR_BLUE
-  if (avg >= 5)   return COLOR_PEACH
-  return COLOR_ROSE
+  if (avg >= 8.5) return 'var(--mint)'
+  if (avg >= 7)   return 'var(--brand-500)'
+  if (avg >= 5)   return 'var(--sun)'
+  return 'var(--coral)'
 }
 
 function gpaTone(avg) {
-  if (avg >= 8.5) return { bg: 'rgba(93,184,163,0.16)',  border: 'rgba(93,184,163,0.32)',  color: '#2f7a64' }
-  if (avg >= 7)   return { bg: 'rgba(107,157,222,0.16)', border: 'rgba(107,157,222,0.30)', color: '#2f5a8c' }
-  if (avg >= 5)   return { bg: 'rgba(232,168,124,0.18)', border: 'rgba(232,168,124,0.32)', color: '#a25e2c' }
-  return            { bg: 'rgba(239,108,108,0.14)', border: 'rgba(239,108,108,0.28)', color: '#b13838' }
+  if (avg >= 8.5) return { bg: 'rgba(31,168,85,0.10)',   border: 'rgba(31,168,85,0.26)',   color: '#15803D' }
+  if (avg >= 7)   return { bg: 'var(--brand-50)',        border: 'var(--brand-200)',       color: 'var(--brand-600)' }
+  if (avg >= 5)   return { bg: 'rgba(234,179,8,0.12)',   border: 'rgba(234,179,8,0.30)',   color: '#B45309' }
+  return           { bg: 'rgba(244,103,126,0.10)', border: 'rgba(244,103,126,0.26)', color: '#B91C1C' }
 }
 
-// ─── Normalize score to /10 ──────────────────────────────────────────────────
+// ─── Normalize score → /10 ───────────────────────────────────────────────────
 function normalize(score, maxScore) {
   if (score == null) return null
   if (maxScore > 0) return (score / maxScore) * 10
   return score
 }
 
-// ─── Compute per-subject averages and trends ─────────────────────────────────
+// ─── Compute per-subject stats ───────────────────────────────────────────────
 function computeSubjectStats(grades) {
   const map = {}
   grades.forEach(g => {
@@ -81,64 +63,20 @@ function computeSubjectStats(grades) {
 function TrendIcon({ trend }) {
   if (trend === 'up')
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: '#2f7a64' }}>
+      <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: '#15803D' }}>
         <TrendingUp className="w-3.5 h-3.5" /> Yüksəlir
       </span>
     )
   if (trend === 'down')
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: '#b13838' }}>
+      <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: '#B91C1C' }}>
         <TrendingDown className="w-3.5 h-3.5" /> Enir
       </span>
     )
   return (
-    <span className="inline-flex items-center gap-1 text-xs font-medium" style={{ color: '#94a3b8' }}>
+    <span className="inline-flex items-center gap-1 text-xs font-medium" style={{ color: 'var(--ink-400)' }}>
       <Minus className="w-3.5 h-3.5" /> Sabit
     </span>
-  )
-}
-
-// ─── Circular GPA badge ──────────────────────────────────────────────────────
-function CircularGPA({ avg }) {
-  const radius = 54
-  const stroke = 8
-  const normalizedRadius = radius - stroke / 2
-  const circumference = normalizedRadius * 2 * Math.PI
-  const pct = Math.min((avg / 10) * 100, 100)
-  const strokeDashoffset = circumference - (pct / 100) * circumference
-  const strokeColor = gpaColor(avg)
-
-  return (
-    <div className="relative inline-flex items-center justify-center">
-      <svg width={radius * 2} height={radius * 2} className="-rotate-90">
-        <circle
-          cx={radius}
-          cy={radius}
-          r={normalizedRadius}
-          fill="none"
-          stroke="rgba(124,110,224,0.12)"
-          strokeWidth={stroke}
-        />
-        <circle
-          cx={radius}
-          cy={radius}
-          r={normalizedRadius}
-          fill="none"
-          stroke={strokeColor}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={strokeDashoffset}
-          className="transition-all duration-700"
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span style={{ fontSize: 28, fontWeight: 800, color: strokeColor, lineHeight: 1, letterSpacing: '-0.02em' }}>
-          {avg.toString().replace('.', ',')}
-        </span>
-        <span className="text-xs" style={{ color: '#64748b', fontWeight: 500 }}>/ 10</span>
-      </div>
-    </div>
   )
 }
 
@@ -150,15 +88,12 @@ function FilterPill({ active, onClick, children }) {
       className="inline-flex items-center transition-all whitespace-nowrap flex-shrink-0"
       style={{
         padding: '7px 16px',
-        borderRadius: 999,
+        borderRadius: 9999,
         fontSize: 13,
         fontWeight: 600,
-        background: active
-          ? 'linear-gradient(135deg, rgba(124,110,224,0.18) 0%, rgba(93,184,163,0.18) 100%)'
-          : 'rgba(255,255,255,0.55)',
-        border: active ? '1px solid rgba(124,110,224,0.5)' : '1px solid rgba(124,110,224,0.18)',
-        color: active ? '#5448a8' : '#475569',
-        backdropFilter: 'blur(12px)',
+        background: active ? 'var(--brand-100)' : 'var(--surface)',
+        border: active ? '1.5px solid var(--brand-400)' : '1px solid var(--hairline-strong)',
+        color: active ? 'var(--brand-600)' : 'var(--ink-600)',
         cursor: 'pointer',
       }}
     >
@@ -170,9 +105,9 @@ function FilterPill({ active, onClick, children }) {
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function StudentGrades() {
   const { profile } = useAuth()
-  const [loading, setLoading]               = useState(true)
-  const [grades, setGrades]                 = useState([])
-  const [error, setError]                   = useState(null)
+  const [loading, setLoading]                 = useState(true)
+  const [grades, setGrades]                   = useState([])
+  const [error, setError]                     = useState(null)
   const [selectedSubject, setSelectedSubject] = useState(null)
 
   useEffect(() => {
@@ -208,11 +143,14 @@ export default function StudentGrades() {
   if (grades.length === 0) {
     return (
       <div className="space-y-6">
-        <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-          <span className="pastel-text">Qiymətlərim</span>
+        <h1
+          className="font-display"
+          style={{ fontSize: 32, fontWeight: 800, color: 'var(--ink-900)', letterSpacing: '-0.02em', lineHeight: 1.12 }}
+        >
+          Qiymətlərim
         </h1>
         <EmptyState
-          icon={BookOpen}
+          pose="reading"
           title="Hələ qiymət yoxdur"
           description="Müəlliminiz ilk qiyməti daxil etdikdə burada görünəcək. Səbirli olun!"
         />
@@ -220,7 +158,7 @@ export default function StudentGrades() {
     )
   }
 
-  // Derived data
+  // ── Derived data ─────────────────────────────────────────────────────────
   const subjectStats = computeSubjectStats(grades)
 
   const allNormed = grades
@@ -236,7 +174,6 @@ export default function StudentGrades() {
     ? grades.filter(g => g.subject?.id === selectedSubject)
     : grades
 
-  // Unique subjects
   const uniqueSubjects = []
   const seen = new Set()
   grades.forEach(g => {
@@ -247,23 +184,61 @@ export default function StudentGrades() {
   })
 
   const overallTone = gpaTone(overallAvg)
+  // Top subject by avg
+  const topSubject = subjectStats.length > 0
+    ? subjectStats.reduce((a, b) => (b.avg > a.avg ? b : a))
+    : null
 
   return (
     <div className="space-y-8">
-      <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-        <span className="pastel-text">Qiymətlərim</span>
-      </h1>
 
-      {/* GPA Hero Card */}
+      {/* ── Page header ── */}
+      <div className="flex items-center gap-3">
+        <div
+          className="icon-chip icon-chip-periwinkle"
+          style={{ width: 44, height: 44 }}
+        >
+          <BarChart2 className="w-5 h-5" />
+        </div>
+        <h1
+          className="font-display"
+          style={{ fontSize: 32, fontWeight: 800, color: 'var(--ink-900)', letterSpacing: '-0.02em', lineHeight: 1.12 }}
+        >
+          Qiymətlərim
+        </h1>
+      </div>
+
+      {/* ── GPA hero card — playful chrome ring, calm data KPIs ── */}
       <div className="liquid-card p-8">
         <div className="flex flex-col sm:flex-row items-center gap-8">
-          <div className="flex flex-col items-center gap-3">
-            <CircularGPA avg={overallAvg} />
+
+          {/* LevelRing GPA display */}
+          <div className="flex flex-col items-center gap-3 flex-shrink-0">
+            <LevelRing
+              value={overallAvg}
+              max={10}
+              size={130}
+              stroke={11}
+              color={gpaColor(overallAvg)}
+              center={
+                <div className="flex flex-col items-center leading-none">
+                  <span
+                    className="font-display font-extrabold tabular-nums"
+                    style={{ fontSize: 34, color: gpaColor(overallAvg) }}
+                  >
+                    <CountUp to={overallAvg} decimals={1} />
+                  </span>
+                  <span className="text-xs font-medium mt-0.5" style={{ color: 'var(--ink-400)' }}>
+                    / 10
+                  </span>
+                </div>
+              }
+            />
             <div
-              className="flex items-center gap-2"
+              className="flex items-center gap-1.5"
               style={{
                 padding: '5px 14px',
-                borderRadius: 999,
+                borderRadius: 9999,
                 background: overallTone.bg,
                 border: `1px solid ${overallTone.border}`,
               }}
@@ -275,62 +250,65 @@ export default function StudentGrades() {
             </div>
           </div>
 
+          {/* Vertical divider */}
+          <div className="hidden sm:block w-px self-stretch" style={{ background: 'var(--hairline)' }} />
+
+          {/* KPI column */}
           <div className="flex-1 w-full space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div
-                style={{
-                  padding: 16,
-                  borderRadius: 16,
-                  background: 'rgba(124,110,224,0.08)',
-                  border: '1px solid rgba(124,110,224,0.16)',
-                }}
-              >
-                <p style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  Fənn sayı
-                </p>
-                <p style={{ fontSize: 28, fontWeight: 800, color: '#1a1a2e', marginTop: 4, lineHeight: 1.1 }}>
-                  {subjectStats.length}
-                </p>
-              </div>
-              <div
-                style={{
-                  padding: 16,
-                  borderRadius: 16,
-                  background: 'rgba(93,184,163,0.08)',
-                  border: '1px solid rgba(93,184,163,0.16)',
-                }}
-              >
-                <p style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  Qiymət sayı
-                </p>
-                <p style={{ fontSize: 28, fontWeight: 800, color: '#1a1a2e', marginTop: 4, lineHeight: 1.1 }}>
-                  {grades.length}
-                </p>
-              </div>
+              <StatCard
+                label="Fənn sayı"
+                value={subjectStats.length}
+                icon={BarChart2}
+                tone="periwinkle"
+              />
+              <StatCard
+                label="Qiymət sayı"
+                value={grades.length}
+                icon={BookOpen}
+                tone="mint"
+              />
             </div>
 
+            {/* Best subject chip */}
+            {topSubject && (
+              <div
+                className="flex items-center gap-2 px-4 py-3"
+                style={{
+                  background: 'rgba(234,179,8,0.10)',
+                  border: '1px solid rgba(234,179,8,0.28)',
+                  borderRadius: 12,
+                }}
+              >
+                <Star className="w-4 h-4" style={{ color: 'var(--sun)' }} />
+                <span className="text-xs font-semibold" style={{ color: '#B45309' }}>
+                  Ən yaxşı fənn:
+                </span>
+                <span className="text-xs font-medium" style={{ color: 'var(--ink-900)' }}>
+                  {topSubject.subject.name}
+                </span>
+                <span
+                  className="ml-auto font-display font-extrabold tabular-nums"
+                  style={{ fontSize: 18, color: 'var(--sun)' }}
+                >
+                  {topSubject.avg}
+                </span>
+              </div>
+            )}
+
+            {/* Overall GPA track bar */}
             <div>
-              <div className="flex justify-between text-xs mb-1.5" style={{ color: '#64748b' }}>
+              <div className="flex justify-between text-xs mb-1.5" style={{ color: 'var(--ink-400)' }}>
                 <span>0</span>
                 <span>5</span>
                 <span>10</span>
               </div>
-              <div
-                style={{
-                  width: '100%',
-                  height: 12,
-                  borderRadius: 999,
-                  background: 'rgba(124,110,224,0.10)',
-                  overflow: 'hidden',
-                }}
-              >
+              <div className="xp-track" style={{ height: 12 }}>
                 <div
-                  className="transition-all duration-700"
+                  className="xp-fill transition-all duration-700"
                   style={{
-                    height: '100%',
-                    borderRadius: 999,
                     width: `${Math.min((overallAvg / 10) * 100, 100)}%`,
-                    background: `linear-gradient(90deg, ${gpaColor(overallAvg)} 0%, ${gpaColor(overallAvg)}cc 100%)`,
+                    background: `linear-gradient(90deg, ${gpaColor(overallAvg)}, ${gpaColor(overallAvg)}bb)`,
                   }}
                 />
               </div>
@@ -339,52 +317,52 @@ export default function StudentGrades() {
         </div>
       </div>
 
-      {/* Subject cards grid */}
+      {/* ── Subject cards grid — colored top bar + mini bar ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {subjectStats.map(({ subject, avg, count, trend }) => {
           const isActive = selectedSubject === subject.id
-          const subjPal = subjectPalette(subject.name)
+          const statusColor = gpaColor(avg)
           const tone = gpaTone(avg)
           return (
             <button
               key={subject.id}
               onClick={() => setSelectedSubject(isActive ? null : subject.id)}
-              className="liquid-card pastel-hover text-left transition-all"
+              className="liquid-card text-left transition-all"
               style={{
                 padding: 0,
                 overflow: 'hidden',
                 cursor: 'pointer',
                 outline: 'none',
-                border: isActive ? '1px solid rgba(124,110,224,0.55)' : undefined,
+                border: isActive ? '1.5px solid var(--brand-500)' : undefined,
+                transform: isActive ? 'translateY(-2px)' : undefined,
+                boxShadow: isActive ? 'var(--shadow-soft-lg)' : undefined,
               }}
             >
-              <div style={{ height: 4, width: '100%', background: subjPal.color }} />
+              {/* Performance status top stripe (green/brand/amber/coral) */}
+              <div style={{ height: 4, width: '100%', background: statusColor }} />
 
               <div className="p-5 space-y-3">
-                <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.3 }}>
+                <p className="font-semibold" style={{ fontSize: 14, color: 'var(--ink-900)', lineHeight: 1.3 }}>
                   {subject.name}
                 </p>
 
                 <div className="flex items-end justify-between">
-                  <span style={{ fontSize: 36, fontWeight: 800, color: gpaColor(avg), lineHeight: 1, letterSpacing: '-0.02em' }}>
-                    {avg.toString().replace('.', ',')}
+                  <span
+                    className="font-display font-extrabold tabular-nums"
+                    style={{ fontSize: 38, color: gpaColor(avg), lineHeight: 1, letterSpacing: '-0.02em' }}
+                  >
+                    <CountUp to={avg} decimals={1} />
                   </span>
                   <TrendIcon trend={trend} />
                 </div>
 
-                <div
-                  style={{
-                    height: 8,
-                    borderRadius: 999,
-                    background: 'rgba(124,110,224,0.08)',
-                    overflow: 'hidden',
-                  }}
-                >
+                {/* Mini progress bar */}
+                <div className="xp-track" style={{ height: 8 }}>
                   <div
                     className="transition-all duration-500"
                     style={{
                       height: '100%',
-                      borderRadius: 999,
+                      borderRadius: 9999,
                       width: `${Math.min((avg / 10) * 100, 100)}%`,
                       background: gpaColor(avg),
                     }}
@@ -395,13 +373,9 @@ export default function StudentGrades() {
                   <span
                     style={{
                       display: 'inline-flex', alignItems: 'center', gap: 4,
-                      padding: '3px 10px',
-                      borderRadius: 999,
-                      fontSize: 11,
-                      fontWeight: 700,
-                      background: tone.bg,
-                      color: tone.color,
-                      border: `1px solid ${tone.border}`,
+                      padding: '3px 10px', borderRadius: 9999,
+                      fontSize: 11, fontWeight: 700,
+                      background: tone.bg, color: tone.color, border: `1px solid ${tone.border}`,
                     }}
                   >
                     <BarChart2 className="w-3 h-3" />
@@ -410,12 +384,8 @@ export default function StudentGrades() {
                   {isActive && (
                     <span
                       style={{
-                        fontSize: 10,
-                        fontWeight: 700,
-                        color: '#5448a8',
-                        background: 'rgba(124,110,224,0.16)',
-                        padding: '3px 10px',
-                        borderRadius: 999,
+                        fontSize: 10, fontWeight: 700, color: 'var(--brand-600)',
+                        background: 'var(--brand-100)', padding: '3px 10px', borderRadius: 9999,
                       }}
                     >
                       Seçildi
@@ -428,7 +398,7 @@ export default function StudentGrades() {
         })}
       </div>
 
-      {/* Subject filter pills */}
+      {/* ── Subject filter pills ── */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
         <FilterPill active={!selectedSubject} onClick={() => setSelectedSubject(null)}>
           {!selectedSubject && <Check className="w-3 h-3 mr-1" />}
@@ -446,22 +416,26 @@ export default function StudentGrades() {
         ))}
       </div>
 
-      {/* Grade history table */}
+      {/* ── Grade history table — calm data surface ── */}
       <div className="liquid-card overflow-hidden" style={{ padding: 0 }}>
         <div
           className="px-6 py-4 flex items-center gap-2"
-          style={{ borderBottom: '1px solid rgba(124,110,224,0.10)' }}
+          style={{ borderBottom: '1px solid var(--hairline)' }}
         >
-          <BarChart2 className="w-4 h-4" style={{ color: COLOR_PERI }} />
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#1a1a2e' }}>
+          <div className="icon-chip icon-chip-periwinkle" style={{ width: 32, height: 32 }}>
+            <BarChart2 className="w-4 h-4" />
+          </div>
+          <span className="font-semibold" style={{ fontSize: 14, color: 'var(--ink-900)' }}>
             Qiymət Tarixi
             {selectedSubject && (
-              <span className="ml-2" style={{ fontWeight: 400, color: '#64748b' }}>
+              <span className="ml-2 font-normal" style={{ color: 'var(--ink-400)' }}>
                 — {uniqueSubjects.find(s => s.id === selectedSubject)?.name}
               </span>
             )}
           </span>
-          <span className="ml-auto text-xs" style={{ color: '#64748b' }}>{filtered.length} qeyd</span>
+          <span className="ml-auto text-xs" style={{ color: 'var(--ink-400)' }}>
+            {filtered.length} qeyd
+          </span>
         </div>
 
         <div className="overflow-x-auto">
@@ -481,28 +455,26 @@ export default function StudentGrades() {
                 const norm = _n != null ? Math.round(_n * 10) / 10 : null
                 return (
                   <tr key={g.id}>
-                    <td style={{ color: '#475569', whiteSpace: 'nowrap' }}>{fmtNumeric(g.date)}</td>
-                    <td style={{ fontWeight: 600, color: '#1a1a2e', whiteSpace: 'nowrap' }}>
+                    <td style={{ color: 'var(--ink-600)', whiteSpace: 'nowrap' }}>
+                      {fmtNumeric(g.date)}
+                    </td>
+                    <td style={{ fontWeight: 600, color: 'var(--ink-900)', whiteSpace: 'nowrap' }}>
                       {g.subject?.name}
                     </td>
-                    <td style={{ color: '#475569' }}>{g.assessment_title || '—'}</td>
+                    <td style={{ color: 'var(--ink-600)' }}>{g.assessment_title || '—'}</td>
                     <td style={{ textAlign: 'center' }}>
                       {norm != null ? (
                         <div className="flex flex-col items-center gap-1.5">
                           <GradeBadge score={norm} />
                           <div
                             style={{
-                              width: 64,
-                              height: 6,
-                              borderRadius: 999,
-                              background: 'rgba(124,110,224,0.10)',
-                              overflow: 'hidden',
+                              width: 64, height: 6, borderRadius: 9999,
+                              background: 'var(--hairline)', overflow: 'hidden',
                             }}
                           >
                             <div
                               style={{
-                                height: '100%',
-                                borderRadius: 999,
+                                height: '100%', borderRadius: 9999,
                                 width: `${Math.min((norm / 10) * 100, 100)}%`,
                                 background: gpaColor(norm),
                               }}
@@ -510,10 +482,10 @@ export default function StudentGrades() {
                           </div>
                         </div>
                       ) : (
-                        <span style={{ color: '#cbd5e1', fontSize: 12 }}>—</span>
+                        <span style={{ color: 'var(--ink-400)', fontSize: 12 }}>—</span>
                       )}
                     </td>
-                    <td style={{ color: '#64748b' }}>{g.notes || '—'}</td>
+                    <td style={{ color: 'var(--ink-600)' }}>{g.notes || '—'}</td>
                   </tr>
                 )
               })}
@@ -522,9 +494,13 @@ export default function StudentGrades() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="py-12 flex flex-col items-center gap-2" style={{ color: '#64748b' }}>
-            <BookOpen className="w-8 h-8" style={{ color: '#7c6ee0' }} />
-            <p className="text-sm">Bu fənn üçün qiymət tapılmadı.</p>
+          <div className="py-10 flex flex-col items-center gap-2" style={{ color: 'var(--ink-400)' }}>
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 44, height: 44 }}>
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <p className="text-sm font-medium" style={{ color: 'var(--ink-400)' }}>
+              Bu fənn üçün qiymət tapılmadı.
+            </p>
           </div>
         )}
       </div>

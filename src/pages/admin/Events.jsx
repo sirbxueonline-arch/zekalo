@@ -34,28 +34,32 @@ const VISIBLE_LABELS = {
   admin: 'Admin',
 }
 
-const TYPE_BADGE_CLASSES = {
-  holiday: 'bg-[rgba(239,68,68,0.10)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]',
-  exam:    'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7] border border-[rgba(124,110,224,0.28)]',
-  meeting: 'bg-[rgba(107,157,222,0.14)] text-[#3d6da7] border border-[rgba(107,157,222,0.32)]',
-  event:   'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]',
-  other:   'bg-[rgba(255,255,255,0.6)] text-[#64748b] border border-[rgba(124,110,224,0.18)]',
+// Low-dial: pill-* status pills. Type is categorical, so keep restrained —
+// only genuinely meaning-bearing types (holiday/exam) carry a tint; rest stay muted.
+const TYPE_PILL_CLASS = {
+  holiday: 'pill-rose',
+  exam:    'pill-peri',
+  meeting: 'pill-muted',
+  event:   'pill-muted',
+  other:   'pill-muted',
 }
 
+// Left-border accent fallback (used when an event has no explicit color)
 const TYPE_BORDER_COLORS = {
-  holiday: '#EF4444',
-  exam: '#7c6ee0',
-  meeting: '#3B82F6',
-  event: '#5db8a3',
-  other: '#9CA3AF',
+  holiday: 'var(--danger)',
+  exam:    'var(--brand-500)',
+  meeting: 'var(--brand-400)',
+  event:   'var(--brand-400)',
+  other:   'var(--ink-400)',
 }
 
+// V3 brand + muted-token palette (no legacy candy hex)
 const PRESET_COLORS = [
-  { value: '#7c6ee0', label: 'Bənövşəyi' },
-  { value: '#5db8a3', label: 'Firuzəyi' },
-  { value: '#e8a87c', label: 'Şəftəli' },
-  { value: '#6b9dde', label: 'Mavi' },
-  { value: '#dc2626', label: 'Qırmızı' },
+  { value: '#574FCF', label: 'Bənövşəyi' },
+  { value: '#3BA8E6', label: 'Mavi'       },
+  { value: '#EAB308', label: 'Şəftəli'   },
+  { value: '#1FA855', label: 'Yaşıl'     },
+  { value: '#EF4444', label: 'Qırmızı'   },
 ]
 
 const AZ_MONTHS = [
@@ -111,7 +115,7 @@ function emptyForm() {
 
 function TypeBadge({ type }) {
   return (
-    <span className={`rounded-full text-xs font-medium px-3 py-0.5 inline-flex items-center ${TYPE_BADGE_CLASSES[type] || 'bg-gray-100 text-gray-600'}`}>
+    <span className={`${TYPE_PILL_CLASS[type] || 'pill-muted'}`}>
       {TYPE_LABELS[type] || type}
     </span>
   )
@@ -122,7 +126,7 @@ function TypeBadge({ type }) {
 function ColorPicker({ value, onChange }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">Rəng</label>
+      <label className="block text-xs font-semibold text-ink-700 uppercase tracking-wide mb-1.5">Rəng</label>
       <div className="flex items-center gap-3">
         {PRESET_COLORS.map(c => (
           <button
@@ -130,7 +134,7 @@ function ColorPicker({ value, onChange }) {
             type="button"
             title={c.label}
             onClick={() => onChange(c.value)}
-            className={`w-8 h-8 rounded-full border-2 transition-transform ${value === c.value ? 'border-gray-800 scale-110' : 'border-transparent hover:scale-105'}`}
+            className={`w-7 h-7 rounded-full border-2 transition-transform ${value === c.value ? 'border-ink-900 scale-110' : 'border-hairline hover:scale-105'}`}
             style={{ backgroundColor: c.value }}
           />
         ))}
@@ -304,8 +308,6 @@ export default function Events() {
 
   const calendarDays = buildCalendarDays(currentYear, currentMonth)
 
-
-
   // ── Render ─────────────────────────────────────────────────────────────────
 
   if (loading) return <PageSpinner />
@@ -317,28 +319,30 @@ export default function Events() {
 
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Tədbirlər və Təqvim</span></h1>
+        <h1 className="text-2xl font-bold text-ink-900 font-display">Tədbirlər və Təqvim</h1>
         <div className="flex items-center gap-3">
-          {/* View toggle */}
-          <div className="flex items-center rounded-full overflow-hidden p-1 backdrop-blur-md" style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(124,110,224,0.18)' }}>
+          {/* View toggle — segmented pill group (admin LOW dial) */}
+          <div className="flex items-center bg-surface-2 border border-hairline rounded-tile p-0.5 gap-0.5">
             <button
               onClick={() => setView('calendar')}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-full transition-all"
-              style={view === 'calendar'
-                ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(124,110,224,0.25)' }
-                : { color: '#64748b' }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-input transition-all ${
+                view === 'calendar'
+                  ? 'bg-surface text-brand-700 shadow-soft'
+                  : 'text-ink-400 hover:text-ink-700'
+              }`}
             >
-              <CalendarDays className="w-4 h-4" />
+              <CalendarDays className="w-3.5 h-3.5" />
               Təqvim
             </button>
             <button
               onClick={() => setView('list')}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-full transition-all"
-              style={view === 'list'
-                ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(124,110,224,0.25)' }
-                : { color: '#64748b' }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-input transition-all ${
+                view === 'list'
+                  ? 'bg-surface text-brand-700 shadow-soft'
+                  : 'text-ink-400 hover:text-ink-700'
+              }`}
             >
-              <List className="w-4 h-4" />
+              <List className="w-3.5 h-3.5" />
               Siyahı
             </button>
           </div>
@@ -352,24 +356,23 @@ export default function Events() {
 
       {/* ── Calendar View ── */}
       {view === 'calendar' && (
-        <Card hover={false} className="p-0 overflow-hidden">
+        <div className="bg-surface border border-hairline rounded-tile overflow-hidden">
           {/* Month navigation */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-border-soft">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-hairline bg-surface-2">
             <button
               onClick={prevMonth}
-              className="p-2 rounded-lg hover:bg-surface transition-colors text-gray-600"
+              className="p-1.5 rounded-input hover:bg-surface transition-colors text-ink-600 hover:text-ink-900"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <div className="flex items-center gap-3">
-              <h2 className="font-serif text-xl text-gray-900">
+              <h2 className="text-base font-semibold text-ink-900">
                 {AZ_MONTHS[currentMonth]} {currentYear}
               </h2>
               {(currentMonth !== today.getMonth() || currentYear !== today.getFullYear()) && (
                 <button
                   onClick={() => { setCurrentMonth(today.getMonth()); setCurrentYear(today.getFullYear()) }}
-                  className="text-xs font-semibold px-3 py-1 rounded-full transition-all backdrop-blur-md"
-                  style={{ background: 'rgba(124,110,224,0.12)', color: '#5e4fc7', border: '1px solid rgba(124,110,224,0.28)' }}
+                  className="pill-peri text-xs cursor-pointer"
                 >
                   Bu gün
                 </button>
@@ -377,16 +380,16 @@ export default function Events() {
             </div>
             <button
               onClick={nextMonth}
-              className="p-2 rounded-lg hover:bg-surface transition-colors text-gray-600"
+              className="p-1.5 rounded-input hover:bg-surface transition-colors text-ink-600 hover:text-ink-900"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* Weekday headers */}
-          <div className="grid grid-cols-7 border-b border-border-soft">
+          <div className="grid grid-cols-7 border-b border-hairline">
             {AZ_WEEKDAYS.map(d => (
-              <div key={d} className="py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <div key={d} className="py-2 text-center text-xs font-semibold text-ink-400 uppercase tracking-wide">
                 {d}
               </div>
             ))}
@@ -404,38 +407,43 @@ export default function Events() {
                   key={idx}
                   onClick={() => day && openAdd(dateStr)}
                   className={`
-                    min-h-[96px] border-b border-r border-border-soft p-1.5 relative
-                    ${day ? 'cursor-pointer hover:bg-surface transition-colors' : 'bg-gray-50/50'}
+                    min-h-[88px] border-b border-r border-hairline p-1.5 relative
+                    ${day ? 'cursor-pointer hover:bg-brand-50/40 transition-colors' : 'bg-surface-2/60'}
                     ${idx % 7 === 6 ? 'border-r-0' : ''}
                   `}
                 >
                   {day && (
                     <>
                       <span
-                        className="inline-flex w-7 h-7 items-center justify-center rounded-full text-xs font-bold mb-1"
-                        style={isToday
-                          ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 12px rgba(124,110,224,0.25)' }
-                          : { color: '#1a1a2e' }}
+                        className={`inline-flex w-6 h-6 items-center justify-center rounded-full text-xs font-bold mb-1 tabular-nums ${
+                          isToday
+                            ? 'bg-brand-500 text-white shadow-soft'
+                            : 'text-ink-700'
+                        }`}
                       >
                         {day}
                       </span>
                       <div className="space-y-0.5">
-                        {dayEvents.slice(0, 3).map(event => (
-                          <button
-                            key={event.id}
-                            onClick={(e) => { e.stopPropagation(); openEdit(event) }}
-                            className="w-full text-left text-xs px-1.5 py-0.5 rounded truncate font-medium hover:opacity-80 transition-opacity"
-                            style={{
-                              backgroundColor: (event.color || '#7C3AED') + '22',
-                              color: event.color || '#7C3AED',
-                            }}
-                            title={event.title}
-                          >
-                            {event.title}
-                          </button>
-                        ))}
+                        {dayEvents.slice(0, 3).map(event => {
+                          // §4.7 muted event block: ~12% tint fill + accent left-bar + dark text
+                          const accent = event.color || 'var(--brand-500)'
+                          return (
+                            <button
+                              key={event.id}
+                              onClick={(e) => { e.stopPropagation(); openEdit(event) }}
+                              className="w-full text-left text-[11px] pl-2 pr-1.5 py-0.5 rounded-ctl truncate font-semibold text-ink-700 hover:opacity-80 transition-opacity border-l-2"
+                              style={{
+                                backgroundColor: (event.color || '#574FCF') + '1F',
+                                borderColor: accent,
+                              }}
+                              title={event.title}
+                            >
+                              {event.title}
+                            </button>
+                          )
+                        })}
                         {dayEvents.length > 3 && (
-                          <p className="text-xs text-gray-400 px-1">+{dayEvents.length - 3} daha</p>
+                          <p className="text-[10px] text-ink-400 px-1 tabular-nums">+{dayEvents.length - 3} daha</p>
                         )}
                       </div>
                     </>
@@ -444,7 +452,7 @@ export default function Events() {
               )
             })}
           </div>
-        </Card>
+        </div>
       )}
 
       {/* ── List View ── */}
@@ -479,18 +487,17 @@ export default function Events() {
                     <div key={key}>
                       {/* Month heading */}
                       <div className="flex items-center gap-3 mb-3">
-                        <h3 className="font-serif text-lg text-gray-700">
+                        <h3 className="text-xs font-semibold text-ink-400 uppercase tracking-wide">
                           {AZ_MONTHS[group.month]} {group.year}
                         </h3>
-                        <div className="flex-1 h-px bg-border-soft" />
-                        <span className="text-xs text-gray-400">{group.items.length} tədbir</span>
+                        <div className="flex-1 h-px bg-hairline" />
+                        <span className="text-xs text-ink-400 tabular-nums">{group.items.length} tədbir</span>
                       </div>
 
                       <div className="space-y-2">
                         {group.items.map(event => {
                           const isToday = event.start_date <= todayStr && event.end_date >= todayStr
-                          const borderColor = event.color || TYPE_BORDER_COLORS[event.type] || '#9CA3AF'
-                          // Format date nicely
+                          const borderColor = event.color || TYPE_BORDER_COLORS[event.type] || 'var(--ink-400)'
                           const startParts = event.start_date?.split('-') || []
                           const endParts = event.end_date?.split('-') || []
                           const isSameDay = event.start_date === event.end_date
@@ -501,39 +508,33 @@ export default function Events() {
                           return (
                             <div
                               key={event.id}
-                              className={`liquid-card flex items-stretch overflow-hidden ${isToday ? 'ring-2 ring-[rgba(124,110,224,0.3)]' : ''}`}
-                              style={{ padding: 0 }}
+                              className={`bg-surface border border-hairline rounded-tile flex items-stretch overflow-hidden transition-shadow hover:shadow-soft ${isToday ? 'ring-1 ring-brand-300' : ''}`}
                             >
-                              {/* Colored left border */}
+                              {/* Colored left accent */}
                               <div className="w-1 flex-shrink-0" style={{ backgroundColor: borderColor }} />
 
                               {/* Date block */}
-                              <div className="flex flex-col items-center justify-center px-4 py-3 min-w-[64px] border-r border-border-soft">
-                                <span className="text-xl font-bold text-gray-800 leading-none">
+                              <div className="flex flex-col items-center justify-center px-4 py-3 min-w-[60px] border-r border-hairline">
+                                <span className="text-lg font-bold text-ink-900 leading-none tabular-nums">
                                   {startParts[2]}
                                 </span>
-                                <span className="text-xs text-gray-400 mt-0.5">
+                                <span className="text-xs text-ink-400 mt-0.5">
                                   {AZ_MONTHS[Number(startParts[1]) - 1]?.slice(0, 3) || ''}
                                 </span>
                                 {isToday && (
-                                  <span
-                                    className="mt-1 px-1.5 py-0.5 rounded-full text-white text-[9px] font-bold uppercase tracking-wide leading-none"
-                                    style={{ background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)' }}
-                                  >
-                                    Bu gün
-                                  </span>
+                                  <span className="pill-peri mt-1 text-[10px]">Bu gün</span>
                                 )}
                               </div>
 
                               {/* Event info */}
                               <div className="flex-1 px-4 py-3 flex items-center gap-3">
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-semibold text-gray-900 truncate">{event.title}</p>
+                                  <p className="font-semibold text-ink-900 truncate">{event.title}</p>
                                   {!isSameDay && (
-                                    <p className="text-xs text-gray-400 mt-0.5">{dateLabel}</p>
+                                    <p className="text-xs text-ink-400 mt-0.5 tabular-nums">{dateLabel}</p>
                                   )}
                                   {event.description && (
-                                    <p className="text-xs text-gray-400 mt-0.5 truncate">{event.description}</p>
+                                    <p className="text-xs text-ink-400 mt-0.5 truncate">{event.description}</p>
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -545,13 +546,13 @@ export default function Events() {
                               <div className="flex items-center gap-1 pr-3">
                                 <button
                                   onClick={() => openEdit(event)}
-                                  className="p-1.5 text-gray-400 hover:text-purple transition-colors rounded-lg hover:bg-purple-light"
+                                  className="p-1.5 text-ink-400 hover:text-brand-600 transition-colors rounded-input hover:bg-brand-50"
                                 >
                                   <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => setDeleteModal(event)}
-                                  className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
+                                  className="p-1.5 text-ink-400 hover:text-danger transition-colors rounded-input hover:bg-danger/8"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -569,114 +570,70 @@ export default function Events() {
         </>
       )}
 
-      {/* ── Add Modal ── */}
-      <Modal open={addModal} onClose={() => { setAddModal(false); setForm(emptyForm()); setError(null) }} title="Tədbir əlavə et" size="lg">
-        <div className="space-y-4">
-          <Input
-            label="Başlıq *"
-            placeholder="Tədbirin adı"
-            value={form.title}
-            onChange={e => setField('title', e.target.value)}
-          />
-          <Textarea
-            label="Təsvir"
-            placeholder="Ətraflı məlumat..."
-            rows={3}
-            value={form.description}
-            onChange={e => setField('description', e.target.value)}
-          />
-          <div className="grid grid-cols-2 gap-4">
+      {/* ── Event form (shared by Add & Edit) ── */}
+      {[
+        { open: addModal, onClose: () => { setAddModal(false); setForm(emptyForm()); setError(null) }, title: 'Tədbir əlavə et', onSubmit: handleAdd, submitLabel: 'Əlavə et' },
+        { open: !!editModal, onClose: () => { setEditModal(null); setForm(emptyForm()); setError(null) }, title: 'Tədbiri redaktə et', onSubmit: handleEdit, submitLabel: 'Yadda saxla' },
+      ].map(({ open, onClose, title, onSubmit, submitLabel }) => (
+        <Modal key={title} open={open} onClose={onClose} title={title} size="lg">
+          <div className="space-y-4">
             <Input
-              label="Başlanğıc tarixi *"
-              type="date"
-              value={form.start_date}
-              onChange={e => setField('start_date', e.target.value)}
+              label="Başlıq *"
+              placeholder="Tədbirin adı"
+              value={form.title}
+              onChange={e => setField('title', e.target.value)}
             />
-            <Input
-              label="Bitmə tarixi *"
-              type="date"
-              value={form.end_date}
-              onChange={e => setField('end_date', e.target.value)}
+            <Textarea
+              label="Təsvir"
+              placeholder="Ətraflı məlumat..."
+              rows={3}
+              value={form.description}
+              onChange={e => setField('description', e.target.value)}
             />
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Başlanğıc tarixi *"
+                type="date"
+                value={form.start_date}
+                onChange={e => setField('start_date', e.target.value)}
+              />
+              <Input
+                label="Bitmə tarixi *"
+                type="date"
+                value={form.end_date}
+                onChange={e => setField('end_date', e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Select label="Növ" value={form.type} onChange={e => setField('type', e.target.value)}>
+                {Object.entries(TYPE_LABELS).map(([val, label]) => (
+                  <option key={val} value={val}>{label}</option>
+                ))}
+              </Select>
+              <Select label="Görünür" value={form.visible_to} onChange={e => setField('visible_to', e.target.value)}>
+                {Object.entries(VISIBLE_LABELS).map(([val, label]) => (
+                  <option key={val} value={val}>{label}</option>
+                ))}
+              </Select>
+            </div>
+            <ColorPicker value={form.color} onChange={v => setField('color', v)} />
+            {error && (
+              <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-input px-3 py-2">{error}</p>
+            )}
+            <div className="flex justify-end gap-3 pt-2 border-t border-hairline">
+              <Button variant="ghost" onClick={onClose}>Ləğv et</Button>
+              <Button onClick={onSubmit} loading={saving}>{submitLabel}</Button>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Select label="Növ" value={form.type} onChange={e => setField('type', e.target.value)}>
-              {Object.entries(TYPE_LABELS).map(([val, label]) => (
-                <option key={val} value={val}>{label}</option>
-              ))}
-            </Select>
-            <Select label="Görünür" value={form.visible_to} onChange={e => setField('visible_to', e.target.value)}>
-              {Object.entries(VISIBLE_LABELS).map(([val, label]) => (
-                <option key={val} value={val}>{label}</option>
-              ))}
-            </Select>
-          </div>
-          <ColorPicker value={form.color} onChange={v => setField('color', v)} />
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => { setAddModal(false); setForm(emptyForm()); setError(null) }}>Ləğv et</Button>
-            <Button onClick={handleAdd} loading={saving}>Əlavə et</Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* ── Edit Modal ── */}
-      <Modal open={!!editModal} onClose={() => { setEditModal(null); setForm(emptyForm()); setError(null) }} title="Tədbiri redaktə et" size="lg">
-        <div className="space-y-4">
-          <Input
-            label="Başlıq *"
-            placeholder="Tədbirin adı"
-            value={form.title}
-            onChange={e => setField('title', e.target.value)}
-          />
-          <Textarea
-            label="Təsvir"
-            placeholder="Ətraflı məlumat..."
-            rows={3}
-            value={form.description}
-            onChange={e => setField('description', e.target.value)}
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Başlanğıc tarixi *"
-              type="date"
-              value={form.start_date}
-              onChange={e => setField('start_date', e.target.value)}
-            />
-            <Input
-              label="Bitmə tarixi *"
-              type="date"
-              value={form.end_date}
-              onChange={e => setField('end_date', e.target.value)}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Select label="Növ" value={form.type} onChange={e => setField('type', e.target.value)}>
-              {Object.entries(TYPE_LABELS).map(([val, label]) => (
-                <option key={val} value={val}>{label}</option>
-              ))}
-            </Select>
-            <Select label="Görünür" value={form.visible_to} onChange={e => setField('visible_to', e.target.value)}>
-              {Object.entries(VISIBLE_LABELS).map(([val, label]) => (
-                <option key={val} value={val}>{label}</option>
-              ))}
-            </Select>
-          </div>
-          <ColorPicker value={form.color} onChange={v => setField('color', v)} />
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => { setEditModal(null); setForm(emptyForm()); setError(null) }}>Ləğv et</Button>
-            <Button onClick={handleEdit} loading={saving}>Yadda saxla</Button>
-          </div>
-        </div>
-      </Modal>
+        </Modal>
+      ))}
 
       {/* ── Delete Confirmation Modal ── */}
       <Modal open={!!deleteModal} onClose={() => setDeleteModal(null)} title="Silmə təsdiqi" size="sm">
-        <p className="text-sm text-gray-600 mb-6">
-          <strong>{deleteModal?.title}</strong> adlı tədbiri silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.
+        <p className="text-sm text-ink-600 mb-6">
+          <strong className="text-ink-900">{deleteModal?.title}</strong> adlı tədbiri silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.
         </p>
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
           <Button variant="ghost" onClick={() => setDeleteModal(null)}>Ləğv et</Button>
           <Button variant="danger" onClick={handleDelete} loading={saving}>Sil</Button>
         </div>

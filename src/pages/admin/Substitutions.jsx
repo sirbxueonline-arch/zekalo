@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, CalendarDays, AlertTriangle, RefreshCw } from 'lucide-react'
+import { Plus, Trash2, CalendarDays, AlertTriangle, RefreshCw, Check } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
@@ -262,11 +262,11 @@ export default function Substitutions() {
   const substituteOptions = teachers.filter(t => t.id !== form.absent_teacher_id)
 
   const listColumns = [
-    { key: 'date', label: 'Tarix', render: (val) => formatDate(val) },
+    { key: 'date', label: 'Tarix', render: (val) => <span className="tabular-nums text-ink-700">{formatDate(val)}</span> },
     {
       key: 'slot',
       label: 'Dərs saatı',
-      render: (val) => val ? `${val.period}-ci dərs` : '—',
+      render: (val) => val ? <span className="tabular-nums">{val.period}-ci dərs</span> : '—',
     },
     {
       key: 'slot',
@@ -281,21 +281,21 @@ export default function Substitutions() {
     {
       key: 'absent_teacher',
       label: 'İcazəsiz müəllim',
-      render: (val) => val?.full_name || '—',
+      render: (val) => <span className="text-ink-700">{val?.full_name || '—'}</span>,
     },
     {
       key: 'substitute_teacher',
       label: 'Əvəzedici',
       render: (val) => val ? (
-        <span className="text-teal font-medium">{val.full_name}</span>
+        <span className="pill-mint">{val.full_name}</span>
       ) : (
-        <span className="text-red-500 text-xs">Əvəz yoxdur</span>
+        <span className="pill-rose">Əvəz yoxdur</span>
       ),
     },
     {
       key: 'reason',
       label: 'Səbəb',
-      render: (val) => <span className="text-gray-500">{val || '—'}</span>,
+      render: (val) => <span className="text-ink-400 text-sm">{val || '—'}</span>,
     },
     {
       key: 'actions',
@@ -303,7 +303,7 @@ export default function Substitutions() {
       render: (_, row) => (
         <button
           onClick={(e) => { e.stopPropagation(); setDeleteModal(row) }}
-          className="p-1.5 text-gray-400 hover:text-red-600 transition-colors"
+          className="p-1.5 text-ink-400 hover:text-danger transition-colors rounded-md hover:bg-danger/8"
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -317,7 +317,7 @@ export default function Substitutions() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Əvəzetmə</span></h1>
+        <h1 className="text-2xl font-bold text-ink-900 font-display">Əvəzetmə</h1>
         <Button onClick={() => openAddModal()}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Əvəzetmə əlavə et</span>
         </Button>
@@ -326,38 +326,44 @@ export default function Substitutions() {
       {/* Date picker */}
       <div className="flex items-end gap-4 flex-wrap">
         <div className="w-52">
-          <label className="block text-sm font-medium text-[#1a1a2e] mb-1.5">Tarix seçin</label>
+          <label className="block text-xs font-semibold text-ink-700 uppercase tracking-wide mb-1.5">Tarix seçin</label>
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-            style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+            className="pastel-input"
           />
         </div>
-        <p className="text-sm text-[#64748b] pb-2.5">
-          Həftə: <strong>{formatDate(monday)}</strong> — <strong>{formatDate(addDays(monday, 5))}</strong>
+        <p className="text-sm text-ink-400 pb-2.5 tabular-nums">
+          Həftə: <strong className="text-ink-700">{formatDate(monday)}</strong> — <strong className="text-ink-700">{formatDate(addDays(monday, 5))}</strong>
         </p>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="flex items-center gap-2 bg-danger/8 border border-danger/20 rounded-input px-4 py-2.5">
+          <AlertTriangle className="w-4 h-4 text-danger shrink-0" />
+          <p className="text-sm text-danger">{error}</p>
+        </div>
+      )}
 
       {/* Weekly grid */}
-      <Card hover={false} className="p-4 overflow-x-auto">
+      <div className="bg-surface border border-hairline rounded-tile overflow-x-auto">
         <table className="w-full border-collapse min-w-[900px]">
           <thead>
-            <tr>
-              <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-3 py-2 text-left w-16">Dərs</th>
+            <tr className="bg-surface-2">
+              <th className="text-xs font-semibold text-ink-400 uppercase tracking-wide px-3 py-3 text-left w-16 border-b border-hairline-strong">Dərs</th>
               {DAY_KEYS.map((dayNum, i) => (
                 <th
                   key={dayNum}
-                  className={`text-xs font-medium uppercase tracking-wider px-2 py-2 text-center cursor-pointer transition-colors hover:bg-surface ${
-                    dayNum === selectedDayOfWeek ? 'text-purple bg-purple-light/30' : 'text-gray-500'
+                  className={`text-xs font-semibold uppercase tracking-wide px-2 py-3 text-center cursor-pointer transition-colors border-b border-hairline-strong ${
+                    dayNum === selectedDayOfWeek
+                      ? 'text-brand-600 bg-brand-50'
+                      : 'text-ink-400 hover:bg-surface'
                   }`}
                   onClick={() => setSelectedDate(weekDates[i])}
                 >
                   <div>{DAYS[i]}</div>
-                  <div className={`text-base font-semibold mt-0.5 ${dayNum === selectedDayOfWeek ? 'text-purple' : 'text-gray-700'}`}>
+                  <div className={`text-base font-bold mt-0.5 tabular-nums ${dayNum === selectedDayOfWeek ? 'text-brand-600' : 'text-ink-700'}`}>
                     {new Date(weekDates[i]).getDate()}
                   </div>
                 </th>
@@ -366,21 +372,22 @@ export default function Substitutions() {
           </thead>
           <tbody>
             {PERIODS.map(period => (
-              <tr key={period} className="border-t border-border-soft">
-                <td className="px-3 py-1.5 text-sm font-medium text-gray-500 text-center align-top pt-3">{period}</td>
+              <tr key={period} className="border-t border-hairline">
+                <td className="px-3 py-1.5 text-sm font-semibold text-ink-400 text-center align-top pt-3 border-r border-hairline tabular-nums">{period}</td>
                 {DAY_KEYS.map((dayNum, di) => {
                   const dateForCell = weekDates[di]
                   const cellSlots = getSlotsForCell(dayNum, period)
+                  const isSelectedCol = dayNum === selectedDayOfWeek
 
                   if (cellSlots.length === 0) {
                     return (
-                      <td key={dayNum} className="px-2 py-1.5 text-center align-top">
-                        <div className="h-16 flex items-center justify-center">
+                      <td key={dayNum} className={`px-2 py-1.5 text-center align-top ${isSelectedCol ? 'bg-brand-50/30' : ''}`}>
+                        <div className="h-14 flex items-center justify-center">
                           <button
                             onClick={() => { setSelectedDate(dateForCell); openAddModal() }}
-                            className="w-6 h-6 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center hover:border-purple transition-colors"
+                            className="w-6 h-6 rounded-full border-2 border-dashed border-hairline-strong flex items-center justify-center hover:border-brand-400 hover:bg-brand-50 transition-colors"
                           >
-                            <Plus className="w-3 h-3 text-gray-300" />
+                            <Plus className="w-3 h-3 text-ink-400" />
                           </button>
                         </div>
                       </td>
@@ -388,35 +395,39 @@ export default function Substitutions() {
                   }
 
                   return (
-                    <td key={dayNum} className="px-2 py-1.5 align-top">
+                    <td key={dayNum} className={`px-2 py-1.5 align-top ${isSelectedCol ? 'bg-brand-50/30' : ''}`}>
                       <div className="space-y-1">
                         {cellSlots.map(slot => {
                           const subKey = `${slot.id}__${dateForCell}`
                           const sub = subMap[subKey]
-                          const hasTeacher = !!slot.teacher_id
 
-                          let cellClass = 'bg-white border border-border-soft'
-                          if (sub) cellClass = 'bg-amber-50 border border-amber-300'
+                          // §4.7 muted block: neutral by default, amber tint = substitution (status)
+                          const accentBar = sub ? 'bg-warning' : 'bg-brand-300'
+                          const cellBg = sub
+                            ? 'bg-warning/8 border-warning/25'
+                            : 'bg-surface-2 border-hairline'
 
                           return (
                             <div
                               key={slot.id}
-                              className={`rounded-lg p-2 text-left space-y-0.5 cursor-pointer transition-colors hover:opacity-80 ${cellClass}`}
+                              className={`relative rounded-input p-2 pl-2.5 text-left space-y-0.5 cursor-pointer transition-shadow hover:shadow-soft border ${cellBg}`}
                               onClick={() => {
                                 setSelectedDate(dateForCell)
                                 openAddModal(slot)
                               }}
                             >
-                              <p className="text-xs font-semibold text-gray-900 truncate">
+                              <span className={`absolute left-0 top-1.5 bottom-1.5 w-[2px] rounded-full ${accentBar}`} />
+                              <p className="text-xs font-semibold text-ink-900 truncate">
                                 {slot.subject?.name || '—'}
                               </p>
-                              <p className="text-xs text-gray-500 truncate">{slot.class?.name}</p>
-                              {hasTeacher && (
-                                <p className="text-xs text-gray-400 truncate">{slot.teacher?.full_name}</p>
+                              <p className="text-xs text-ink-600 truncate">{slot.class?.name}</p>
+                              {slot.teacher_id && (
+                                <p className="text-xs text-ink-400 truncate">{slot.teacher?.full_name}</p>
                               )}
                               {sub ? (
-                                <p className="text-xs font-medium text-amber-700 truncate">
-                                  ↩ {sub.substitute_teacher?.full_name || 'Əvəz yoxdur'}
+                                <p className="text-xs font-semibold text-warning truncate flex items-center gap-1">
+                                  <RefreshCw className="w-3 h-3 shrink-0" />
+                                  {sub.substitute_teacher?.full_name || 'Əvəz yoxdur'}
                                 </p>
                               ) : null}
                             </div>
@@ -430,11 +441,11 @@ export default function Substitutions() {
             ))}
           </tbody>
         </table>
-      </Card>
+      </div>
 
       {/* Week list view */}
       <div>
-        <h2 className="text-xl font-bold text-[#1a1a2e] mb-4">Bu həftənin əvəzetmələri</h2>
+        <h2 className="text-base font-semibold text-ink-900 mb-4">Bu həftənin əvəzetmələri</h2>
         <Card hover={false} className="p-0 overflow-hidden">
           {weekSubs.length === 0 ? (
             <EmptyState
@@ -476,16 +487,16 @@ export default function Substitutions() {
           {/* Absent teacher's slots for that day */}
           {form.absent_teacher_id && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs font-semibold text-ink-700 uppercase tracking-wide mb-1.5">
                 Dərs saatları — {DAYS[dayOfWeek(form.date) - 1] || ''}
               </label>
               {absentTeacherSlots.length === 0 ? (
-                <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span className="text-sm text-amber-700">Bu müəllimin seçilmiş günündə dərs saatı yoxdur</span>
+                <div className="flex items-center gap-2 bg-warning/8 border border-warning/25 rounded-input px-4 py-3">
+                  <AlertTriangle className="w-4 h-4 text-warning shrink-0" />
+                  <span className="text-sm text-ink-600">Bu müəllimin seçilmiş günündə dərs saatı yoxdur</span>
                 </div>
               ) : (
-                <div className="border border-border-soft rounded-md overflow-hidden divide-y divide-border-soft">
+                <div className="border border-hairline rounded-tile overflow-hidden divide-y divide-hairline">
                   {absentTeacherSlots.map(slot => {
                     const selected = form.slot_ids.includes(slot.id)
                     // Check if sub already exists
@@ -496,25 +507,25 @@ export default function Substitutions() {
                         type="button"
                         onClick={() => toggleSlotId(slot.id)}
                         className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left transition-colors ${
-                          selected ? 'bg-purple-light' : 'hover:bg-surface'
+                          selected ? 'bg-brand-50' : 'hover:bg-surface-2'
                         }`}
                       >
-                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
-                          selected ? 'border-purple bg-purple' : 'border-gray-300'
+                        <div className={`w-5 h-5 rounded-ctl border-2 flex items-center justify-center shrink-0 transition-colors ${
+                          selected ? 'border-brand-500 bg-brand-500' : 'border-hairline-strong'
                         }`}>
-                          {selected && <span className="text-white text-xs font-bold">✓</span>}
+                          {selected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className={`font-medium ${selected ? 'text-purple' : 'text-gray-700'}`}>
+                          <span className={`font-semibold ${selected ? 'text-brand-700' : 'text-ink-700'}`}>
                             {slot.period}-ci dərs
                           </span>
-                          <span className="text-gray-400 mx-2">·</span>
-                          <span className="text-gray-600">{slot.subject?.name || '—'}</span>
-                          <span className="text-gray-400 mx-2">·</span>
-                          <span className="text-gray-500">{slot.class?.name || '—'}</span>
+                          <span className="text-ink-400 mx-2">·</span>
+                          <span className="text-ink-600">{slot.subject?.name || '—'}</span>
+                          <span className="text-ink-400 mx-2">·</span>
+                          <span className="text-ink-500">{slot.class?.name || '—'}</span>
                         </div>
                         {existingSub && (
-                          <span className="text-xs bg-amber-100 text-amber-700 border border-amber-200 rounded-full px-2 py-0.5 shrink-0">
+                          <span className="pill-peach text-[10px] shrink-0">
                             Artıq əvəz var
                           </span>
                         )}
@@ -547,13 +558,13 @@ export default function Substitutions() {
           />
 
           {error && (
-            <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-              <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
-              <span className="text-sm text-red-700">{error}</span>
+            <div className="flex items-center gap-2 bg-danger/8 border border-danger/20 rounded-input px-4 py-3">
+              <AlertTriangle className="w-4 h-4 text-danger shrink-0" />
+              <span className="text-sm text-danger">{error}</span>
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex justify-end gap-3 pt-2 border-t border-hairline">
             <Button variant="ghost" onClick={() => { setAddModal(false); resetForm() }}>Ləğv et</Button>
             <Button onClick={handleAdd} loading={saving}>
               <span className="flex items-center gap-2"><RefreshCw className="w-4 h-4" /> Əlavə et</span>
@@ -564,17 +575,17 @@ export default function Substitutions() {
 
       {/* Delete Confirmation */}
       <Modal open={!!deleteModal} onClose={() => setDeleteModal(null)} title="Əvəzetməni sil" size="sm">
-        <p className="text-sm text-gray-600 mb-2">
+        <p className="text-sm text-ink-600 mb-2">
           Aşağıdakı əvəzetməni silmək istədiyinizə əminsiniz?
         </p>
         {deleteModal && (
-          <div className="bg-surface border border-border-soft rounded-lg p-3 mb-6 space-y-1 text-sm">
-            <p><span className="text-gray-500">Tarix:</span> <strong>{formatDate(deleteModal.date)}</strong></p>
-            <p><span className="text-gray-500">İcazəsiz:</span> <strong>{deleteModal.absent_teacher?.full_name}</strong></p>
-            <p><span className="text-gray-500">Əvəzedici:</span> <strong>{deleteModal.substitute_teacher?.full_name || '—'}</strong></p>
+          <div className="bg-surface-2 border border-hairline rounded-tile p-4 mb-6 space-y-1.5 text-sm">
+            <p><span className="text-ink-400">Tarix:</span> <strong className="text-ink-900 tabular-nums">{formatDate(deleteModal.date)}</strong></p>
+            <p><span className="text-ink-400">İcazəsiz:</span> <strong className="text-ink-900">{deleteModal.absent_teacher?.full_name}</strong></p>
+            <p><span className="text-ink-400">Əvəzedici:</span> <strong className="text-ink-900">{deleteModal.substitute_teacher?.full_name || '—'}</strong></p>
           </div>
         )}
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
           <Button variant="ghost" onClick={() => setDeleteModal(null)}>Ləğv et</Button>
           <Button variant="danger" onClick={handleDelete} loading={saving}>Sil</Button>
         </div>

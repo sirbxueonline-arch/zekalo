@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { Settings as SettingsIcon, Upload, Trash2, AlertTriangle, CheckCircle, XCircle, Globe, Image } from 'lucide-react'
+import { Settings as SettingsIcon, Upload, Trash2, AlertTriangle, CheckCircle, XCircle, Globe, Image, ShieldCheck } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
-import Card from '../../components/ui/Card'
 import Input from '../../components/ui/Input'
 import { Select } from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
@@ -33,6 +32,7 @@ export default function Settings() {
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
+  const [section, setSection] = useState('general')
 
   const isGov = school?.edition === 'government'
 
@@ -183,109 +183,221 @@ export default function Settings() {
 
   if (loading) return <PageSpinner />
 
+  // §4.6 two-pane settings nav — neutral grey active fill, never a colored pill.
+  const NAV = [
+    { id: 'general',  label: 'Ümumi',      icon: SettingsIcon },
+    ...(isGov ? [{ id: 'ministry', label: t('ministry'), icon: Globe }] : []),
+    { id: 'logo',     label: 'Logo',       icon: Image },
+    { id: 'security', label: t('mfa') || 'Təhlükəsizlik', icon: ShieldCheck },
+    { id: 'danger',   label: t('danger_zone'), icon: AlertTriangle, danger: true },
+  ]
+
+  // Quiet section header inside the right column.
+  const SectionHead = ({ title, description }) => (
+    <div className="mb-5">
+      <h2 className="text-[15px] font-semibold text-ink-900">{title}</h2>
+      {description && <p className="text-[13px] text-ink-400 mt-0.5">{description}</p>}
+    </div>
+  )
+
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('settings')}</span></h1>
-
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {success && <p className="text-sm text-teal">{success}</p>}
-
-      <Card hover={false}>
-        <p className="text-xs tracking-widest text-gray-400 uppercase mb-3">{t('settings')}</p>
-        <div className="space-y-4">
-          <Input label={t('school_name')} value={schoolName} onChange={(e) => setSchoolName(e.target.value)} />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Nəşr</label>
-            <div className="flex items-center gap-2">
-              <EditionBadge edition={school?.edition} govLabel={t('government')} />
-              <span className="text-sm text-gray-500">(deyisdirile bilmez)</span>
-            </div>
-          </div>
-          <Select label={t('language')} value={language} onChange={(e) => setLanguage(e.target.value)}>
-            <option value="az">Azerbaycanca</option>
-            <option value="en">English</option>
-            <option value="ru">Pусский</option>
-          </Select>
-        </div>
-      </Card>
-
-      {isGov && (
-        <Card hover={false}>
-          <p className="text-xs tracking-widest text-gray-400 uppercase mb-3">{t('ministry')}</p>
-          <div className="space-y-4">
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
-                <Input label="ASAN API" type="password" value={asanApiKey} onChange={(e) => setAsanApiKey(e.target.value)} placeholder="ASAN xidmet API acari" />
-              </div>
-              <Button variant="ghost" onClick={testAsanConnection} loading={testingAsan}>{t('test_connection')}</Button>
-              {asanStatus === 'success' && <CheckCircle className="w-5 h-5 text-teal mb-3" />}
-              {asanStatus === 'error' && <XCircle className="w-5 h-5 text-red-500 mb-3" />}
-            </div>
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
-                <Input label="E-Gov.az endpoint" value={egovEndpoint} onChange={(e) => setEgovEndpoint(e.target.value)} placeholder="https://e-gov.az/api/v1" />
-              </div>
-            </div>
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
-                <Input label="E-Gov.az API" type="password" value={egovApiKey} onChange={(e) => setEgovApiKey(e.target.value)} placeholder="E-Gov API acari" />
-              </div>
-              <Button variant="ghost" onClick={testEgovConnection} loading={testingEgov}>{t('test_connection')}</Button>
-              {egovStatus === 'success' && <CheckCircle className="w-5 h-5 text-teal mb-3" />}
-              {egovStatus === 'error' && <XCircle className="w-5 h-5 text-red-500 mb-3" />}
-            </div>
-          </div>
-        </Card>
-      )}
-
-      <Card hover={false}>
-        <p className="text-xs tracking-widest text-gray-400 uppercase mb-3">{t('settings')}</p>
-        <div className="flex items-center gap-6">
-          {logoUrl ? (
-            <img src={logoUrl} alt={t('school_name')} className="w-20 h-20 rounded-xl object-cover border border-border-soft" />
-          ) : (
-            <div className="w-20 h-20 rounded-xl bg-surface border border-border-soft flex items-center justify-center">
-              <Image className="w-8 h-8 text-gray-300" />
-            </div>
-          )}
-          <div>
-            <input type="file" ref={fileInputRef} accept="image/*" onChange={handleLogoUpload} className="hidden" />
-            <Button variant="ghost" onClick={() => fileInputRef.current?.click()} loading={uploading}>
-              <span className="flex items-center gap-2"><Upload className="w-4 h-4" /> Logo</span>
-            </Button>
-            <p className="text-xs text-gray-400 mt-1">PNG, JPG ve ya SVG. Maks 2MB.</p>
-          </div>
-        </div>
-      </Card>
-
-      <div className="flex justify-end">
-        <Button onClick={handleSave} loading={saving}>{t('save')}</Button>
+      {/* Page header */}
+      <div>
+        <h1 className="font-display text-2xl font-bold text-ink-900">{t('settings')}</h1>
+        <p className="text-sm mt-1 text-ink-400">Məktəb məlumatlarını və inteqrasiyaları idarə edin.</p>
       </div>
 
-      <MFASection />
-
-      <Card hover={false} className="border-[rgba(239,68,68,0.25)]" style={{ background: 'linear-gradient(135deg, rgba(254,242,242,0.6) 0%, rgba(255,255,255,0.55) 100%)' }}>
-        <div className="flex items-center gap-3 mb-4">
-          <AlertTriangle className="w-5 h-5 text-red-500" />
-          <h2 className="text-xl font-bold text-red-700">{t('danger_zone')}</h2>
+      {/* Feedback banners */}
+      {error && (
+        <div
+          className="flex items-center gap-3 rounded-input px-4 py-3 text-[13px] font-medium"
+          style={{ background: 'var(--danger-tint, #FEE2E2)', color: 'var(--danger)', border: '1px solid #FECACA' }}
+        >
+          <XCircle className="w-4 h-4 shrink-0" />
+          {error}
         </div>
-        <p className="text-sm text-gray-600 mb-4">
-          Bu emeliyyat mektebin butun melumatlarini geri qaytarilmaz sekilde silecek.
-        </p>
-        <Button variant="danger" onClick={() => setDeleteModal(true)}>
-          <span className="flex items-center gap-2"><Trash2 className="w-4 h-4" /> {t('delete_all_data')}</span>
-        </Button>
-      </Card>
+      )}
+      {success && (
+        <div
+          className="flex items-center gap-3 rounded-input px-4 py-3 text-[13px] font-medium"
+          style={{ background: '#DCFCE7', color: 'var(--success)', border: '1px solid #BBF7D0' }}
+        >
+          <CheckCircle className="w-4 h-4 shrink-0" />
+          {success}
+        </div>
+      )}
 
+      {/* Two-pane: nav rail + capped content column */}
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Left nav rail — ~210px, neutral grey active */}
+        <nav className="shrink-0 md:w-[210px]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-400 px-3 mb-2">
+            {t('settings')}
+          </p>
+          <div className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible">
+            {NAV.map(item => {
+              const Icon = item.icon
+              const active = section === item.id
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setSection(item.id)}
+                  className={[
+                    'flex items-center gap-2.5 px-3 py-2 rounded-input text-[13px] whitespace-nowrap transition-colors text-left shrink-0',
+                    active
+                      ? 'bg-hairline-strong font-semibold text-ink-900'
+                      : item.danger
+                        ? 'text-ink-600 font-medium hover:bg-canvas hover:text-danger'
+                        : 'text-ink-600 font-medium hover:bg-canvas hover:text-ink-900',
+                  ].join(' ')}
+                >
+                  <Icon className="w-4 h-4 shrink-0" style={item.danger && !active ? { color: 'var(--ink-400)' } : undefined} />
+                  {item.label}
+                </button>
+              )
+            })}
+          </div>
+        </nav>
+
+        {/* Right content column — capped ~600px */}
+        <div className="flex-1 min-w-0" style={{ maxWidth: 600 }}>
+          {/* General */}
+          {section === 'general' && (
+            <section>
+              <SectionHead title="Ümumi məlumatlar" description="Məktəb adı və sistem dili" />
+              <div className="space-y-4">
+                <Input label={t('school_name')} value={schoolName} onChange={(e) => setSchoolName(e.target.value)} />
+                <div>
+                  <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">Nəşr</label>
+                  <div className="flex items-center gap-2">
+                    <EditionBadge edition={school?.edition} govLabel={t('government')} />
+                    <span className="text-xs text-ink-400">(deyişdirilə bilməz)</span>
+                  </div>
+                </div>
+                <Select label={t('language')} value={language} onChange={(e) => setLanguage(e.target.value)}>
+                  <option value="az">Azerbaycanca</option>
+                  <option value="en">English</option>
+                  <option value="ru">Pусский</option>
+                </Select>
+              </div>
+              <div className="flex justify-end mt-6 pt-5 border-t border-hairline">
+                <Button onClick={handleSave} loading={saving}>{t('save')}</Button>
+              </div>
+            </section>
+          )}
+
+          {/* Government integrations */}
+          {section === 'ministry' && isGov && (
+            <section>
+              <SectionHead title={t('ministry')} description="ASAN və E-Gov.az inteqrasiyaları" />
+              <div className="space-y-4">
+                <div className="flex items-end gap-3">
+                  <div className="flex-1">
+                    <Input label="ASAN API" type="password" value={asanApiKey} onChange={(e) => setAsanApiKey(e.target.value)} placeholder="ASAN xidmət API açarı" />
+                  </div>
+                  <div className="flex items-center gap-2 pb-0.5">
+                    <Button variant="ghost" onClick={testAsanConnection} loading={testingAsan}>{t('test_connection')}</Button>
+                    {asanStatus === 'success' && <CheckCircle className="w-5 h-5" style={{ color: 'var(--mint)' }} />}
+                    {asanStatus === 'error' && <XCircle className="w-5 h-5" style={{ color: 'var(--danger)' }} />}
+                  </div>
+                </div>
+                <div className="flex items-end gap-3">
+                  <div className="flex-1">
+                    <Input label="E-Gov.az endpoint" value={egovEndpoint} onChange={(e) => setEgovEndpoint(e.target.value)} placeholder="https://e-gov.az/api/v1" />
+                  </div>
+                </div>
+                <div className="flex items-end gap-3">
+                  <div className="flex-1">
+                    <Input label="E-Gov.az API" type="password" value={egovApiKey} onChange={(e) => setEgovApiKey(e.target.value)} placeholder="E-Gov API açarı" />
+                  </div>
+                  <div className="flex items-center gap-2 pb-0.5">
+                    <Button variant="ghost" onClick={testEgovConnection} loading={testingEgov}>{t('test_connection')}</Button>
+                    {egovStatus === 'success' && <CheckCircle className="w-5 h-5" style={{ color: 'var(--mint)' }} />}
+                    {egovStatus === 'error' && <XCircle className="w-5 h-5" style={{ color: 'var(--danger)' }} />}
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end mt-6 pt-5 border-t border-hairline">
+                <Button onClick={handleSave} loading={saving}>{t('save')}</Button>
+              </div>
+            </section>
+          )}
+
+          {/* Logo */}
+          {section === 'logo' && (
+            <section>
+              <SectionHead title="Məktəb logosu" description="PNG, JPG və ya SVG. Maks 2MB." />
+              <div className="flex items-center gap-5">
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt={t('school_name')}
+                    className="w-20 h-20 object-cover rounded-tile"
+                    style={{ border: '1px solid var(--hairline)' }}
+                  />
+                ) : (
+                  <div
+                    className="w-20 h-20 flex items-center justify-center rounded-tile"
+                    style={{
+                      background: 'var(--surface-2)',
+                      border: '1px dashed var(--hairline-strong)',
+                    }}
+                  >
+                    <Image className="w-8 h-8 text-ink-400" />
+                  </div>
+                )}
+                <div>
+                  <input type="file" ref={fileInputRef} accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                  <Button variant="secondary" onClick={() => fileInputRef.current?.click()} loading={uploading}>
+                    <span className="flex items-center gap-2"><Upload className="w-4 h-4" /> Logo yüklə</span>
+                  </Button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Security / MFA */}
+          {section === 'security' && (
+            <section>
+              <MFASection />
+            </section>
+          )}
+
+          {/* Danger zone */}
+          {section === 'danger' && (
+            <section>
+              <div
+                className="rounded-tile p-5"
+                style={{ background: '#FFF5F5', border: '1px solid rgba(239,68,68,0.2)' }}
+              >
+                <div className="flex items-center gap-2.5 mb-3">
+                  <AlertTriangle className="w-5 h-5" style={{ color: 'var(--danger)' }} />
+                  <h2 className="text-[15px] font-semibold" style={{ color: '#B91C1C' }}>{t('danger_zone')}</h2>
+                </div>
+                <p className="text-[13px] text-ink-600 mb-4">
+                  Bu əməliyyat məktəbin bütün məlumatlarını geri qaytarılmaz şəkildə siləcək.
+                </p>
+                <Button variant="danger" onClick={() => setDeleteModal(true)}>
+                  <span className="flex items-center gap-2"><Trash2 className="w-4 h-4" /> {t('delete_all_data')}</span>
+                </Button>
+              </div>
+            </section>
+          )}
+        </div>
+      </div>
+
+      {/* Delete confirmation modal */}
       <Modal open={deleteModal} onClose={() => { setDeleteModal(false); setConfirmText('') }} title={t('delete_all_data')} size="sm">
         <div className="space-y-4">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-700">
-              {t('danger_zone')}
-            </p>
+          <div
+            className="rounded-input p-4 text-[13px]"
+            style={{ background: '#FEE2E2', color: '#B91C1C', border: '1px solid #FECACA' }}
+          >
+            {t('danger_zone')}
           </div>
-          <p className="text-sm text-gray-600">
-            Tesdiq ucun mektebin adini yazin: <strong>{school?.name}</strong>
+          <p className="text-[13px] text-ink-600">
+            Təsdiq üçün məktəbin adını yazın: <strong className="text-ink-900">{school?.name}</strong>
           </p>
           <Input
             value={confirmText}

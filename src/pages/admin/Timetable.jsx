@@ -19,16 +19,9 @@ const PERIOD_TIMES = [
   '08:00', '08:50', '09:40', '10:40', '11:30', '12:20', '13:30', '14:20'
 ]
 
-const SUBJECT_PALETTE = [
-  { bg: 'bg-purple-light', text: 'text-purple', border: 'border-purple/30' },
-  { bg: 'bg-teal-light',   text: 'text-teal',   border: 'border-teal/30' },
-  { bg: 'bg-amber-50',     text: 'text-amber-700', border: 'border-amber-300' },
-  { bg: 'bg-blue-50',      text: 'text-blue-700',  border: 'border-blue-300' },
-  { bg: 'bg-pink-50',      text: 'text-pink-700',  border: 'border-pink-300' },
-  { bg: 'bg-orange-50',    text: 'text-orange-700', border: 'border-orange-300' },
-  { bg: 'bg-green-50',     text: 'text-green-700',  border: 'border-green-300' },
-  { bg: 'bg-indigo-50',    text: 'text-indigo-700', border: 'border-indigo-300' },
-]
+// §2.2 LOW dial: collapse the rainbow rotation — every subject block is a single
+// muted brand-tint (§4.7 calendar) with a thin accent left-bar. Color = status only.
+const SUBJECT_BLOCK = 'bg-brand-50/70 border-brand-100'
 
 export default function Timetable() {
   const { profile, t } = useAuth()
@@ -70,20 +63,6 @@ export default function Timetable() {
       setLoading(false)
     }
   }
-
-  // Build subject color map from all slots' subject names
-  const subjectColorMap = useMemo(() => {
-    const names = []
-    slots.forEach(s => {
-      const name = s.subject?.name
-      if (name && !names.includes(name)) names.push(name)
-    })
-    const map = {}
-    names.forEach((name, idx) => {
-      map[name] = SUBJECT_PALETTE[idx % SUBJECT_PALETTE.length]
-    })
-    return map
-  }, [slots])
 
   // Unique subject names present in slots (for legend)
   const uniqueSubjectNames = useMemo(() => {
@@ -218,46 +197,54 @@ export default function Timetable() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('timetable')}</span></h1>
+        <h1 className="text-2xl font-bold text-ink-900 font-display">{t('timetable')}</h1>
         <div className="flex items-center gap-3">
           {draftCount > 0 && (
-            <span className="text-xs text-gray-500">{draftCount} dəyişiklik dərc edilməyib</span>
+            <span className="text-xs text-ink-400 tabular-nums">{draftCount} dəyişiklik dərc edilməyib</span>
           )}
-          <Button onClick={() => setPublishConfirm(true)} loading={publishing} variant="teal">
+          <Button onClick={() => setPublishConfirm(true)} loading={publishing} variant="primary">
             <span className="flex items-center gap-2"><Check className="w-4 h-4" /> {t('publish')}</span>
           </Button>
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="flex items-center gap-2 bg-danger/8 border border-danger/20 rounded-input px-4 py-2.5">
+          <AlertTriangle className="w-4 h-4 text-danger shrink-0" />
+          <p className="text-sm text-danger">{error}</p>
+        </div>
+      )}
 
       {/* Stats bar */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 rounded-lg px-3 py-1.5">
-          <span className="text-xs text-gray-500">Cəmi dərs</span>
-          <span className="text-xs font-bold text-gray-700">{totalCount}</span>
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 bg-surface border border-hairline rounded-input px-3 py-1.5">
+          <span className="text-xs font-semibold text-ink-400 uppercase tracking-wide">Cəmi</span>
+          <span className="text-sm font-semibold text-ink-900 tabular-nums">{totalCount}</span>
         </div>
-        <div className="flex items-center gap-1.5 bg-teal-light border border-teal/20 rounded-lg px-3 py-1.5">
-          <Check className="w-3 h-3 text-teal" />
-          <span className="text-xs text-gray-500">Dərc edilib</span>
-          <span className="text-xs font-bold text-teal">{publishedCount}</span>
+        <div className="flex items-center gap-2 bg-surface border border-hairline rounded-input px-3 py-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-success inline-block" />
+          <span className="text-xs font-semibold text-ink-400 uppercase tracking-wide">Dərc edilib</span>
+          <span className="text-sm font-semibold text-ink-900 tabular-nums">{publishedCount}</span>
         </div>
-        <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">
-          <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
-          <span className="text-xs text-gray-500">Qaralama</span>
-          <span className="text-xs font-bold text-amber-700">{draftCount}</span>
-        </div>
+        {draftCount > 0 && (
+          <div className="flex items-center gap-2 bg-surface border border-hairline rounded-input px-3 py-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-warning inline-block" />
+            <span className="text-xs font-semibold text-ink-400 uppercase tracking-wide">Qaralama</span>
+            <span className="text-sm font-semibold text-ink-900 tabular-nums">{draftCount}</span>
+          </div>
+        )}
       </div>
 
       {/* Class filter tabs */}
       <div className="flex items-center gap-2 flex-wrap">
-        <Filter className="w-4 h-4 shrink-0" style={{ color: '#7c6ee0' }} />
+        <Filter className="w-3.5 h-3.5 shrink-0 text-ink-400" />
         <button
           onClick={() => setActiveClassFilter('all')}
-          className="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all backdrop-blur-md"
-          style={activeClassFilter === 'all'
-            ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(124,110,224,0.25)' }
-            : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
+          className={`px-3 py-1 rounded-input text-xs font-semibold transition-all border ${
+            activeClassFilter === 'all'
+              ? 'bg-brand-500 text-white border-brand-500 shadow-soft'
+              : 'bg-surface text-ink-600 border-hairline hover:border-brand-300 hover:text-brand-600'
+          }`}
         >
           Bütün Siniflər
         </button>
@@ -265,10 +252,11 @@ export default function Timetable() {
           <button
             key={cls.id}
             onClick={() => setActiveClassFilter(cls.id)}
-            className="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all backdrop-blur-md"
-            style={activeClassFilter === cls.id
-              ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(124,110,224,0.25)' }
-              : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
+            className={`px-3 py-1 rounded-input text-xs font-semibold transition-all border ${
+              activeClassFilter === cls.id
+                ? 'bg-brand-500 text-white border-brand-500 shadow-soft'
+                : 'bg-surface text-ink-600 border-hairline hover:border-brand-300 hover:text-brand-600'
+            }`}
           >
             {cls.name}
           </button>
@@ -276,69 +264,64 @@ export default function Timetable() {
       </div>
 
       {/* Timetable grid */}
-      <Card hover={false} className="p-4 overflow-x-auto">
+      <div className="bg-surface border border-hairline rounded-tile overflow-x-auto">
         <table className="w-full border-collapse min-w-[900px]">
           <thead>
-            <tr>
-              <th className="text-xs font-medium text-gray-400 uppercase tracking-wider px-3 py-2 text-left w-24">Dərs</th>
+            <tr className="bg-surface-2">
+              <th className="text-xs font-semibold text-ink-400 uppercase tracking-wide px-3 py-3 text-left w-24 border-b border-hairline-strong">Dərs</th>
               {DAYS.map((day, i) => (
-                <th key={i} className="text-xs font-medium text-gray-500 uppercase tracking-wider px-3 py-3 text-center">{day}</th>
+                <th key={i} className="text-xs font-semibold text-ink-400 uppercase tracking-wide px-3 py-3 text-center border-b border-hairline-strong">{day}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {PERIODS.map((period, periodIdx) => (
-              <tr key={period} className="border-t border-border-soft">
+              <tr key={period} className="border-t border-hairline">
                 {/* Period label column */}
-                <td className="px-3 py-2 text-left align-top">
+                <td className="px-3 py-2 text-left align-top border-r border-hairline">
                   <div className="flex flex-col items-start gap-0.5 pt-1">
-                    <span className="text-sm font-bold text-gray-700">{period}</span>
-                    <span className="text-[10px] text-gray-400 font-medium">{PERIOD_TIMES[periodIdx]}</span>
+                    <span className="text-sm font-semibold text-ink-700 tabular-nums">{period}</span>
+                    <span className="text-[10px] text-ink-400 font-medium tabular-nums">{PERIOD_TIMES[periodIdx]}</span>
                   </div>
                 </td>
 
                 {DAY_KEYS.map((dayNum, di) => {
                   const slot = getSlot(dayNum, period)
                   const subjectName = slot?.subject?.name
-                  const colors = subjectName && subjectColorMap[subjectName]
-                    ? subjectColorMap[subjectName]
-                    : null
                   const isDraft = slot && !slot.published
 
                   return (
                     <td
                       key={di}
-                      className="px-2 py-2 align-top cursor-pointer"
+                      className="px-2 py-2 align-top cursor-pointer hover:bg-brand-50/40 transition-colors"
                       onClick={() => handleSlotClick(dayNum, period)}
                     >
                       {slot ? (
+                        // §4.7 muted event block: brand-tint fill + 2px accent left-bar + dark text
                         <div
-                          className={`rounded-xl p-3 border text-left transition-all hover:shadow-md ${
-                            colors
-                              ? `${colors.bg} ${colors.border}`
-                              : 'bg-white border-border-soft'
-                          } ${isDraft ? 'ring-1 ring-amber-400' : ''}`}
+                          className={`relative rounded-input p-2.5 pl-3 border text-left transition-shadow hover:shadow-soft ${SUBJECT_BLOCK} ${isDraft ? 'ring-1 ring-warning/50' : ''}`}
                         >
-                          <p className={`text-xs font-bold truncate ${colors ? colors.text : 'text-gray-900'}`}>
+                          <span className="absolute left-0 top-1.5 bottom-1.5 w-[2px] rounded-full bg-brand-400" />
+                          <p className="text-xs font-semibold text-ink-900 truncate">
                             {subjectName || '—'}
                           </p>
-                          <p className="text-xs text-gray-600 truncate mt-0.5">{slot.class?.name}</p>
-                          <p className="text-xs text-gray-400 truncate">{slot.teacher?.full_name}</p>
+                          <p className="text-xs text-ink-600 truncate mt-0.5">{slot.class?.name}</p>
+                          <p className="text-xs text-ink-400 truncate">{slot.teacher?.full_name}</p>
                           {slot.room && (
-                            <p className="text-[10px] text-gray-400 mt-1">🏫 {slot.room}</p>
+                            <p className="text-[10px] text-ink-400 mt-1 flex items-center gap-1">
+                              <span className="inline-block w-1.5 h-1.5 rounded-sm bg-ink-300" />
+                              {slot.room}
+                            </p>
                           )}
                           {isDraft && (
-                            <span className="text-[10px] text-amber-600 font-medium">Qaralama</span>
+                            <span className="pill-peach mt-1 text-[10px]">Qaralama</span>
                           )}
                         </div>
                       ) : (
                         <div
-                          className="h-24 flex items-center justify-center rounded-xl border-2 border-dashed transition-all group"
-                          style={{ borderColor: 'rgba(124,110,224,0.15)' }}
-                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(124,110,224,0.55)'; e.currentTarget.style.background = 'rgba(124,110,224,0.06)'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(124,110,224,0.08), 0 0 16px rgba(124,110,224,0.18)' }}
-                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(124,110,224,0.15)'; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.boxShadow = 'none' }}
+                          className="h-20 flex items-center justify-center rounded-input border-2 border-dashed border-hairline-strong transition-all group hover:border-brand-300 hover:bg-brand-50/50"
                         >
-                          <Plus className="w-4 h-4 transition-colors" style={{ color: 'rgba(124,110,224,0.4)' }} />
+                          <Plus className="w-3.5 h-3.5 text-ink-400 group-hover:text-brand-500 transition-colors" />
                         </div>
                       )}
                     </td>
@@ -348,25 +331,20 @@ export default function Timetable() {
             ))}
           </tbody>
         </table>
-      </Card>
+      </div>
 
-      {/* Subject color legend */}
+      {/* Subjects present (neutral chips — color reserved for status only) */}
       {uniqueSubjectNames.length > 0 && (
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-xs font-medium text-gray-500">Fənn rəngləri:</span>
-          {uniqueSubjectNames.map(name => {
-            const colors = subjectColorMap[name]
-            return (
-              <span
-                key={name}
-                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
-                  colors ? `${colors.bg} ${colors.text} ${colors.border}` : 'bg-gray-100 text-gray-600 border-gray-200'
-                }`}
-              >
-                {name}
-              </span>
-            )
-          })}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-ink-400 uppercase tracking-wide">Fənlər:</span>
+          {uniqueSubjectNames.map(name => (
+            <span
+              key={name}
+              className="inline-flex items-center px-2.5 py-0.5 rounded-chip text-xs font-medium bg-surface-2 text-ink-600 border border-hairline"
+            >
+              {name}
+            </span>
+          ))}
         </div>
       )}
 
@@ -377,13 +355,13 @@ export default function Timetable() {
         title="Cədvəli dərc et"
       >
         <div className="space-y-6">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-ink-600">
             Cədvəli bütün məktəb üçün dərc etmək istədiyinizə əminsiniz?
           </p>
           <div className="flex justify-end gap-3">
             <Button variant="ghost" onClick={() => setPublishConfirm(false)}>{t('cancel')}</Button>
             <Button
-              variant="teal"
+              variant="primary"
               loading={publishing}
               onClick={async () => {
                 setPublishConfirm(false)
@@ -404,13 +382,13 @@ export default function Timetable() {
       >
         <div className="space-y-4">
           {conflicts.length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="w-4 h-4 text-red-600" />
-                <span className="text-sm font-medium text-red-700">Ziddiyyət aşkarlandı</span>
+            <div className="bg-danger/8 border border-danger/20 rounded-input p-3.5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <AlertTriangle className="w-4 h-4 text-danger" />
+                <span className="text-sm font-semibold text-danger">Ziddiyyət aşkarlandı</span>
               </div>
               {conflicts.map((c, i) => (
-                <p key={i} className="text-xs text-red-600">{c}</p>
+                <p key={i} className="text-xs text-danger/80">{c}</p>
               ))}
             </div>
           )}
@@ -437,14 +415,14 @@ export default function Timetable() {
             placeholder="Məs: 201"
           />
 
-          <div className="flex items-center justify-between gap-3 pt-4">
+          <div className="flex items-center justify-between gap-3 pt-4 border-t border-hairline">
             {/* Delete button — only shown when editing an existing slot */}
             {assignModal?.existing ? (
               <Button
                 variant="ghost"
                 onClick={handleDelete}
                 loading={deleting}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200"
+                className="text-danger hover:text-danger hover:bg-danger/8 border border-danger/20"
               >
                 <span className="flex items-center gap-1.5">
                   <Trash2 className="w-4 h-4" />

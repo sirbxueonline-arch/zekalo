@@ -7,7 +7,11 @@ import Modal from '../../components/ui/Modal'
 import Input from '../../components/ui/Input'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
-import { BookOpen, Plus, Trash2, CheckSquare, Square, AlertCircle, Clock } from 'lucide-react'
+import StatCard from '../../components/ui/StatCard'
+import XPBar from '../../components/ui/XPBar'
+import CountUp from '../../components/ui/CountUp'
+import Confetti from '../../components/ui/Confetti'
+import { BookOpen, Plus, Trash2, CheckSquare, Square, AlertCircle, Clock, Trophy, Sparkles } from 'lucide-react'
 import { fmtNumeric } from '../../lib/dateUtils'
 
 const COMMON_SUBJECTS = [
@@ -16,22 +20,11 @@ const COMMON_SUBJECTS = [
   'İnformatika', 'Musiqi', 'Təsviri incəsənət', 'Bədən tərbiyəsi',
 ]
 
-// Pastel subject palette (rotated)
-const SUBJECT_PALETTES = [
-  { bg: 'rgba(124,110,224,0.16)', color: '#5448a8', border: 'rgba(124,110,224,0.30)' },
-  { bg: 'rgba(93,184,163,0.16)',  color: '#2f7a64', border: 'rgba(93,184,163,0.30)' },
-  { bg: 'rgba(232,168,124,0.20)', color: '#a25e2c', border: 'rgba(232,168,124,0.35)' },
-  { bg: 'rgba(107,157,222,0.16)', color: '#2f5a8c', border: 'rgba(107,157,222,0.30)' },
-]
+// Subject tag — single neutral brand tint (color reserved for status)
+const SUBJECT_TAG = { bg: 'var(--brand-50)', color: 'var(--brand-600)', border: 'var(--brand-200)' }
 
-function subjectStyle(subject) {
-  if (!subject) return SUBJECT_PALETTES[0]
-  let hash = 0
-  for (let i = 0; i < subject.length; i++) {
-    hash = ((hash << 5) - hash) + subject.charCodeAt(i)
-    hash |= 0
-  }
-  return SUBJECT_PALETTES[Math.abs(hash) % SUBJECT_PALETTES.length]
+function subjectStyle() {
+  return SUBJECT_TAG
 }
 
 function isOverdue(item) {
@@ -58,16 +51,16 @@ function sortItems(items) {
 }
 
 const TABS = [
-  { key: 'all', label: 'Hamısı' },
-  { key: 'pending', label: 'Gözləyən' },
+  { key: 'all',       label: 'Hamısı' },
+  { key: 'pending',   label: 'Gözləyən' },
   { key: 'completed', label: 'Tamamlanan' },
-  { key: 'overdue', label: 'Gecikmiş' },
+  { key: 'overdue',   label: 'Gecikmiş' },
 ]
 
 function FilterPill({ active, onClick, children, count, countTone = 'periwinkle' }) {
   const countTones = {
-    periwinkle: { bg: 'rgba(124,110,224,0.20)', color: '#5448a8' },
-    rose:       { bg: 'rgba(239,108,108,0.18)', color: '#b13838' },
+    periwinkle: { bg: 'var(--brand-100)', color: 'var(--brand-600)' },
+    rose:       { bg: 'rgba(244,103,126,0.16)', color: '#B91C1C' },
   }
   const ct = countTones[countTone] || countTones.periwinkle
   return (
@@ -76,15 +69,12 @@ function FilterPill({ active, onClick, children, count, countTone = 'periwinkle'
       className="transition-all whitespace-nowrap"
       style={{
         padding: '8px 16px',
-        borderRadius: 999,
+        borderRadius: 9999,
         fontSize: 13,
         fontWeight: 600,
-        background: active
-          ? 'linear-gradient(135deg, rgba(124,110,224,0.18) 0%, rgba(93,184,163,0.18) 100%)'
-          : 'rgba(255,255,255,0.55)',
-        border: active ? '1px solid rgba(124,110,224,0.5)' : '1px solid rgba(124,110,224,0.18)',
-        color: active ? '#5448a8' : '#475569',
-        backdropFilter: 'blur(12px)',
+        background: active ? 'var(--brand-100)' : 'var(--surface)',
+        border: active ? '1.5px solid var(--brand-400)' : '1px solid var(--hairline-strong)',
+        color: active ? 'var(--brand-600)' : 'var(--ink-600)',
         cursor: 'pointer',
         display: 'inline-flex', alignItems: 'center', gap: 6,
       }}
@@ -93,12 +83,9 @@ function FilterPill({ active, onClick, children, count, countTone = 'periwinkle'
       {count > 0 && (
         <span
           style={{
-            background: ct.bg,
-            color: ct.color,
-            borderRadius: 999,
-            padding: '2px 8px',
-            fontSize: 10,
-            fontWeight: 700,
+            background: ct.bg, color: ct.color,
+            borderRadius: 9999, padding: '2px 8px',
+            fontSize: 10, fontWeight: 700,
           }}
         >
           {count}
@@ -111,14 +98,15 @@ function FilterPill({ active, onClick, children, count, countTone = 'periwinkle'
 export default function StudentHomework() {
   const { profile } = useAuth()
 
-  const [loading, setLoading] = useState(true)
-  const [items, setItems] = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [items, setItems]           = useState([])
   const [fetchError, setFetchError] = useState(null)
-  const [activeTab, setActiveTab] = useState('all')
-  const [showAdd, setShowAdd] = useState(false)
-  const [adding, setAdding] = useState(false)
+  const [activeTab, setActiveTab]   = useState('all')
+  const [showAdd, setShowAdd]       = useState(false)
+  const [adding, setAdding]         = useState(false)
+  const [justCompleted, setJustCompleted] = useState(false)
 
-  const [form, setForm] = useState({ subject: '', title: '', due_date: '' })
+  const [form, setForm]           = useState({ subject: '', title: '', due_date: '' })
   const [formError, setFormError] = useState('')
 
   useEffect(() => {
@@ -146,6 +134,15 @@ export default function StudentHomework() {
     const updated = !item.completed
     setItems(prev => prev.map(i => i.id === item.id ? { ...i, completed: updated } : i))
     await supabase.from('homework_items').update({ completed: updated }).eq('id', item.id)
+
+    // Trigger confetti if this check-off completes ALL remaining tasks
+    if (updated) {
+      const remaining = items.filter(i => i.id !== item.id && !i.completed)
+      if (remaining.length === 0) {
+        setJustCompleted(true)
+        setTimeout(() => setJustCompleted(false), 3000)
+      }
+    }
   }
 
   async function deleteItem(id) {
@@ -162,10 +159,10 @@ export default function StudentHomework() {
     setFormError('')
     const { data, error } = await supabase.from('homework_items').insert({
       student_id: profile.id,
-      subject: form.subject.trim() || '—',
-      title: form.title.trim(),
-      due_date: form.due_date || null,
-      completed: false,
+      subject:    form.subject.trim() || '—',
+      title:      form.title.trim(),
+      due_date:   form.due_date || null,
+      completed:  false,
     }).select().single()
 
     if (error) {
@@ -184,21 +181,25 @@ export default function StudentHomework() {
     setFormError('')
   }
 
-  const pendingCount = items.filter(i => !i.completed).length
-  const overdueCount = items.filter(i => isOverdue(i)).length
+  const totalCount      = items.length
+  const completedCount  = items.filter(i => i.completed).length
+  const pendingCount    = items.filter(i => !i.completed).length
+  const overdueCount    = items.filter(i => isOverdue(i)).length
+  const completionPct   = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
+  const allDone         = totalCount > 0 && completionPct === 100
 
   const filtered = sortItems(
-    activeTab === 'all' ? items
-    : activeTab === 'pending' ? items.filter(i => !i.completed && !isOverdue(i))
+    activeTab === 'all'       ? items
+    : activeTab === 'pending'   ? items.filter(i => !i.completed && !isOverdue(i))
     : activeTab === 'completed' ? items.filter(i => i.completed)
     : items.filter(i => isOverdue(i))
   )
 
   const emptyMessages = {
-    all: { title: 'Ev tapşırığı yoxdur', desc: 'Yeni tapşırıq əlavə etmək üçün "Əlavə et" düyməsinə basın.' },
-    pending: { title: 'Gözləyən tapşırıq yoxdur', desc: 'Bütün tapşırıqlar tamamlanıb. Əla iş!' },
+    all:       { title: 'Ev tapşırığı yoxdur', desc: 'Yeni tapşırıq əlavə etmək üçün "Əlavə et" düyməsinə basın.' },
+    pending:   { title: 'Gözləyən tapşırıq yoxdur', desc: 'Bütün tapşırıqlar tamamlanıb. Əla iş!' },
     completed: { title: 'Tamamlanan tapşırıq yoxdur', desc: 'Hələ heç bir tapşırıq tamamlanmayıb.' },
-    overdue: { title: 'Gecikmiş tapşırıq yoxdur', desc: 'Əla! Bütün tapşırıqlar vaxtında yerinə yetirilib.' },
+    overdue:   { title: 'Gecikmiş tapşırıq yoxdur', desc: 'Əla! Bütün tapşırıqlar vaxtında yerinə yetirilib.' },
   }
 
   if (loading) return <PageSpinner />
@@ -215,28 +216,41 @@ export default function StudentHomework() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+
+      {/* ── Confetti burst when everything is done ── */}
+      <Confetti active={justCompleted} intensity="burst" />
+
+      {/* ── Page header ── */}
+      <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-            <span className="pastel-text">Ev Tapşırıqları</span>
-          </h1>
-          <div className="flex items-center gap-3 mt-2 flex-wrap">
+          <div className="flex items-center gap-3">
+            <div className="icon-chip icon-chip-sun" style={{ width: 44, height: 44 }}>
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <h1
+              className="font-display"
+              style={{ fontSize: 32, fontWeight: 800, color: 'var(--ink-900)', letterSpacing: '-0.02em', lineHeight: 1.12 }}
+            >
+              Ev Tapşırıqları
+            </h1>
+          </div>
+          <div className="flex items-center gap-3 mt-2 ml-14 flex-wrap">
             {pendingCount > 0 && (
-              <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#475569' }}>
-                <Clock className="w-3.5 h-3.5" style={{ color: '#7c6ee0' }} />
+              <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: 'var(--ink-600)' }}>
+                <Clock className="w-3.5 h-3.5" style={{ color: 'var(--brand-500)' }} />
                 {pendingCount} gözləyən
               </span>
             )}
             {overdueCount > 0 && (
-              <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#b13838' }}>
+              <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#B91C1C' }}>
                 <AlertCircle className="w-3.5 h-3.5" />
                 {overdueCount} gecikmiş
               </span>
             )}
           </div>
         </div>
-        <Button onClick={() => setShowAdd(true)}>
+
+        <Button onClick={() => setShowAdd(true)} className="btn-3d">
           <span className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Əlavə et
@@ -244,7 +258,102 @@ export default function StudentHomework() {
         </Button>
       </div>
 
-      {/* Filter tabs */}
+      {/* ── Progress / gamification panel ── */}
+      {totalCount > 0 && (
+        <div
+          className="liquid-card p-6 relative overflow-hidden"
+          style={{
+            background: allDone ? 'rgba(234,179,8,0.07)' : undefined,
+            border: allDone ? '1px solid rgba(234,179,8,0.30)' : undefined,
+          }}
+        >
+          {/* All-done celebration banner */}
+          {allDone && (
+            <div
+              className="flex items-center gap-3 mb-5 px-4 py-3"
+              style={{
+                background: 'rgba(234,179,8,0.12)',
+                border: '1px solid rgba(234,179,8,0.34)',
+                borderRadius: 12,
+              }}
+            >
+              <Trophy className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--sun)' }} />
+              <div>
+                <p className="font-semibold" style={{ fontSize: 15, color: '#B45309' }}>
+                  Hamısı tamamlandı!
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: '#92400E' }}>
+                  Bütün ev tapşırıqlarını yerinə yetirdiniz. Əla!
+                </p>
+              </div>
+              <Sparkles className="w-4 h-4 ml-auto" style={{ color: 'var(--sun)' }} />
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            {/* XP / completion bar */}
+            <div className="flex-1 w-full">
+              <div className="flex items-center justify-between mb-2">
+                <span
+                  className="font-semibold uppercase tracking-wider"
+                  style={{ fontSize: 12, color: 'var(--ink-400)' }}
+                >
+                  Tamamlanma
+                </span>
+                <span
+                  className="font-display font-extrabold tabular-nums"
+                  style={{ fontSize: 24, color: allDone ? 'var(--mint)' : 'var(--brand-500)' }}
+                >
+                  <CountUp to={completionPct} suffix="%" />
+                </span>
+              </div>
+              <XPBar
+                value={completedCount}
+                target={Math.max(totalCount, 1)}
+                label={false}
+                showCap
+                labelText={`${completedCount} / ${totalCount} tapşırıq`}
+              />
+            </div>
+          </div>
+
+          {/* Mini stat row */}
+          <div
+            className="grid grid-cols-3 gap-3 mt-5 pt-4"
+            style={{ borderTop: '1px solid var(--hairline)' }}
+          >
+            <div className="text-center">
+              <p
+                className="font-display font-extrabold tabular-nums"
+                style={{ fontSize: 24, color: 'var(--brand-500)' }}
+              >
+                <CountUp to={pendingCount} />
+              </p>
+              <p className="text-xs font-medium mt-0.5" style={{ color: 'var(--ink-400)' }}>Gözləyən</p>
+            </div>
+            <div className="text-center">
+              <p
+                className="font-display font-extrabold tabular-nums"
+                style={{ fontSize: 24, color: 'var(--mint)' }}
+              >
+                <CountUp to={completedCount} />
+              </p>
+              <p className="text-xs font-medium mt-0.5" style={{ color: 'var(--ink-400)' }}>Tamamlanan</p>
+            </div>
+            <div className="text-center">
+              <p
+                className="font-display font-extrabold tabular-nums"
+                style={{ fontSize: 24, color: overdueCount > 0 ? 'var(--coral)' : 'var(--ink-400)' }}
+              >
+                <CountUp to={overdueCount} />
+              </p>
+              <p className="text-xs font-medium mt-0.5" style={{ color: 'var(--ink-400)' }}>Gecikmiş</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Filter pills ── */}
       <div className="flex gap-2 overflow-x-auto pb-1">
         {TABS.map(tab => (
           <FilterPill
@@ -259,10 +368,10 @@ export default function StudentHomework() {
         ))}
       </div>
 
-      {/* Items list */}
+      {/* ── Items list ── */}
       {filtered.length === 0 ? (
         <EmptyState
-          icon={BookOpen}
+          pose={activeTab === 'completed' ? 'cheering' : activeTab === 'overdue' ? 'cheering' : 'thinking'}
           title={emptyMessages[activeTab].title}
           description={emptyMessages[activeTab].desc}
           actionLabel={activeTab === 'all' ? 'Tapşırıq əlavə et' : undefined}
@@ -277,14 +386,17 @@ export default function StudentHomework() {
               <Card
                 key={item.id}
                 hover={false}
-                className={`transition-opacity ${item.completed ? 'opacity-60' : ''}`}
+                className={`transition-all ${item.completed ? 'opacity-55' : ''}`}
               >
                 <div className="flex items-start gap-4">
-                  {/* Checkbox */}
+                  {/* Animated checkbox */}
                   <button
                     onClick={() => toggleCompleted(item)}
-                    className="flex-shrink-0 mt-0.5 transition-colors"
-                    style={{ color: item.completed ? '#7c6ee0' : '#94a3b8' }}
+                    className="flex-shrink-0 mt-0.5 transition-all"
+                    style={{
+                      color: item.completed ? 'var(--brand-500)' : 'var(--ink-400)',
+                      transform: item.completed ? 'scale(1.15)' : 'scale(1)',
+                    }}
                     aria-label={item.completed ? 'Tamamlanmamış kimi işarələ' : 'Tamamlanmış kimi işarələ'}
                   >
                     {item.completed
@@ -300,39 +412,42 @@ export default function StudentHomework() {
                         <span
                           style={{
                             display: 'inline-flex', alignItems: 'center',
-                            background: sStyle.bg,
-                            color: sStyle.color,
+                            background: sStyle.bg, color: sStyle.color,
                             border: `1px solid ${sStyle.border}`,
-                            borderRadius: 999,
-                            padding: '3px 10px',
-                            fontSize: 12,
-                            fontWeight: 600,
+                            borderRadius: 8, padding: '3px 10px',
+                            fontSize: 12, fontWeight: 600,
                           }}
                         >
                           {item.subject}
                         </span>
                       )}
                       {overdue && (
-                        <span className="pill-rose" style={{ display: 'inline-flex', alignItems: 'center', borderRadius: 999, padding: '3px 10px', fontSize: 12, fontWeight: 600 }}>
+                        <span
+                          className="pill-rose"
+                          style={{ display: 'inline-flex', alignItems: 'center', borderRadius: 9999, padding: '3px 10px', fontSize: 12, fontWeight: 600 }}
+                        >
                           Gecikmiş
                         </span>
                       )}
                     </div>
+
                     <p
+                      className="font-semibold"
                       style={{
                         fontSize: 15,
-                        fontWeight: 600,
-                        color: '#1a1a2e',
+                        color: 'var(--ink-900)',
                         textDecoration: item.completed ? 'line-through' : 'none',
+                        opacity: item.completed ? 0.6 : 1,
                       }}
                     >
                       {item.title}
                     </p>
+
                     {item.due_date && (
                       <p
                         className="text-xs mt-1"
                         style={{
-                          color: overdue && !item.completed ? '#b13838' : '#64748b',
+                          color: overdue && !item.completed ? '#B91C1C' : 'var(--ink-400)',
                           fontWeight: overdue && !item.completed ? 600 : 400,
                         }}
                       >
@@ -345,9 +460,15 @@ export default function StudentHomework() {
                   <button
                     onClick={() => deleteItem(item.id)}
                     className="flex-shrink-0 transition-all flex items-center justify-center"
-                    style={{ width: 32, height: 32, borderRadius: 8, color: '#94a3b8' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,108,108,0.10)'; e.currentTarget.style.color = '#b13838' }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8' }}
+                    style={{ width: 32, height: 32, borderRadius: 8, color: 'var(--ink-400)' }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = 'rgba(244,103,126,0.10)'
+                      e.currentTarget.style.color = '#B91C1C'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'transparent'
+                      e.currentTarget.style.color = 'var(--ink-400)'
+                    }}
                     aria-label="Sil"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -359,11 +480,14 @@ export default function StudentHomework() {
         </div>
       )}
 
-      {/* Add Modal */}
+      {/* ── Add modal ── */}
       <Modal open={showAdd} onClose={closeAdd} title="Yeni Tapşırıq">
         <div className="space-y-4">
           <div>
-            <label className="block" style={{ fontSize: 13, fontWeight: 600, color: '#1a1a2e', marginBottom: 6 }}>
+            <label
+              className="block"
+              style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-900)', marginBottom: 6 }}
+            >
               Fənn
             </label>
             <input

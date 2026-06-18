@@ -16,40 +16,24 @@ const SUBJECTS = [
   'Ədəbiyyat', 'İngilis dili', 'İnformatika', 'İncəsənət', 'Digər',
 ]
 
-// Pastel subject palette
-const subjectColors = {
-  'Riyaziyyat':   { bg: 'rgba(107,157,222,0.16)', color: '#2f5a8c', border: 'rgba(107,157,222,0.30)' },
-  'Fizika':       { bg: 'rgba(232,168,124,0.20)', color: '#a25e2c', border: 'rgba(232,168,124,0.35)' },
-  'Kimya':        { bg: 'rgba(93,184,163,0.16)',  color: '#2f7a64', border: 'rgba(93,184,163,0.30)' },
-  'Biologiya':    { bg: 'rgba(93,184,163,0.16)',  color: '#2f7a64', border: 'rgba(93,184,163,0.30)' },
-  'Tarix':        { bg: 'rgba(232,168,124,0.20)', color: '#a25e2c', border: 'rgba(232,168,124,0.35)' },
-  'Ədəbiyyat':    { bg: 'rgba(124,110,224,0.16)', color: '#5448a8', border: 'rgba(124,110,224,0.30)' },
-  'İngilis dili': { bg: 'rgba(124,110,224,0.16)', color: '#5448a8', border: 'rgba(124,110,224,0.30)' },
-  'İnformatika':  { bg: 'rgba(107,157,222,0.16)', color: '#2f5a8c', border: 'rgba(107,157,222,0.30)' },
-  'İncəsənət':    { bg: 'rgba(232,168,124,0.20)', color: '#a25e2c', border: 'rgba(232,168,124,0.35)' },
-  'Digər':        { bg: 'rgba(100,116,139,0.10)', color: '#475569', border: 'rgba(100,116,139,0.18)' },
-}
-
-function getSubjectStyle(subject) {
-  return subjectColors[subject] || subjectColors['Digər']
-}
-
+// Subject = categorical tag (not status) → one neutral-grey chip for all
+// subjects per V3 §3 (collapse the rainbow rotation; reserve color for status).
 function SubjectPill({ subject, size = 'md' }) {
-  const s = getSubjectStyle(subject)
-  const padding = size === 'lg' ? '5px 14px' : '3px 10px'
+  const padding = size === 'lg' ? '4px 12px' : '3px 10px'
   const fontSize = size === 'lg' ? 13 : 12
   return (
     <span
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        background: s.bg,
-        color: s.color,
-        border: `1px solid ${s.border}`,
-        borderRadius: 999,
+        background: 'var(--surface-2)',
+        color: 'var(--ink-600)',
+        border: '1px solid var(--hairline-strong)',
+        borderRadius: 8,
         padding,
         fontSize,
         fontWeight: 600,
+        letterSpacing: '0.01em',
       }}
     >
       {subject}
@@ -185,21 +169,35 @@ export default function Portfolio() {
   if (loading) return <PageSpinner />
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-            <span className="pastel-text">Portfölyo</span>
-          </h1>
-          <p className="text-sm mt-1.5" style={{ color: '#64748b' }}>
-            {items.length} iş · {new Set(items.map(i => i.subject)).size} fənn
-          </p>
+    <div className="space-y-7">
+      {/* Page hero */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-4">
+          <div
+            className="icon-chip icon-chip-periwinkle"
+            style={{ width: 56, height: 56, borderRadius: 16, flexShrink: 0 }}
+          >
+            <Briefcase className="w-7 h-7" />
+          </div>
+          <div>
+            <h1
+              className="font-display text-ink-900"
+              style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.12 }}
+            >
+              Portfölyo
+            </h1>
+            <p className="text-sm text-ink-400 mt-0.5">
+              <span className="font-semibold text-ink-600 tabular-nums">{items.length}</span> iş ·{' '}
+              <span className="font-semibold text-ink-600 tabular-nums">{new Set(items.map(i => i.subject)).size}</span> fənn
+            </p>
+          </div>
         </div>
         <Button onClick={() => { resetForm(); setAddModal(true) }}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> İş əlavə et</span>
         </Button>
       </div>
 
+      {/* Subject filter pills */}
       {subjects.length > 1 && (
         <div className="flex gap-2 flex-wrap">
           {subjects.map(s => {
@@ -210,17 +208,15 @@ export default function Portfolio() {
                 onClick={() => setFilterSubject(s)}
                 className="transition-all"
                 style={{
-                  padding: '8px 16px',
+                  padding: '7px 16px',
                   borderRadius: 999,
                   fontSize: 13,
                   fontWeight: 600,
-                  background: active
-                    ? 'linear-gradient(135deg, rgba(124,110,224,0.18) 0%, rgba(93,184,163,0.18) 100%)'
-                    : 'rgba(255,255,255,0.55)',
-                  border: active ? '1px solid rgba(124,110,224,0.5)' : '1px solid rgba(124,110,224,0.18)',
-                  color: active ? '#5448a8' : '#475569',
-                  backdropFilter: 'blur(12px)',
+                  background: active ? 'var(--brand-100)' : 'var(--surface)',
+                  border: active ? '1.5px solid var(--brand-400)' : '1.5px solid var(--hairline)',
+                  color: active ? 'var(--brand-600)' : 'var(--ink-600)',
                   cursor: 'pointer',
+                  boxShadow: 'none',
                 }}
               >
                 {s === 'all' ? 'Hamısı' : s}
@@ -230,76 +226,108 @@ export default function Portfolio() {
         </div>
       )}
 
-      {error && <p className="text-sm" style={{ color: '#b13838' }}>{error}</p>}
+      {error && (
+        <p className="text-sm" style={{ color: 'var(--danger)' }}>{error}</p>
+      )}
 
+      {/* Empty state */}
       {filtered.length === 0 ? (
         <EmptyState
-          icon={Briefcase}
+          pose="thinking"
           title={filterSubject === 'all' ? 'Portfölyo boşdur' : 'Bu fəndə iş yoxdur'}
           description={filterSubject === 'all' ? 'İlk işinizi əlavə edərək portfölyo qurun.' : 'Bu fəndə hələ heç bir iş əlavə etməmisiniz.'}
           actionLabel={filterSubject === 'all' ? 'İş əlavə et' : undefined}
           onAction={filterSubject === 'all' ? () => { resetForm(); setAddModal(true) } : undefined}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map(item => (
-            <Card key={item.id} className="flex flex-col gap-3 cursor-pointer" onClick={() => setViewModal(item)}>
+            <Card
+              key={item.id}
+              className="flex flex-col gap-3 cursor-pointer group"
+              onClick={() => setViewModal(item)}
+            >
+              {/* Top row: subject pill + actions */}
               <div className="flex items-start justify-between gap-2">
                 <SubjectPill subject={item.subject} />
-                <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                <div
+                  className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={e => e.stopPropagation()}
+                >
                   <button
                     onClick={() => openEdit(item)}
-                    className="transition-colors flex items-center justify-center"
-                    style={{ width: 28, height: 28, borderRadius: 8, color: '#64748b' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,110,224,0.10)'; e.currentTarget.style.color = '#7c6ee0' }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b' }}
+                    className="flex items-center justify-center transition-all"
+                    style={{
+                      width: 28, height: 28, borderRadius: 8,
+                      color: 'var(--ink-400)',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--brand-50)'; e.currentTarget.style.color = 'var(--brand-500)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--ink-400)' }}
                   >
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => setDeleteModal(item)}
-                    className="transition-colors flex items-center justify-center"
-                    style={{ width: 28, height: 28, borderRadius: 8, color: '#64748b' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,108,108,0.10)'; e.currentTarget.style.color = '#b13838' }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b' }}
+                    className="flex items-center justify-center transition-all"
+                    style={{
+                      width: 28, height: 28, borderRadius: 8,
+                      color: 'var(--ink-400)',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.color = 'var(--danger)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--ink-400)' }}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
 
-              <h3 style={{ fontSize: 19, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.25 }}>
+              {/* Title */}
+              <h3
+                className="text-ink-900"
+                style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.3 }}
+              >
                 {item.title}
               </h3>
 
+              {/* Description */}
               {item.description && (
-                <p className="text-sm line-clamp-2" style={{ color: '#475569', lineHeight: 1.5 }}>
+                <p className="text-sm line-clamp-2 text-ink-600" style={{ lineHeight: 1.55 }}>
                   {item.description}
                 </p>
               )}
 
+              {/* Reflection block */}
               {item.reflection && (
                 <div
                   style={{
-                    background: 'rgba(124,110,224,0.06)',
+                    background: 'var(--brand-50)',
                     borderRadius: 14,
                     padding: 12,
-                    border: '1px solid rgba(124,110,224,0.10)',
+                    border: '1px solid var(--brand-100)',
                   }}
                 >
-                  <p style={{ fontSize: 11, fontWeight: 700, color: '#7c6ee0', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <p
+                    style={{
+                      fontSize: 11, fontWeight: 700,
+                      color: 'var(--brand-500)',
+                      marginBottom: 4,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
                     Refleksiya
                   </p>
-                  <p className="text-sm line-clamp-3" style={{ color: '#475569', lineHeight: 1.5 }}>
+                  <p className="text-sm line-clamp-3 text-ink-600" style={{ lineHeight: 1.55 }}>
                     {item.reflection}
                   </p>
                 </div>
               )}
 
+              {/* Date footer */}
               {item.date && (
                 <div
-                  className="flex items-center gap-1 text-xs mt-auto pt-2"
-                  style={{ color: '#64748b', borderTop: '1px solid rgba(124,110,224,0.10)' }}
+                  className="flex items-center gap-1 text-xs mt-auto pt-3 text-ink-400"
+                  style={{ borderTop: '1px solid var(--hairline)' }}
                 >
                   <Calendar className="w-3 h-3" />
                   {fmtLong(item.date)}
@@ -317,7 +345,7 @@ export default function Portfolio() {
             <div className="flex items-center gap-3 flex-wrap">
               <SubjectPill subject={viewModal.subject} size="lg" />
               {viewModal.date && (
-                <span className="text-sm flex items-center gap-1" style={{ color: '#64748b' }}>
+                <span className="text-sm flex items-center gap-1 text-ink-400">
                   <Calendar className="w-4 h-4" />
                   {fmtLong(viewModal.date)}
                 </span>
@@ -325,25 +353,41 @@ export default function Portfolio() {
             </div>
             {viewModal.description && (
               <div>
-                <p style={{ fontSize: 11, fontWeight: 700, color: '#7c6ee0', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
+                <p
+                  style={{
+                    fontSize: 11, fontWeight: 700,
+                    color: 'var(--brand-500)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    marginBottom: 8,
+                  }}
+                >
                   Açıqlama
                 </p>
-                <p style={{ color: '#1a1a2e' }}>{viewModal.description}</p>
+                <p className="text-ink-900" style={{ lineHeight: 1.6 }}>{viewModal.description}</p>
               </div>
             )}
             {viewModal.reflection && (
               <div
                 style={{
-                  background: 'rgba(124,110,224,0.06)',
+                  background: 'var(--brand-50)',
                   borderRadius: 16,
                   padding: 20,
-                  border: '1px solid rgba(124,110,224,0.10)',
+                  border: '1px solid var(--brand-100)',
                 }}
               >
-                <p style={{ fontSize: 11, fontWeight: 700, color: '#7c6ee0', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
+                <p
+                  style={{
+                    fontSize: 11, fontWeight: 700,
+                    color: 'var(--brand-500)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    marginBottom: 8,
+                  }}
+                >
                   Refleksiya
                 </p>
-                <p style={{ color: '#1a1a2e', lineHeight: 1.6 }}>{viewModal.reflection}</p>
+                <p className="text-ink-900" style={{ lineHeight: 1.65 }}>{viewModal.reflection}</p>
               </div>
             )}
             <div className="flex justify-end gap-3 pt-2">
@@ -363,12 +407,16 @@ export default function Portfolio() {
           {error && (
             <div
               className="px-3 py-2 rounded-lg text-sm"
-              style={{ background: 'rgba(239,108,108,0.10)', color: '#b13838', border: '1px solid rgba(239,108,108,0.25)' }}
+              style={{
+                background: 'rgba(239,68,68,0.08)',
+                color: 'var(--danger)',
+                border: '1px solid rgba(239,68,68,0.20)',
+              }}
             >
               {error}
             </div>
           )}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4" style={{ borderTop: '1px solid var(--hairline)' }}>
             <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleAdd} loading={saving} disabled={!form.title}>{t('add')}</Button>
           </div>
@@ -382,12 +430,16 @@ export default function Portfolio() {
           {error && (
             <div
               className="px-3 py-2 rounded-lg text-sm"
-              style={{ background: 'rgba(239,108,108,0.10)', color: '#b13838', border: '1px solid rgba(239,108,108,0.25)' }}
+              style={{
+                background: 'rgba(239,68,68,0.08)',
+                color: 'var(--danger)',
+                border: '1px solid rgba(239,68,68,0.20)',
+              }}
             >
               {error}
             </div>
           )}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4" style={{ borderTop: '1px solid var(--hairline)' }}>
             <Button variant="ghost" onClick={() => { setEditModal(null); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleEdit} loading={saving} disabled={!form.title}>{t('save')}</Button>
           </div>
@@ -396,8 +448,8 @@ export default function Portfolio() {
 
       {/* Delete Modal */}
       <Modal open={!!deleteModal} onClose={() => setDeleteModal(null)} title={t('delete')} size="sm">
-        <p className="text-sm mb-6" style={{ color: '#475569' }}>
-          <strong style={{ color: '#1a1a2e' }}>{deleteModal?.title}</strong> işini silmək istədiyinizə əminsiniz?
+        <p className="text-sm mb-6 text-ink-600">
+          <strong className="text-ink-900">{deleteModal?.title}</strong> işini silmək istədiyinizə əminsiniz?
         </p>
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setDeleteModal(null)}>{t('cancel')}</Button>

@@ -1,15 +1,23 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Users, GraduationCap, CalendarCheck, School,
   UserPlus, Megaphone, AlertTriangle,
   ChevronRight, Activity, Bell, CheckCircle,
-  TrendingUp, TrendingDown,
+  TrendingUp, TrendingDown, Link2, Search, Download,
 } from 'lucide-react'
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, Cell,
+} from 'recharts'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { DashboardSkeleton } from '../../components/ui/Skeleton'
 import Avatar from '../../components/ui/Avatar'
+import StatCard from '../../components/ui/StatCard'
+import CountUp from '../../components/ui/CountUp'
+import EmptyState from '../../components/ui/EmptyState'
+import Button from '../../components/ui/Button'
 import { fmtDate } from '../../lib/dateUtils'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -49,66 +57,147 @@ function formatEventDate(dateStr) {
   }
 }
 
-// ── Attendance bar ──────────────────────────────────────────────────────────
+// ── Attendance % cell — calm threshold colors, no decoration ────────────────
+
+function attTone(pct) {
+  if (pct >= 85) return { bar: 'var(--mint)',    text: 'var(--mint-dark, #15803D)' }
+  if (pct >= 70) return { bar: 'var(--warning, #F59E0B)', text: 'var(--warning-text, #B45309)' }
+  return         { bar: 'var(--danger, #EF4444)', text: 'var(--danger-text, #B91C1C)' }
+}
 
 function AttBar({ pct }) {
-  const [color, text] =
-    pct >= 85 ? ['bg-teal',     'text-teal']
-  : pct >= 70 ? ['bg-amber-400','text-amber-500']
-  :             ['bg-red-400',  'text-red-500']
+  const tone = attTone(pct)
   return (
     <div className="flex items-center gap-2.5">
-      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} />
+      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--hairline)' }}>
+        <div
+          className="h-full rounded-full transition-all duration-700 ease-out"
+          style={{ width: `${pct}%`, background: tone.bar }}
+        />
       </div>
-      <span className={`text-xs font-bold w-8 text-right tabular-nums ${text}`}>{pct}%</span>
+      <span
+        className="text-xs font-semibold w-9 text-right tabular-nums"
+        style={{ color: tone.text }}
+      >
+        {pct}%
+      </span>
     </div>
   )
 }
 
-// ── Activity dot ────────────────────────────────────────────────────────────
+// ── Activity feed dot — tinted tile + accent dot (calm, meaning-encoding) ────
 
-const DOT_COLORS = {
-  grade: 'bg-purple', attendance: 'bg-teal',
-  discipline: 'bg-red-500', announcement: 'bg-amber-400', message: 'bg-blue-400',
+const ACTIVITY_DOT = {
+  grade:        { chip: 'icon-chip-periwinkle', dot: '#574FCF' },
+  attendance:   { chip: 'icon-chip-mint',       dot: '#16A34A' },
+  discipline:   { chip: 'icon-chip-coral',      dot: '#E11D48' },
+  announcement: { chip: 'icon-chip-sun',        dot: '#CA9A04' },
+  message:      { chip: 'icon-chip-blue',       dot: '#0EA5E9' },
 }
 
-// ── Event type meta ─────────────────────────────────────────────────────────
+// ── Event type → leading-dot status pill ────────────────────────────────────
 
-const EVENT_META = {
-  exam:    { bg: 'bg-red-100',     text: 'text-red-700',    dot: 'bg-red-400' },
-  meeting: { bg: 'bg-purple-light',text: 'text-purple',     dot: 'bg-purple' },
-  holiday: { bg: 'bg-teal-light',  text: 'text-teal',       dot: 'bg-teal' },
-  sport:   { bg: 'bg-amber-50',    text: 'text-amber-700',  dot: 'bg-amber-400' },
-  art:     { bg: 'bg-pink-50',     text: 'text-pink-700',   dot: 'bg-pink-400' },
+const EVENT_PILL = {
+  exam:    'pill-rose',
+  meeting: 'pill-peri',
+  holiday: 'pill-mint',
+  sport:   'pill-sun',
+  art:     'pill-grape',
 }
 
-// ── Section header ──────────────────────────────────────────────────────────
+// ── Recharts custom tooltip (§10: white, rounded, soft shadow, no border) ────
 
-function SectionHeader({ icon: Icon, iconBg, iconColor, title, sub, action, onAction }) {
+function ChartTooltip({ active, payload }) {
+  if (!active || !payload || !payload.length) return null
+  const d = payload[0].payload
   return (
-    <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
-      <div className="flex items-center gap-3">
+    <div
+      className="rounded-tile bg-surface shadow-soft-lg px-3 py-2.5"
+      style={{ minWidth: 140 }}
+    >
+      <p className="text-[13px] font-semibold text-ink-900 mb-1.5">{d.name}</p>
+      <p className="text-xs text-ink-600 flex items-center gap-1.5 tabular-nums">
+        <span className="w-2 h-2 rounded-full inline-block" style={{ background: 'var(--brand-500)' }} />
+        İştirak: <span className="font-semibold text-ink-900">{d.pct}%</span>
+      </p>
+      <p className="text-[11px] text-ink-400 mt-1 tabular-nums">
+        {d.present}/{d.total} şagird
+      </p>
+    </div>
+  )
+}
+
+// ── Section header — calm: hairline divider, one brand accent, tight radius ──
+
+function SectionHeader({ icon: Icon, tone = 'periwinkle', title, sub, action, onAction }) {
+  return (
+    <div
+      className="flex items-center justify-between px-5 py-4"
+      style={{ borderBottom: '1px solid var(--hairline)' }}
+    >
+      <div className="flex items-center gap-3 min-w-0">
         <div
-          className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] ${iconBg || ''}`}
-          style={!iconBg ? { background: 'rgba(124,110,224,0.12)' } : undefined}
+          className={`icon-chip icon-chip-${tone}`}
+          style={{ width: 36, height: 36, borderRadius: 12 }}
         >
-          <Icon className={`w-4.5 h-4.5 ${iconColor || ''}`} style={!iconColor ? { color: '#7c6ee0' } : undefined} />
+          <Icon className="w-[18px] h-[18px]" />
         </div>
-        <div className="pl-3" style={{ borderLeft: '3px solid rgba(124,110,224,0.55)' }}>
-          <h2 className="text-lg font-bold leading-tight" style={{ color: '#1a1a2e' }}>{title}</h2>
-          {sub && <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{sub}</p>}
+        <div className="min-w-0">
+          <h2 className="text-[15px] font-semibold leading-tight text-ink-900 truncate">{title}</h2>
+          {sub && <p className="text-xs mt-0.5 text-ink-400 truncate">{sub}</p>}
         </div>
       </div>
       {action && (
         <button
           onClick={onAction}
-          className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:opacity-80"
-          style={{ color: '#7c6ee0' }}
+          className="text-xs font-semibold flex items-center gap-0.5 text-brand-500 transition-colors hover:text-brand-700 flex-shrink-0"
         >
           {action} <ChevronRight className="w-3.5 h-3.5" />
         </button>
       )}
+    </div>
+  )
+}
+
+// ── Family-connection progress ring — signature admin KPI (§4.4) ────────────
+// Single-accent SVG completion ring: "X of N families connected". Calm, no
+// gradient, brand stroke on a hairline track. Bricolage percentage in centre.
+
+function FamilyRing({ connected, total }) {
+  const pct = total > 0 ? Math.round((connected / total) * 100) : 0
+  const R = 34
+  const C = 2 * Math.PI * R
+  const dash = (Math.min(pct, 100) / 100) * C
+  return (
+    <div className="bg-surface border border-hairline rounded-card p-5 flex items-center gap-5">
+      <div className="relative flex-shrink-0" style={{ width: 84, height: 84 }}>
+        <svg width="84" height="84" viewBox="0 0 84 84" className="-rotate-90">
+          <circle cx="42" cy="42" r={R} fill="none" stroke="var(--hairline-strong)" strokeWidth="8" />
+          <circle
+            cx="42" cy="42" r={R} fill="none"
+            stroke="var(--brand-500)" strokeWidth="8" strokeLinecap="round"
+            strokeDasharray={`${dash} ${C}`}
+            className="transition-all duration-700 ease-out motion-reduce:transition-none"
+          />
+        </svg>
+        <span className="absolute inset-0 flex items-center justify-center font-display font-bold text-[20px] text-ink-900 tabular-nums tracking-[-0.01em]">
+          {pct}%
+        </span>
+      </div>
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="icon-chip icon-chip-periwinkle" style={{ width: 28, height: 28, borderRadius: 12 }}>
+            <Link2 className="w-3.5 h-3.5" />
+          </span>
+          <p className="text-[12px] font-semibold text-ink-400 uppercase tracking-[0.04em]">Ailə əlaqəsi</p>
+        </div>
+        <p className="text-[13px] text-ink-600 mt-2 leading-snug tabular-nums">
+          <span className="font-semibold text-ink-900">{connected}</span> / {total} ailə qoşulub
+        </p>
+        {total > connected && (
+          <p className="text-[11px] text-ink-400 mt-1 tabular-nums">{total - connected} ailə hələ qoşulmayıb</p>
+        )}
+      </div>
     </div>
   )
 }
@@ -126,6 +215,7 @@ export default function AdminDashboard() {
   const [events, setEvents]                   = useState([])
   const [atRisk, setAtRisk]                   = useState([])
   const [classAttendance, setClassAttendance] = useState([])
+  const [classFilter, setClassFilter]         = useState('')
 
   useEffect(() => {
     if (profile?.school_id) fetchData()
@@ -199,10 +289,11 @@ export default function AdminDashboard() {
   if (loading) return <DashboardSkeleton />
   if (error) {
     return (
-      <div className="text-center py-20">
-        <p className="text-red-600 text-sm mb-4">{error}</p>
-        <button onClick={fetchData} className="text-sm text-purple underline underline-offset-2">Yenidən cəhd et</button>
-      </div>
+      <EmptyState
+        icon={AlertTriangle}
+        title={error}
+        action={<Button onClick={fetchData} variant="secondary">Yenidən cəhd et</Button>}
+      />
     )
   }
 
@@ -217,137 +308,144 @@ export default function AdminDashboard() {
   const aPct = att.total > 0 ? Math.round((att.absent  / att.total) * 100) : 0
   const lPct = att.total > 0 ? Math.round((att.late    / att.total) * 100) : 0
 
+  // Top 8 lowest-attendance classes for the chart (already sorted ascending)
+  const chartData = classAttendance.slice(0, 8)
+
+  // Family-connection ring (signature KPI): connected families vs student goal.
+  // Derived from already-fetched counts — no extra query.
+  const familiesConnected = stats.parents
+  const familiesGoal      = Math.max(stats.students, stats.parents)
+
+  // Classes table: filter + CSV export over the real attendance rows.
+  const filteredClasses = useMemo(() => {
+    const q = classFilter.trim().toLowerCase()
+    if (!q) return classAttendance
+    return classAttendance.filter(c => c.name.toLowerCase().includes(q))
+  }, [classAttendance, classFilter])
+
+  function exportClassesCsv() {
+    const header = ['Sinif', 'İştirak', 'Gecikən', 'Qayıb', 'Faiz']
+    const rows = filteredClasses.map(c => [c.name, c.present, c.late, c.absent, `${c.pct}%`])
+    const csv = [header, ...rows]
+      .map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n')
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `davamiyyet-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
 
-      {/* ── HERO BANNER ──────────────────────────────────────────────────── */}
-      <div
-        className="liquid-card relative overflow-hidden"
-        style={{ padding: 0 }}
-      >
-        {/* Soft pastel blob accent */}
-        <div
-          aria-hidden="true"
-          className="section-blob"
-          style={{
-            top: '-30%', right: '-10%',
-            width: '40%', height: '120%',
-            background: 'radial-gradient(ellipse at center, rgba(124,110,224,0.35) 0%, transparent 65%)',
-            opacity: 0.5,
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="section-blob"
-          style={{
-            bottom: '-30%', left: '-5%',
-            width: '35%', height: '120%',
-            background: 'radial-gradient(ellipse at center, rgba(93,184,163,0.32) 0%, transparent 65%)',
-            opacity: 0.45,
-          }}
-        />
-        {/* Top row */}
-        <div className="relative px-7 pt-6 pb-5 flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#64748b' }}>{todayLabel()}</p>
-            <h1 className="text-2xl font-extrabold mt-1.5 leading-tight tracking-tight">
-              <span className="pastel-text">{greeting(t)}, {firstName}</span>
-              <span className="ml-1">👋</span>
-            </h1>
-            {profile?.school?.name && (
-              <p className="text-xs mt-1.5 flex items-center gap-1.5 font-medium" style={{ color: '#64748b' }}>
-                <School className="w-3.5 h-3.5" />
-                {profile.school.name}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0 mt-1">
-            <button
-              onClick={() => navigate('/admin/shagirdler')}
-              className="btn-ghost-pastel"
-              style={{ padding: '10px 18px', fontSize: 13.5 }}
-            >
-              <UserPlus className="w-4 h-4" />
-              <span className="hidden sm:inline">Şagird Əlavə Et</span>
-            </button>
-            <button
-              onClick={() => navigate('/admin/mesajlar')}
-              className="btn-pastel"
-              style={{ padding: '10px 18px', fontSize: 13.5 }}
-            >
-              <Megaphone className="w-4 h-4" />
-              <span className="hidden sm:inline">Elan Yayımla</span>
-            </button>
-          </div>
+      {/* ── HEADER ────────────────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-400">{todayLabel()}</p>
+          <h1 className="font-display text-2xl font-extrabold mt-1 leading-tight text-ink-900">
+            {greeting(t)}, {firstName}
+          </h1>
+          {profile?.school?.name && (
+            <p className="text-xs mt-1.5 flex items-center gap-1.5 font-medium text-ink-600">
+              <School className="w-3.5 h-3.5" />
+              {profile.school.name}
+            </p>
+          )}
         </div>
-
-        {/* Stat tiles inside banner */}
-        <div
-          className="relative grid grid-cols-2 sm:grid-cols-4 gap-px"
-          style={{ borderTop: '1px solid rgba(124,110,224,0.12)', background: 'rgba(124,110,224,0.10)' }}
-        >
-          {[
-            { label: 'Şagirdlər',   value: stats.students,     sub: `${stats.classes} sinif`,       icon: Users,         color: '#7c6ee0' },
-            { label: 'Müəllimlər',  value: stats.teachers,     sub: `${stats.parents} valideyn`,    icon: GraduationCap, color: '#5db8a3' },
-            { label: 'Davamiyyət',  value: `${stats.attendance}%`, sub: 'bu günkü faiz',           icon: CalendarCheck,  color: '#e8a87c' },
-            { label: 'Tədbirlər',   value: stats.activeEvents, sub: 'yaxınlaşan',                  icon: Activity,        color: '#6b9dde' },
-          ].map(s => (
-            <div
-              key={s.label}
-              className="px-5 py-4 flex items-center gap-3 transition-colors"
-              style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.85)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.55)' }}
-            >
-              <div
-                className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
-                style={{ background: `${s.color}22` }}
-              >
-                <s.icon className="w-4.5 h-4.5" style={{ color: s.color }} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#64748b' }}>{s.label}</p>
-                <p className="text-2xl font-black leading-none mt-0.5 tabular-nums" style={{ color: '#1a1a2e' }}>{s.value}</p>
-                <p className="text-[10px] mt-0.5 font-medium truncate" style={{ color: '#94a3b8' }}>{s.sub}</p>
-              </div>
-            </div>
-          ))}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Button
+            onClick={() => navigate('/admin/shagirdler')}
+            variant="secondary"
+            size="sm"
+            style={{ padding: '9px 16px', fontSize: 13 }}
+          >
+            <UserPlus className="w-4 h-4" />
+            <span className="hidden sm:inline">Şagird Əlavə Et</span>
+          </Button>
+          <Button
+            onClick={() => navigate('/admin/mesajlar')}
+            variant="primary"
+            size="sm"
+            style={{ padding: '9px 16px', fontSize: 13 }}
+          >
+            <Megaphone className="w-4 h-4" />
+            <span className="hidden sm:inline">Elan Yayımla</span>
+          </Button>
         </div>
       </div>
 
-      {/* ── ATTENDANCE OVERVIEW ───────────────────────────────────────────── */}
+      {/* ── KPI ROW — calm, single brand accent, big tabular numbers (§4.4) ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          label="Şagirdlər"
+          tone="periwinkle"
+          icon={Users}
+          value={<CountUp to={stats.students} separator=" " />}
+        />
+        <StatCard
+          label="Müəllimlər"
+          tone="periwinkle"
+          icon={GraduationCap}
+          value={<CountUp to={stats.teachers} separator=" " />}
+        />
+        <StatCard
+          label="Davamiyyət"
+          tone="periwinkle"
+          icon={CalendarCheck}
+          value={<CountUp to={stats.attendance} suffix="%" />}
+        />
+        <StatCard
+          label="Tədbirlər"
+          tone="periwinkle"
+          icon={Activity}
+          value={<CountUp to={stats.activeEvents} />}
+        />
+      </div>
+
+      {/* ── SIGNATURE KPI — family-connection progress ring (§4.4) ─────────── */}
+      <FamilyRing connected={familiesConnected} total={familiesGoal} />
+
+      {/* ── ATTENDANCE OVERVIEW (snapshot) ────────────────────────────────── */}
       {att.total > 0 && (
-        <div className="liquid-card overflow-hidden">
+        <div className="liquid-card overflow-hidden rounded-card">
           <SectionHeader
             icon={CalendarCheck}
-            iconBg="bg-purple-light"
-            iconColor="text-purple"
+            tone="periwinkle"
             title="Bugünkü Davamiyyət Baxışı"
             sub={`${att.total} şagird qeydə alınıb · ${fmtDate(new Date(), { day: 'numeric', month: 'long' })}`}
             action="Ətraflı"
             onAction={() => navigate('/admin/cedvel')}
           />
 
-          {/* Big numbers */}
-          <div className="grid grid-cols-3 divide-x divide-border-soft">
-            <div className="px-6 py-6 text-center">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">İştirak edir</p>
-              <p className="text-5xl font-black text-teal tabular-nums leading-none">{att.present}</p>
-              <span className="inline-flex items-center gap-1 mt-3 text-xs font-bold text-teal bg-teal-light px-3 py-1 rounded-full">
+          {/* Big numbers — calm, threshold-colored, tabular */}
+          <div className="grid grid-cols-3" style={{ borderColor: 'var(--hairline)' }}>
+            <div className="px-6 py-6 text-center" style={{ borderRight: '1px solid var(--hairline)' }}>
+              <p className="text-[11px] font-semibold text-ink-400 uppercase tracking-[0.06em] mb-2">İştirak edir</p>
+              <p className="font-display text-[32px] font-bold tabular-nums leading-none tracking-[-0.01em]" style={{ color: 'var(--mint-dark, #15803D)' }}>
+                <CountUp to={att.present} />
+              </p>
+              <span className="inline-flex items-center gap-1 mt-3 text-xs font-semibold px-2.5 py-1 rounded-pill tabular-nums" style={{ background: '#DCFCE7', color: '#15803D' }}>
                 <TrendingUp className="w-3 h-3" />{pPct}%
               </span>
             </div>
-            <div className="px-6 py-6 text-center">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Gecikən</p>
-              <p className="text-5xl font-black text-amber-500 tabular-nums leading-none">{att.late}</p>
-              <span className="inline-flex items-center mt-3 text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
+            <div className="px-6 py-6 text-center" style={{ borderRight: '1px solid var(--hairline)' }}>
+              <p className="text-[11px] font-semibold text-ink-400 uppercase tracking-[0.06em] mb-2">Gecikən</p>
+              <p className="font-display text-[32px] font-bold tabular-nums leading-none tracking-[-0.01em]" style={{ color: '#B45309' }}>
+                <CountUp to={att.late} />
+              </p>
+              <span className="inline-flex items-center mt-3 text-xs font-semibold px-2.5 py-1 rounded-pill tabular-nums" style={{ background: '#FEF3C7', color: '#B45309' }}>
                 {lPct}%
               </span>
             </div>
             <div className="px-6 py-6 text-center">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Qayıb</p>
-              <p className="text-5xl font-black text-red-500 tabular-nums leading-none">{att.absent}</p>
-              <span className="inline-flex items-center gap-1 mt-3 text-xs font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full">
+              <p className="text-[11px] font-semibold text-ink-400 uppercase tracking-[0.06em] mb-2">Qayıb</p>
+              <p className="font-display text-[32px] font-bold tabular-nums leading-none tracking-[-0.01em]" style={{ color: '#B91C1C' }}>
+                <CountUp to={att.absent} />
+              </p>
+              <span className="inline-flex items-center gap-1 mt-3 text-xs font-semibold px-2.5 py-1 rounded-pill tabular-nums" style={{ background: '#FEE2E2', color: '#B91C1C' }}>
                 <TrendingDown className="w-3 h-3" />{aPct}%
               </span>
             </div>
@@ -355,19 +453,19 @@ export default function AdminDashboard() {
 
           {/* Stacked bar */}
           <div className="px-6 pb-5">
-            <div className="h-3 rounded-full overflow-hidden bg-gray-100 flex">
-              {pPct > 0 && <div className="bg-teal   h-full transition-all" style={{ width: `${pPct}%` }} />}
-              {lPct > 0 && <div className="bg-amber-400 h-full transition-all ml-0.5" style={{ width: `${lPct}%` }} />}
-              {aPct > 0 && <div className="bg-red-400 h-full transition-all ml-0.5" style={{ width: `${aPct}%` }} />}
+            <div className="h-2.5 rounded-full overflow-hidden flex" style={{ background: 'var(--hairline)' }}>
+              {pPct > 0 && <div className="h-full transition-all duration-700 ease-out" style={{ width: `${pPct}%`, background: 'var(--mint)' }} />}
+              {lPct > 0 && <div className="h-full transition-all duration-700 ease-out ml-0.5" style={{ width: `${lPct}%`, background: 'var(--warning, #F59E0B)' }} />}
+              {aPct > 0 && <div className="h-full transition-all duration-700 ease-out ml-0.5" style={{ width: `${aPct}%`, background: 'var(--danger, #EF4444)' }} />}
             </div>
-            <div className="flex items-center gap-5 mt-2.5">
+            <div className="flex items-center gap-5 mt-2.5 flex-wrap">
               {[
-                { color: 'bg-teal',      label: `${pPct}% iştirak` },
-                { color: 'bg-amber-400', label: `${lPct}% gecikən` },
-                { color: 'bg-red-400',   label: `${aPct}% qayıb` },
+                { color: 'var(--mint)',            label: `${pPct}% iştirak` },
+                { color: 'var(--warning, #F59E0B)', label: `${lPct}% gecikən` },
+                { color: 'var(--danger, #EF4444)',  label: `${aPct}% qayıb` },
               ].map(item => (
-                <span key={item.label} className="flex items-center gap-1.5 text-[11px] text-gray-500 font-medium">
-                  <span className={`w-2.5 h-2.5 rounded-full ${item.color} flex-shrink-0`} />
+                <span key={item.label} className="flex items-center gap-1.5 text-[11px] text-ink-600 font-medium tabular-nums">
+                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
                   {item.label}
                 </span>
               ))}
@@ -377,115 +475,174 @@ export default function AdminDashboard() {
       )}
 
       {/* ── MAIN GRID ─────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {/* ── LEFT col (7 cols) ─────────────────────────────────────────── */}
-        <div className="lg:col-span-7 space-y-5">
+        <div className="lg:col-span-7 space-y-6">
 
-          {/* Class-by-class attendance */}
-          <div className="liquid-card overflow-hidden">
+          {/* Class-by-class attendance — chart + filterable / exportable table */}
+          <div className="liquid-card overflow-hidden rounded-card">
             <SectionHeader
               icon={CalendarCheck}
-              iconBg="bg-purple-light"
-              iconColor="text-purple"
+              tone="periwinkle"
               title={t('todays_attendance_table')}
               action={t('view_all')}
               onAction={() => navigate('/admin/cedvel')}
             />
 
             {classAttendance.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="w-14 h-14 bg-surface rounded-2xl flex items-center justify-center mb-4">
-                  <CalendarCheck className="w-7 h-7 text-gray-300" />
+              <div className="flex flex-col items-center justify-center text-center px-6 py-14">
+                <div className="icon-chip icon-chip-periwinkle" style={{ width: 52, height: 52, borderRadius: 12 }}>
+                  <CalendarCheck className="w-6 h-6" />
                 </div>
-                <p className="text-sm font-semibold text-gray-500">Bu gün üçün davamiyyət qeydə alınmayıb</p>
-                <p className="text-xs text-gray-400 mt-1">Müəllimlər dərs zamanı qeyd etdikdə görünəcək</p>
+                <p className="text-sm font-semibold text-ink-700 mt-3">Bu gün üçün davamiyyət qeydə alınmayıb</p>
+                <p className="text-xs text-ink-400 mt-1">Müəllimlər dərs zamanı qeyd etdikdə burada görünəcək</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50/80 border-b border-border-soft">
-                      <th className="text-left px-5 py-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Sinif</th>
-                      <th className="text-center px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-teal">İştirak</th>
-                      <th className="text-center px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-amber-500">Gecikən</th>
-                      <th className="text-center px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-red-400">Qayıb</th>
-                      <th className="px-5 py-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider min-w-[140px]">Faiz</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border-soft">
-                    {classAttendance.map(cls => (
-                      <tr key={cls.class_id} className="hover:bg-purple-light/10 transition-colors group">
-                        <td className="px-5 py-3.5">
-                          <span className="font-bold text-gray-900 text-sm group-hover:text-purple transition-colors">{cls.name}</span>
-                        </td>
-                        <td className="px-4 py-3.5 text-center">
-                          <span className="inline-flex items-center justify-center min-w-[36px] h-7 rounded-lg bg-teal-light text-teal text-sm font-black px-2">
-                            {cls.present}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5 text-center">
-                          <span className="inline-flex items-center justify-center min-w-[36px] h-7 rounded-lg bg-amber-50 text-amber-600 text-sm font-black px-2">
-                            {cls.late}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5 text-center">
-                          <span className="inline-flex items-center justify-center min-w-[36px] h-7 rounded-lg bg-red-50 text-red-500 text-sm font-black px-2">
-                            {cls.absent}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5">
-                          <AttBar pct={cls.pct} />
-                        </td>
+              <>
+                {/* Rounded-bar attendance chart (§10) */}
+                {chartData.length > 1 && (
+                  <div className="px-4 pt-5 pb-1" style={{ height: 220 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                        <CartesianGrid stroke="#F1F2F4" vertical={false} />
+                        <XAxis
+                          dataKey="name"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 12, fill: '#9AA0B0' }}
+                        />
+                        <YAxis
+                          domain={[0, 100]}
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 12, fill: '#9AA0B0' }}
+                          tickFormatter={(v) => `${v}%`}
+                        />
+                        <Tooltip cursor={{ fill: 'rgba(87,79,207,0.06)' }} content={<ChartTooltip />} />
+                        <Bar dataKey="pct" radius={[6, 6, 0, 0]} barSize={32}>
+                          {chartData.map((c) => (
+                            <Cell
+                              key={c.class_id}
+                              fill={c.pct >= 85 ? '#22C55E' : c.pct >= 70 ? '#F59E0B' : '#EF4444'}
+                            />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+
+                {/* Toolbar — filter + export (§4.4) */}
+                <div
+                  className="flex items-center gap-2 px-4 py-2.5"
+                  style={{ borderTop: '1px solid var(--hairline)' }}
+                >
+                  <div className="relative flex-1 min-w-0 max-w-[240px]">
+                    <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={classFilter}
+                      onChange={(e) => setClassFilter(e.target.value)}
+                      placeholder={t('filter')}
+                      className="pastel-input w-full text-[13px]"
+                      style={{ height: 34, paddingLeft: 32, borderRadius: 10 }}
+                      aria-label={t('filter')}
+                    />
+                  </div>
+                  <button
+                    onClick={exportClassesCsv}
+                    className="ml-auto inline-flex items-center gap-1.5 text-[13px] font-semibold text-ink-600 hover:text-brand-500 transition-colors px-2 py-1.5"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{t('export_csv')}</span>
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="pastel-table">
+                    <thead>
+                      <tr>
+                        <th className="text-left">Sinif</th>
+                        <th className="text-center">İştirak</th>
+                        <th className="text-center">Gecikən</th>
+                        <th className="text-center">Qayıb</th>
+                        <th className="text-left" style={{ minWidth: 140 }}>Faiz</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {filteredClasses.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="text-center text-[13px] text-ink-400 py-8">
+                            {t('filter')} — nəticə tapılmadı
+                          </td>
+                        </tr>
+                      ) : filteredClasses.map(cls => (
+                        <tr key={cls.class_id}>
+                          <td>
+                            <span className="font-semibold text-ink-900 text-[13px]">{cls.name}</span>
+                          </td>
+                          <td className="text-center tabular-nums">
+                            <span className="font-semibold" style={{ color: 'var(--mint-dark, #15803D)' }}>{cls.present}</span>
+                          </td>
+                          <td className="text-center tabular-nums">
+                            <span className="font-semibold" style={{ color: '#B45309' }}>{cls.late}</span>
+                          </td>
+                          <td className="text-center tabular-nums">
+                            <span className="font-semibold" style={{ color: '#B91C1C' }}>{cls.absent}</span>
+                          </td>
+                          <td>
+                            <AttBar pct={cls.pct} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
 
           {/* At-risk students */}
-          <div className="liquid-card overflow-hidden">
+          <div className="liquid-card overflow-hidden rounded-card">
             {atRisk.length > 0 ? (
               <>
                 <SectionHeader
                   icon={AlertTriangle}
-                  iconBg="bg-red-50"
-                  iconColor="text-red-400"
+                  tone="coral"
                   title={t('at_risk_students')}
                   sub={`${atRisk.length} şagird diqqət tələb edir`}
                   action={t('view_all')}
                   onAction={() => navigate('/admin/shagirdler')}
                 />
-                <div className="divide-y divide-border-soft">
+                <div>
                   {atRisk.map(s => (
                     <div
                       key={s.id}
-                      className="flex items-center gap-3 pl-0 pr-5 py-3.5 hover:bg-red-50/30 transition-colors"
-                      style={{ borderLeft: '4px solid #FCA5A5' }}
+                      className="flex items-center gap-3 pr-5 py-3.5 transition-colors hover:bg-brand-50/50"
+                      style={{ borderLeft: '3px solid var(--danger, #EF4444)', borderBottom: '1px solid var(--hairline)' }}
                     >
                       <div className="pl-4">
                         <Avatar name={s.full_name} size="sm" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900 truncate">{s.full_name}</p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-sm font-semibold text-ink-900 truncate">{s.full_name}</p>
+                        <p className="text-xs text-ink-600 truncate">
                           {s.class_name}
-                          {s.risk_reason && <span className="ml-2 text-red-400 font-semibold">· {s.risk_reason}</span>}
+                          {s.risk_reason && <span className="ml-2 font-semibold" style={{ color: '#B91C1C' }}>· {s.risk_reason}</span>}
                         </p>
                       </div>
-                      <div className="flex items-center gap-4 flex-shrink-0">
+                      <div className="flex items-center gap-5 flex-shrink-0">
                         {s.avg_grade != null && (
                           <div className="text-right">
-                            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Ort.</p>
-                            <p className={`text-base font-black mt-0.5 ${s.avg_grade < 5 ? 'text-red-600' : 'text-gray-700'}`}>{s.avg_grade}</p>
+                            <p className="text-[10px] text-ink-400 font-semibold uppercase tracking-[0.04em]">Ort.</p>
+                            <p className="text-base font-bold mt-0.5 tabular-nums" style={{ color: s.avg_grade < 5 ? '#B91C1C' : 'var(--ink-700)' }}>{s.avg_grade}</p>
                           </div>
                         )}
                         {s.attendance_pct != null && (
                           <div className="text-right">
-                            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Dev.</p>
-                            <p className={`text-base font-black mt-0.5 ${s.attendance_pct < 75 ? 'text-red-600' : 'text-gray-700'}`}>{s.attendance_pct}%</p>
+                            <p className="text-[10px] text-ink-400 font-semibold uppercase tracking-[0.04em]">Dev.</p>
+                            <p className="text-base font-bold mt-0.5 tabular-nums" style={{ color: s.attendance_pct < 75 ? '#B91C1C' : 'var(--ink-700)' }}>{s.attendance_pct}%</p>
                           </div>
                         )}
                       </div>
@@ -495,12 +652,12 @@ export default function AdminDashboard() {
               </>
             ) : (
               <div className="flex items-center gap-4 px-5 py-5">
-                <div className="w-10 h-10 rounded-xl bg-teal-light flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-5 h-5 text-teal" />
+                <div className="icon-chip icon-chip-mint" style={{ width: 38, height: 38, borderRadius: 12 }}>
+                  <CheckCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-gray-900">{t('at_risk_students')}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Risk altında olan şagird yoxdur · Bütün şagirdlər yaxşı vəziyyətdədir</p>
+                  <p className="text-sm font-bold text-ink-900">{t('at_risk_students')}</p>
+                  <p className="text-xs text-ink-400 mt-0.5">Risk altında olan şagird yoxdur · Bütün şagirdlər yaxşı vəziyyətdədir</p>
                 </div>
               </div>
             )}
@@ -509,44 +666,50 @@ export default function AdminDashboard() {
         </div>
 
         {/* ── RIGHT col (5 cols) ────────────────────────────────────────── */}
-        <div className="lg:col-span-5 space-y-5">
+        <div className="lg:col-span-5 space-y-6">
 
           {/* Upcoming events */}
-          <div className="liquid-card overflow-hidden">
+          <div className="liquid-card overflow-hidden rounded-card">
             <SectionHeader
               icon={Activity}
-              iconBg="bg-amber-50"
-              iconColor="text-amber-500"
+              tone="periwinkle"
               title={t('upcoming_events')}
               action={t('view_all')}
               onAction={() => navigate('/admin/tedbirler')}
             />
 
             {events.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Activity className="w-8 h-8 text-gray-200 mb-2" />
-                <p className="text-sm text-gray-400">{t('no_upcoming_events')}</p>
+              <div className="flex flex-col items-center justify-center text-center px-6 py-12">
+                <div className="icon-chip icon-chip-periwinkle" style={{ width: 48, height: 48, borderRadius: 12 }}>
+                  <Activity className="w-5 h-5" />
+                </div>
+                <p className="text-sm text-ink-400 mt-3">{t('no_upcoming_events')}</p>
               </div>
             ) : (
-              <ul className="divide-y divide-border-soft">
+              <ul>
                 {events.map(ev => {
                   const dt   = formatEventDate(ev.start_date)
-                  const meta = EVENT_META[ev.type] || { bg: 'bg-surface', text: 'text-gray-600', dot: 'bg-gray-300' }
+                  const pill = EVENT_PILL[ev.type] || 'pill-muted'
                   return (
-                    <li key={ev.id} className="flex items-center gap-4 px-5 py-4 hover:bg-surface/60 transition-colors">
+                    <li
+                      key={ev.id}
+                      className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-brand-50/50"
+                      style={{ borderBottom: '1px solid var(--hairline)' }}
+                    >
                       {/* Date badge */}
-                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-purple-light flex flex-col items-center justify-center">
-                        <span className="text-lg font-black text-purple leading-none tabular-nums">{dt.dd}</span>
-                        <span className="text-[9px] font-bold text-purple/60 uppercase tracking-wider mt-0.5">{dt.month}</span>
+                      <div
+                        className="flex-shrink-0 w-12 h-12 flex flex-col items-center justify-center"
+                        style={{ borderRadius: 12, background: 'var(--brand-50)' }}
+                      >
+                        <span className="text-lg font-bold text-brand-700 leading-none tabular-nums">{dt.dd}</span>
+                        <span className="text-[9px] font-semibold uppercase tracking-[0.04em] mt-0.5 text-brand-500">{dt.month}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900 truncate">{ev.title}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[11px] text-gray-400 font-medium capitalize">{dt.weekday}</span>
+                        <p className="text-sm font-semibold text-ink-900 truncate">{ev.title}</p>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <span className="text-[11px] text-ink-400 font-medium capitalize">{dt.weekday}</span>
                           {ev.type && (
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${meta.bg} ${meta.text}`}>
-                              {ev.type}
-                            </span>
+                            <span className={pill}>{ev.type}</span>
                           )}
                         </div>
                       </div>
@@ -558,35 +721,47 @@ export default function AdminDashboard() {
           </div>
 
           {/* Activity / notifications feed */}
-          <div className="liquid-card overflow-hidden">
+          <div className="liquid-card overflow-hidden rounded-card">
             <SectionHeader
               icon={Bell}
-              iconBg="bg-purple-light"
-              iconColor="text-purple"
+              tone="periwinkle"
               title={t('all_notifications')}
               action={t('view_all')}
               onAction={() => navigate('/admin/mesajlar')}
             />
 
             {activities.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Bell className="w-8 h-8 text-gray-200 mb-2" />
-                <p className="text-sm text-gray-400">{t('no_notifications')}</p>
+              <div className="flex flex-col items-center justify-center text-center px-6 py-12">
+                <div className="icon-chip icon-chip-periwinkle" style={{ width: 48, height: 48, borderRadius: 12 }}>
+                  <Bell className="w-5 h-5" />
+                </div>
+                <p className="text-sm text-ink-400 mt-3">{t('no_notifications')}</p>
               </div>
             ) : (
               <ul className="overflow-y-auto max-h-[340px]">
-                {activities.map((a, i) => (
-                  <li key={a.id} className="flex items-start gap-3.5 px-5 py-4 hover:bg-surface/60 transition-colors border-b border-border-soft last:border-0">
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${DOT_COLORS[a.type] ? DOT_COLORS[a.type].replace('bg-', 'bg-').replace('500','50').replace('400','50').replace('purple','purple-light') : 'bg-gray-100'}`}>
-                      <span className={`w-2.5 h-2.5 rounded-full ${DOT_COLORS[a.type] || 'bg-gray-300'}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 leading-snug">{a.title}</p>
-                      {a.body && <p className="text-xs text-gray-400 mt-0.5 truncate">{a.body}</p>}
-                      <p className="text-[11px] text-gray-400 font-medium mt-1">{timeAgo(a.created_at)} əvvəl</p>
-                    </div>
-                  </li>
-                ))}
+                {activities.map((a) => {
+                  const meta = ACTIVITY_DOT[a.type] || { chip: 'icon-chip-periwinkle', dot: '#9AA0B0' }
+                  return (
+                    <li
+                      key={a.id}
+                      className="flex items-start gap-3 px-5 py-4 transition-colors hover:bg-brand-50/50"
+                      style={{ borderBottom: '1px solid var(--hairline)' }}
+                    >
+                      <div
+                        className={`icon-chip ${meta.chip} mt-0.5 flex-shrink-0`}
+                        style={{ width: 30, height: 30, borderRadius: 10 }}
+                        aria-hidden="true"
+                      >
+                        <span className="w-2 h-2 rounded-full" style={{ background: meta.dot }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-ink-900 leading-snug">{a.title}</p>
+                        {a.body && <p className="text-xs text-ink-400 mt-0.5 truncate">{a.body}</p>}
+                        <p className="text-[11px] text-ink-400 font-medium mt-1">{timeAgo(a.created_at)} əvvəl</p>
+                      </div>
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </div>

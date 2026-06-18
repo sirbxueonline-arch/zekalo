@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 import LandingNav from '../components/layout/LandingNav'
+import Mascot from '../components/ui/Mascot'
 import { useSEO } from '../hooks/useSEO'
 
 const STR = {
@@ -78,16 +79,17 @@ const FEATURE_PATHS = [
   '/zeka-ai',
 ]
 
-// Pastel palette accents — rotated across modules
+// Muted accents — V3 tokens. Rotated across the bento so no two adjacent cards
+// share a hue. `chip` maps to the shared .icon-chip-* class.
 const PASTEL_ACCENTS = [
-  '#7c6ee0', // periwinkle
-  '#5db8a3', // mint
-  '#e8a87c', // peach
-  '#6b9dde', // soft blue
-  '#7c6ee0',
-  '#5db8a3',
-  '#e8a87c',
-  '#6b9dde',
+  { color: '#574FCF', chip: 'periwinkle' }, // brand
+  { color: '#15803D', chip: 'mint' },       // success / accuracy
+  { color: '#B45309', chip: 'peach' },      // warmth / parent-facing
+  { color: '#1D7FB8', chip: 'blue' },       // info / time
+  { color: '#6D28D9', chip: 'grape' },      // achievements
+  { color: '#B45309', chip: 'sun' },        // XP / points
+  { color: '#1D7FB8', chip: 'blue' },       // info
+  { color: '#574FCF', chip: 'periwinkle' }, // brand (Zəka AI)
 ]
 
 const FEATURES = {
@@ -137,7 +139,10 @@ export default function Features() {
   const { lang, setLang } = useLang()
   const s = STR[lang] || STR.az
   const baseFeatures = FEATURES[lang] || FEATURES.az
-  const features = baseFeatures.map((f, i) => ({ ...f, accent: PASTEL_ACCENTS[i % PASTEL_ACCENTS.length] }))
+  const features = baseFeatures.map((f, i) => {
+    const a = PASTEL_ACCENTS[i % PASTEL_ACCENTS.length]
+    return { ...f, accent: a.color, chip: a.chip }
+  })
   useSEO({
     title: lang==='az' ? 'Xüsusiyyətlər — 8 Modul, 60+ Funksiya' : lang==='ru' ? 'Возможности — 8 модулей, 60+ функций' : lang==='tr' ? 'Özellikler — 8 Modül, 60+ Özellik' : 'Features — 8 Modules, 60+ Capabilities',
     description: lang==='az' ? 'Kurikulum idarəetməsi, qiymətləndirmə, davamiyyət, hesabatlar, kommunikasiya, cədvəl, Zəka AI — hamısı bir platformada.' : 'Curriculum management, assessment, attendance, reports, communication, timetable, Zeka AI — all in one platform.',
@@ -145,23 +150,28 @@ export default function Features() {
     keywords: 'school management features, kurikulum idarəetməsi, məktəb xüsusiyyətləri, IB assessment platform, school attendance software Azerbaijan',
   })
   return (
-    <div style={{ background: '#f8f7fb', fontFamily: 'inherit' }}>
+    <div style={{ background: 'var(--canvas)', fontFamily: 'inherit' }}>
       <style>{`
-        @keyframes heroGradient {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .feat-learn { transition: gap .15s ease; }
+        .feat-learn { transition: gap .15s var(--ease-out-quint); }
         .feat-learn:hover { gap: 8px !important; }
-        .feat-nav-pill { transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease; }
-        .feat-nav-pill:hover { background: rgba(255,255,255,0.85) !important; border-color: rgba(124,110,224,0.45) !important; transform: translateY(-1px); }
-        .feat-hero-pill { transition: transform .2s ease, background .2s ease, border-color .2s ease; }
-        .feat-hero-pill:hover { transform: translateY(-2px); }
+        .feat-nav-pill {
+          transition: color .15s ease, border-color .15s ease, transform .15s var(--ease-out-quint);
+        }
+        .feat-nav-pill:hover {
+          border-color: var(--brand-300) !important;
+          transform: translateY(-2px);
+        }
+        .feat-hero-chip {
+          transition: transform .15s var(--ease-out-quint), border-color .15s ease;
+        }
+        .feat-hero-chip:hover { transform: translateY(-2px); border-color: var(--brand-300) !important; }
         @media (max-width: 767px) {
           .feat-row-inner { flex-direction: column !important; }
           .feat-row-inner.reverse { flex-direction: column !important; }
           .feat-row-left, .feat-row-right { width: 100% !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .feat-learn, .feat-nav-pill, .feat-hero-chip { transition: none !important; }
         }
       `}</style>
 
@@ -173,29 +183,60 @@ export default function Features() {
         overflow: 'hidden',
         padding: '160px 24px 96px',
         textAlign: 'center',
-        background: 'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)',
-        backgroundSize: '400% 400%',
-        animation: 'heroGradient 12s ease infinite',
+        background: 'var(--canvas)',
       }}>
-        {/* Drifting pastel blobs */}
+        {/* Single static brand wash */}
         <div className="hb1" />
-        <div className="hb2" />
-        <div className="hb3" />
-        <div className="hb4" />
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 860, margin: '0 auto' }}>
-          <h1 style={{ fontSize: 'clamp(2.6rem,6.5vw,4.6rem)', fontWeight: 900, color: '#1a1a2e', lineHeight: 1.06, letterSpacing: '-0.035em', marginBottom: 8 }}>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 880, margin: '0 auto' }}>
+          {/* Eyebrow pill */}
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 7,
+            padding: '6px 14px', borderRadius: 999, marginBottom: 22,
+            background: '#fff', border: '1px solid var(--hairline-strong)',
+            boxShadow: '0 1px 2px rgba(20,22,40,.05)',
+            fontSize: 12.5, fontWeight: 600, color: 'var(--brand-700)',
+            letterSpacing: '.01em',
+          }}>
+            <Sparkles style={{ width: 13, height: 13, color: 'var(--brand-500)' }} />
+            {s.hero_eyebrow}
+          </span>
+
+          <h1 className="font-display" style={{ fontSize: 'clamp(2.6rem,6.5vw,4.6rem)', fontWeight: 800, color: 'var(--ink-900)', lineHeight: 1.06, letterSpacing: '-0.02em', marginBottom: 6 }}>
             {s.hero_h1}
           </h1>
-          <h2 className="pastel-text" style={{ fontSize: 'clamp(2.6rem,6.5vw,4.6rem)', fontWeight: 900, lineHeight: 1.06, letterSpacing: '-0.035em', marginBottom: 28 }}>
+          <h2 className="font-display pastel-text" style={{ fontSize: 'clamp(2.6rem,6.5vw,4.6rem)', fontWeight: 800, lineHeight: 1.06, letterSpacing: '-0.02em', marginBottom: 28 }}>
             {s.hero_h2}
           </h2>
 
-          <p style={{ fontSize: 'clamp(1rem,2.2vw,1.18rem)', color: '#64748b', lineHeight: 1.78, maxWidth: 560, margin: '0 auto 52px' }}>
+          <p style={{ fontSize: 'clamp(1rem,2.2vw,1.18rem)', color: 'var(--ink-600)', lineHeight: 1.78, maxWidth: 560, margin: '0 auto 44px' }}>
             {s.hero_body}
           </p>
 
-          {/* Feature icon grid pills — liquid glass */}
+          {/* Stat band — KPI numbers in Bricolage, single brand accent */}
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 0, flexWrap: 'wrap',
+            justifyContent: 'center', marginBottom: 48,
+            background: '#fff', border: '1px solid var(--hairline)',
+            borderRadius: 14, padding: '18px 8px',
+            boxShadow: '0 1px 2px rgba(20,22,40,.05)',
+          }}>
+            {[
+              { n: '8', l: s.section_title },
+              { n: '60+', l: s.hero_eyebrow },
+              { n: '600+', l: 'IB · E-Gov.az' },
+            ].map((stat, idx) => (
+              <div key={idx} style={{ display: 'flex', alignItems: 'center' }}>
+                {idx > 0 && <span style={{ width: 1, height: 38, background: 'var(--hairline)', margin: '0 4px' }} />}
+                <div style={{ padding: '0 22px', textAlign: 'center' }}>
+                  <div className="font-display" style={{ fontSize: 'clamp(1.7rem,4vw,2.3rem)', fontWeight: 800, color: 'var(--ink-900)', lineHeight: 1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }}>{stat.n}</div>
+                  <div style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--ink-400)', marginTop: 6, textTransform: 'uppercase', letterSpacing: '.04em' }}>{stat.l}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Feature icon chips — token-tinted, jump to row */}
           <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 10 }}>
             {features.map((f, i) => {
               const IC = f.icon
@@ -203,25 +244,21 @@ export default function Features() {
                 <a
                   key={i}
                   href={`#feature-${i}`}
-                  className="feat-hero-pill"
+                  className="feat-hero-chip"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 8,
                     padding: '9px 16px',
-                    borderRadius: 99,
-                    background: 'rgba(255,255,255,0.6)',
-                    backdropFilter: 'blur(16px) saturate(1.4)',
-                    WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-                    border: `1px solid ${f.accent}40`,
+                    borderRadius: 999,
+                    background: '#fff',
+                    border: `1px solid ${f.accent}33`,
                     textDecoration: 'none',
-                    color: '#1a1a2e',
+                    color: 'var(--ink-900)',
                     fontSize: 13,
                     fontWeight: 600,
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.7), 0 2px 8px rgba(140,120,200,0.06)',
+                    boxShadow: '0 1px 2px rgba(20,22,40,.05)',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.85)'; e.currentTarget.style.borderColor = `${f.accent}80` }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.6)'; e.currentTarget.style.borderColor = `${f.accent}40` }}
                 >
                   <IC style={{ width: 14, height: 14, color: f.accent, flexShrink: 0 }} />
                   {f.title}
@@ -232,9 +269,9 @@ export default function Features() {
         </div>
       </section>
 
-      {/* ── Quick nav pill row — liquid glass over pastel bg ── */}
-      <div style={{ background: '#f8f7fb', position: 'relative', padding: '0 24px', borderBottom: '1px solid rgba(124,110,224,0.08)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', overflowX: 'auto', display: 'flex', gap: 6, padding: '16px 0', scrollbarWidth: 'none' }}>
+      {/* ── Quick nav pill row — sticky token chips over canvas ── */}
+      <div style={{ background: 'var(--surface)', position: 'sticky', top: 0, zIndex: 20, padding: '0 24px', borderBottom: '1px solid var(--hairline)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', overflowX: 'auto', display: 'flex', gap: 6, padding: '14px 0', scrollbarWidth: 'none' }}>
           {features.map((f, i) => {
             const IC = f.icon
             return (
@@ -246,13 +283,11 @@ export default function Features() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 7,
-                  padding: '8px 16px',
-                  borderRadius: 99,
-                  background: 'rgba(255,255,255,0.55)',
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(124,110,224,0.18)',
-                  color: '#1a1a2e',
+                  padding: '8px 15px',
+                  borderRadius: 999,
+                  background: 'var(--surface-2)',
+                  border: '1px solid var(--hairline)',
+                  color: 'var(--ink-700)',
                   fontSize: 12.5,
                   fontWeight: 600,
                   textDecoration: 'none',
@@ -268,12 +303,18 @@ export default function Features() {
         </div>
       </div>
 
-      {/* ── Alternating Feature Rows — single off-white bg, liquid cards ── */}
-      <section style={{ background: '#f8f7fb', position: 'relative', overflow: 'hidden' }}>
-        {/* Soft drifting accents in the background */}
-        <div className="section-blob" style={{ width: '50vw', height: '50vw', top: '5%', left: '-15%', background: 'rgba(184,192,255,0.35)' }} />
-        <div className="section-blob" style={{ width: '45vw', height: '45vw', top: '40%', right: '-12%', background: 'rgba(200,230,224,0.35)' }} />
-        <div className="section-blob" style={{ width: '40vw', height: '40vw', bottom: '5%', left: '10%', background: 'rgba(245,230,216,0.3)' }} />
+      {/* ── Alternating Feature Rows — canvas bg, liquid cards ── */}
+      <section style={{ background: 'var(--canvas)', position: 'relative', overflow: 'hidden' }}>
+        {/* Single soft brand wash */}
+        <div className="section-blob" style={{ width: '50vw', height: '50vw', top: '8%', left: '-15%', background: 'rgba(87,79,207,0.06)' }} />
+
+        {/* Section heading */}
+        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '72px 24px 8px', maxWidth: 720, margin: '0 auto' }}>
+          <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem,4vw,2.6rem)', fontWeight: 800, color: 'var(--ink-900)', letterSpacing: '-0.02em', marginBottom: 12 }}>
+            {s.section_title}
+          </h2>
+          <p style={{ fontSize: 16, color: 'var(--ink-600)', lineHeight: 1.7 }}>{s.section_sub}</p>
+        </div>
 
         <div style={{ position: 'relative', zIndex: 1 }}>
           {features.map((f, i) => {
@@ -281,8 +322,8 @@ export default function Features() {
             const isReverse = i % 2 === 1
 
             return (
-              <div key={f.title} id={`feature-${i}`}>
-                <div style={{ padding: '64px 24px' }}>
+              <div key={f.title} id={`feature-${i}`} style={{ scrollMarginTop: 80 }}>
+                <div style={{ padding: '40px 24px' }}>
                   <div style={{ maxWidth: 1100, margin: '0 auto' }}>
                     <div
                       className={`liquid-card feat-row-inner${isReverse ? ' reverse' : ''}`}
@@ -294,29 +335,23 @@ export default function Features() {
                         padding: '44px 44px',
                       }}
                     >
-                      {/* Left col: icon + title + desc + link */}
+                      {/* Left col: icon + index + title + desc + link */}
                       <div
                         className="feat-row-left"
                         style={{ width: '38%', flexShrink: 0 }}
                       >
-                        {/* Icon pill — pastel tinted glass */}
-                        <div style={{
-                          width: 64,
-                          height: 64,
-                          borderRadius: 18,
-                          background: `linear-gradient(135deg, ${f.accent}28 0%, ${f.accent}10 100%)`,
-                          border: `1px solid ${f.accent}40`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          marginBottom: 20,
-                          boxShadow: `inset 0 1px 0 rgba(255,255,255,0.6), 0 4px 14px ${f.accent}20`,
-                        }}>
-                          <IC style={{ width: 28, height: 28, color: f.accent }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+                          {/* Icon chip — shared token class */}
+                          <div className={`icon-chip icon-chip-${f.chip}`} style={{ width: 56, height: 56, borderRadius: 14 }}>
+                            <IC style={{ width: 26, height: 26 }} />
+                          </div>
+                          <span className="font-display" style={{ fontSize: 20, fontWeight: 800, color: 'var(--ink-400)', opacity: 0.55, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                            {String(i + 1).padStart(2, '0')}
+                          </span>
                         </div>
 
-                        <h3 style={{ fontSize: 'clamp(1.3rem,2.2vw,1.65rem)', fontWeight: 900, color: '#1a1a2e', lineHeight: 1.2, marginBottom: 12, letterSpacing: '-0.025em' }}>{f.title}</h3>
-                        <p style={{ fontSize: 15, color: '#64748b', lineHeight: 1.72, marginBottom: 24 }}>{f.desc}</p>
+                        <h3 style={{ fontSize: 'clamp(1.25rem,2.2vw,1.55rem)', fontWeight: 700, color: 'var(--ink-900)', lineHeight: 1.2, marginBottom: 12, letterSpacing: '-0.015em' }}>{f.title}</h3>
+                        <p style={{ fontSize: 15, color: 'var(--ink-600)', lineHeight: 1.72, marginBottom: 24 }}>{f.desc}</p>
 
                         <Link
                           to={FEATURE_PATHS[i]}
@@ -340,24 +375,23 @@ export default function Features() {
                         className="feat-row-right"
                         style={{ flex: 1 }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 8 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 8 }}>
                           {f.items.map((item) => (
                             <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                               <span style={{
                                 flexShrink: 0,
-                                marginTop: 2,
+                                marginTop: 1,
                                 width: 24,
                                 height: 24,
                                 borderRadius: '50%',
-                                background: `linear-gradient(135deg, ${f.accent}28 0%, ${f.accent}10 100%)`,
-                                border: `1px solid ${f.accent}40`,
+                                background: `${f.accent}1f`,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                               }}>
                                 <Check style={{ width: 12, height: 12, color: f.accent, strokeWidth: 3 }} />
                               </span>
-                              <span style={{ fontSize: 15.5, color: '#1a1a2e', fontWeight: 600, lineHeight: 1.55 }}>{item}</span>
+                              <span style={{ fontSize: 15.5, color: 'var(--ink-900)', fontWeight: 600, lineHeight: 1.55 }}>{item}</span>
                             </div>
                           ))}
                         </div>
@@ -371,24 +405,34 @@ export default function Features() {
         </div>
       </section>
 
-      {/* ── CTA — liquid card on pastel bg ── */}
-      <section style={{ background: '#f8f7fb', position: 'relative', overflow: 'hidden', padding: '96px 24px' }}>
-        <div className="section-blob" style={{ width: '60vw', height: '60vw', top: '-20%', left: '10%', background: 'rgba(184,192,255,0.4)' }} />
-        <div className="section-blob" style={{ width: '50vw', height: '50vw', bottom: '-25%', right: '5%', background: 'rgba(200,230,224,0.4)' }} />
+      {/* ── CTA — brand panel with mascot ── */}
+      <section style={{ background: 'var(--canvas)', position: 'relative', overflow: 'hidden', padding: '96px 24px' }}>
+        <div className="section-blob" style={{ width: '60vw', height: '60vw', top: '-20%', left: '10%', background: 'rgba(87,79,207,0.08)' }} />
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 640, margin: '0 auto' }}>
-          <div className="liquid-card" style={{ padding: '56px 40px', textAlign: 'center' }}>
-            <h2 style={{ fontSize: 'clamp(1.7rem,3.5vw,2.6rem)', fontWeight: 900, color: '#1a1a2e', marginBottom: 16, lineHeight: 1.18, letterSpacing: '-0.03em' }}>{s.cta_h}</h2>
-            <p style={{ fontSize: 16, color: '#64748b', marginBottom: 36, lineHeight: 1.75 }}>{s.cta_sub}</p>
-            <Link to="/contact" className="btn-pastel">
-              {s.cta_btn} <ArrowRight style={{ width: 16, height: 16 }} />
-            </Link>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto' }}>
+          <div style={{
+            position: 'relative', overflow: 'hidden',
+            padding: '52px 40px', textAlign: 'center',
+            borderRadius: 18,
+            background: 'linear-gradient(135deg, var(--brand-600) 0%, var(--brand-500) 100%)',
+            boxShadow: '0 12px 28px -10px rgba(20,22,40,.14)',
+          }}>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+                <Mascot pose="cheering" size={80} />
+              </div>
+              <h2 className="font-display" style={{ fontSize: 'clamp(1.7rem,3.5vw,2.5rem)', fontWeight: 800, color: '#fff', marginBottom: 14, lineHeight: 1.18, letterSpacing: '-0.02em' }}>{s.cta_h}</h2>
+              <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.88)', marginBottom: 32, lineHeight: 1.7, maxWidth: 460, marginLeft: 'auto', marginRight: 'auto' }}>{s.cta_sub}</p>
+              <Link to="/contact" className="btn-pastel" style={{ background: '#fff', color: 'var(--brand-600)', boxShadow: '0 1px 2px rgba(20,22,40,.10)' }}>
+                {s.cta_btn} <ArrowRight style={{ width: 16, height: 16 }} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      <footer style={{ background: '#f8f7fb', borderTop: '1px solid rgba(124,110,224,0.1)', padding: '24px', textAlign: 'center' }}>
-        <p style={{ color: '#64748b', fontSize: 12.5 }}>{s.footer}</p>
+      <footer style={{ background: 'var(--canvas)', borderTop: '1px solid var(--hairline)', padding: '24px', textAlign: 'center' }}>
+        <p style={{ color: 'var(--ink-400)', fontSize: 12.5 }}>{s.footer}</p>
       </footer>
     </div>
   )

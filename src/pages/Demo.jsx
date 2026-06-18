@@ -2,9 +2,11 @@ import { Link, useParams } from 'react-router-dom'
 import {
   ArrowLeft, Check, Download, Send, Bell, Shield, BarChart3,
   MessageSquare, FileText, BookOpen, Calendar, Sparkles,
-  TrendingUp, Globe, Database, ChevronRight
+  TrendingUp, Globe, Database, ChevronRight, Search,
+  Building2, GraduationCap, AlertTriangle, Lock, Landmark, Users
 } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
+import Mascot from '../components/ui/Mascot'
 
 /* ─── translations ─── */
 const D = {
@@ -168,7 +170,7 @@ const D = {
     // Data Sovereignty
     ds_title: 'Məlumat Suverenliyi Paneli',
     ds_sub: 'Azərbaycan qanunvericiliyinə tam uyğun infrastruktur',
-    ds_c1: 'Server Yeri', ds_c1_v: 'Bakı, AZ 🇦🇿',
+    ds_c1: 'Server Yeri', ds_c1_v: 'Bakı, AZ',
     ds_c2: 'Şifrələmə',   ds_c2_v: 'AES-256',
     ds_c3: 'Dövlət Nəzarəti', ds_c3_v: 'Tam Nəzarət',
     ds_c4: 'GDPR Uyğunluğu', ds_c4_v: 'Sertifikatlaşdırılmış',
@@ -395,7 +397,7 @@ const D = {
 
     ds_title: 'Data Sovereignty Panel',
     ds_sub: 'Infrastructure fully compliant with Azerbaijani law',
-    ds_c1: 'Server Location', ds_c1_v: 'Baku, AZ 🇦🇿',
+    ds_c1: 'Server Location', ds_c1_v: 'Baku, AZ',
     ds_c2: 'Encryption',       ds_c2_v: 'AES-256',
     ds_c3: 'State Control',    ds_c3_v: 'Full Control',
     ds_c4: 'GDPR Compliance',  ds_c4_v: 'Certified',
@@ -617,7 +619,7 @@ const D = {
 
     ds_title: 'Панель суверенитета данных',
     ds_sub: 'Инфраструктура, полностью соответствующая законодательству Азербайджана',
-    ds_c1: 'Расположение серверов', ds_c1_v: 'Баку, AZ 🇦🇿',
+    ds_c1: 'Расположение серверов', ds_c1_v: 'Баку, AZ',
     ds_c2: 'Шифрование',            ds_c2_v: 'AES-256',
     ds_c3: 'Государственный контроль', ds_c3_v: 'Полный контроль',
     ds_c4: 'Соответствие GDPR',     ds_c4_v: 'Сертифицировано',
@@ -839,7 +841,7 @@ const D = {
 
     ds_title: 'Veri Egemenliği Paneli',
     ds_sub: 'Azerbaycan mevzuatına tam uyumlu altyapı',
-    ds_c1: 'Sunucu Konumu', ds_c1_v: 'Bakü, AZ 🇦🇿',
+    ds_c1: 'Sunucu Konumu', ds_c1_v: 'Bakü, AZ',
     ds_c2: 'Şifreleme',     ds_c2_v: 'AES-256',
     ds_c3: 'Devlet Denetimi', ds_c3_v: 'Tam Denetim',
     ds_c4: 'GDPR Uyumluluğu', ds_c4_v: 'Sertifikalı',
@@ -931,21 +933,21 @@ function JurnalDemo() {
   const subjects = [d.subject_math, d.subject_eng, d.subject_bio, d.subject_hist, d.subject_phys]
 
   function gradeColor(g) {
-    if (g >= 9) return 'bg-teal-light text-teal font-semibold'
-    if (g >= 7) return 'bg-purple-light text-purple font-semibold'
-    return 'bg-red-50 text-red-500 font-semibold'
+    if (g >= 9) return 'bg-mint-light text-mint-dark font-semibold'
+    if (g >= 7) return 'bg-brand-50 text-brand-700 font-semibold'
+    return 'bg-danger-tint text-danger-text font-semibold'
   }
 
   return (
     <div className="flex min-h-[600px]">
-      <div className="w-48 bg-gray-50 border-r border-gray-200 flex flex-col">
-        <div className="px-4 py-4 border-b border-gray-200">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-2">{d.classes}</p>
+      <div className="w-48 bg-surface-2 border-r border-hairline flex flex-col">
+        <div className="px-4 py-4 border-b border-hairline">
+          <p className="text-[10px] text-ink-400 uppercase tracking-[0.1em] font-semibold mb-2">{d.classes}</p>
         </div>
         {['9A', '9B', '10A', '10B', '11A'].map((cls, i) => (
           <button
             key={cls}
-            className={`w-full text-left px-4 py-3 text-sm border-b border-gray-100 transition-colors ${i === 0 ? 'bg-purple-light text-purple font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}
+            className={`w-full text-left px-4 py-3 text-sm transition-colors ${i === 0 ? 'bg-brand-50 text-brand-700 font-semibold border-l-2 border-brand-500' : 'text-ink-600 hover:bg-surface'}`}
           >
             {cls} {d.class_suffix}
           </button>
@@ -953,56 +955,53 @@ function JurnalDemo() {
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
+        <div className="bg-surface border-b border-hairline px-6 py-3.5 flex items-center justify-between flex-shrink-0">
           <div>
-            <h2 className="font-semibold text-gray-900 text-sm">{d.j_header}</h2>
-            <p className="text-[11px] text-gray-400">{d.j_term}</p>
+            <h2 className="font-semibold text-ink-900 text-sm">{d.j_header}</h2>
+            <p className="text-[11px] text-ink-400">{d.j_term}</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex gap-1">
               {['KR.A', 'KR.B', 'KR.C', 'KR.D'].map((k, i) => (
-                <button key={k} className={`px-3 py-1 text-[11px] rounded-full border ${i === 0 ? 'bg-purple text-white border-purple' : 'border-gray-200 text-gray-500 hover:border-purple hover:text-purple'}`}>{k}</button>
+                <button key={k} className={`px-3 py-1 text-[11px] rounded-pill border font-medium transition-colors ${i === 0 ? 'bg-brand-500 text-white border-brand-500' : 'border-hairline text-ink-600 hover:border-brand-300 hover:text-brand-500'}`}>{k}</button>
               ))}
-              <button className="px-3 py-1 text-[11px] rounded-full border border-teal/30 text-teal bg-teal-light ml-1">{d.state_1_10}</button>
+              <button className="px-3 py-1 text-[11px] rounded-pill border border-hairline-strong text-ink-600 bg-surface-2 ml-1 font-medium">{d.state_1_10}</button>
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-teal bg-teal-light rounded-full px-3 py-1">
-              <Check className="w-3 h-3" />
-              {d.sync_ok}
-            </div>
-            <button className="bg-purple text-white text-xs px-4 py-1.5 rounded-full hover:bg-purple/90 transition-colors">{d.save}</button>
+            <span className="pill-mint">{d.sync_ok}</span>
+            <button className="btn-pastel text-xs px-4 py-1.5">{d.save}</button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto p-6">
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+        <div className="flex-1 overflow-auto p-6 bg-canvas">
+          <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium w-48">{d.student}</th>
+                <tr className="bg-surface-2 border-b border-hairline">
+                  <th className="text-left px-4 py-3 text-[11px] text-ink-400 uppercase tracking-[0.08em] font-semibold w-48">{d.student}</th>
                   {subjects.map(s => (
-                    <th key={s} className="px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium text-center">{s}</th>
+                    <th key={s} className="px-4 py-3 text-[11px] text-ink-400 uppercase tracking-[0.08em] font-semibold text-center">{s}</th>
                   ))}
-                  <th className="px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium text-center">{d.average}</th>
+                  <th className="px-4 py-3 text-[11px] text-ink-400 uppercase tracking-[0.08em] font-semibold text-center">{d.average}</th>
                 </tr>
               </thead>
               <tbody>
-                {students.map((st, i) => (
-                  <tr key={st.name} className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                {students.map((st) => (
+                  <tr key={st.name} className="border-b border-hairline last:border-0 hover:bg-ink-900/[0.025] transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-purple-light flex items-center justify-center text-purple text-[11px] font-semibold flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-[11px] font-semibold flex-shrink-0">
                           {st.name.split(' ').map(n => n[0]).join('')}
                         </div>
-                        <span className="text-gray-800 text-sm font-medium">{st.name}</span>
+                        <span className="text-ink-900 text-sm font-medium">{st.name}</span>
                       </div>
                     </td>
                     {st.grades.map((g, j) => (
                       <td key={j} className="px-4 py-3 text-center">
-                        <span className={`inline-block w-9 h-9 rounded-lg flex items-center justify-center text-sm ${gradeColor(g)}`}>{g}</span>
+                        <span className={`inline-flex w-9 h-9 rounded-ctl items-center justify-center text-sm tabular-nums ${gradeColor(g)}`}>{g}</span>
                       </td>
                     ))}
                     <td className="px-4 py-3 text-center">
-                      <span className="inline-block bg-gray-900 text-white text-xs font-bold px-3 py-1 rounded-full">{st.avg.toFixed(1)}</span>
+                      <span className="inline-block bg-ink-900 text-white text-xs font-semibold tabular-nums px-3 py-1 rounded-pill">{st.avg.toFixed(1)}</span>
                     </td>
                   </tr>
                 ))}
@@ -1032,19 +1031,19 @@ function DavamiyyatDemo() {
   ]
 
   return (
-    <div className="flex flex-col min-h-[600px]">
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4 flex-shrink-0">
+    <div className="flex flex-col min-h-[600px] bg-canvas">
+      <div className="bg-surface border-b border-hairline px-6 py-4 flex items-center gap-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="bg-purple-light rounded-xl px-4 py-2 border border-purple/20">
-            <p className="text-[10px] text-purple uppercase tracking-wider font-medium">{d.att_date_label}</p>
-            <p className="text-sm font-semibold text-gray-900">{d.att_today}</p>
+          <div className="bg-surface-2 rounded-tile px-4 py-2 border border-hairline">
+            <p className="text-[10px] text-ink-400 uppercase tracking-[0.08em] font-semibold">{d.att_date_label}</p>
+            <p className="text-sm font-semibold text-ink-900">{d.att_today}</p>
           </div>
-          <div className="bg-teal-light rounded-xl px-4 py-2 border border-teal/20">
-            <p className="text-[10px] text-teal uppercase tracking-wider font-medium">{d.att_class}</p>
-            <p className="text-sm font-semibold text-gray-900">{d.att_class_val}</p>
+          <div className="bg-surface-2 rounded-tile px-4 py-2 border border-hairline">
+            <p className="text-[10px] text-ink-400 uppercase tracking-[0.08em] font-semibold">{d.att_class}</p>
+            <p className="text-sm font-semibold text-ink-900">{d.att_class_val}</p>
           </div>
         </div>
-        <div className="ml-auto flex items-center gap-2 text-[11px] text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-3 py-1.5">
+        <div className="ml-auto flex items-center gap-2 text-[11px] text-warning-text bg-warning-tint border border-warning/30 rounded-pill px-3 py-1.5 font-medium">
           <Bell className="w-3 h-3" />
           {d.att_sms}
         </div>
@@ -1053,36 +1052,36 @@ function DavamiyyatDemo() {
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-2xl mx-auto space-y-2">
           {students.map((st) => (
-            <div key={st.name} className="bg-white rounded-xl border border-gray-200 px-5 py-3 flex items-center gap-4 hover:border-purple/30 transition-colors shadow-sm">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 ${st.present ? 'bg-teal-light text-teal' : 'bg-red-50 text-red-400'}`}>
+            <div key={st.name} className="bg-surface rounded-tile border border-hairline px-5 py-3 flex items-center gap-4 hover:border-hairline-strong transition-colors">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 ${st.present ? 'bg-mint-light text-mint-dark' : 'bg-danger-tint text-danger-text'}`}>
                 {st.initials}
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">{st.name}</p>
-                <p className="text-[11px] text-gray-400">{st.present ? `${d.att_came} · ${st.time}` : d.att_missed}</p>
+                <p className="text-sm font-medium text-ink-900">{st.name}</p>
+                <p className="text-[11px] text-ink-400 tabular-nums">{st.present ? `${d.att_came} · ${st.time}` : d.att_missed}</p>
               </div>
-              <div className={`flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full ${st.present ? 'bg-teal-light text-teal' : 'bg-red-50 text-red-400'}`}>
-                {st.present ? <><Check className="w-3 h-3" /> {d.att_came}</> : <><span className="text-base leading-none">✕</span> {d.att_absent}</>}
+              <div className={st.present ? 'pill-mint' : 'pill-rose'}>
+                {st.present ? d.att_came : d.att_absent}
               </div>
-              <p className="text-sm font-mono text-gray-400 w-12 text-right">{st.time}</p>
+              <p className="text-sm tabular-nums text-ink-400 w-12 text-right">{st.time}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
+      <div className="bg-surface border-t border-hairline px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-4 text-sm">
-          <span className="flex items-center gap-1.5 text-teal font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-teal" />
+          <span className="flex items-center gap-1.5 text-mint-dark font-semibold tabular-nums">
+            <span className="w-2.5 h-2.5 rounded-full bg-mint" />
             {d.att_came_n.replace('{n}', '28')}
           </span>
-          <span className="text-gray-300">·</span>
-          <span className="flex items-center gap-1.5 text-red-400 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+          <span className="text-hairline-strong">·</span>
+          <span className="flex items-center gap-1.5 text-danger-text font-semibold tabular-nums">
+            <span className="w-2.5 h-2.5 rounded-full bg-danger" />
             {d.att_missed_n.replace('{n}', '2')}
           </span>
         </div>
-        <button className="bg-purple text-white text-sm px-6 py-2 rounded-full hover:bg-purple/90 transition-colors font-medium">{d.save}</button>
+        <button className="btn-pastel text-sm px-6 py-2">{d.save}</button>
       </div>
     </div>
   )
@@ -1115,58 +1114,58 @@ function ZekaDemo() {
 
   return (
     <div className="flex min-h-[600px]">
-      <div className="w-56 bg-gray-50 border-r border-gray-200 flex flex-col">
-        <div className="px-4 py-4 border-b border-gray-200">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-3">{d.z_pick_subject}</p>
+      <div className="w-56 bg-surface-2 border-r border-hairline flex flex-col">
+        <div className="px-4 py-4 border-b border-hairline">
+          <p className="text-[10px] text-ink-400 uppercase tracking-[0.1em] font-semibold mb-3">{d.z_pick_subject}</p>
           <div className="space-y-1">
             {[d.subject_math, d.subject_bio, d.subject_eng, d.subject_hist, d.subject_chem].map((s, i) => (
-              <button key={s} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${i === 0 ? 'bg-purple text-white' : 'text-gray-600 hover:bg-gray-100'}`}>{s}</button>
+              <button key={s} className={`w-full text-left px-3 py-2 rounded-tile text-sm transition-colors ${i === 0 ? 'bg-brand-500 text-white shadow-soft' : 'text-ink-600 hover:bg-surface'}`}>{s}</button>
             ))}
           </div>
         </div>
         <div className="px-4 py-4 flex-1 overflow-auto">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-3">{d.z_recent}</p>
+          <p className="text-[10px] text-ink-400 uppercase tracking-[0.1em] font-semibold mb-3">{d.z_recent}</p>
           <div className="space-y-2">
             {[d.z_rec_1, d.z_rec_2, d.z_rec_3, d.z_rec_4].map((s, i) => (
-              <button key={s} className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors ${i === 0 ? 'bg-purple-light text-purple border border-purple/20' : 'text-gray-500 hover:bg-gray-100'}`}>{s}</button>
+              <button key={s} className={`w-full text-left px-3 py-2 rounded-tile text-xs transition-colors ${i === 0 ? 'bg-brand-50 text-brand-700 border border-brand-100 font-medium' : 'text-ink-600 hover:bg-surface'}`}>{s}</button>
             ))}
           </div>
         </div>
-        <div className="px-4 py-3 border-t border-gray-200">
-          <div className="flex items-center gap-1.5 text-[10px] text-purple bg-purple-light rounded-full px-3 py-1.5 border border-purple/20 justify-center">
+        <div className="px-4 py-3 border-t border-hairline">
+          <div className="flex items-center gap-1.5 text-[10px] text-brand-700 bg-brand-50 rounded-pill px-3 py-1.5 border border-brand-100 justify-center font-semibold">
             <Sparkles className="w-3 h-3" />
             {d.z_powered}
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden bg-white">
-        <div className="border-b border-gray-100 px-6 py-3 flex items-center gap-3 bg-white flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple to-purple/60 flex items-center justify-center">
+      <div className="flex-1 flex flex-col overflow-hidden bg-surface">
+        <div className="border-b border-hairline px-6 py-3 flex items-center gap-3 bg-surface flex-shrink-0">
+          <div className="w-9 h-9 rounded-tile bg-brand-500 flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-900">Zəka</p>
-            <p className="text-[11px] text-teal">{d.z_online}</p>
+            <p className="text-sm font-semibold text-ink-900">Zəka</p>
+            <p className="text-[11px] text-mint-dark flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-mint" />{d.z_online}</p>
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto p-6 space-y-5">
+        <div className="flex-1 overflow-auto p-6 space-y-5 bg-canvas">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'student' ? 'justify-end' : 'gap-3'}`}>
               {msg.role === 'ai' && (
-                <div className="w-7 h-7 rounded-full bg-purple-light flex items-center justify-center flex-shrink-0 mt-1">
-                  <Sparkles className="w-3.5 h-3.5 text-purple" />
+                <div className="w-7 h-7 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0 mt-1">
+                  <Sparkles className="w-3.5 h-3.5 text-brand-500" />
                 </div>
               )}
-              <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm ${msg.role === 'student' ? 'bg-purple-light border border-purple/20 text-purple rounded-br-sm' : 'bg-gray-50 border border-gray-100 text-gray-700 rounded-bl-sm'}`}>
+              <div className={`max-w-[75%] rounded-card px-4 py-3 text-sm ${msg.role === 'student' ? 'bg-brand-500 text-white rounded-br-md' : 'bg-surface border border-hairline text-ink-700 rounded-bl-md'}`}>
                 {msg.text && <p>{msg.text}</p>}
                 {msg.blocks && msg.blocks.map((b, j) => (
                   <div key={j} className="mb-2 last:mb-0">
                     {b.type === 'p' && <p className="leading-relaxed">{b.content}</p>}
-                    {b.type === 'formula' && <div className="bg-purple-light border border-purple/20 rounded-lg px-3 py-2 font-mono text-xs text-purple my-2">{b.content}</div>}
-                    {b.type === 'problem' && <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-amber-700 text-xs font-medium my-2">{b.content}</div>}
-                    {b.type === 'list' && <ul className="space-y-1 mt-1">{b.items.map((it, k) => <li key={k} className="flex items-start gap-2"><span className="text-purple mt-0.5">•</span>{it}</li>)}</ul>}
+                    {b.type === 'formula' && <div className="bg-brand-50 border border-brand-100 rounded-tile px-3 py-2 font-mono text-xs text-brand-700 my-2">{b.content}</div>}
+                    {b.type === 'problem' && <div className="bg-surface-2 border border-hairline-strong rounded-tile px-3 py-2 text-ink-900 text-xs font-medium my-2">{b.content}</div>}
+                    {b.type === 'list' && <ul className="space-y-1 mt-1">{b.items.map((it, k) => <li key={k} className="flex items-start gap-2"><span className="text-brand-500 mt-0.5">•</span>{it}</li>)}</ul>}
                   </div>
                 ))}
               </div>
@@ -1174,10 +1173,10 @@ function ZekaDemo() {
           ))}
         </div>
 
-        <div className="border-t border-gray-100 p-4 bg-white flex-shrink-0">
-          <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-            <input className="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400" placeholder={d.z_placeholder} defaultValue="" readOnly />
-            <button className="w-8 h-8 rounded-lg bg-purple flex items-center justify-center hover:bg-purple/90 transition-colors flex-shrink-0">
+        <div className="border-t border-hairline p-4 bg-surface flex-shrink-0">
+          <div className="flex items-center gap-3 bg-surface-2 border border-hairline rounded-tile px-4 py-3 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/15 transition-all">
+            <input className="flex-1 bg-transparent text-sm text-ink-700 outline-none placeholder:text-ink-400" placeholder={d.z_placeholder} defaultValue="" readOnly />
+            <button className="w-8 h-8 rounded-tile bg-brand-500 flex items-center justify-center hover:bg-brand-600 transition-colors flex-shrink-0">
               <Send className="w-4 h-4 text-white" />
             </button>
           </div>
@@ -1207,61 +1206,61 @@ function MesajlarDemo() {
 
   return (
     <div className="flex min-h-[600px]">
-      <div className="w-72 border-r border-gray-200 flex flex-col bg-white">
-        <div className="px-4 py-4 border-b border-gray-200">
-          <div className="bg-gray-100 rounded-xl px-3 py-2 flex items-center gap-2">
-            <span className="text-gray-400 text-sm">🔍</span>
-            <span className="text-sm text-gray-400">{d.search}</span>
+      <div className="w-72 border-r border-hairline flex flex-col bg-surface">
+        <div className="px-4 py-4 border-b border-hairline">
+          <div className="bg-surface-2 border border-hairline rounded-input px-3 py-2 flex items-center gap-2">
+            <Search className="w-3.5 h-3.5 text-ink-400" />
+            <span className="text-sm text-ink-400">{d.search}</span>
           </div>
         </div>
         <div className="flex-1 overflow-auto">
           {conversations.map((c) => (
-            <div key={c.name} className={`px-4 py-3.5 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${c.active ? 'bg-purple-light/50 border-l-2 border-l-purple' : ''}`}>
+            <div key={c.name} className={`px-4 py-3.5 border-b border-hairline cursor-pointer hover:bg-surface-2 transition-colors ${c.active ? 'bg-brand-50 border-l-2 border-l-brand-500' : ''}`}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-full bg-purple-light flex items-center justify-center text-purple text-xs font-semibold flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-xs font-semibold flex-shrink-0">
                   {c.name.split(' ')[0][0]}{c.name.split(' ')[1]?.[0] || ''}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-0.5">
-                    <p className="text-sm font-medium text-gray-900 truncate">{c.name}</p>
-                    <span className="text-[10px] text-gray-400 flex-shrink-0 ml-1">{c.time}</span>
+                    <p className="text-sm font-medium text-ink-900 truncate">{c.name}</p>
+                    <span className="text-[10px] text-ink-400 flex-shrink-0 ml-1 tabular-nums">{c.time}</span>
                   </div>
-                  <p className="text-xs text-gray-400 truncate">{c.preview}</p>
+                  <p className="text-xs text-ink-400 truncate">{c.preview}</p>
                 </div>
-                {c.unread > 0 && <span className="w-4 h-4 rounded-full bg-purple text-white text-[10px] flex items-center justify-center flex-shrink-0">{c.unread}</span>}
+                {c.unread > 0 && <span className="w-4 h-4 rounded-full bg-brand-500 text-white text-[10px] flex items-center justify-center flex-shrink-0 tabular-nums">{c.unread}</span>}
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden bg-white">
-        <div className="border-b border-gray-200 px-6 py-3 flex items-center gap-3 bg-white flex-shrink-0">
-          <div className="w-9 h-9 rounded-full bg-teal-light flex items-center justify-center text-teal text-sm font-semibold">MƏ</div>
+      <div className="flex-1 flex flex-col overflow-hidden bg-surface">
+        <div className="border-b border-hairline px-6 py-3 flex items-center gap-3 bg-surface flex-shrink-0">
+          <div className="w-9 h-9 rounded-full bg-mint-light flex items-center justify-center text-mint-dark text-sm font-semibold">MƏ</div>
           <div>
-            <p className="text-sm font-semibold text-gray-900">{d.m_teacher}</p>
-            <p className="text-[11px] text-teal">{d.m_online}</p>
+            <p className="text-sm font-semibold text-ink-900">{d.m_teacher}</p>
+            <p className="text-[11px] text-mint-dark flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-mint" />{d.m_online}</p>
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto p-6 space-y-4 bg-gray-50/30">
+        <div className="flex-1 overflow-auto p-6 space-y-4 bg-canvas">
           {chatMessages.map((m, i) => (
             <div key={i} className={`flex ${m.mine ? 'justify-end' : 'gap-3'}`}>
               {!m.mine && (
-                <div className="w-7 h-7 rounded-full bg-teal-light flex items-center justify-center text-teal text-[10px] font-semibold flex-shrink-0 mt-1">MƏ</div>
+                <div className="w-7 h-7 rounded-full bg-mint-light flex items-center justify-center text-mint-dark text-[10px] font-semibold flex-shrink-0 mt-1">MƏ</div>
               )}
-              <div className={`max-w-[65%] rounded-2xl px-4 py-2.5 text-sm ${m.mine ? 'bg-purple text-white rounded-br-sm' : 'bg-white border border-gray-200 text-gray-700 rounded-bl-sm shadow-sm'}`}>
+              <div className={`max-w-[65%] rounded-card px-4 py-2.5 text-sm ${m.mine ? 'bg-brand-500 text-white rounded-br-md' : 'bg-surface border border-hairline text-ink-700 rounded-bl-md'}`}>
                 <p>{m.text}</p>
-                <p className={`text-[10px] mt-1 ${m.mine ? 'text-white/60' : 'text-gray-400'}`}>{m.time}</p>
+                <p className={`text-[10px] mt-1 tabular-nums ${m.mine ? 'text-white/60' : 'text-ink-400'}`}>{m.time}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="border-t border-gray-200 p-4 bg-white flex-shrink-0">
-          <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-            <input className="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400" placeholder={d.m_input} readOnly />
-            <button className="w-8 h-8 rounded-lg bg-purple flex items-center justify-center hover:bg-purple/90 transition-colors flex-shrink-0">
+        <div className="border-t border-hairline p-4 bg-surface flex-shrink-0">
+          <div className="flex items-center gap-3 bg-surface-2 border border-hairline rounded-tile px-4 py-3 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/15 transition-all">
+            <input className="flex-1 bg-transparent text-sm text-ink-700 outline-none placeholder:text-ink-400" placeholder={d.m_input} readOnly />
+            <button className="w-8 h-8 rounded-tile bg-brand-500 flex items-center justify-center hover:bg-brand-600 transition-colors flex-shrink-0">
               <Send className="w-4 h-4 text-white" />
             </button>
           </div>
@@ -1275,46 +1274,48 @@ function MesajlarDemo() {
 function HesabatlarDemo() {
   const d = useD()
   const reports = [
-    { name: d.r_1, date: '01 Apr 2025', status: d.r_ready,     statusColor: 'text-teal bg-teal-light',     dot: 'bg-teal'          },
-    { name: d.r_2, date: '01 Feb 2025', status: d.r_egov,      statusColor: 'text-teal bg-teal-light',     dot: 'bg-teal'          },
-    { name: d.r_3, date: '15 Mar 2025', status: d.r_preparing, statusColor: 'text-amber-600 bg-amber-50',  dot: 'bg-amber-400'     },
-    { name: d.r_4, date: '20 Mar 2025', status: d.r_done,      statusColor: 'text-purple bg-purple-light', dot: 'bg-purple'        },
-    { name: d.r_5, date: '01 Mar 2025', status: d.r_egov,      statusColor: 'text-teal bg-teal-light',     dot: 'bg-teal'          },
-    { name: d.r_6, date: '10 Apr 2025', status: d.r_draft,     statusColor: 'text-gray-500 bg-gray-100',   dot: 'bg-gray-400'      },
+    { name: d.r_1, date: '01 Apr 2025', status: d.r_ready,     pill: 'pill-mint' },
+    { name: d.r_2, date: '01 Feb 2025', status: d.r_egov,      pill: 'pill-mint' },
+    { name: d.r_3, date: '15 Mar 2025', status: d.r_preparing, pill: 'pill-peach' },
+    { name: d.r_4, date: '20 Mar 2025', status: d.r_done,      pill: 'pill-peri' },
+    { name: d.r_5, date: '01 Mar 2025', status: d.r_egov,      pill: 'pill-mint' },
+    { name: d.r_6, date: '10 Apr 2025', status: d.r_draft,     pill: 'pill-muted' },
   ]
 
   return (
-    <div className="flex flex-col min-h-[600px] bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
+    <div className="flex flex-col min-h-[600px] bg-canvas">
+      <div className="bg-surface border-b border-hairline px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 className="font-semibold text-gray-900">{d.r_title}</h2>
-          <p className="text-[11px] text-gray-400">{d.r_year}</p>
+          <h2 className="font-semibold text-ink-900">{d.r_title}</h2>
+          <p className="text-[11px] text-ink-400">{d.r_year}</p>
         </div>
         <div className="flex items-center gap-3">
-          <select className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 bg-white focus:outline-none">
+          <select className="text-sm border border-hairline rounded-input px-3 py-1.5 text-ink-600 bg-surface focus:outline-none focus:border-brand-500">
             <option>PDF</option>
             <option>Excel</option>
             <option>E-Gov.az</option>
           </select>
-          <button className="bg-purple text-white text-sm px-4 py-2 rounded-full hover:bg-purple/90 transition-colors font-medium">{d.r_new}</button>
+          <button className="btn-pastel text-sm px-4 py-2">{d.r_new}</button>
         </div>
       </div>
 
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-4xl mx-auto space-y-3">
           {reports.map((r) => (
-            <div key={r.name} className="bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-center gap-4 hover:border-purple/30 transition-colors shadow-sm">
-              <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${r.dot}`} />
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">{r.name}</p>
-                <p className="text-[11px] text-gray-400 mt-0.5">{r.date}</p>
+            <div key={r.name} className="bg-surface rounded-tile border border-hairline px-5 py-4 flex items-center gap-4 hover:border-hairline-strong transition-colors">
+              <div className="icon-chip icon-chip-periwinkle w-9 h-9">
+                <FileText className="w-4 h-4" />
               </div>
-              <span className={`text-xs font-medium px-3 py-1 rounded-full ${r.statusColor}`}>{r.status}</span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-ink-900">{r.name}</p>
+                <p className="text-[11px] text-ink-400 mt-0.5 tabular-nums">{r.date}</p>
+              </div>
+              <span className={r.pill}>{r.status}</span>
               <div className="flex items-center gap-2">
-                <button className="flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-purple hover:text-purple transition-colors">
+                <button className="flex items-center gap-1.5 text-xs text-ink-600 border border-hairline rounded-input px-3 py-1.5 hover:border-brand-500 hover:text-brand-500 transition-colors">
                   <Download className="w-3 h-3" />PDF
                 </button>
-                <button className="flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-teal hover:text-teal transition-colors">
+                <button className="flex items-center gap-1.5 text-xs text-ink-600 border border-hairline rounded-input px-3 py-1.5 hover:border-brand-500 hover:text-brand-500 transition-colors">
                   <Download className="w-3 h-3" />Excel
                 </button>
               </div>
@@ -1337,75 +1338,72 @@ function IbDovletDemo() {
   ]
 
   return (
-    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
+    <div className="flex flex-col min-h-[600px] bg-canvas overflow-auto">
+      <div className="bg-surface border-b border-hairline px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 className="font-semibold text-gray-900">{d.ib_title}</h2>
-          <p className="text-[11px] text-gray-400">{d.ib_sub}</p>
+          <h2 className="font-semibold text-ink-900">{d.ib_title}</h2>
+          <p className="text-[11px] text-ink-400">{d.ib_sub}</p>
         </div>
-        <div className="flex items-center gap-2 text-[11px] text-teal bg-teal-light rounded-full px-3 py-1.5 border border-teal/20">
-          <Check className="w-3 h-3" />
-          {d.ib_confirmed}
-        </div>
+        <span className="pill-mint">{d.ib_confirmed}</span>
       </div>
 
       <div className="p-6 max-w-5xl mx-auto w-full">
-        <div className="bg-white rounded-xl border border-purple/20 p-5 mb-5 shadow-sm">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-3">{d.ib_formula}</p>
+        <div className="bg-surface rounded-card border border-hairline p-5 mb-5">
+          <p className="text-[10px] text-ink-400 uppercase tracking-[0.1em] font-semibold mb-3">{d.ib_formula}</p>
           <div className="flex items-center gap-4 flex-wrap">
-            <div className="bg-purple-light rounded-xl px-5 py-3 text-center border border-purple/20">
-              <p className="text-[10px] text-purple uppercase mb-1">{d.ib_myp}</p>
-              <p className="text-2xl font-bold text-purple">A+B+C+D</p>
-              <p className="text-[11px] text-purple/60">{d.ib_max}</p>
+            <div className="bg-brand-50 rounded-tile px-5 py-3 text-center border border-brand-100">
+              <p className="text-[10px] text-brand-500 uppercase tracking-[0.08em] font-semibold mb-1">{d.ib_myp}</p>
+              <p className="text-2xl font-display font-extrabold text-brand-700">A+B+C+D</p>
+              <p className="text-[11px] text-brand-400">{d.ib_max}</p>
             </div>
-            <div className="text-2xl text-gray-300 font-light">→</div>
-            <div className="bg-teal-light rounded-xl px-5 py-3 text-center border border-teal/20">
-              <p className="text-[10px] text-teal uppercase mb-1">{d.ib_state_scale}</p>
-              <p className="text-2xl font-bold text-teal">1–10</p>
-              <p className="text-[11px] text-teal/60">{d.ib_curr}</p>
+            <div className="text-2xl text-ink-400 font-light">→</div>
+            <div className="bg-brand-50 rounded-tile px-5 py-3 text-center border border-brand-100">
+              <p className="text-[10px] text-brand-500 uppercase tracking-[0.08em] font-semibold mb-1">{d.ib_state_scale}</p>
+              <p className="text-2xl font-display font-extrabold text-brand-700 tabular-nums">1–10</p>
+              <p className="text-[11px] text-brand-400">{d.ib_curr}</p>
             </div>
-            <div className="flex-1 bg-amber-50 rounded-xl px-4 py-3 border border-amber-200">
-              <p className="text-[11px] text-amber-700 font-medium mb-1">{d.ib_example}</p>
-              <p className="text-xs text-amber-600">{d.ib_ex1} <strong>8/10</strong></p>
-              <p className="text-xs text-amber-600">{d.ib_ex2} <strong>9/10</strong></p>
+            <div className="flex-1 bg-surface-2 rounded-tile px-4 py-3 border border-hairline">
+              <p className="text-[11px] text-ink-600 font-semibold mb-1">{d.ib_example}</p>
+              <p className="text-xs text-ink-600 tabular-nums">{d.ib_ex1} <strong className="text-ink-900">8/10</strong></p>
+              <p className="text-xs text-ink-600 tabular-nums">{d.ib_ex2} <strong className="text-ink-900">9/10</strong></p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+        <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium">{d.student}</th>
-                <th className="px-4 py-3 text-[11px] text-purple uppercase tracking-wider font-medium text-center">KR.A</th>
-                <th className="px-4 py-3 text-[11px] text-purple uppercase tracking-wider font-medium text-center">KR.B</th>
-                <th className="px-4 py-3 text-[11px] text-purple uppercase tracking-wider font-medium text-center">KR.C</th>
-                <th className="px-4 py-3 text-[11px] text-purple uppercase tracking-wider font-medium text-center">KR.D</th>
-                <th className="px-4 py-3 text-[11px] text-gray-500 uppercase tracking-wider font-medium text-center">{d.ib_total}</th>
-                <th className="px-4 py-3 text-[11px] text-teal uppercase tracking-wider font-medium text-center">{d.ib_state}</th>
+              <tr className="bg-surface-2 border-b border-hairline">
+                <th className="text-left px-4 py-3 text-[11px] text-ink-400 uppercase tracking-[0.08em] font-medium">{d.student}</th>
+                <th className="px-4 py-3 text-[11px] text-ink-400 uppercase tracking-[0.08em] font-medium text-center">KR.A</th>
+                <th className="px-4 py-3 text-[11px] text-ink-400 uppercase tracking-[0.08em] font-medium text-center">KR.B</th>
+                <th className="px-4 py-3 text-[11px] text-ink-400 uppercase tracking-[0.08em] font-medium text-center">KR.C</th>
+                <th className="px-4 py-3 text-[11px] text-ink-400 uppercase tracking-[0.08em] font-medium text-center">KR.D</th>
+                <th className="px-4 py-3 text-[11px] text-ink-400 uppercase tracking-[0.08em] font-medium text-center">{d.ib_total}</th>
+                <th className="px-4 py-3 text-[11px] text-ink-400 uppercase tracking-[0.08em] font-medium text-center">{d.ib_state}</th>
               </tr>
             </thead>
             <tbody>
               {students.map((st) => (
-                <tr key={st.name} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <tr key={st.name} className="border-b border-hairline last:border-0 hover:bg-ink-900/[0.025] transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-purple-light flex items-center justify-center text-purple text-[10px] font-semibold">
+                      <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-[10px] font-semibold">
                         {st.name.split(' ').map(n => n[0]).join('')}
                       </div>
-                      <span className="font-medium text-gray-800">{st.name}</span>
+                      <span className="font-medium text-ink-900">{st.name}</span>
                     </div>
                   </td>
                   {Object.values(st.ib).map((score, j) => (
                     <td key={j} className="px-4 py-3 text-center">
-                      <span className="inline-block w-8 h-8 rounded-lg bg-purple-light text-purple font-semibold text-sm flex items-center justify-center">{score}</span>
+                      <span className="inline-flex w-8 h-8 rounded-ctl bg-brand-50 text-brand-700 font-semibold text-sm items-center justify-center tabular-nums">{score}</span>
                     </td>
                   ))}
                   <td className="px-4 py-3 text-center">
-                    <span className="bg-gray-100 text-gray-700 font-bold text-sm px-2.5 py-1 rounded-lg">{st.total}/32</span>
+                    <span className="bg-surface-2 border border-hairline text-ink-700 font-semibold text-sm px-2.5 py-1 rounded-ctl tabular-nums">{st.total}/32</span>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`inline-block w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm ${st.gov >= 9 ? 'bg-teal text-white' : st.gov >= 7 ? 'bg-teal-light text-teal' : 'bg-amber-50 text-amber-600'}`}>{st.gov}</span>
+                    <span className={`inline-flex w-9 h-9 rounded-full items-center justify-center font-semibold text-sm tabular-nums ${st.gov >= 9 ? 'bg-mint text-white' : st.gov >= 7 ? 'bg-mint-light text-mint-dark' : 'bg-warning-tint text-warning-text'}`}>{st.gov}</span>
                   </td>
                 </tr>
               ))}
@@ -1421,10 +1419,10 @@ function IbDovletDemo() {
 function MilliPanelDemo() {
   const d = useD()
   const kpis = [
-    { label: d.np_k_schools,  value: '12',     icon: '🏫', sub: d.np_t1, color: 'text-gray-900'  },
-    { label: d.np_k_students, value: '5,247',  icon: '👤', sub: d.np_t2, color: 'text-purple'    },
-    { label: d.np_k_ai,       value: '52,841', icon: '✨', sub: d.np_t3, color: 'text-teal'      },
-    { label: d.np_k_avg,      value: '7.8',    icon: '📊', sub: d.np_t4, color: 'text-amber-600' },
+    { label: d.np_k_schools,  value: '12',     icon: Building2,      sub: d.np_t1 },
+    { label: d.np_k_students, value: '5,247',  icon: Users,         sub: d.np_t2 },
+    { label: d.np_k_ai,       value: '52,841', icon: Sparkles,      sub: d.np_t3 },
+    { label: d.np_k_avg,      value: '7.8',    icon: BarChart3,     sub: d.np_t4 },
   ]
   const schools = [
     { name: 'TISA (IB)',   score: 8.9, bar: 100, trend: '+0.3' },
@@ -1436,68 +1434,70 @@ function MilliPanelDemo() {
   const vals = [62, 65, 61, 68, 70, 74, 73, 78, 77, 82, 80, 87]
 
   return (
-    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
-      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
+    <div className="flex flex-col min-h-[600px] bg-canvas overflow-auto">
+      <div className="bg-surface border-b border-hairline px-6 py-3 flex items-center justify-between flex-shrink-0">
         <div>
-          <p className="text-[10px] text-amber-600 uppercase tracking-wider font-semibold">{d.np_label}</p>
-          <h2 className="font-semibold text-gray-900">{d.np_country}</h2>
+          <p className="text-[10px] text-ink-400 uppercase tracking-[0.1em] font-semibold">{d.np_label}</p>
+          <h2 className="font-semibold text-ink-900">{d.np_country}</h2>
         </div>
-        <div className="flex items-center gap-2 text-[11px] text-teal">
-          <span className="w-2 h-2 rounded-full bg-teal animate-pulse" />
+        <div className="flex items-center gap-2 text-[11px] text-mint-dark font-medium">
+          <span className="w-2 h-2 rounded-full bg-mint" />
           {d.np_live}
         </div>
       </div>
 
       <div className="p-6 space-y-5">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {kpis.map(k => (
-            <div key={k.label} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          {kpis.map(k => {
+            const Icon = k.icon
+            return (
+            <div key={k.label} className="bg-surface rounded-card border border-hairline p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] text-gray-400 uppercase tracking-wider">{k.label}</p>
-                <span className="text-xl">{k.icon}</span>
+                <p className="text-[10px] text-ink-400 uppercase tracking-[0.08em] font-semibold">{k.label}</p>
+                <Icon className="w-4 h-4 text-ink-400" />
               </div>
-              <p className={`text-2xl font-bold mb-1 ${k.color}`}>{k.value}</p>
-              <p className="text-[11px] text-gray-400">{k.sub}</p>
+              <p className="text-2xl font-display font-extrabold mb-1 tabular-nums text-ink-900">{k.value}</p>
+              <p className="text-[11px] text-ink-400">{k.sub}</p>
             </div>
-          ))}
+          )})}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2 bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <div className="md:col-span-2 bg-surface rounded-card border border-hairline p-5">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-semibold text-gray-900">{d.np_monthly}</p>
-              <span className="text-[11px] text-teal bg-teal-light rounded-full px-3 py-1">↑ 4.2%</span>
+              <p className="text-sm font-semibold text-ink-900">{d.np_monthly}</p>
+              <span className="pill-mint">↑ 4.2%</span>
             </div>
             <div className="flex items-end gap-1.5 h-28 mb-2">
               {vals.map((h, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1">
                   <div
-                    className={`w-full rounded-t-sm transition-all ${i === vals.length - 1 ? 'bg-purple' : i >= 8 ? 'bg-purple/50' : 'bg-purple/20'}`}
+                    className={`w-full rounded-t-md transition-all ${i === vals.length - 1 ? 'bg-brand-500' : i >= 8 ? 'bg-brand-400' : 'bg-brand-200'}`}
                     style={{ height: `${h}%` }}
                   />
                 </div>
               ))}
             </div>
             <div className="flex justify-between px-0.5">
-              {d.mon.map(m => <span key={m} className="text-[9px] text-gray-400">{m}</span>)}
+              {d.mon.map(m => <span key={m} className="text-[9px] text-ink-400">{m}</span>)}
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900 mb-4">{d.np_events}</p>
+          <div className="bg-surface rounded-card border border-hairline p-5">
+            <p className="text-sm font-semibold text-ink-900 mb-4">{d.np_events}</p>
             <div className="space-y-4">
               {[
-                { text: d.np_e1, time: '09:12',         color: 'bg-teal'       },
-                { text: d.np_e2, time: '08:54',         color: 'bg-purple'     },
-                { text: d.np_e3, time: '08:30',         color: 'bg-amber-400'  },
-                { text: d.np_e4, time: '08:01',         color: 'bg-teal'       },
-                { text: d.np_e5, time: d.np_yesterday,  color: 'bg-gray-400'   },
+                { text: d.np_e1, time: '09:12'        },
+                { text: d.np_e2, time: '08:54'        },
+                { text: d.np_e3, time: '08:30'        },
+                { text: d.np_e4, time: '08:01'        },
+                { text: d.np_e5, time: d.np_yesterday },
               ].map((e, i) => (
                 <div key={i} className="flex items-start gap-2.5">
-                  <div className={`w-2 h-2 rounded-full ${e.color} mt-1.5 flex-shrink-0`} />
+                  <div className="w-1.5 h-1.5 rounded-full bg-brand-400 mt-1.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-gray-700 leading-snug">{e.text}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">{e.time}</p>
+                    <p className="text-xs text-ink-700 leading-snug">{e.text}</p>
+                    <p className="text-[10px] text-ink-400 mt-0.5 tabular-nums">{e.time}</p>
                   </div>
                 </div>
               ))}
@@ -1505,21 +1505,21 @@ function MilliPanelDemo() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+        <div className="bg-surface rounded-card border border-hairline p-5">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold text-gray-900">{d.np_ranking}</p>
-            <span className="text-[11px] text-purple bg-purple-light rounded-full px-3 py-1">{d.np_q_year}</span>
+            <p className="text-sm font-semibold text-ink-900">{d.np_ranking}</p>
+            <span className="pill-peri">{d.np_q_year}</span>
           </div>
           <div className="space-y-3">
             {schools.map((sc, i) => (
               <div key={sc.name} className="flex items-center gap-4">
-                <span className="text-[11px] text-gray-400 font-medium w-4">{i + 1}</span>
-                <p className="text-sm text-gray-800 w-36 font-medium">{sc.name}</p>
-                <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-purple to-purple/60 rounded-full transition-all" style={{ width: `${sc.bar}%` }} />
+                <span className="text-[11px] text-ink-400 font-semibold w-4 tabular-nums">{i + 1}</span>
+                <p className="text-sm text-ink-900 w-36 font-medium">{sc.name}</p>
+                <div className="flex-1 h-2 bg-hairline rounded-pill overflow-hidden">
+                  <div className="h-full bg-brand-500 rounded-pill transition-all" style={{ width: `${sc.bar}%` }} />
                 </div>
-                <span className="text-sm font-bold text-gray-900 w-8 text-right">{sc.score}</span>
-                <span className={`text-[11px] font-medium w-10 text-right ${sc.trend.startsWith('+') ? 'text-teal' : 'text-red-400'}`}>{sc.trend}</span>
+                <span className="text-sm font-semibold text-ink-900 w-8 text-right tabular-nums">{sc.score}</span>
+                <span className={`text-[11px] font-semibold w-10 text-right tabular-nums ${sc.trend.startsWith('+') ? 'text-mint-dark' : 'text-danger-text'}`}>{sc.trend}</span>
               </div>
             ))}
           </div>
@@ -1534,20 +1534,20 @@ function AvtomatikHesabatlarDemo() {
   const d = useD()
 
   return (
-    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
-        <h2 className="font-semibold text-gray-900">{d.ar_title}</h2>
-        <p className="text-[11px] text-gray-400">{d.ar_sub}</p>
+    <div className="flex flex-col min-h-[600px] bg-canvas overflow-auto">
+      <div className="bg-surface border-b border-hairline px-6 py-4 flex-shrink-0">
+        <h2 className="font-semibold text-ink-900">{d.ar_title}</h2>
+        <p className="text-[11px] text-ink-400">{d.ar_sub}</p>
       </div>
 
       <div className="p-6 max-w-4xl mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900 mb-5">{d.ar_params}</p>
+          <div className="bg-surface rounded-card border border-hairline p-5">
+            <p className="text-sm font-semibold text-ink-900 mb-5">{d.ar_params}</p>
             <div className="space-y-4">
               <div>
-                <label className="text-[11px] text-gray-500 font-medium uppercase tracking-wider block mb-1.5">{d.ar_type}</label>
-                <select className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 text-gray-700 focus:outline-none focus:border-purple bg-white">
+                <label className="text-[13px] text-ink-700 font-semibold block mb-1.5">{d.ar_type}</label>
+                <select className="pastel-input w-full text-sm">
                   <option>{d.ar_type_1}</option>
                   <option>{d.ar_type_2}</option>
                   <option>{d.ar_type_3}</option>
@@ -1555,8 +1555,8 @@ function AvtomatikHesabatlarDemo() {
                 </select>
               </div>
               <div>
-                <label className="text-[11px] text-gray-500 font-medium uppercase tracking-wider block mb-1.5">{d.ar_range}</label>
-                <select className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 text-gray-700 focus:outline-none focus:border-purple bg-white">
+                <label className="text-[13px] text-ink-700 font-semibold block mb-1.5">{d.ar_range}</label>
+                <select className="pastel-input w-full text-sm">
                   <option>{d.ar_range_1}</option>
                   <option>{d.ar_range_2}</option>
                   <option>{d.ar_range_3}</option>
@@ -1564,8 +1564,8 @@ function AvtomatikHesabatlarDemo() {
                 </select>
               </div>
               <div>
-                <label className="text-[11px] text-gray-500 font-medium uppercase tracking-wider block mb-1.5">{d.ar_school}</label>
-                <select className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 text-gray-700 focus:outline-none focus:border-purple bg-white">
+                <label className="text-[13px] text-ink-700 font-semibold block mb-1.5">{d.ar_school}</label>
+                <select className="pastel-input w-full text-sm">
                   <option>{d.ar_all_schools}</option>
                   <option>TISA</option>
                   <option>Məktəb №132</option>
@@ -1573,39 +1573,39 @@ function AvtomatikHesabatlarDemo() {
                   <option>Məktəb №47</option>
                 </select>
               </div>
-              <div className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
+              <div className="flex items-center justify-between bg-surface-2 rounded-tile px-4 py-3 border border-hairline">
                 <div>
-                  <p className="text-sm font-medium text-gray-800">{d.ar_auto}</p>
-                  <p className="text-[11px] text-gray-400">{d.ar_auto_sub}</p>
+                  <p className="text-sm font-medium text-ink-900">{d.ar_auto}</p>
+                  <p className="text-[11px] text-ink-400">{d.ar_auto_sub}</p>
                 </div>
-                <div className="w-11 h-6 rounded-full bg-teal relative cursor-pointer">
+                <div className="w-11 h-6 rounded-pill bg-brand-500 relative cursor-pointer">
                   <div className="w-5 h-5 rounded-full bg-white shadow absolute top-0.5 right-0.5 transition-transform" />
                 </div>
               </div>
               <div className="flex gap-2 pt-2">
-                <button className="flex-1 flex items-center justify-center gap-2 bg-purple text-white text-sm py-2.5 rounded-lg hover:bg-purple/90 transition-colors font-medium">
+                <button className="flex-1 flex items-center justify-center gap-2 bg-brand-500 text-white text-sm py-2.5 rounded-tile hover:bg-brand-600 transition-colors font-semibold">
                   <Download className="w-4 h-4" />PDF
                 </button>
-                <button className="flex-1 flex items-center justify-center gap-2 border border-teal text-teal text-sm py-2.5 rounded-lg hover:bg-teal-light transition-colors font-medium">
+                <button className="flex-1 flex items-center justify-center gap-2 border border-hairline-strong text-ink-700 text-sm py-2.5 rounded-tile hover:border-brand-300 hover:text-brand-500 transition-colors font-semibold">
                   <Download className="w-4 h-4" />Excel
                 </button>
-                <button className="flex-1 flex items-center justify-center gap-2 border border-amber-300 text-amber-600 text-sm py-2.5 rounded-lg hover:bg-amber-50 transition-colors font-medium">
+                <button className="flex-1 flex items-center justify-center gap-2 border border-hairline-strong text-ink-700 text-sm py-2.5 rounded-tile hover:border-brand-300 hover:text-brand-500 transition-colors font-semibold">
                   <Globe className="w-4 h-4" />E-Gov
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <div className="bg-surface rounded-card border border-hairline p-5">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-semibold text-gray-900">{d.ar_preview}</p>
-              <span className="text-[11px] text-teal bg-teal-light rounded-full px-2.5 py-1">{d.ar_q1}</span>
+              <p className="text-sm font-semibold text-ink-900">{d.ar_preview}</p>
+              <span className="pill-mint">{d.ar_q1}</span>
             </div>
-            <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-3">
-              <div className="text-center border-b border-gray-200 pb-3">
-                <p className="text-xs font-bold text-gray-900">{d.np_country}</p>
-                <p className="text-[11px] text-gray-500 mt-0.5">{d.ar_rep_title}</p>
-                <p className="text-[10px] text-gray-400 mt-0.5">{d.ar_rep_period}</p>
+            <div className="bg-surface-2 rounded-tile border border-hairline p-4 space-y-3">
+              <div className="text-center border-b border-hairline pb-3">
+                <p className="text-xs font-bold text-ink-900">{d.np_country}</p>
+                <p className="text-[11px] text-ink-600 mt-0.5">{d.ar_rep_title}</p>
+                <p className="text-[10px] text-ink-400 mt-0.5">{d.ar_rep_period}</p>
               </div>
               <div className="space-y-2">
                 {[
@@ -1616,13 +1616,13 @@ function AvtomatikHesabatlarDemo() {
                   { label: d.ar_row5, value: '52,841' },
                 ].map(row => (
                   <div key={row.label} className="flex justify-between text-xs">
-                    <span className="text-gray-500">{row.label}</span>
-                    <span className="font-semibold text-gray-900">{row.value}</span>
+                    <span className="text-ink-600">{row.label}</span>
+                    <span className="font-semibold text-ink-900 tabular-nums">{row.value}</span>
                   </div>
                 ))}
               </div>
-              <div className="border-t border-gray-200 pt-3">
-                <p className="text-[10px] text-gray-400 text-center">{d.ar_footer}</p>
+              <div className="border-t border-hairline pt-3">
+                <p className="text-[10px] text-ink-400 text-center">{d.ar_footer}</p>
               </div>
             </div>
           </div>
@@ -1644,66 +1644,60 @@ function MelumatDemo() {
   ]
 
   return (
-    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
-        <h2 className="font-semibold text-gray-900">{d.ds_title}</h2>
-        <p className="text-[11px] text-gray-400">{d.ds_sub}</p>
+    <div className="flex flex-col min-h-[600px] bg-canvas overflow-auto">
+      <div className="bg-surface border-b border-hairline px-6 py-4 flex-shrink-0">
+        <h2 className="font-semibold text-ink-900">{d.ds_title}</h2>
+        <p className="text-[11px] text-ink-400">{d.ds_sub}</p>
       </div>
 
       <div className="p-6 max-w-4xl mx-auto w-full space-y-5">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: d.ds_c1, value: d.ds_c1_v, status: d.ds_active, color: 'text-teal' },
-            { label: d.ds_c2, value: d.ds_c2_v, status: d.ds_active, color: 'text-teal' },
-            { label: d.ds_c3, value: d.ds_c3_v, status: d.ds_active, color: 'text-teal' },
-            { label: d.ds_c4, value: d.ds_c4_v, status: '2025',     color: 'text-purple' },
+            { label: d.ds_c1, value: d.ds_c1_v, status: d.ds_active },
+            { label: d.ds_c2, value: d.ds_c2_v, status: d.ds_active },
+            { label: d.ds_c3, value: d.ds_c3_v, status: d.ds_active },
+            { label: d.ds_c4, value: d.ds_c4_v, status: '2025'      },
           ].map(c => (
-            <div key={c.label} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-              <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-2">{c.label}</p>
-              <p className={`text-sm font-bold ${c.color} mb-1`}>{c.value}</p>
+            <div key={c.label} className="bg-surface rounded-card border border-hairline p-4">
+              <p className="text-[10px] text-ink-400 uppercase tracking-[0.08em] font-semibold mb-2">{c.label}</p>
+              <p className="text-sm font-semibold text-ink-900 mb-1">{c.value}</p>
               <div className="flex items-center gap-1">
-                <Check className="w-3 h-3 text-teal" />
-                <span className="text-[10px] text-teal">{c.status}</span>
+                <Check className="w-3 h-3 text-mint-dark" />
+                <span className="text-[10px] text-mint-dark tabular-nums">{c.status}</span>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <p className="text-sm font-semibold text-gray-900 mb-4">{d.ds_certs}</p>
+        <div className="bg-surface rounded-card border border-hairline p-5">
+          <p className="text-sm font-semibold text-ink-900 mb-4">{d.ds_certs}</p>
           <div className="flex flex-wrap gap-3">
-            {[
-              { label: d.ds_b1, color: 'bg-blue-50 border-blue-200 text-blue-600' },
-              { label: d.ds_b2, color: 'bg-purple-light border-purple/20 text-purple' },
-              { label: d.ds_b3, color: 'bg-teal-light border-teal/20 text-teal' },
-              { label: d.ds_b4, color: 'bg-amber-50 border-amber-200 text-amber-700' },
-              { label: d.ds_b5, color: 'bg-gray-100 border-gray-200 text-gray-700' },
-            ].map(b => (
-              <span key={b.label} className={`text-xs font-medium px-3 py-1.5 rounded-full border ${b.color} flex items-center gap-1.5`}>
-                <Check className="w-3 h-3" />
-                {b.label}
+            {[d.ds_b1, d.ds_b2, d.ds_b3, d.ds_b4, d.ds_b5].map(label => (
+              <span key={label} className="text-xs font-medium px-3 py-1.5 rounded-pill border bg-surface-2 border-hairline text-ink-700 flex items-center gap-1.5">
+                <Check className="w-3 h-3 text-mint-dark" />
+                {label}
               </span>
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-          <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-900">{d.ds_log}</p>
-            <span className="text-[11px] text-gray-400">{d.ds_last_5}</span>
+        <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
+          <div className="px-5 py-4 border-b border-hairline flex items-center justify-between">
+            <p className="text-sm font-semibold text-ink-900">{d.ds_log}</p>
+            <span className="text-[11px] text-ink-400">{d.ds_last_5}</span>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-hairline">
             {accessLog.map((log, i) => (
               <div key={i} className="px-5 py-3 flex items-center gap-4">
-                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-4 h-4 text-gray-500" />
+                <div className="icon-chip icon-chip-periwinkle w-8 h-8 rounded-tile">
+                  <Shield className="w-4 h-4" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-800">{log.user}</p>
-                  <p className="text-[11px] text-gray-400">{log.action}</p>
+                  <p className="text-sm font-medium text-ink-900">{log.user}</p>
+                  <p className="text-[11px] text-ink-400">{log.action}</p>
                 </div>
-                <p className="text-[11px] text-gray-400">{log.time}</p>
-                <span className={`text-[10px] font-medium px-2.5 py-1 rounded-full ${log.status === d.ds_allowed ? 'bg-teal-light text-teal' : 'bg-gray-100 text-gray-500'}`}>{log.status}</span>
+                <p className="text-[11px] text-ink-400 tabular-nums">{log.time}</p>
+                <span className={log.status === d.ds_allowed ? 'pill-mint' : 'pill-muted'}>{log.status}</span>
               </div>
             ))}
           </div>
@@ -1731,92 +1725,91 @@ function AnalItikaDemo() {
   const polyline = pts.join(' ')
 
   const schools = [
-    { name: 'TISA',        score: 8.9, color: 'bg-purple' },
-    { name: 'Məktəb №132', score: 8.4, color: 'bg-purple/70' },
-    { name: 'Məktəb №6',   score: 8.1, color: 'bg-teal' },
-    { name: 'Məktəb №47',  score: 7.8, color: 'bg-teal/70' },
-    { name: 'Məktəb №89',  score: 7.4, color: 'bg-gray-300' },
+    { name: 'TISA',        score: 8.9, color: 'bg-brand-500' },
+    { name: 'Məktəb №132', score: 8.4, color: 'bg-brand-400' },
+    { name: 'Məktəb №6',   score: 8.1, color: 'bg-brand-300' },
+    { name: 'Məktəb №47',  score: 7.8, color: 'bg-brand-200' },
+    { name: 'Məktəb №89',  score: 7.4, color: 'bg-ink-400/40' },
   ]
 
   return (
-    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
+    <div className="flex flex-col min-h-[600px] bg-canvas overflow-auto">
+      <div className="bg-surface border-b border-hairline px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 className="font-semibold text-gray-900">{d.an_title}</h2>
-          <p className="text-[11px] text-gray-400">{d.an_sub}</p>
+          <h2 className="font-semibold text-ink-900">{d.an_title}</h2>
+          <p className="text-[11px] text-ink-400">{d.an_sub}</p>
         </div>
         <div className="flex gap-1.5">
           {[d.an_m_avg, d.an_m_att, d.an_m_ai].map((m, i) => (
-            <button key={m} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${i === 0 ? 'bg-purple text-white border-purple' : 'border-gray-200 text-gray-500 hover:border-purple hover:text-purple'}`}>{m}</button>
+            <button key={m} className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-colors ${i === 0 ? 'bg-brand-500 text-white border-brand-500' : 'border-hairline text-ink-600 hover:border-brand-300 hover:text-brand-500'}`}>{m}</button>
           ))}
         </div>
       </div>
 
       <div className="p-6 max-w-5xl mx-auto w-full space-y-5">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+        <div className="bg-surface rounded-card border border-hairline p-5">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold text-gray-900">{d.an_line}</p>
-            <span className="text-[11px] text-teal bg-teal-light rounded-full px-3 py-1">{d.an_yoy}</span>
+            <p className="text-sm font-semibold text-ink-900">{d.an_line}</p>
+            <span className="pill-mint">{d.an_yoy}</span>
           </div>
           <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full" style={{ height: svgH }}>
             {[6, 7, 8, 9].map(v => {
               const y = padT + drawH - ((v - 5) / (maxVal - 5)) * drawH
-              return <line key={v} x1={padL} y1={y} x2={svgW - padR} y2={y} stroke="#f0eeff" strokeWidth="1" />
+              return <line key={v} x1={padL} y1={y} x2={svgW - padR} y2={y} stroke="var(--hairline)" strokeWidth="1" />
             })}
             <polygon
               points={`${padL},${padT + drawH} ${pts.join(' ')} ${svgW - padR},${padT + drawH}`}
-              fill="rgba(83,74,183,0.07)"
+              fill="rgba(87,79,207,0.08)"
             />
-            <polyline points={polyline} fill="none" stroke="#534AB7" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+            <polyline points={polyline} fill="none" stroke="var(--brand-500)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
             {pts.map((pt, i) => {
               const [x, y] = pt.split(',')
-              return <circle key={i} cx={x} cy={y} r="3.5" fill="white" stroke="#534AB7" strokeWidth="2" />
+              return <circle key={i} cx={x} cy={y} r="3.5" fill="white" stroke="var(--brand-500)" strokeWidth="2" />
             })}
             {d.mon.map((m, i) => {
               const x = padL + (i / (d.mon.length - 1)) * drawW
-              return <text key={m} x={x} y={svgH - 4} textAnchor="middle" fontSize="8" fill="#9ca3af">{m}</text>
+              return <text key={m} x={x} y={svgH - 4} textAnchor="middle" fontSize="8" fill="var(--ink-400)">{m}</text>
             })}
           </svg>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900 mb-4">{d.an_cmp}</p>
+          <div className="bg-surface rounded-card border border-hairline p-5">
+            <p className="text-sm font-semibold text-ink-900 mb-4">{d.an_cmp}</p>
             <div className="space-y-3">
               {schools.map(sc => (
                 <div key={sc.name} className="flex items-center gap-3">
-                  <p className="text-xs text-gray-700 w-28">{sc.name}</p>
-                  <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className={`h-full ${sc.color} rounded-full flex items-center justify-end pr-2`} style={{ width: `${(sc.score / 10) * 100}%` }}>
-                      <span className="text-[9px] text-white font-bold">{sc.score}</span>
-                    </div>
+                  <p className="text-xs text-ink-700 w-28">{sc.name}</p>
+                  <div className="flex-1 h-5 bg-hairline rounded-pill overflow-hidden">
+                    <div className={`h-full ${sc.color} rounded-pill`} style={{ width: `${(sc.score / 10) * 100}%` }} />
                   </div>
+                  <span className="text-xs font-semibold text-ink-900 tabular-nums w-7 text-right">{sc.score}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900 mb-4">{d.an_tb}</p>
+          <div className="bg-surface rounded-card border border-hairline p-5">
+            <p className="text-sm font-semibold text-ink-900 mb-4">{d.an_tb}</p>
             <div className="space-y-2">
-              <p className="text-[10px] text-teal uppercase tracking-wider font-medium">{d.an_top}</p>
+              <p className="text-[10px] text-mint-dark uppercase tracking-[0.08em] font-semibold">{d.an_top}</p>
               {schools.slice(0, 3).map((sc, i) => (
-                <div key={sc.name} className="flex items-center justify-between py-1.5 border-b border-gray-100">
+                <div key={sc.name} className="flex items-center justify-between py-1.5 border-b border-hairline">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-400 w-4">{i + 1}</span>
-                    <span className="text-xs text-gray-700">{sc.name}</span>
+                    <span className="text-[10px] text-ink-400 w-4 tabular-nums">{i + 1}</span>
+                    <span className="text-xs text-ink-700">{sc.name}</span>
                   </div>
-                  <span className="text-xs font-bold text-teal">{sc.score}</span>
+                  <span className="text-xs font-semibold text-mint-dark tabular-nums">{sc.score}</span>
                 </div>
               ))}
-              <p className="text-[10px] text-red-400 uppercase tracking-wider font-medium pt-2">{d.an_att}</p>
+              <p className="text-[10px] text-danger-text uppercase tracking-[0.08em] font-semibold pt-2">{d.an_att}</p>
               {schools.slice(3).map((sc, i) => (
                 <div key={sc.name} className="flex items-center justify-between py-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-400 w-4">{schools.length - schools.slice(3).length + i + 1}</span>
-                    <span className="text-xs text-gray-700">{sc.name}</span>
+                    <span className="text-[10px] text-ink-400 w-4 tabular-nums">{schools.length - schools.slice(3).length + i + 1}</span>
+                    <span className="text-xs text-ink-700">{sc.name}</span>
                   </div>
-                  <span className="text-xs font-bold text-red-400">{sc.score}</span>
+                  <span className="text-xs font-semibold text-danger-text tabular-nums">{sc.score}</span>
                 </div>
               ))}
             </div>
@@ -1831,53 +1824,58 @@ function AnalItikaDemo() {
 function BildirislerDemo() {
   const d = useD()
   const notifications = [
-    { emoji: '🏫', text: d.bn_n1, time: '09:12',           type: d.bn_t_report,   read: false },
-    { emoji: '⚠️', text: d.bn_n2, time: '08:54',           type: d.bn_t_critical, read: false },
-    { emoji: '✅', text: d.bn_n3, time: '08:30',           type: d.bn_t_system,   read: true  },
-    { emoji: '🎓', text: d.bn_n4, time: d.np_yesterday,    type: d.bn_t_system,   read: true  },
-    { emoji: '📊', text: d.bn_n5, time: d.np_yesterday,    type: d.bn_t_report,   read: true  },
-    { emoji: '🔒', text: d.bn_n6, time: d.np_yesterday,    type: d.bn_t_system,   read: true  },
-    { emoji: '⚠️', text: d.bn_n7, time: d.bn_time_2d,      type: d.bn_t_critical, read: true  },
+    { icon: Building2,     text: d.bn_n1, time: '09:12',           type: d.bn_t_report,   read: false },
+    { icon: AlertTriangle, text: d.bn_n2, time: '08:54',           type: d.bn_t_critical, read: false },
+    { icon: Check,         text: d.bn_n3, time: '08:30',           type: d.bn_t_system,   read: true  },
+    { icon: GraduationCap, text: d.bn_n4, time: d.np_yesterday,    type: d.bn_t_system,   read: true  },
+    { icon: BarChart3,     text: d.bn_n5, time: d.np_yesterday,    type: d.bn_t_report,   read: true  },
+    { icon: Lock,          text: d.bn_n6, time: d.np_yesterday,    type: d.bn_t_system,   read: true  },
+    { icon: AlertTriangle, text: d.bn_n7, time: d.bn_time_2d,      type: d.bn_t_critical, read: true  },
   ]
   const tabs = [d.bn_tab1, d.bn_tab2, d.bn_tab3, d.bn_tab4]
 
   return (
-    <div className="flex flex-col min-h-[600px] bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
+    <div className="flex flex-col min-h-[600px] bg-canvas">
+      <div className="bg-surface border-b border-hairline px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 className="font-semibold text-gray-900">{d.bn_title}</h2>
-          <p className="text-[11px] text-gray-400">{d.bn_unread}</p>
+          <h2 className="font-semibold text-ink-900">{d.bn_title}</h2>
+          <p className="text-[11px] text-ink-400">{d.bn_unread}</p>
         </div>
-        <button className="text-sm text-purple hover:text-purple/70 transition-colors font-medium">{d.bn_mark_all}</button>
+        <button className="text-sm text-brand-500 hover:text-brand-600 transition-colors font-semibold">{d.bn_mark_all}</button>
       </div>
 
-      <div className="bg-white border-b border-gray-200 px-6 flex-shrink-0">
+      <div className="bg-surface border-b border-hairline px-6 flex-shrink-0">
         <div className="flex gap-0">
           {tabs.map((t, i) => (
-            <button key={t} className={`px-4 py-3 text-sm border-b-2 transition-colors ${i === 0 ? 'border-purple text-purple font-medium' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>{t}</button>
+            <button key={t} className={`px-4 py-3 text-sm border-b-2 transition-colors ${i === 0 ? 'border-brand-500 text-brand-700 font-semibold' : 'border-transparent text-ink-600 hover:text-ink-900'}`}>{t}</button>
           ))}
         </div>
       </div>
 
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-2xl mx-auto space-y-2">
-          {notifications.map((n, i) => (
-            <div key={i} className={`bg-white rounded-xl border px-5 py-4 flex items-start gap-4 transition-colors ${!n.read ? 'border-purple/30 shadow-sm' : 'border-gray-200'}`}>
-              <span className="text-xl flex-shrink-0 mt-0.5">{n.emoji}</span>
+          {notifications.map((n, i) => {
+            const Icon = n.icon
+            const critical = n.type === d.bn_t_critical
+            return (
+            <div key={i} className={`bg-surface rounded-tile border px-5 py-4 flex items-start gap-4 transition-colors ${!n.read ? 'border-brand-200' : 'border-hairline'}`}>
+              <div className={`w-8 h-8 rounded-tile flex items-center justify-center flex-shrink-0 ${critical ? 'bg-danger-tint text-danger-text' : 'bg-surface-2 text-ink-400'}`}>
+                <Icon className="w-4 h-4" />
+              </div>
               <div className="flex-1">
-                <p className={`text-sm ${!n.read ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>{n.text}</p>
+                <p className={`text-sm ${!n.read ? 'font-semibold text-ink-900' : 'text-ink-700'}`}>{n.text}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[10px] text-gray-400">{n.time}</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                    n.type === d.bn_t_critical ? 'bg-red-50 text-red-400' :
-                    n.type === d.bn_t_report ? 'bg-purple-light text-purple' :
-                    'bg-gray-100 text-gray-500'
-                  }`}>{n.type}</span>
+                  <span className="text-[10px] text-ink-400 tabular-nums">{n.time}</span>
+                  <span className={
+                    n.type === d.bn_t_critical ? 'pill-rose' :
+                    n.type === d.bn_t_report ? 'pill-peri' :
+                    'pill-muted'
+                  }>{n.type}</span>
                 </div>
               </div>
-              {!n.read && <div className="w-2 h-2 rounded-full bg-purple flex-shrink-0 mt-2" />}
+              {!n.read && <div className="w-2 h-2 rounded-full bg-brand-500 flex-shrink-0 mt-2" />}
             </div>
-          ))}
+          )})}
         </div>
       </div>
     </div>
@@ -1888,10 +1886,10 @@ function BildirislerDemo() {
 function EgovDemo() {
   const d = useD()
   const services = [
-    { name: d.eg_s1, icon: '🏛️', status: d.eg_connected, lastSync: d.eg_sync_1, color: 'text-teal bg-teal-light border-teal/20' },
-    { name: d.eg_s2, icon: '🌐', status: d.eg_connected, lastSync: d.eg_sync_2, color: 'text-teal bg-teal-light border-teal/20' },
-    { name: d.eg_s3, icon: '📋', status: d.eg_connected, lastSync: d.eg_sync_3, color: 'text-teal bg-teal-light border-teal/20' },
-    { name: d.eg_s4, icon: '🎓', status: d.eg_connected, lastSync: d.eg_sync_4, color: 'text-teal bg-teal-light border-teal/20' },
+    { name: d.eg_s1, icon: Landmark,      status: d.eg_connected, lastSync: d.eg_sync_1 },
+    { name: d.eg_s2, icon: Globe,         status: d.eg_connected, lastSync: d.eg_sync_2 },
+    { name: d.eg_s3, icon: FileText,      status: d.eg_connected, lastSync: d.eg_sync_3 },
+    { name: d.eg_s4, icon: GraduationCap, status: d.eg_connected, lastSync: d.eg_sync_4 },
   ]
   const exportLog = [
     { type: d.eg_l1, dest: d.eg_d1, time: '09:30',       status: d.eg_st_ok },
@@ -1901,13 +1899,13 @@ function EgovDemo() {
   ]
 
   return (
-    <div className="flex flex-col min-h-[600px] bg-gray-50 overflow-auto">
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
+    <div className="flex flex-col min-h-[600px] bg-canvas overflow-auto">
+      <div className="bg-surface border-b border-hairline px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 className="font-semibold text-gray-900">{d.eg_title}</h2>
-          <p className="text-[11px] text-gray-400">{d.eg_sub}</p>
+          <h2 className="font-semibold text-ink-900">{d.eg_title}</h2>
+          <p className="text-[11px] text-ink-400">{d.eg_sub}</p>
         </div>
-        <button className="flex items-center gap-2 bg-teal text-white text-sm px-5 py-2 rounded-full hover:bg-teal/90 transition-colors font-medium">
+        <button className="btn-pastel flex items-center gap-2 text-sm px-5 py-2">
           <Send className="w-4 h-4" />
           {d.eg_push}
         </button>
@@ -1915,53 +1913,55 @@ function EgovDemo() {
 
       <div className="p-6 max-w-4xl mx-auto w-full space-y-5">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {services.map(sv => (
-            <div key={sv.name} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm text-center">
-              <div className="text-3xl mb-2">{sv.icon}</div>
-              <p className="text-sm font-semibold text-gray-900 mb-1">{sv.name}</p>
-              <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full border ${sv.color} flex items-center gap-1 justify-center`}>
-                <Check className="w-3 h-3" />{sv.status}
-              </span>
-              <p className="text-[10px] text-gray-400 mt-2">{sv.lastSync}</p>
+          {services.map(sv => {
+            const Icon = sv.icon
+            return (
+            <div key={sv.name} className="bg-surface rounded-card border border-hairline p-4 text-center">
+              <div className="icon-chip icon-chip-periwinkle w-9 h-9 rounded-tile mx-auto mb-2">
+                <Icon className="w-4 h-4" />
+              </div>
+              <p className="text-sm font-semibold text-ink-900 mb-1.5">{sv.name}</p>
+              <div className="flex justify-center"><span className="pill-mint">{sv.status}</span></div>
+              <p className="text-[10px] text-ink-400 mt-2 tabular-nums">{sv.lastSync}</p>
             </div>
-          ))}
+          )})}
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+        <div className="bg-surface rounded-card border border-hairline p-5">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold text-gray-900">{d.eg_export}</p>
-            <span className="text-[11px] text-gray-400">{d.eg_auto}</span>
+            <p className="text-sm font-semibold text-ink-900">{d.eg_export}</p>
+            <span className="text-[11px] text-ink-400">{d.eg_auto}</span>
           </div>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: d.eg_att,     count: d.eg_att_c,     color: 'border-teal/20 bg-teal-light text-teal' },
-              { label: d.eg_grades,  count: d.eg_grades_c,  color: 'border-purple/20 bg-purple-light text-purple' },
-              { label: d.eg_reports, count: d.eg_reports_c, color: 'border-amber-200 bg-amber-50 text-amber-600' },
+              { label: d.eg_att,     count: d.eg_att_c     },
+              { label: d.eg_grades,  count: d.eg_grades_c  },
+              { label: d.eg_reports, count: d.eg_reports_c },
             ].map(item => (
-              <div key={item.label} className={`rounded-lg border px-4 py-3 text-center ${item.color}`}>
-                <p className="text-base font-bold">{item.count}</p>
-                <p className="text-[11px] font-medium mt-0.5">{item.label}</p>
+              <div key={item.label} className="rounded-tile border border-hairline bg-surface-2 px-4 py-3 text-center">
+                <p className="text-base font-semibold text-ink-900 tabular-nums">{item.count}</p>
+                <p className="text-[11px] font-medium text-ink-600 mt-0.5">{item.label}</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-          <div className="px-5 py-4 border-b border-gray-200">
-            <p className="text-sm font-semibold text-gray-900">{d.eg_log}</p>
+        <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
+          <div className="px-5 py-4 border-b border-hairline">
+            <p className="text-sm font-semibold text-ink-900">{d.eg_log}</p>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-hairline">
             {exportLog.map((log, i) => (
               <div key={i} className="px-5 py-3 flex items-center gap-4">
-                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                  <Globe className="w-4 h-4 text-gray-500" />
+                <div className="icon-chip icon-chip-periwinkle w-8 h-8 rounded-tile">
+                  <Globe className="w-4 h-4" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-800">{log.type}</p>
-                  <p className="text-[11px] text-gray-400">→ {log.dest}</p>
+                  <p className="text-sm font-medium text-ink-900">{log.type}</p>
+                  <p className="text-[11px] text-ink-400">→ {log.dest}</p>
                 </div>
-                <p className="text-[11px] text-gray-400">{log.time}</p>
-                <span className={`text-[10px] font-medium px-2.5 py-1 rounded-full ${log.status === d.eg_st_ok ? 'bg-teal-light text-teal' : 'bg-amber-50 text-amber-600'}`}>{log.status}</span>
+                <p className="text-[11px] text-ink-400 tabular-nums">{log.time}</p>
+                <span className={log.status === d.eg_st_ok ? 'pill-mint' : 'pill-peach'}>{log.status}</span>
               </div>
             ))}
           </div>
@@ -1993,45 +1993,93 @@ export default function Demo() {
   const meta = d.meta[id] || { title: d.demo, subtitle: '' }
   const DemoContent = demoComponents[id]
 
+  // Position of this demo within the full product tour (for the numbered guide chip).
+  const order = Object.keys(demoComponents)
+  const stepIndex = order.indexOf(id)
+  const stepNo = stepIndex >= 0 ? stepIndex + 1 : 1
+  const stepTotal = order.length
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col font-sans">
-      <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-gray-200/80 shadow-sm">
-        <div className="h-14 px-5 flex items-center justify-between max-w-5xl mx-auto">
+    <div className="relative min-h-screen flex flex-col font-sans bg-canvas overflow-hidden">
+      {/* single calm brand wash behind the tour (no rainbow blobs) */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-28 left-1/2 -translate-x-1/2 w-[70vw] h-[55vh] rounded-full bg-brand-50 blur-3xl opacity-60" />
+      </div>
+
+      {/* ── App bar ── */}
+      <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-hairline">
+        <div className="h-16 px-5 flex items-center justify-between max-w-6xl mx-auto">
           <Link
             to="/"
-            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors group"
+            className="flex items-center gap-2 text-sm text-ink-600 hover:text-ink-900 transition-colors group"
           >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-            <span className="font-serif text-base tracking-tight">
-              <span className="text-gray-900">Zir</span>
-              <span className="text-purple">va</span>
+            <span className="w-8 h-8 rounded-tile bg-surface border border-hairline flex items-center justify-center group-hover:-translate-x-0.5 transition-transform">
+              <ArrowLeft className="w-4 h-4" />
+            </span>
+            <span className="font-display font-extrabold text-lg tracking-tight">
+              <span className="text-ink-900">Zir</span>
+              <span className="text-brand-500">va</span>
             </span>
           </Link>
 
-          <div className="flex flex-col items-center">
-            <p className="text-sm font-semibold text-gray-900 leading-none">{meta.title}</p>
-            <p className="text-[10px] text-gray-400 mt-0.5 uppercase tracking-wider">{meta.subtitle} · {d.demo}</p>
+          <div className="hidden sm:flex flex-col items-center">
+            <p className="text-sm font-semibold text-ink-900 leading-none">{meta.title}</p>
+            <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-[0.12em] font-semibold">{meta.subtitle} · {d.demo}</p>
           </div>
 
           <Link
             to="/contact"
-            className="bg-gradient-to-br from-purple to-purple-dark text-white text-sm px-5 py-2 rounded-full hover:shadow-md hover:shadow-purple/40 hover:-translate-y-0.5 transition-all duration-300 font-semibold shadow-sm shadow-purple/30"
+            className="btn-pastel text-sm"
           >
             {d.signup}
           </Link>
         </div>
       </header>
 
-      <main className="flex-1 py-6 px-4">
-        <div className="max-w-5xl mx-auto bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200">
-          {DemoContent ? (
-            <DemoContent />
-          ) : (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400">
-              <p className="text-lg font-medium mb-2">{d.not_found}</p>
-              <Link to="/" className="text-sm text-purple hover:underline">{d.back_home}</Link>
+      <main className="relative flex-1 py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          {/* ── One mascot guide — friendly walkthrough intro ── */}
+          <div className="flex items-end gap-3 mb-5 px-1">
+            <Mascot pose="pointing" size={80} className="flex-shrink-0 -mb-1" />
+            <div className="relative bg-surface border border-hairline rounded-card rounded-bl-md px-4 py-3 max-w-md">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-500">
+                <Sparkles className="w-3.5 h-3.5" />
+                {meta.subtitle}
+              </span>
+              <p className="text-sm font-semibold text-ink-900 leading-tight mt-0.5">{meta.title}</p>
+              <span className="absolute -bottom-2 left-5 w-3 h-3 rotate-45 bg-surface border-b border-r border-hairline" />
             </div>
-          )}
+            <span className="ml-auto hidden md:inline-flex items-center gap-2 text-xs font-semibold text-ink-600 bg-surface border border-hairline rounded-pill px-3 py-1.5 self-center">
+              <span className="font-display font-extrabold tabular-nums text-brand-500">{stepNo}</span>
+              <span className="text-ink-400">/ {stepTotal}</span>
+            </span>
+          </div>
+
+          {/* ── Product window frame — "this is the real product" ── */}
+          <div className="bg-surface rounded-card-lg overflow-hidden shadow-soft-lg border border-hairline-strong">
+            {/* window chrome bar */}
+            <div className="h-10 px-4 flex items-center gap-2 border-b border-hairline bg-surface-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-hairline-strong" />
+              <span className="w-2.5 h-2.5 rounded-full bg-hairline-strong" />
+              <span className="w-2.5 h-2.5 rounded-full bg-hairline-strong" />
+              <div className="ml-3 flex-1 max-w-sm">
+                <div className="flex items-center gap-2 bg-surface border border-hairline rounded-pill px-3 py-1 text-[11px] text-ink-400">
+                  <Shield className="w-3 h-3 text-mint-dark" />
+                  <span className="truncate">zirva.az / {meta.subtitle?.toLowerCase()}</span>
+                </div>
+              </div>
+            </div>
+
+            {DemoContent ? (
+              <DemoContent />
+            ) : (
+              <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6 py-16">
+                <Mascot pose="thinking" size={120} />
+                <p className="text-lg font-display font-bold text-ink-900 mt-4 mb-1">{d.not_found}</p>
+                <Link to="/" className="btn-pastel text-sm mt-3">{d.back_home}</Link>
+              </div>
+            )}
+          </div>
         </div>
       </main>
     </div>

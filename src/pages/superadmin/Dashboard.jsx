@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   School, Users, GraduationCap, Heart, Clock, Activity,
   BarChart2, TrendingUp, RefreshCw, Plus, UserPlus, ListChecks,
-  ShieldCheck, ShieldOff, Shield
+  ShieldCheck, ShieldOff, Shield, AlertTriangle
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -14,6 +14,8 @@ import Avatar from '../../components/ui/Avatar'
 import Badge from '../../components/ui/Badge'
 import { EditionBadge } from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
+import EmptyState from '../../components/ui/EmptyState'
+import CountUp from '../../components/ui/CountUp'
 import MFASection from '../../components/auth/MFASection'
 import { fmtNumeric } from '../../lib/dateUtils'
 
@@ -42,6 +44,22 @@ const ROLE_VARIANTS = {
   parent: 'ap',
   admin: 'default',
   super_admin: 'default',
+}
+
+// Small reusable card-section header: tinted icon-chip + display title + muted
+// subtitle. Calm/authoritative chrome for the admin (LOW) dial — one accent hue.
+function SectionHead({ icon: Icon, tone = 'periwinkle', title, subtitle }) {
+  return (
+    <div className="flex items-center gap-3 mb-5">
+      <div className={`icon-chip icon-chip-${tone}`} style={{ width: 38, height: 38, borderRadius: 12 }}>
+        <Icon className="w-[18px] h-[18px]" />
+      </div>
+      <div className="min-w-0">
+        <h2 className="font-semibold text-[15px] text-ink-900 leading-tight">{title}</h2>
+        {subtitle && <p className="text-xs text-ink-400 mt-0.5">{subtitle}</p>}
+      </div>
+    </div>
+  )
 }
 
 export default function SuperAdminDashboard() {
@@ -186,11 +204,15 @@ export default function SuperAdminDashboard() {
 
   if (error) {
     return (
-      <div className="text-center py-16">
-        <p className="text-red-600 text-sm mb-4">{error}</p>
-        <Button onClick={fetchData}>
-          <span className="flex items-center gap-2"><RefreshCw className="w-4 h-4" /> Yenidən cəhd et</span>
-        </Button>
+      <div className="max-w-md mx-auto py-12">
+        <EmptyState
+          icon={AlertTriangle}
+          title={error}
+          actionLabel={
+            <span className="flex items-center gap-2"><RefreshCw className="w-4 h-4" /> Yenidən cəhd et</span>
+          }
+          onAction={fetchData}
+        />
       </div>
     )
   }
@@ -199,21 +221,21 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Header — liquid glass pastel */}
+      {/* Header — calm authoritative chrome (admin LOW dial: one brand accent) */}
       <div className="liquid-card p-8">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-2 h-2 rounded-full" style={{ background: 'linear-gradient(135deg, #7c6ee0, #5db8a3)' }} />
-              <span className="text-xs tracking-widest uppercase font-semibold pastel-text">Super Admin</span>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />
+              <span className="text-[12px] tracking-[0.08em] uppercase font-semibold text-brand-500">Super Admin</span>
             </div>
-            <h1 className="font-serif text-4xl text-[#1a1a2e]">
+            <h1 className="font-display font-extrabold text-[28px] text-ink-900 leading-tight tracking-[-0.01em]">
               {(L === 'en' ? 'Platform Management'
                 : L === 'ru' ? 'Управление платформой'
                 : L === 'tr' ? 'Platform Yönetimi'
                 : 'Sistem İdarəetməsi')}
             </h1>
-            <p className="text-sm text-[#64748b] mt-1">
+            <p className="text-sm text-ink-600 mt-1.5">
               {(L === 'en' ? 'Overview of all schools and users on the platform'
                 : L === 'ru' ? 'Обзор всех школ и пользователей платформы'
                 : L === 'tr' ? 'Platformdaki tüm okul ve kullanıcılara genel bakış'
@@ -259,87 +281,85 @@ export default function SuperAdminDashboard() {
         </div>
       </div>
 
-      {/* Primary stat cards */}
+      {/* Primary stat cards — KPIs with calm count-up on the big numbers */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard label={(L === 'en' ? 'Total schools' : L === 'ru' ? 'Всего школ' : L === 'tr' ? 'Toplam okul' : 'Ümumi məktəblər')}   value={stats.schools}  icon={School}        tone="periwinkle" />
-        <StatCard label={(L === 'en' ? 'Total students' : L === 'ru' ? 'Всего учеников' : L === 'tr' ? 'Toplam öğrenci' : 'Ümumi şagirdlər')}   value={stats.students} icon={Users}         tone="mint" />
-        <StatCard label={(L === 'en' ? 'Total teachers' : L === 'ru' ? 'Всего учителей' : L === 'tr' ? 'Toplam öğretmen' : 'Ümumi müəllimlər')} value={stats.teachers} icon={GraduationCap} tone="blue" />
-        <StatCard label={(L === 'en' ? 'Total parents' : L === 'ru' ? 'Всего родителей' : L === 'tr' ? 'Toplam veli' : 'Ümumi valideynlər')}   value={stats.parents}  icon={Heart}         tone="peach" />
+        <StatCard label={(L === 'en' ? 'Total schools' : L === 'ru' ? 'Всего школ' : L === 'tr' ? 'Toplam okul' : 'Ümumi məktəblər')}   value={<CountUp to={stats.schools} />}  icon={School}        tone="periwinkle" />
+        <StatCard label={(L === 'en' ? 'Total students' : L === 'ru' ? 'Всего учеников' : L === 'tr' ? 'Toplam öğrenci' : 'Ümumi şagirdlər')}   value={<CountUp to={stats.students} separator=" " />} icon={Users}         tone="periwinkle" />
+        <StatCard label={(L === 'en' ? 'Total teachers' : L === 'ru' ? 'Всего учителей' : L === 'tr' ? 'Toplam öğretmen' : 'Ümumi müəllimlər')} value={<CountUp to={stats.teachers} separator=" " />} icon={GraduationCap} tone="periwinkle" />
+        <StatCard label={(L === 'en' ? 'Total parents' : L === 'ru' ? 'Всего родителей' : L === 'tr' ? 'Toplam veli' : 'Ümumi valideynlər')}   value={<CountUp to={stats.parents} separator=" " />}  icon={Heart}         tone="periwinkle" />
       </div>
 
       {/* Platform metrics row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           label={(L === 'en' ? 'Total users' : L === 'ru' ? 'Всего пользователей' : L === 'tr' ? 'Toplam kullanıcı' : 'Ümumi istifadəçilər')}
-          value={stats.totalUsers}
+          value={<CountUp to={stats.totalUsers} separator=" " />}
           icon={Users}
           tone="periwinkle"
         />
         <StatCard
           label={(L === 'en' ? 'Active schools' : L === 'ru' ? 'Активные школы' : L === 'tr' ? 'Aktif okul' : 'Aktiv məktəblər')}
-          value={stats.activeSchools}
+          value={<CountUp to={stats.activeSchools} />}
           icon={ShieldCheck}
           tone="mint"
         />
         <StatCard
           label={(L === 'en' ? 'Blocked schools' : L === 'ru' ? 'Заблок. школы' : L === 'tr' ? 'Engellenmiş okul' : 'Bloklanmış məktəblər')}
-          value={stats.blockedSchools}
+          value={<CountUp to={stats.blockedSchools} />}
           icon={ShieldOff}
           tone="peach"
         />
         <StatCard
           label={(L === 'en' ? 'Total admins' : L === 'ru' ? 'Всего админов' : L === 'tr' ? 'Toplam yönetici' : 'Ümumi adminlər')}
-          value={stats.totalAdmins}
+          value={<CountUp to={stats.totalAdmins} />}
           icon={Shield}
-          tone="blue"
+          tone="periwinkle"
         />
       </div>
 
-      {/* Recent schools */}
+      {/* Recent schools — calm data table */}
       <Card hover={false}>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0">
-            <School className="w-5 h-5 text-purple" />
-          </div>
-          <div className="border-l-4 border-purple pl-3">
-            <h2 className="font-serif text-xl text-gray-900">Son qeydiyyat olunan məktəblər</h2>
-            <p className="text-sm text-gray-500 mt-0.5">Son 10 əlavə edilmiş məktəb</p>
-          </div>
-        </div>
+        <SectionHead
+          icon={School}
+          tone="periwinkle"
+          title="Son qeydiyyat olunan məktəblər"
+          subtitle="Son 10 əlavə edilmiş məktəb"
+        />
         {recentSchools.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-8">Heç bir məktəb tapılmadı</p>
+          <EmptyState
+            icon={School}
+            title="Heç bir məktəb tapılmadı"
+            className="border-0 shadow-none"
+          />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div className="rounded-tile border border-hairline overflow-hidden overflow-x-auto">
+            <table className="pastel-table">
               <thead>
-                <tr className="bg-surface">
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Məktəb adı</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Rayon</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Növ</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Admin</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Şagirdlər</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Qeydiyyat tarixi</th>
+                <tr>
+                  <th>Məktəb adı</th>
+                  <th>Rayon</th>
+                  <th>Növ</th>
+                  <th>Admin</th>
+                  <th className="num">Şagirdlər</th>
+                  <th>Qeydiyyat tarixi</th>
                 </tr>
               </thead>
               <tbody>
                 {recentSchools.map((school, i) => (
-                  <tr
-                    key={school.id || i}
-                    className="border-b border-border-soft hover:bg-surface transition-colors"
-                  >
-                    <td className="px-4 py-4">
+                  <tr key={school.id || i}>
+                    <td>
                       <div className="flex items-center gap-2.5">
-                        <span className="w-2 h-2 rounded-full bg-teal flex-shrink-0" />
-                        <span className="text-sm font-medium text-gray-900">{school.name}</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-400 flex-shrink-0" />
+                        <span className="text-sm font-semibold text-ink-900">{school.name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">{school.district || '—'}</td>
-                    <td className="px-4 py-4">
+                    <td className="text-ink-600">{school.district || '—'}</td>
+                    <td>
                       <EditionBadge edition={school.edition} />
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">{school.adminName}</td>
-                    <td className="px-4 py-4 text-sm text-gray-900 font-medium">{school.studentCount}</td>
-                    <td className="px-4 py-4 text-sm text-gray-500">{formatDate(school.created_at)}</td>
+                    <td className="text-ink-600">{school.adminName}</td>
+                    <td className="num font-semibold text-ink-900">{school.studentCount}</td>
+                    <td className="text-ink-400">{formatDate(school.created_at)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -351,36 +371,37 @@ export default function SuperAdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent activity — new signups */}
         <Card hover={false}>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-purple-light flex items-center justify-center flex-shrink-0">
-              <Activity className="w-5 h-5 text-purple" />
-            </div>
-            <div className="border-l-4 border-purple pl-3 flex-1">
-              <h2 className="font-serif text-xl text-gray-900">Fəaliyyət</h2>
-              <p className="text-xs text-gray-500 mt-0.5">Son 20 qeydiyyat</p>
-            </div>
-          </div>
+          <SectionHead
+            icon={Activity}
+            tone="periwinkle"
+            title="Fəaliyyət"
+            subtitle="Son 20 qeydiyyat"
+          />
           {recentProfiles.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">Heç bir qeydiyyat tapılmadı</p>
+            <EmptyState
+              icon={Activity}
+              title="Heç bir qeydiyyat tapılmadı"
+              className="border-0 shadow-none"
+            />
           ) : (
-            <div>
+            <div className="-mx-6">
               {recentProfiles.map((p, i) => (
                 <div
                   key={p.id || i}
-                  className="flex items-center justify-between py-3.5 border-b border-border-soft last:border-0 hover:bg-surface/60 transition-colors -mx-6 px-6"
+                  className="flex items-center justify-between py-3 px-6 border-b border-hairline last:border-0 hover:bg-brand-50/60 transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <Avatar name={p.full_name} size="sm" />
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{p.full_name}</p>
-                      <p className="text-xs text-gray-400 truncate mt-0.5">{p.schoolName}</p>
+                      <p className="text-sm font-semibold text-ink-900 truncate">{p.full_name}</p>
+                      <p className="text-xs text-ink-400 truncate mt-0.5">{p.schoolName}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 ml-3 shrink-0">
                     <Badge variant={ROLE_VARIANTS[p.role] || 'default'}>
                       {ROLE_LABELS[p.role] || p.role}
                     </Badge>
-                    <span className="text-xs text-gray-400 whitespace-nowrap">{formatDateTime(p.created_at)}</span>
+                    <span className="text-xs text-ink-400 whitespace-nowrap tabular-nums">{formatDateTime(p.created_at)}</span>
                   </div>
                 </div>
               ))}
@@ -388,19 +409,20 @@ export default function SuperAdminDashboard() {
           )}
         </Card>
 
-        {/* Top schools by student count — div-based bar chart */}
+        {/* Top schools by student count — calm horizontal bar list */}
         <Card hover={false}>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-teal-light flex items-center justify-center flex-shrink-0">
-              <BarChart2 className="w-5 h-5 text-teal" />
-            </div>
-            <div className="border-l-4 border-teal pl-3 flex-1">
-              <h2 className="font-serif text-xl text-gray-900">Məktəb statistikası</h2>
-              <p className="text-xs text-gray-500 mt-0.5">Şagird sayına görə top 5</p>
-            </div>
-          </div>
+          <SectionHead
+            icon={BarChart2}
+            tone="periwinkle"
+            title="Məktəb statistikası"
+            subtitle="Şagird sayına görə top 5"
+          />
           {topSchoolsByStudents.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">Heç bir məlumat tapılmadı</p>
+            <EmptyState
+              icon={BarChart2}
+              title="Heç bir məlumat tapılmadı"
+              className="border-0 shadow-none"
+            />
           ) : (
             <div className="space-y-5">
               {topSchoolsByStudents.map((item, i) => {
@@ -408,16 +430,16 @@ export default function SuperAdminDashboard() {
                 return (
                   <div key={item.schoolId || i}>
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-sm text-gray-700 truncate max-w-[70%]">{item.schoolName}</span>
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="w-3 h-3 text-purple-mid" />
-                        <span className="text-sm font-semibold text-gray-900">{item.studentCount}</span>
+                      <span className="text-sm text-ink-700 truncate max-w-[70%]">{item.schoolName}</span>
+                      <div className="flex items-center gap-1.5">
+                        <TrendingUp className="w-3.5 h-3.5 text-brand-400" />
+                        <span className="text-sm font-semibold text-ink-900 tabular-nums">{item.studentCount}</span>
                       </div>
                     </div>
-                    <div className="w-full bg-purple-light rounded-full h-4 overflow-hidden">
+                    <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--hairline)' }}>
                       <div
-                        style={{ width: pct + '%' }}
-                        className="bg-purple h-4 rounded-full transition-all duration-500"
+                        style={{ width: pct + '%', background: 'var(--brand-500)' }}
+                        className="h-full rounded-full transition-[width] duration-700 ease-[cubic-bezier(.22,1,.36,1)]"
                       />
                     </div>
                   </div>

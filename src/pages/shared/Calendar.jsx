@@ -17,12 +17,33 @@ const TYPE_LABELS = {
   other: 'Digər',
 }
 
-const TYPE_BADGE_CLASSES = {
-  holiday: 'bg-red-100 text-red-700',
-  exam: 'bg-purple-light text-purple',
-  meeting: 'bg-blue-50 text-blue-700',
-  event: 'bg-teal-light text-teal',
-  other: 'bg-gray-100 text-gray-600',
+// Pastel pill palette — each type owns a consistent hue
+const TYPE_PILL_CLASS = {
+  holiday: 'pill-rose',
+  exam:    'pill-grape',
+  meeting: 'pill-blue',
+  event:   'pill-mint',
+  other:   'pill-muted',
+}
+
+// §4.7 Amie model — muted event blocks: ~12–15% tint fill + solid accent
+// left-bar + dark-tint text. Low saturation reads premium; bright fills are
+// the childish tell. The meaning-bearing hue survives in the left bar only.
+const TYPE_CELL_STYLE = {
+  holiday: { bg: 'rgba(244,103,126,0.10)', text: '#B91C1C', bar: 'var(--coral)' },
+  exam:    { bg: 'rgba(124,92,224,0.10)',  text: '#5B3FB0', bar: 'var(--grape)' },
+  meeting: { bg: 'rgba(59,168,230,0.10)',  text: '#1D4ED8', bar: 'var(--sky)' },
+  event:   { bg: 'rgba(31,168,85,0.10)',   text: '#15803D', bar: 'var(--mint)' },
+  other:   { bg: 'rgba(20,22,40,0.05)',    text: '#5A6072', bar: 'var(--ink-400)' },
+}
+
+// Left-bar accent colors for the upcoming / detail panels
+const TYPE_ACCENT = {
+  holiday: 'var(--coral)',
+  exam:    'var(--grape)',
+  meeting: 'var(--sky)',
+  event:   'var(--mint)',
+  other:   'var(--ink-400)',
 }
 
 const AZ_MONTHS = [
@@ -68,41 +89,58 @@ function formatDate(dateStr) {
   return `${d} ${AZ_MONTHS[parseInt(m, 10) - 1]} ${y}`
 }
 
-// ─── Type Badge ───────────────────────────────────────────────────────────────
+// ─── Type Badge (pill variant) ────────────────────────────────────────────────
 
 function TypeBadge({ type }) {
+  const cls = TYPE_PILL_CLASS[type] || 'pill-muted'
   return (
-    <span className={`rounded-full text-xs font-medium px-3 py-0.5 inline-flex items-center ${TYPE_BADGE_CLASSES[type] || 'bg-gray-100 text-gray-600'}`}>
+    <span className={cls} style={{ fontSize: 11, padding: '2px 9px' }}>
       {TYPE_LABELS[type] || type}
     </span>
   )
 }
 
-// ─── Upcoming Event Card ───────────────────────────────────────────────────────
+// ─── Upcoming Event Item ───────────────────────────────────────────────────────
 
 function UpcomingEventItem({ event }) {
   const sameDay = event.start_date === event.end_date
   const dateLabel = sameDay
     ? formatDate(event.start_date)
     : `${formatDate(event.start_date)} – ${formatDate(event.end_date)}`
+  const accent = TYPE_ACCENT[event.type] || 'var(--brand-500)'
 
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-border-soft last:border-b-0">
+    <div className="flex items-start gap-3 py-3 last:pb-0" style={{ borderBottom: '1px solid var(--hairline)' }}>
+      {/* Colored left bar */}
       <div
-        className="w-1 self-stretch rounded-full flex-shrink-0 mt-0.5"
-        style={{ backgroundColor: event.color || '#7C3AED', minHeight: '40px' }}
+        className="flex-shrink-0 rounded-full self-stretch"
+        style={{ width: 3, minHeight: 40, background: accent }}
       />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900 truncate">{event.title}</p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />
-          <p className="text-xs text-gray-500">{dateLabel}</p>
+        <p className="text-sm font-semibold truncate" style={{ color: 'var(--ink-900)' }}>
+          {event.title}
+        </p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <Clock className="w-3 h-3 flex-shrink-0" style={{ color: 'var(--ink-400)' }} />
+          <p className="text-xs" style={{ color: 'var(--ink-600)' }}>{dateLabel}</p>
         </div>
         {event.description && (
-          <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{event.description}</p>
+          <p className="text-xs mt-0.5 line-clamp-1" style={{ color: 'var(--ink-400)' }}>
+            {event.description}
+          </p>
         )}
       </div>
       <TypeBadge type={event.type} />
+    </div>
+  )
+}
+
+// ─── Legend Item ──────────────────────────────────────────────────────────────
+
+function LegendItem({ type }) {
+  return (
+    <div className="flex items-center gap-2">
+      <TypeBadge type={type} />
     </div>
   )
 }
@@ -133,7 +171,6 @@ export default function Calendar() {
       setLoading(true)
       const roleValue = ROLE_MAP[profile.role]
 
-      // Build filter: show events visible to 'all' or to this specific role
       let query = supabase
         .from('events')
         .select('*')
@@ -143,7 +180,6 @@ export default function Calendar() {
       if (roleValue) {
         query = query.or(`visible_to.eq.all,visible_to.eq.${roleValue}`)
       } else {
-        // Fallback: only show 'all' events for unknown roles
         query = query.eq('visible_to', 'all')
       }
 
@@ -198,6 +234,8 @@ export default function Calendar() {
     const dayEvts = eventsOnDay(day)
     if (dayEvts.length > 0) {
       setSelectedDayEvents({ dateStr, events: dayEvts })
+    } else {
+      setSelectedDayEvents(null)
     }
   }
 
@@ -208,9 +246,26 @@ export default function Calendar() {
   return (
     <div className="space-y-6">
 
-      {/* Header */}
+      {/* ── Page Header ── */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-serif text-3xl text-gray-900">Təqvim</h1>
+        <div className="flex items-center gap-3">
+          {/* Icon chip */}
+          <div className="icon-chip icon-chip-periwinkle">
+            <CalendarDays className="w-5 h-5" />
+          </div>
+          <div>
+            <h1
+              className="font-display"
+              style={{ fontSize: 24, fontWeight: 700, color: 'var(--ink-900)', lineHeight: 1.2 }}
+            >
+              Təqvim
+            </h1>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--ink-400)' }}>
+              {AZ_MONTHS[currentMonth]} {currentYear}
+            </p>
+          </div>
+        </div>
+
         <div className="flex items-center gap-3 flex-wrap">
           {/* Type filter */}
           <div className="w-44">
@@ -224,20 +279,21 @@ export default function Calendar() {
               ))}
             </Select>
           </div>
-          {/* View toggle */}
-          <div className="flex items-center border border-border-soft rounded-lg overflow-hidden">
+
+          {/* Segmented view toggle */}
+          <div className="pastel-tabs">
             <button
               onClick={() => setView('calendar')}
-              className={`flex items-center gap-1.5 px-3 py-2 text-sm transition-colors ${view === 'calendar' ? 'bg-purple text-white' : 'text-gray-600 hover:bg-surface'}`}
+              className={`pastel-tab flex items-center gap-1.5${view === 'calendar' ? ' active' : ''}`}
             >
-              <CalendarDays className="w-4 h-4" />
+              <CalendarDays className="w-3.5 h-3.5" />
               Təqvim
             </button>
             <button
               onClick={() => setView('list')}
-              className={`flex items-center gap-1.5 px-3 py-2 text-sm transition-colors ${view === 'list' ? 'bg-purple text-white' : 'text-gray-600 hover:bg-surface'}`}
+              className={`pastel-tab flex items-center gap-1.5${view === 'list' ? ' active' : ''}`}
             >
-              <List className="w-4 h-4" />
+              <List className="w-3.5 h-3.5" />
               Siyahı
             </button>
           </div>
@@ -252,29 +308,58 @@ export default function Calendar() {
           {/* ── Calendar View ── */}
           {view === 'calendar' && (
             <Card hover={false} className="p-0 overflow-hidden">
-              {/* Month navigation */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-border-soft">
+
+              {/* Month navigation bar */}
+              <div
+                className="flex items-center justify-between px-6 py-4"
+                style={{ borderBottom: '1px solid var(--hairline)' }}
+              >
                 <button
                   onClick={prevMonth}
-                  className="p-2 rounded-lg hover:bg-surface transition-colors text-gray-600"
+                  className="w-9 h-9 flex items-center justify-center rounded-tile transition-colors"
+                  style={{ color: 'var(--ink-600)' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--brand-50)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  aria-label="Əvvəlki ay"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <h2 className="font-serif text-xl text-gray-900">
+
+                <h2
+                  style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink-900)' }}
+                >
                   {AZ_MONTHS[currentMonth]} {currentYear}
                 </h2>
+
                 <button
                   onClick={nextMonth}
-                  className="p-2 rounded-lg hover:bg-surface transition-colors text-gray-600"
+                  className="w-9 h-9 flex items-center justify-center rounded-tile transition-colors"
+                  style={{ color: 'var(--ink-600)' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--brand-50)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  aria-label="Növbəti ay"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Weekday headers */}
-              <div className="grid grid-cols-7 border-b border-border-soft">
+              <div
+                className="grid grid-cols-7"
+                style={{ borderBottom: '1px solid var(--hairline)', background: 'var(--surface-2)' }}
+              >
                 {AZ_WEEKDAYS.map(d => (
-                  <div key={d} className="py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <div
+                    key={d}
+                    className="py-2 text-center"
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      letterSpacing: '0.05em',
+                      textTransform: 'uppercase',
+                      color: 'var(--ink-400)',
+                    }}
+                  >
                     {d}
                   </div>
                 ))}
@@ -287,43 +372,77 @@ export default function Calendar() {
                   const dayEvents = day ? eventsOnDay(day) : []
                   const isToday = dateStr === todayStr
                   const isSelected = selectedDayEvents?.dateStr === dateStr
+                  const isLastCol = idx % 7 === 6
+                  const hasEvents = dayEvents.length > 0
 
                   return (
                     <div
                       key={idx}
                       onClick={() => handleDayClick(day)}
-                      className={`
-                        min-h-[96px] border-b border-r border-border-soft p-1.5 relative
-                        ${day && dayEvents.length > 0 ? 'cursor-pointer hover:bg-surface' : day ? 'cursor-default' : 'bg-gray-50/50'}
-                        ${isSelected ? 'bg-purple-light/40' : ''}
-                        ${idx % 7 === 6 ? 'border-r-0' : ''}
-                        transition-colors
-                      `}
+                      className="min-h-[96px] p-2 relative transition-colors duration-150"
+                      style={{
+                        borderBottom: '1px solid var(--hairline)',
+                        borderRight: isLastCol ? 'none' : '1px solid var(--hairline)',
+                        background: !day
+                          ? 'var(--surface-2)'
+                          : isSelected
+                          ? 'var(--brand-50)'
+                          : 'var(--surface)',
+                        cursor: day && hasEvents ? 'pointer' : day ? 'default' : 'default',
+                      }}
+                      onMouseEnter={e => {
+                        if (day && hasEvents) e.currentTarget.style.background = isSelected ? 'var(--brand-50)' : 'rgba(20,22,40,0.025)'
+                      }}
+                      onMouseLeave={e => {
+                        if (day) e.currentTarget.style.background = isSelected ? 'var(--brand-50)' : day ? 'var(--surface)' : 'var(--surface-2)'
+                      }}
                     >
                       {day && (
                         <>
-                          <span className={`
-                            inline-flex w-6 h-6 items-center justify-center rounded-full text-xs font-medium mb-1
-                            ${isToday ? 'bg-purple text-white' : 'text-gray-700'}
-                          `}>
+                          {/* Day number — today gets a solid brand chip (no glow) */}
+                          <span
+                            className={`inline-flex w-7 h-7 items-center justify-center mb-1${isToday ? ' font-display' : ''}`}
+                            style={{
+                              fontSize: 13,
+                              fontWeight: isToday ? 700 : 500,
+                              borderRadius: '999px',
+                              background: isToday ? 'var(--brand-500)' : 'transparent',
+                              color: isToday ? '#fff' : isSelected ? 'var(--brand-700)' : 'var(--ink-700)',
+                            }}
+                          >
                             {day}
                           </span>
+
+                          {/* Event pills */}
                           <div className="space-y-0.5">
-                            {dayEvents.slice(0, 3).map(event => (
-                              <div
-                                key={event.id}
-                                className="w-full text-left text-xs px-1.5 py-0.5 rounded truncate font-medium"
-                                style={{
-                                  backgroundColor: (event.color || '#7C3AED') + '22',
-                                  color: event.color || '#7C3AED',
-                                }}
-                                title={event.title}
-                              >
-                                {event.title}
-                              </div>
-                            ))}
+                            {dayEvents.slice(0, 3).map(event => {
+                              const style = TYPE_CELL_STYLE[event.type] || TYPE_CELL_STYLE.other
+                              return (
+                                <div
+                                  key={event.id}
+                                  className="w-full text-left truncate font-semibold"
+                                  style={{
+                                    background: style.bg,
+                                    color: style.text,
+                                    borderLeft: `2px solid ${style.bar}`,
+                                    borderRadius: 6,
+                                    padding: '1px 6px',
+                                    fontSize: 10,
+                                    lineHeight: 1.5,
+                                  }}
+                                  title={event.title}
+                                >
+                                  {event.title}
+                                </div>
+                              )
+                            })}
                             {dayEvents.length > 3 && (
-                              <p className="text-xs text-gray-400 px-1">+{dayEvents.length - 3} daha</p>
+                              <p
+                                className="text-xs px-1"
+                                style={{ color: 'var(--ink-400)', fontSize: 10 }}
+                              >
+                                +{dayEvents.length - 3} daha
+                              </p>
                             )}
                           </div>
                         </>
@@ -333,36 +452,82 @@ export default function Calendar() {
                 })}
               </div>
 
-              {/* Selected day panel */}
+              {/* ── Selected Day Detail Panel ── */}
               {selectedDayEvents && (
-                <div className="border-t border-border-soft px-6 py-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium text-gray-900 text-sm">
-                      {formatDate(selectedDayEvents.dateStr)} — tədbirlər
-                    </h3>
+                <div
+                  className="animate-fade-in-up"
+                  style={{
+                    borderTop: '1px solid var(--hairline)',
+                    padding: '20px 24px',
+                    background: 'var(--brand-50)',
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-2 h-2 rounded-full"
+                        style={{ background: 'var(--brand-500)' }}
+                      />
+                      <h3
+                        style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink-900)' }}
+                      >
+                        {formatDate(selectedDayEvents.dateStr)}
+                      </h3>
+                      <span
+                        className="pill-peri"
+                        style={{ fontSize: 10, padding: '1px 8px' }}
+                      >
+                        {selectedDayEvents.events.length} tədbir
+                      </span>
+                    </div>
                     <button
                       onClick={() => setSelectedDayEvents(null)}
-                      className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                      className="text-xs font-medium transition-colors"
+                      style={{ color: 'var(--ink-400)' }}
+                      onMouseEnter={e => e.currentTarget.style.color = 'var(--ink-700)'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'var(--ink-400)'}
                     >
                       Bağla
                     </button>
                   </div>
+
                   <div className="space-y-2">
-                    {selectedDayEvents.events.map(event => (
-                      <div key={event.id} className="flex items-start gap-3 p-3 rounded-lg bg-surface">
+                    {selectedDayEvents.events.map(event => {
+                      const accent = TYPE_ACCENT[event.type] || 'var(--brand-500)'
+                      return (
                         <div
-                          className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5"
-                          style={{ backgroundColor: event.color || '#7C3AED' }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">{event.title}</p>
-                          {event.description && (
-                            <p className="text-xs text-gray-500 mt-0.5">{event.description}</p>
-                          )}
+                          key={event.id}
+                          className="flex items-start gap-3 rounded-tile"
+                          style={{
+                            background: 'var(--surface)',
+                            padding: '10px 14px',
+                            border: '1px solid var(--hairline)',
+                          }}
+                        >
+                          <div
+                            className="w-1 self-stretch rounded-full flex-shrink-0"
+                            style={{ background: accent, minHeight: 32 }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className="text-sm font-semibold"
+                              style={{ color: 'var(--ink-900)' }}
+                            >
+                              {event.title}
+                            </p>
+                            {event.description && (
+                              <p
+                                className="text-xs mt-0.5"
+                                style={{ color: 'var(--ink-600)' }}
+                              >
+                                {event.description}
+                              </p>
+                            )}
+                          </div>
+                          <TypeBadge type={event.type} />
                         </div>
-                        <TypeBadge type={event.type} />
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               )}
@@ -374,31 +539,54 @@ export default function Calendar() {
             <Card hover={false} className="p-0 overflow-hidden">
               {filteredEvents.length === 0 ? (
                 <EmptyState
+                  tier={1}
                   icon={CalendarDays}
-                  title="Tədbir yoxdur"
+                  title="Tədbir tapılmadı"
                   description="Bu seçimlə heç bir tədbir tapılmadı."
                 />
               ) : (
-                <div className="divide-y divide-border-soft">
-                  {filteredEvents.map(event => {
+                <div>
+                  {filteredEvents.map((event, i) => {
                     const sameDay = event.start_date === event.end_date
                     const dateLabel = sameDay
                       ? formatDate(event.start_date)
                       : `${formatDate(event.start_date)} – ${formatDate(event.end_date)}`
+                    const accent = TYPE_ACCENT[event.type] || 'var(--brand-500)'
+                    const isLast = i === filteredEvents.length - 1
+
                     return (
-                      <div key={event.id} className="flex items-start gap-4 px-6 py-4 hover:bg-surface transition-colors">
+                      <div
+                        key={event.id}
+                        className="flex items-start gap-4 px-6 py-4 transition-colors duration-150"
+                        style={{
+                          borderBottom: isLast ? 'none' : '1px solid var(--hairline)',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(20,22,40,0.025)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        {/* Accent bar */}
                         <div
-                          className="w-1.5 self-stretch rounded-full flex-shrink-0"
-                          style={{ backgroundColor: event.color || '#7C3AED', minHeight: '48px' }}
+                          className="flex-shrink-0 rounded-full self-stretch"
+                          style={{ width: 3, minHeight: 48, background: accent }}
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">{event.title}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />
-                            <p className="text-xs text-gray-500">{dateLabel}</p>
+                          <p
+                            className="text-sm font-semibold"
+                            style={{ color: 'var(--ink-900)' }}
+                          >
+                            {event.title}
+                          </p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <Clock className="w-3 h-3 flex-shrink-0" style={{ color: 'var(--ink-400)' }} />
+                            <p className="text-xs" style={{ color: 'var(--ink-600)' }}>{dateLabel}</p>
                           </div>
                           {event.description && (
-                            <p className="text-xs text-gray-400 mt-1 line-clamp-2">{event.description}</p>
+                            <p
+                              className="text-xs mt-1 line-clamp-2"
+                              style={{ color: 'var(--ink-400)' }}
+                            >
+                              {event.description}
+                            </p>
                           )}
                         </div>
                         <TypeBadge type={event.type} />
@@ -411,15 +599,40 @@ export default function Calendar() {
           )}
         </div>
 
-        {/* ── Upcoming Events Sidebar ── */}
-        <div className="lg:col-span-1">
-          <Card hover={false} className="p-6">
-            <h2 className="font-serif text-lg text-gray-900 mb-1">Yaxınlaşan tədbirlər</h2>
-            <p className="text-xs text-gray-400 mb-4">Növbəti 5 tədbir</p>
+        {/* ── Sidebar ── */}
+        <div className="lg:col-span-1 space-y-4">
+
+          {/* Upcoming events card */}
+          <Card hover={false} className="p-5">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="icon-chip icon-chip-periwinkle" style={{ width: 32, height: 32 }}>
+                <Clock className="w-4 h-4" />
+              </div>
+              <h2
+                style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink-900)' }}
+              >
+                Yaxınlaşan tədbirlər
+              </h2>
+            </div>
+            <p className="text-xs mb-4 ml-10" style={{ color: 'var(--ink-400)' }}>
+              Növbəti 5 tədbir
+            </p>
+
             {upcomingEvents.length === 0 ? (
-              <p className="text-sm text-gray-400 py-6 text-center">Yaxın tədbir yoxdur</p>
+              <div
+                className="flex flex-col items-center text-center py-6 rounded-tile"
+                style={{ background: 'var(--surface-2)', border: '1px dashed var(--hairline-strong)' }}
+              >
+                <CalendarDays
+                  className="w-8 h-8 mb-2"
+                  style={{ color: 'var(--ink-400)' }}
+                />
+                <p className="text-sm font-medium" style={{ color: 'var(--ink-600)' }}>
+                  Yaxın tədbir yoxdur
+                </p>
+              </div>
             ) : (
-              <div>
+              <div className="space-y-0">
                 {upcomingEvents.map(event => (
                   <UpcomingEventItem key={event.id} event={event} />
                 ))}
@@ -427,16 +640,17 @@ export default function Calendar() {
             )}
           </Card>
 
-          {/* Legend */}
-          <Card hover={false} className="p-6 mt-4">
-            <h3 className="font-medium text-sm text-gray-700 mb-3">Növlər</h3>
-            <div className="space-y-2">
-              {Object.entries(TYPE_LABELS).map(([type, label]) => (
-                <div key={type} className="flex items-center gap-2">
-                  <span className={`rounded-full text-xs font-medium px-2.5 py-0.5 ${TYPE_BADGE_CLASSES[type]}`}>
-                    {label}
-                  </span>
-                </div>
+          {/* Legend card */}
+          <Card hover={false} className="p-5">
+            <h3
+              className="mb-3"
+              style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-400)', letterSpacing: '0.04em', textTransform: 'uppercase' }}
+            >
+              Növlər
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {Object.keys(TYPE_LABELS).map(type => (
+                <LegendItem key={type} type={type} />
               ))}
             </div>
           </Card>

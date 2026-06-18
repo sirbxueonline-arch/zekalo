@@ -7,7 +7,7 @@ import {
   Clock, Users, GraduationCap, School, Megaphone, Award, Building, Settings,
   Bell, LogOut, X, HeartHandshake, ShieldCheck, FileBarChart, AlertTriangle,
   ArrowLeftRight, PenLine, TrendingUp, UserPlus, CalendarOff, DoorOpen,
-  Library, CalendarCheck, BookMarked, FolderOpen, ChevronRight
+  Library, CalendarCheck, BookMarked, FolderOpen, ChevronRight, Flame
 } from 'lucide-react'
 
 // ── Admin nav sections ───────────────────────────────────────────────────────
@@ -227,13 +227,18 @@ export default function Sidebar({ open, onClose }) {
   const { profile, signOut, t } = useAuth()
   const navigate = useNavigate()
 
+  const role = profile?.role
   const groups =
-    profile?.role === 'student'     ? studentGroups
-    : profile?.role === 'teacher'   ? teacherGroups
-    : profile?.role === 'parent'    ? parentGroups
-    : profile?.role === 'admin'     ? getAdminGroups(profile, t)
-    : profile?.role === 'super_admin' ? superAdminGroups
+    role === 'student'     ? studentGroups
+    : role === 'teacher'   ? teacherGroups
+    : role === 'parent'    ? parentGroups
+    : role === 'admin'     ? getAdminGroups(profile, t)
+    : role === 'super_admin' ? superAdminGroups
     : []
+
+  // Role dial: student/parent read HIGH (a touch airier + sanctioned warmth chip);
+  // teacher/admin read MEDIUM→LOW (denser, no playful chip).
+  const playful = role === 'student' || role === 'parent'
 
   const resolvedGroups = groups.map(g => ({
     ...g,
@@ -253,49 +258,59 @@ export default function Sidebar({ open, onClose }) {
       {open && (
         <div
           className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: 'rgba(124,110,224,0.15)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+          style={{ background: 'rgba(30,34,51,0.30)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
           onClick={onClose}
         />
       )}
       <aside
-        className={`fixed top-0 left-0 h-full z-50 flex flex-col transition-transform duration-200 lg:translate-x-0 ${
+        className={`fixed top-0 left-0 h-full z-50 flex flex-col bg-surface transition-transform duration-200 lg:translate-x-0 ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{
-          width: 256,
-          background: 'rgba(255,255,255,0.6)',
-          backdropFilter: 'blur(24px) saturate(1.6)',
-          WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
-          borderRight: '1px solid rgba(255,255,255,0.7)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.85), 0 4px 24px rgba(140,120,200,0.06)',
+          width: 248,
+          borderRight: '1px solid var(--hairline)',
         }}
       >
+        <style>{`
+          aside nav::-webkit-scrollbar { width: 6px; }
+          aside nav::-webkit-scrollbar-track { background: transparent; }
+          aside nav::-webkit-scrollbar-thumb { background: var(--hairline-strong); border-radius: 999px; }
+          .nav-item {
+            transition: background .12s ease, color .12s ease;
+          }
+          .nav-item:not(.is-active):hover {
+            background: rgba(20,22,40,.04);
+            color: var(--ink-900);
+          }
+          .nav-item:not(.is-active):hover .nav-icon { color: var(--ink-900); }
+        `}</style>
+
         {/* Logo / brand */}
         <div
-          className="flex items-center justify-between px-5 py-4 flex-shrink-0"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.6)' }}
+          className="flex items-center justify-between px-5 flex-shrink-0"
+          style={{ height: 60, borderBottom: '1px solid var(--hairline)' }}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+              className="w-9 h-9 rounded-input flex items-center justify-center flex-shrink-0"
               style={{
-                background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(124,110,224,0.25)',
+                background: 'var(--brand-500)',
+                boxShadow: '0 1px 2px rgba(20,22,40,.08)',
               }}
             >
               <img src="/logo.png" alt="Zirva" width="18" height="18" className="object-contain brightness-0 invert" />
             </div>
             <div className="min-w-0">
               <span
-                className="font-extrabold text-base tracking-tight leading-tight block"
-                style={{ color: '#1a1a2e', fontWeight: 800 }}
+                className="font-display block leading-tight"
+                style={{ color: 'var(--ink-900)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.01em' }}
               >
                 Zirva
               </span>
               {profile?.school?.name && (
                 <span
-                  className="text-[10px] truncate block leading-tight max-w-[140px] mt-0.5"
-                  style={{ color: '#94a3b8' }}
+                  className="text-[10.5px] truncate block leading-tight max-w-[150px]"
+                  style={{ color: 'var(--ink-400)' }}
                 >
                   {profile.school.name}
                 </span>
@@ -304,8 +319,8 @@ export default function Sidebar({ open, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="lg:hidden p-1.5 rounded-lg transition-colors flex-shrink-0"
-            style={{ color: '#64748b' }}
+            className="lg:hidden p-1.5 rounded-chip transition-colors flex-shrink-0"
+            style={{ color: 'var(--ink-600)' }}
             aria-label="Close sidebar"
           >
             <X className="w-4 h-4" />
@@ -313,27 +328,17 @@ export default function Sidebar({ open, onClose }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4" style={{ scrollbarWidth: 'none' }}>
-          <style>{`
-            aside nav::-webkit-scrollbar { display: none; }
-            .pastel-nav-item:hover {
-              color: #1a1a2e !important;
-              background: rgba(255,255,255,0.55) !important;
-            }
-            .pastel-nav-item:hover .pastel-nav-icon {
-              color: #7c6ee0 !important;
-            }
-          `}</style>
+        <nav className={`flex-1 overflow-y-auto px-3 ${playful ? 'py-4' : 'py-3'}`}>
           {resolvedGroups.map((group, gi) => (
-            <div key={gi} className={gi > 0 ? 'mt-5' : ''}>
+            <div key={gi} className={gi > 0 ? (playful ? 'mt-5' : 'mt-4') : ''}>
               <p
                 className="px-3 mb-1.5 select-none"
                 style={{
                   fontSize: '11px',
-                  letterSpacing: '0.18em',
-                  color: '#94a3b8',
+                  letterSpacing: '0.04em',
+                  color: 'var(--ink-400)',
                   textTransform: 'uppercase',
-                  fontWeight: 700,
+                  fontWeight: 600,
                 }}
               >
                 {group.label}
@@ -345,45 +350,41 @@ export default function Sidebar({ open, onClose }) {
                     to={item.path}
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `pastel-nav-item relative flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium ${
-                        isActive ? 'active-nav-item' : ''
+                      `nav-item relative flex items-center gap-3 px-3 rounded-chip ${
+                        isActive ? 'is-active' : ''
                       }`
                     }
-                    style={({ isActive }) => isActive
-                      ? {
-                          color: '#7c6ee0',
-                          background: 'linear-gradient(135deg, rgba(124,110,224,0.15), rgba(93,184,163,0.10))',
-                          fontWeight: 600,
-                          transition: 'all 0.2s cubic-bezier(.22,1,.36,1)',
-                        }
-                      : {
-                          color: '#64748b',
-                          background: 'transparent',
-                          transition: 'all 0.2s cubic-bezier(.22,1,.36,1)',
-                        }
-                    }
+                    style={({ isActive }) => ({
+                      height: 34,
+                      fontSize: 13.5,
+                      fontWeight: isActive ? 600 : 500,
+                      color: isActive ? 'var(--brand-700)' : 'var(--ink-600)',
+                      background: isActive ? 'var(--brand-50)' : 'transparent',
+                    })}
                   >
                     {({ isActive }) => (
                       <>
-                        {isActive && (
-                          <span
-                            className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full"
-                            style={{
-                              background: 'linear-gradient(180deg, #7c6ee0, #5db8a3)',
-                              boxShadow: '0 0 8px rgba(124,110,224,0.4)',
-                            }}
-                          />
-                        )}
                         <item.icon
-                          className="pastel-nav-icon shrink-0"
+                          className="nav-icon shrink-0"
                           style={{
-                            width: 16,
-                            height: 16,
-                            color: isActive ? '#7c6ee0' : '#94a3b8',
-                            transition: 'color 0.2s ease',
+                            width: 18,
+                            height: 18,
+                            color: isActive ? 'var(--brand-700)' : 'var(--ink-400)',
                           }}
                         />
-                        <span className="truncate">{item.label}</span>
+                        <span className="truncate flex-1">{item.label}</span>
+                        {item.badge != null && item.badge > 0 && (
+                          <span
+                            className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full text-[11px] font-semibold"
+                            style={{
+                              background: isActive ? 'var(--brand-100)' : 'var(--surface-2)',
+                              color: isActive ? 'var(--brand-700)' : 'var(--ink-600)',
+                              fontVariantNumeric: 'tabular-nums',
+                            }}
+                          >
+                            {item.badge > 99 ? '99+' : item.badge}
+                          </span>
+                        )}
                       </>
                     )}
                   </NavLink>
@@ -394,40 +395,53 @@ export default function Sidebar({ open, onClose }) {
         </nav>
 
         {/* User footer */}
-        <div className="px-3 py-3 flex-shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.6)' }}>
-          <div
-            className="flex items-center gap-3 px-3 py-2.5 rounded-2xl mb-1.5"
-            style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 100%)',
-              backdropFilter: 'blur(24px) saturate(1.6)',
-              WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
-              border: '1px solid rgba(255,255,255,0.65)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.85), 0 4px 12px rgba(140,120,200,0.06)',
-            }}
-          >
+        <div className="px-3 py-3 flex-shrink-0" style={{ borderTop: '1px solid var(--hairline)' }}>
+          {/* Streak / onboarding chip — sanctioned warmth for student & parent only */}
+          {playful && (
             <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-              style={{
-                background: profile?.avatar_color
-                  ? profile.avatar_color
-                  : 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 8px rgba(124,110,224,0.18)',
-              }}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-tile mb-2"
+              style={{ background: 'rgba(255,90,31,0.07)' }}
             >
-              {profile?.full_name
-                ? profile.full_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-                : '?'}
+              <span
+                className="w-7 h-7 rounded-pill flex items-center justify-center flex-shrink-0 flame-grad"
+                style={{ boxShadow: '0 1px 3px -1px rgba(255,90,31,0.40)' }}
+              >
+                <Flame className="w-3.5 h-3.5 text-white" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p
+                  className="font-display leading-tight"
+                  style={{ color: '#C2410C', fontWeight: 700, fontSize: 13, fontVariantNumeric: 'tabular-nums' }}
+                >
+                  {profile?.streak_count ?? 0} {t('day_streak') || 'gün'}
+                </p>
+                <p className="text-[10.5px] leading-tight" style={{ color: '#9A3412' }}>
+                  {t('keep_it_up') || 'Davam et!'}
+                </p>
+              </div>
             </div>
+          )}
+
+          <div
+            className="flex items-center gap-3 px-2 py-2 rounded-tile mb-1"
+            style={{ background: 'var(--surface-2)' }}
+          >
+            <Avatar
+              name={profile?.full_name}
+              color={profile?.avatar_color}
+              size={36}
+              ring={false}
+            />
             <div className="min-w-0 flex-1">
               <p
-                className="text-xs font-semibold truncate leading-tight"
-                style={{ color: '#1a1a2e' }}
+                className="text-[13px] font-semibold truncate leading-tight"
+                style={{ color: 'var(--ink-900)' }}
               >
                 {profile?.full_name}
               </p>
               <p
-                className="text-[10px] capitalize leading-tight mt-0.5"
-                style={{ color: '#64748b' }}
+                className="text-[11px] capitalize leading-tight mt-0.5"
+                style={{ color: 'var(--ink-400)' }}
               >
                 {t(profile?.role)}
               </p>
@@ -435,18 +449,18 @@ export default function Sidebar({ open, onClose }) {
           </div>
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-xs font-medium"
-            style={{ color: '#64748b', transition: 'all 0.2s ease' }}
+            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-chip text-[13px] font-medium transition-colors"
+            style={{ color: 'var(--ink-600)' }}
             onMouseEnter={e => {
-              e.currentTarget.style.color = '#e8a87c'
-              e.currentTarget.style.background = 'rgba(232,168,124,0.12)'
+              e.currentTarget.style.color = 'var(--danger)'
+              e.currentTarget.style.background = 'var(--danger-tint, #FEE2E2)'
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.color = '#64748b'
+              e.currentTarget.style.color = 'var(--ink-600)'
               e.currentTarget.style.background = 'transparent'
             }}
           >
-            <LogOut className="w-3.5 h-3.5 flex-shrink-0" />
+            <LogOut className="w-4 h-4 flex-shrink-0" />
             {t('sign_out')}
           </button>
         </div>

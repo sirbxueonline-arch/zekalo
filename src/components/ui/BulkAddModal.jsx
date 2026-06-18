@@ -154,38 +154,38 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
           {/* Summary row */}
           <div className="flex items-center justify-center gap-10 py-4">
             <div className="text-center">
-              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-teal-light mx-auto mb-2">
-                <CheckCircle className="w-7 h-7 text-teal" />
+              <div className="flex items-center justify-center w-14 h-14 rounded-tile bg-mint-light mx-auto mb-2">
+                <CheckCircle className="w-7 h-7 text-mint-dark" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{results.done}</p>
-              <p className="text-xs text-gray-500">uğurlu</p>
+              <p className="font-display text-3xl font-bold text-ink-900 tabular-nums tracking-tight">{results.done}</p>
+              <p className="text-xs text-ink-400 mt-0.5">uğurlu</p>
             </div>
             {results.failed > 0 && (
               <div className="text-center">
-                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-red-50 mx-auto mb-2">
-                  <XCircle className="w-7 h-7 text-red-500" />
+                <div className="flex items-center justify-center w-14 h-14 rounded-tile bg-danger-tint mx-auto mb-2">
+                  <XCircle className="w-7 h-7 text-danger" />
                 </div>
-                <p className="text-2xl font-bold text-gray-900">{results.failed}</p>
-                <p className="text-xs text-gray-500">xəta</p>
+                <p className="font-display text-3xl font-bold text-ink-900 tabular-nums tracking-tight">{results.failed}</p>
+                <p className="text-xs text-ink-400 mt-0.5">xəta</p>
               </div>
             )}
           </div>
 
           {/* Per-row errors */}
           {results.errors?.length > 0 && (
-            <div className="border border-red-100 rounded-lg overflow-hidden">
-              <div className="bg-red-50 px-4 py-2 border-b border-red-100">
-                <p className="text-xs font-semibold text-red-700">Xətalı sətirlərin təfərrüatı</p>
+            <div className="border border-danger-tint rounded-tile overflow-hidden">
+              <div className="bg-danger-tint/60 px-4 py-2.5 border-b border-danger-tint">
+                <p className="text-xs font-semibold text-danger-text">Xətalı sətirlərin təfərrüatı</p>
               </div>
-              <ul className="divide-y divide-red-50 max-h-48 overflow-y-auto">
+              <ul className="divide-y divide-hairline max-h-48 overflow-y-auto">
                 {results.errors.map((e, i) => (
                   <li key={i} className="flex items-start gap-3 px-4 py-2.5">
-                    <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                    <XCircle className="w-4 h-4 text-danger flex-shrink-0 mt-0.5" />
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-gray-800 truncate">
+                      <p className="text-xs font-semibold text-ink-900 truncate">
                         {e.row.full_name || e.row.email || `Sətir ${i + 1}`}
                       </p>
-                      <p className="text-xs text-red-600 mt-0.5">{e.msg}</p>
+                      <p className="text-xs text-danger-text mt-0.5">{e.msg}</p>
                     </div>
                   </li>
                 ))}
@@ -193,7 +193,7 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-1">
+          <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
             <Button variant="ghost" onClick={() => { reset(); }}>Yenidən əlavə et</Button>
             <Button onClick={handleClose}>Bağla</Button>
           </div>
@@ -204,16 +204,16 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
       {importing && (
         <div className="py-10 space-y-4">
           <div className="flex items-center justify-center gap-3">
-            <Loader2 className="w-5 h-5 animate-spin text-purple" />
-            <span className="text-sm text-gray-700">İdxal edilir... {progress} / {validRows.length}</span>
+            <Loader2 className="w-5 h-5 animate-spin text-brand-500" />
+            <span className="text-sm font-medium text-ink-700 tabular-nums">İdxal edilir... {progress} / {validRows.length}</span>
           </div>
-          <div className="w-full bg-border-soft rounded-full h-2">
+          <div className="w-full bg-hairline rounded-pill h-2 overflow-hidden">
             <div
-              className="bg-purple h-2 rounded-full transition-all duration-300"
+              className="bg-brand-500 h-2 rounded-pill transition-all duration-300"
               style={{ width: `${Math.round((progress / validRows.length) * 100)}%` }}
             />
           </div>
-          <p className="text-xs text-center text-gray-400">{progress} / {validRows.length} idxal edildi...</p>
+          <p className="text-xs text-center text-ink-400 tabular-nums">{progress} / {validRows.length} idxal edildi...</p>
         </div>
       )}
 
@@ -236,21 +236,22 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
             <Button variant="ghost" onClick={downloadTemplate}>
               Şablon endir
             </Button>
-            <span className="text-xs text-gray-400 ml-auto">
+            <span className="inline-flex items-center gap-1.5 text-xs text-ink-400 ml-auto">
+              <ClipboardPaste className="w-3.5 h-3.5 text-ink-400" />
               Xanaların üzərinə tablar/vergüllə ayrılmış mətn yapışdıra bilərsiniz
             </span>
           </div>
 
           {/* Spreadsheet table */}
-          <div className="overflow-x-auto border border-border-soft rounded-lg">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto border border-hairline rounded-tile">
+            <table className="w-full text-[13px]">
               <thead>
-                <tr className="bg-surface border-b border-border-soft">
-                  <th className="w-8 px-3 py-2 text-left text-xs text-gray-400">#</th>
+                <tr className="bg-surface-2 border-b border-hairline">
+                  <th className="w-8 px-3 py-2.5 text-left text-xs font-medium text-ink-400 select-none">#</th>
                   {columns.map(col => (
-                    <th key={col.key} className="px-3 py-2 text-left text-xs font-medium text-gray-600 whitespace-nowrap">
+                    <th key={col.key} className="px-3 py-2.5 text-left text-xs font-medium text-ink-400 whitespace-nowrap">
                       {col.label}
-                      {col.required && <span className="text-red-400 ml-0.5">*</span>}
+                      {col.required && <span className="text-danger ml-0.5">*</span>}
                     </th>
                   ))}
                   <th className="w-8" />
@@ -258,15 +259,15 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
               </thead>
               <tbody>
                 {rows.map((row, ri) => (
-                  <tr key={ri} className="border-b border-border-soft last:border-0 hover:bg-surface/50">
-                    <td className="px-3 py-1.5 text-xs text-gray-400 select-none">{ri + 1}</td>
+                  <tr key={ri} className="border-b border-hairline last:border-0 transition-colors hover:bg-[rgba(20,22,40,0.025)]">
+                    <td className="px-3 py-1.5 text-xs text-ink-400 select-none tabular-nums">{ri + 1}</td>
                     {columns.map((col, ci) => (
                       <td key={col.key} className="px-1 py-1">
                         {col.type === 'select' ? (
                           <select
                             value={row[col.key]}
                             onChange={e => updateCell(ri, col.key, e.target.value)}
-                            className="w-full border border-border-soft rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-purple bg-white"
+                            className="w-full border border-hairline rounded-ctl px-2 py-1.5 text-[13px] text-ink-900 bg-white transition-shadow focus:outline-none focus:border-brand-500 focus:ring-[3px] focus:ring-brand-500/15"
                           >
                             <option value="">—</option>
                             {(col.options || []).map(opt => (
@@ -280,7 +281,7 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
                             placeholder={col.placeholder || col.label}
                             onChange={e => updateCell(ri, col.key, e.target.value)}
                             onPaste={e => handlePaste(e, ri, ci)}
-                            className="w-full border border-border-soft rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-purple min-w-[120px]"
+                            className="w-full border border-hairline rounded-ctl px-2 py-1.5 text-[13px] text-ink-900 placeholder:text-ink-400 transition-shadow focus:outline-none focus:border-brand-500 focus:ring-[3px] focus:ring-brand-500/15 min-w-[120px]"
                           />
                         )}
                       </td>
@@ -288,7 +289,7 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
                     <td className="px-1 py-1">
                       <button
                         onClick={() => removeRow(ri)}
-                        className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                        className="p-1.5 rounded-ctl text-ink-400 hover:text-danger hover:bg-danger-tint/60 transition-colors"
                         aria-label="Sil"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -303,18 +304,18 @@ export default function BulkAddModal({ open, onClose, title, columns, onImport, 
           {/* Add row */}
           <button
             onClick={addRow}
-            className="flex items-center gap-2 text-sm text-purple hover:text-purple-dark transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-500 hover:text-brand-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Sətir əlavə et
           </button>
 
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-ink-400 tabular-nums">
             {validRows.length} / {rows.length} sətir hazırdır
             {validRows.length < rows.length && ' · Boş məcburi xanalar nəzərə alınmayacaq'}
           </p>
 
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
             <Button variant="ghost" onClick={handleClose}>Ləğv et</Button>
             <Button
               onClick={handleImport}

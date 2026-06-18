@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Plus, Edit2, Trash2, Search, UserPlus, GraduationCap } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Plus, Edit2, Trash2, Search, UserPlus, GraduationCap, MoreHorizontal, Filter, Download } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -11,7 +11,6 @@ import Table from '../../components/ui/Table'
 import { TableRowSkeleton } from '../../components/ui/Skeleton'
 import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
-import Badge from '../../components/ui/Badge'
 import BulkAddModal from '../../components/ui/BulkAddModal'
 
 export default function Teachers() {
@@ -28,6 +27,36 @@ export default function Teachers() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [form, setForm] = useState({ full_name: '', email: '', password: '', subject_ids: [], class_ids: [] })
+  const [classFilter, setClassFilter] = useState('')
+  // Row kebab menu: { row, x, y } anchored to the button rect so the overlay
+  // escapes the table wrapper's overflow clipping (fixed-position).
+  const [menu, setMenu] = useState(null)
+  const menuRef = useRef(null)
+
+  function openRowMenu(e, row) {
+    e.stopPropagation()
+    if (menu?.row?.id === row.id) { setMenu(null); return }
+    const r = e.currentTarget.getBoundingClientRect()
+    setMenu({ row, x: r.right, y: r.bottom + 6 })
+  }
+
+  // Close the row kebab menu on outside click, scroll, or Escape.
+  useEffect(() => {
+    if (!menu) return
+    function onDocClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenu(null)
+    }
+    function onKey(e) { if (e.key === 'Escape') setMenu(null) }
+    function onScroll() { setMenu(null) }
+    document.addEventListener('mousedown', onDocClick)
+    document.addEventListener('keydown', onKey)
+    window.addEventListener('scroll', onScroll, true)
+    return () => {
+      document.removeEventListener('mousedown', onDocClick)
+      document.removeEventListener('keydown', onKey)
+      window.removeEventListener('scroll', onScroll, true)
+    }
+  }, [menu])
 
   useEffect(() => {
     if (profile?.school_id) fetchData()
@@ -207,102 +236,167 @@ export default function Teachers() {
     { key: 'password', label: 'Şifrə', placeholder: 'Zirva2025!' },
   ]
 
-  const filtered = teachers.filter(tc =>
-    tc.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-    tc.email?.toLowerCase().includes(search.toLowerCase())
+  const filtered = teachers.filter(tc => {
+    const matchesSearch =
+      tc.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+      tc.email?.toLowerCase().includes(search.toLowerCase())
+    const matchesClass =
+      !classFilter ||
+      (tc.teacher_classes || []).some(e => e.class?.id === classFilter)
+    return matchesSearch && matchesClass
+  })
+
+  // Export the current (filtered) roster to CSV — quiet admin-trust affordance.
+  function exportCsv() {
+    const head = [t('full_name'), t('email'), t('subject'), t('classes')]
+    const escape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
+    const lines = filtered.map(tc => [
+      tc.full_name,
+      tc.email,
+      getUniqueSubjects(tc.teacher_classes).map(s => s.name).join('; '),
+      getUniqueClasses(tc.teacher_classes).map(c => c.name).join('; '),
+    ].map(escape).join(','))
+    const csv = [head.map(escape).join(','), ...lines].join('\n')
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'muellimler.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // Quiet categorical chip (rounded-chip, neutral grey) — NOT a status pill.
+  // Subjects/classes are tags, not meaning-bearing status, so they stay muted.
+  const QuietChip = ({ children }) => (
+    <span className="inline-flex items-center rounded-chip bg-canvas border border-hairline text-ink-700 px-2 py-0.5 text-xs leading-tight whitespace-nowrap">
+      {children}
+    </span>
   )
+
+  // Quiet chip list with a "+N" overflow so rows stay one line dense.
+  const ChipList = ({ items }) => {
+    if (!items || items.length === 0) return <span className="text-ink-400">—</span>
+    const shown = items.slice(0, 2)
+    const extra = items.length - shown.length
+    return (
+      <div className="flex items-center gap-1">
+        {shown.map(it => <QuietChip key={it.id}>{it.name}</QuietChip>)}
+        {extra > 0 && <span className="text-xs text-ink-400 tabular-nums">+{extra}</span>}
+      </div>
+    )
+  }
 
   const columns = [
     {
       key: 'full_name',
       label: t('full_name'),
       sortable: true,
-      render: (val) => (
-        <div className="flex items-center gap-3">
-          <Avatar name={val} size="sm" />
-          <span className="font-medium text-gray-900">{val}</span>
+      render: (val, row) => (
+        <div className="flex items-center gap-2.5">
+          <Avatar name={val} size={28} ring={false} />
+          <div className="min-w-0">
+            <p className="font-semibold text-ink-900 truncate leading-tight">{val}</p>
+            <p className="text-xs text-ink-400 truncate mt-0.5">{row.email}</p>
+          </div>
         </div>
       ),
     },
-    { key: 'email', label: t('email') },
+    {
+      key: 'email',
+      label: t('email'),
+      render: () => null,
+    },
     {
       key: 'teacher_classes',
       label: t('subject'),
-      render: (val) => {
-        const unique = getUniqueSubjects(val)
-        return unique.length > 0
-          ? <div className="flex flex-wrap gap-1">{unique.map(s => <Badge key={s.id} variant="default">{s.name}</Badge>)}</div>
-          : <span className="text-gray-400">—</span>
-      },
+      render: (val) => <ChipList items={getUniqueSubjects(val)} />,
     },
     {
       key: 'teacher_classes',
       label: t('classes'),
-      render: (val) => {
-        const unique = getUniqueClasses(val)
-        return unique.length > 0
-          ? <div className="flex flex-wrap gap-1">{unique.map(c => <Badge key={c.id} variant="default">{c.name}</Badge>)}</div>
-          : <span className="text-gray-400">—</span>
+      render: (val) => <ChipList items={getUniqueClasses(val)} />,
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (_, row) => {
+        const assigned = (row.teacher_classes || []).length > 0
+        return (
+          <span className="inline-flex items-center gap-2 text-xs text-ink-600 whitespace-nowrap">
+            <span
+              aria-hidden="true"
+              className="inline-block rounded-full"
+              style={{ width: 6, height: 6, background: assigned ? 'var(--mint)' : 'var(--ink-400)' }}
+            />
+            {assigned ? 'Təyin edilib' : 'Təyin edilməyib'}
+          </span>
+        )
       },
     },
     {
       key: 'actions',
       label: '',
+      align: 'right',
       render: (_, row) => (
-        <div className="flex items-center gap-2">
-          <button onClick={(e) => { e.stopPropagation(); openEditModal(row) }} className="p-1.5 text-gray-400 hover:text-purple transition-colors" aria-label="Redaktə et">
-            <Edit2 className="w-4 h-4" />
-          </button>
-          <button onClick={(e) => { e.stopPropagation(); setDeleteModal(row) }} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" aria-label="Sil">
-            <Trash2 className="w-4 h-4" />
+        <div className="inline-flex justify-end">
+          <button
+            onClick={(e) => openRowMenu(e, row)}
+            className={`p-1.5 rounded-ctl transition-colors hover:text-ink-700 hover:bg-canvas ${menu?.row?.id === row.id ? 'text-ink-700 bg-canvas' : 'text-ink-400'}`}
+            aria-label="Əməliyyatlar"
+            aria-haspopup="menu"
+            aria-expanded={menu?.row?.id === row.id}
+          >
+            <MoreHorizontal className="w-4 h-4" />
           </button>
         </div>
       ),
     },
   ]
 
+  // Multi-select component for modal forms — LOW dial: clean token styling, no glass
   const MultiSelect = ({ label, options, selected, onToggle }) => (
     <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
-      <div className="border border-border-soft rounded-md p-3 max-h-40 overflow-y-auto space-y-2">
+      <label className="block text-xs font-semibold text-ink-700 uppercase tracking-wide mb-1.5">{label}</label>
+      <div className="border border-hairline rounded-input p-3 max-h-40 overflow-y-auto space-y-1.5 bg-surface">
         {options.map(opt => (
-          <label key={opt.id} className="flex items-center gap-2 cursor-pointer">
+          <label key={opt.id} className="flex items-center gap-2.5 cursor-pointer rounded-md px-1.5 py-1 hover:bg-brand-50 transition-colors">
             <input
               type="checkbox"
               checked={selected.includes(opt.id)}
               onChange={() => onToggle(opt.id)}
-              className="rounded border-border-soft text-purple focus:ring-purple"
+              className="rounded border-hairline text-brand-500 focus:ring-brand-500 focus:ring-offset-0"
             />
-            <span className="text-sm">{opt.name}</span>
+            <span className="text-sm text-ink-700">{opt.name}</span>
           </label>
         ))}
-        {options.length === 0 && <p className="text-xs text-gray-400">{t('no_data')}</p>}
+        {options.length === 0 && <p className="text-xs text-ink-400 py-1">{t('no_data')}</p>}
       </div>
     </div>
   )
 
   if (loading) return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="h-9 w-48 bg-gray-200 rounded-lg animate-pulse" />
-        <div className="flex gap-3">
-          <div className="h-9 w-28 bg-gray-200 rounded-lg animate-pulse" />
-          <div className="h-9 w-32 bg-gray-200 rounded-lg animate-pulse" />
+        <div className="pastel-skeleton h-8 w-48 rounded-input" />
+        <div className="flex gap-2">
+          <div className="pastel-skeleton h-9 w-28 rounded-input" />
+          <div className="pastel-skeleton h-9 w-32 rounded-input" />
         </div>
       </div>
-      <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
-      <div className="bg-white rounded-2xl border border-border-soft overflow-hidden">
+      <div className="pastel-skeleton h-10 rounded-input" />
+      <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="bg-surface border-b border-border-soft">
-              {['Ad Soyad', 'E-poçt', 'Fənn', 'Siniflər', ''].map((h) => (
-                <th key={h} className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+            <tr className="border-b border-hairline bg-surface-2">
+              {[t('full_name'), t('email'), t('subject'), t('classes'), 'Status', ''].map((h, i) => (
+                <th key={i} className="text-left px-4 py-2.5 text-xs font-medium text-ink-400">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {Array.from({ length: 5 }).map((_, i) => (
-              <TableRowSkeleton key={i} cols={5} />
+              <TableRowSkeleton key={i} cols={6} />
             ))}
           </tbody>
         </table>
@@ -311,65 +405,88 @@ export default function Teachers() {
   )
 
   return (
-    <div className="space-y-6">
-      {/* Page header with gradient banner */}
-      <div className="liquid-card relative overflow-hidden" style={{ padding: 0 }}>
-        <div
-          aria-hidden="true"
-          className="section-blob"
-          style={{ top: '-40%', right: '-10%', width: '40%', height: '160%', background: 'radial-gradient(ellipse at center, rgba(93,184,163,0.32) 0%, transparent 65%)', opacity: 0.5 }}
-        />
-        <div className="relative px-7 py-6">
-          <div className="flex items-start justify-between flex-wrap gap-4">
+    <div className="space-y-5">
+      {/* Page header — LOW dial: flat surface card, hairline only, icon-chip, token pills */}
+      <div className="bg-surface rounded-tile border border-hairline px-6 py-5">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 44, height: 44 }}>
+              <GraduationCap className="w-5 h-5" />
+            </div>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('teachers')}</span></h1>
-              <p className="text-sm text-[#64748b] mt-1">{t('teachers')} idarəetməsi</p>
-              <div className="flex items-center gap-3 mt-3 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold backdrop-blur-md" style={{ background: 'rgba(255,255,255,0.6)', color: '#1a1a2e', border: '1px solid rgba(124,110,224,0.18)' }}>
-                  <GraduationCap className="w-3.5 h-3.5" style={{ color: '#7c6ee0' }} />
-                  Ümumi: {teachers.length}
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold backdrop-blur-md" style={{ background: 'rgba(93,184,163,0.14)', color: '#3a8170', border: '1px solid rgba(93,184,163,0.32)' }}>
-                  Nəticə: {filtered.length}
-                </span>
+              <h1 className="font-display text-2xl font-bold text-ink-900 leading-tight">{t('teachers')}</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="pill-muted">{teachers.length} ümumi</span>
+                {filtered.length !== teachers.length && (
+                  <span className="pill-peri">{filtered.length} nəticə</span>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <Button variant="ghost" onClick={() => setBulkModal(true)}>
-                <span className="flex items-center gap-2"><UserPlus className="w-4 h-4" /> Toplu əlavə</span>
-              </Button>
-              <Button onClick={() => { resetForm(); setAddModal(true) }}>
-                <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> {t('add_teacher')}</span>
-              </Button>
-            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button variant="ghost" size="sm" onClick={() => setBulkModal(true)}>
+              <span className="flex items-center gap-1.5"><UserPlus className="w-4 h-4" /> Toplu əlavə</span>
+            </Button>
+            <Button size="sm" onClick={() => { resetForm(); setAddModal(true) }}>
+              <span className="flex items-center gap-1.5"><Plus className="w-4 h-4" /> {t('add_teacher')}</span>
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Search bar */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: '#7c6ee0' }} />
-        <input
-          type="text"
-          placeholder={t('search')}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
-        />
+      {/* Calm toolbar — search left, class filter + CSV export right (admin LOW dial) */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder={t('search')}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pastel-input w-full pl-10"
+          />
+        </div>
+        <div className="relative inline-flex items-center">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
+          <select
+            value={classFilter}
+            onChange={(e) => setClassFilter(e.target.value)}
+            className="pastel-input pl-9 pr-8 appearance-none cursor-pointer"
+            aria-label={t('classes')}
+          >
+            <option value="">{t('classes')}</option>
+            {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </div>
+        <Button variant="ghost" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
+          <span className="flex items-center gap-1.5"><Download className="w-4 h-4" /> CSV</span>
+        </Button>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="rounded-input px-4 py-2.5 text-sm font-medium" style={{ background: '#FEE2E2', color: '#B91C1C', border: '1px solid #FECACA' }}>
+          {error}
+        </div>
+      )}
 
-      <Card hover={false} className="p-0 overflow-hidden">
+      <Card hover={false} className="p-0 overflow-hidden rounded-tile">
         {filtered.length === 0 ? (
-          <EmptyState
-            icon={Search}
-            title={t('no_data')}
-            description={t('add_teacher')}
-            actionLabel={t('add_teacher')}
-            onAction={() => { resetForm(); setAddModal(true) }}
-          />
+          (() => {
+            const hasFilter = !!search || !!classFilter
+            return (
+              <EmptyState
+                tier={1}
+                icon={GraduationCap}
+                title={hasFilter ? 'Nəticə tapılmadı' : t('no_data')}
+                description={hasFilter ? 'Axtarışı və ya filtri dəyişdirin.' : 'Yeni müəllim əlavə etmək üçün düyməni basın.'}
+                action={hasFilter
+                  ? <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setClassFilter('') }}>Filtri sıfırla</Button>
+                  : undefined}
+                actionLabel={hasFilter ? undefined : t('add_teacher')}
+                onAction={hasFilter ? undefined : () => { resetForm(); setAddModal(true) }}
+              />
+            )
+          })()
         ) : (
           <Table columns={columns} data={filtered} />
         )}
@@ -384,9 +501,11 @@ export default function Teachers() {
           <MultiSelect label={t('subject')} options={subjects} selected={form.subject_ids} onToggle={(id) => setForm({ ...form, subject_ids: toggleArrayItem(form.subject_ids, id) })} />
           <MultiSelect label={t('classes')} options={classes} selected={form.class_ids} onToggle={(id) => setForm({ ...form, class_ids: toggleArrayItem(form.class_ids, id) })} />
           {form.class_ids.length > 0 && form.subject_ids.length === 0 && (
-            <p className="text-xs text-amber-600 bg-amber-50 rounded px-3 py-2">Sinif seçmək üçün ən azı bir fənn də seçin.</p>
+            <p className="text-xs rounded-input px-3 py-2" style={{ background: '#FEF3C7', color: '#B45309' }}>Sinif seçmək üçün ən azı bir fənn də seçin.</p>
           )}
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
+          {error && (
+            <p className="text-sm rounded-input px-3 py-2" style={{ background: '#FEE2E2', color: '#B91C1C' }}>{error}</p>
+          )}
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleAdd} loading={saving} disabled={!form.full_name || !form.email || !form.password}>{t('add')}</Button>
@@ -402,9 +521,11 @@ export default function Teachers() {
           <MultiSelect label={t('subject')} options={subjects} selected={form.subject_ids} onToggle={(id) => setForm({ ...form, subject_ids: toggleArrayItem(form.subject_ids, id) })} />
           <MultiSelect label={t('classes')} options={classes} selected={form.class_ids} onToggle={(id) => setForm({ ...form, class_ids: toggleArrayItem(form.class_ids, id) })} />
           {form.class_ids.length > 0 && form.subject_ids.length === 0 && (
-            <p className="text-xs text-amber-600 bg-amber-50 rounded px-3 py-2">Sinif seçmək üçün ən azı bir fənn də seçin.</p>
+            <p className="text-xs rounded-input px-3 py-2" style={{ background: '#FEF3C7', color: '#B45309' }}>Sinif seçmək üçün ən azı bir fənn də seçin.</p>
           )}
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
+          {error && (
+            <p className="text-sm rounded-input px-3 py-2" style={{ background: '#FEE2E2', color: '#B91C1C' }}>{error}</p>
+          )}
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="ghost" onClick={() => { setEditModal(null); resetForm(); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleEdit} loading={saving} disabled={!form.full_name || !form.email}>{t('save')}</Button>
@@ -414,14 +535,40 @@ export default function Teachers() {
 
       {/* Delete Confirmation */}
       <Modal open={!!deleteModal} onClose={() => setDeleteModal(null)} title={t('delete')} size="sm">
-        <p className="text-sm text-gray-600 mb-6">
-          <strong>{deleteModal?.full_name}</strong> adlı müəllimi silmək istədiyinizə əminsiniz?
+        <p className="text-sm text-ink-600 mb-6">
+          <strong className="text-ink-900">{deleteModal?.full_name}</strong> adlı müəllimi silmək istədiyinizə əminsiniz?
         </p>
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setDeleteModal(null)}>{t('cancel')}</Button>
           <Button variant="danger" onClick={handleDelete} loading={saving}>{t('delete')}</Button>
         </div>
       </Modal>
+
+      {/* Row kebab menu — fixed overlay so it escapes the table wrapper clipping */}
+      {menu && (
+        <div
+          ref={menuRef}
+          role="menu"
+          className="fixed z-50 w-44 bg-surface rounded-tile border border-hairline shadow-pop py-1 text-left"
+          style={{ top: menu.y, left: menu.x, transform: 'translateX(-100%)' }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            role="menuitem"
+            onClick={() => { openEditModal(menu.row); setMenu(null) }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-ink-700 hover:bg-canvas transition-colors"
+          >
+            <Edit2 className="w-4 h-4 text-ink-400" /> {t('edit')}
+          </button>
+          <button
+            role="menuitem"
+            onClick={() => { setDeleteModal(menu.row); setMenu(null) }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-danger hover:bg-red-50 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" /> {t('delete')}
+          </button>
+        </div>
+      )}
 
       {/* Bulk Add Modal */}
       <BulkAddModal

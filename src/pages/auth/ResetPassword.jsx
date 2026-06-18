@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useLang } from '../../contexts/LanguageContext'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Lock, Eye, EyeOff, CheckCircle2 } from 'lucide-react'
 
 export default function ResetPassword() {
   const { t } = useLang()
@@ -10,6 +10,8 @@ export default function ResetPassword() {
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPwd, setShowPwd] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
@@ -26,6 +28,14 @@ export default function ResetPassword() {
 
   const matchError = confirm && password !== confirm ? t('passwords_dont_match') : ''
 
+  /* Password strength indicator */
+  const strength = password.length === 0 ? 0
+    : password.length < 6 ? 1
+    : password.length < 10 ? 2
+    : 3
+  const strengthColors = ['', '#EF4444', '#EAB308', '#1FA855']
+  const strengthLabels = ['', 'Zəif', 'Orta', 'Güclü']
+
   return (
     <div
       style={{
@@ -33,9 +43,7 @@ export default function ResetPassword() {
         position: 'relative',
         overflow: 'hidden',
         fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif',
-        background: 'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)',
-        backgroundSize: '400% 400%',
-        animation: 'heroGradient 12s ease infinite',
+        background: 'var(--canvas)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -44,112 +52,169 @@ export default function ResetPassword() {
       }}
     >
       <style>{`
-        @keyframes heroGradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        @keyframes authFadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes authFadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
         @keyframes spin { to{transform:rotate(360deg)} }
-        .auth-card-anim { animation: authFadeUp .55s cubic-bezier(.22,1,.36,1) both; position: relative; z-index: 5; }
-        .auth-input {
-          width: 100%;
-          padding: 12px 16px;
-          border-radius: 12px;
-          background: rgba(255,255,255,0.6);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(124,110,224,0.25);
-          color: #1a1a2e;
-          font-size: 14px;
-          font-weight: 500;
-          outline: none;
-          transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
-          font-family: inherit;
-          box-sizing: border-box;
+        @keyframes strengthGrow { from{width:0} to{width:100%} }
+        .auth-card-anim { animation: authFadeUp .5s cubic-bezier(.22,1,.36,1) both; position: relative; z-index: 5; }
+        .auth-field-label {
+          display:block; font-size:12px; font-weight:600; color:var(--ink-700);
+          letter-spacing:.04em; text-transform:uppercase; margin-bottom:6px;
         }
-        .auth-input:focus {
-          border-color: rgba(124,110,224,0.5);
-          box-shadow: 0 0 0 4px rgba(124,110,224,0.12);
-          background: rgba(255,255,255,0.78);
+        .auth-input-wrap { position:relative; }
+        .auth-input-icon {
+          position:absolute; left:13px; top:50%; transform:translateY(-50%);
+          color:var(--ink-400); pointer-events:none; display:flex;
         }
-        .auth-input::placeholder { color: #94a3b8; }
-        .auth-input.error { border-color: rgba(239,68,68,0.5); }
-        .auth-label { display:block; font-size:12px; font-weight:700; color:#64748b; letterSpacing:'0.04em'; text-transform: uppercase; margin-bottom: 7px; }
-        .auth-link { color: #7c6ee0; text-decoration: none; font-weight: 600; transition: color .15s; }
-        .auth-link:hover { color: #5b4fcf; }
-        .auth-link-muted { color: #64748b; text-decoration: none; font-size: 13px; font-weight: 600; transition: color .15s; }
-        .auth-link-muted:hover { color: #1a1a2e; }
-        .btn-pastel-full { width: 100%; justify-content: center; padding: 14px 22px; font-size: 14.5px; }
-        .btn-pastel-full:disabled { opacity: 0.7; cursor: not-allowed; }
-        .field-error { margin-top: 6px; font-size: 12px; color: #dc2626; }
+        .auth-input-toggle {
+          position:absolute; right:13px; top:50%; transform:translateY(-50%);
+          background:none; border:none; cursor:pointer; color:var(--ink-400);
+          padding:0; display:flex; transition:color .15s;
+        }
+        .auth-input-toggle:hover { color:var(--ink-900); }
+        .rp-input {
+          width:100%; padding:11px 40px; border-radius:10px;
+          background:var(--surface); border:1px solid var(--hairline-strong);
+          color:var(--ink-900); font-size:14px; font-weight:500;
+          outline:none; box-sizing:border-box; font-family:inherit;
+          transition: border-color .2s ease, box-shadow .2s ease;
+        }
+        .rp-input:focus {
+          border-color:var(--brand-500);
+          box-shadow: 0 0 0 3px rgba(87,79,207,0.15);
+        }
+        .rp-input.has-error { border-color: var(--danger); }
+        .rp-input.has-error:focus { box-shadow: 0 0 0 3px rgba(239,68,68,0.15); }
+        .rp-input::placeholder { color:var(--ink-400); }
+        .auth-link {
+          color:var(--brand-500); text-decoration:none; font-weight:600; transition:color .15s;
+        }
+        .auth-link:hover { color:var(--brand-600); }
+        .auth-link-muted {
+          color:var(--ink-600); text-decoration:none; font-size:13px; font-weight:600; transition:color .15s;
+        }
+        .auth-link-muted:hover { color:var(--ink-900); }
+        @media (prefers-reduced-motion: reduce) {
+          .auth-card-anim { animation:none; }
+        }
       `}</style>
 
+      {/* Single calm hero wash */}
       <div className="hb1" />
-      <div className="hb2" />
-      <div className="hb4" />
-      <div className="hb6" />
 
+      {/* Back to home */}
       <div style={{ position: 'fixed', top: 24, left: 28, zIndex: 20 }}>
         <Link to="/" className="auth-link-muted" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <ArrowLeft style={{ width: 14, height: 14 }} /> Zirva
         </Link>
       </div>
 
+      {/* Card */}
       <div
         className="auth-card-anim liquid-card"
-        style={{ width: '100%', maxWidth: 420, padding: '40px 36px' }}
+        style={{ width: '100%', maxWidth: 420, padding: '40px 36px', borderRadius: 16 }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 26 }}>
-          <img src="/logo.png" alt="Zirva" style={{ height: 30 }} />
-          <span style={{ fontWeight: 800, fontSize: 20, color: '#1a1a2e', letterSpacing: '-0.01em' }}>Zirva</span>
+        {/* Logo row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 22 }}>
+          <span className="font-display" style={{ fontWeight: 800, fontSize: 21, color: 'var(--ink-900)', letterSpacing: '-0.02em' }}>Zirva</span>
         </div>
 
-        <h1 style={{ fontSize: 'clamp(1.6rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 8, textAlign: 'center', color: '#1a1a2e', lineHeight: 1.15 }}>
-          <span className="pastel-text">{t('new_password_set')}</span>
-        </h1>
-        <p style={{ color: '#64748b', fontSize: 14, textAlign: 'center', marginBottom: 26 }}>
-          {t('new_password_subtitle')}
-        </p>
+        {/* Lock glyph + heading */}
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 14, margin: '0 auto 16px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'var(--brand-50)', color: 'var(--brand-500)',
+          }}>
+            <Lock style={{ width: 24, height: 24 }} />
+          </div>
+          <h1 className="font-display" style={{ fontSize: 'clamp(1.4rem,3vw,1.65rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6, color: 'var(--ink-900)', lineHeight: 1.18 }}>
+            {t('new_password_set')}
+          </h1>
+          <p style={{ color: 'var(--ink-600)', fontSize: 14, lineHeight: 1.55, margin: 0 }}>
+            {t('new_password_subtitle')}
+          </p>
+        </div>
 
+        {/* Error banner */}
         {error && (
-          <div style={{ background: 'rgba(239,68,68,0.1)', borderRadius: 12, padding: '12px 16px', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>
+          <div style={{
+            background: '#FEE2E2', border: '1px solid rgba(239,68,68,0.25)',
+            borderRadius: 10, padding: '12px 16px', color: '#B91C1C',
+            fontSize: 13, marginBottom: 16, lineHeight: 1.5,
+          }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* New password */}
           <div>
-            <label className="auth-label">{t('new_password')}</label>
-            <input
-              required
-              type="password"
-              className="auth-input"
-              autoComplete="new-password"
-              placeholder={t('new_password_placeholder')}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-            />
+            <label className="auth-field-label">{t('new_password')}</label>
+            <div className="auth-input-wrap">
+              <span className="auth-input-icon"><Lock style={{ width: 15, height: 15 }} /></span>
+              <input
+                required
+                type={showPwd ? 'text' : 'password'}
+                className="rp-input"
+                autoComplete="new-password"
+                placeholder={t('new_password_placeholder')}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+              <button type="button" className="auth-input-toggle" onClick={() => setShowPwd(v => !v)} tabIndex={-1}>
+                {showPwd ? <EyeOff style={{ width: 15, height: 15 }} /> : <Eye style={{ width: 15, height: 15 }} />}
+              </button>
+            </div>
+            {/* Strength bar */}
+            {password.length > 0 && (
+              <div style={{ marginTop: 7, display: 'flex', gap: 6, alignItems: 'center' }}>
+                {[1, 2, 3].map(i => (
+                  <div key={i} style={{
+                    flex: 1, height: 4, borderRadius: 999,
+                    background: i <= strength ? strengthColors[strength] : 'var(--hairline-strong)',
+                    transition: 'background .25s ease',
+                  }} />
+                ))}
+                <span style={{ fontSize: 11, fontWeight: 600, color: strengthColors[strength] || 'var(--ink-400)', whiteSpace: 'nowrap', minWidth: 32, textAlign: 'right' }}>
+                  {strengthLabels[strength]}
+                </span>
+              </div>
+            )}
           </div>
+
+          {/* Confirm password */}
           <div>
-            <label className="auth-label">{t('confirm_password')}</label>
-            <input
-              required
-              type="password"
-              className={`auth-input ${matchError ? 'error' : ''}`}
-              autoComplete="new-password"
-              placeholder={t('confirm_password_placeholder')}
-              value={confirm}
-              onChange={e => setConfirm(e.target.value)}
-            />
-            {matchError && <p className="field-error">{matchError}</p>}
+            <label className="auth-field-label">{t('confirm_password')}</label>
+            <div className="auth-input-wrap">
+              <span className="auth-input-icon"><Lock style={{ width: 15, height: 15 }} /></span>
+              <input
+                required
+                type={showConfirm ? 'text' : 'password'}
+                className={`rp-input${matchError ? ' has-error' : ''}`}
+                autoComplete="new-password"
+                placeholder={t('confirm_password_placeholder')}
+                value={confirm}
+                onChange={e => setConfirm(e.target.value)}
+              />
+              <button type="button" className="auth-input-toggle" onClick={() => setShowConfirm(v => !v)} tabIndex={-1}>
+                {showConfirm ? <EyeOff style={{ width: 15, height: 15 }} /> : <Eye style={{ width: 15, height: 15 }} />}
+              </button>
+            </div>
+            {matchError && (
+              <p style={{ marginTop: 5, fontSize: 12, color: 'var(--danger)', fontWeight: 500 }}>{matchError}</p>
+            )}
+            {confirm && !matchError && (
+              <p style={{ marginTop: 5, fontSize: 12, color: 'var(--success)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <CheckCircle2 style={{ width: 12, height: 12 }} /> Şifrələr uyğundur
+              </p>
+            )}
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="btn-pastel btn-pastel-full"
-            style={{ marginTop: 4 }}
+            className="btn-pastel"
+            style={{ marginTop: 4, width: '100%', justifyContent: 'center', fontSize: 14.5, padding: '13px 24px' }}
           >
             {loading ? <><SpinIcon /> {t('loading') || '...'}</> : t('update_password_btn')}
           </button>
@@ -162,13 +227,8 @@ export default function ResetPassword() {
 function SpinIcon() {
   return (
     <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
+      width="14" height="14" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
       style={{ animation: 'spin .8s linear infinite', flexShrink: 0 }}
     >
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />

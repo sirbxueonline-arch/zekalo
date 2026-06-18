@@ -3,19 +3,24 @@ import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { GradeBadge } from '../../components/ui/Badge'
 import { BarChart3, AlertTriangle } from 'lucide-react'
+import EmptyState from '../../components/ui/EmptyState'
 
 const months = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyn', 'Iyl', 'Avq', 'Sen', 'Okt', 'Noy', 'Dek']
 
-// Pastel chart palette
-const PASTEL = {
-  periwinkle: '#7c6ee0',
-  mint:       '#5db8a3',
-  peach:      '#e8a87c',
-  blue:       '#6b9dde',
-  rose:       '#e56b7f',
-  amber:      '#f0b870',
-  green:      '#5db8a3',
+// Design-system chart palette (§10) — V3: brand carries the chrome; the rest are
+// reserved for meaning-bearing status (low→high grade, attendance bands) only.
+const CHART = {
+  brand:  '#574FCF', // brand-500
+  mint:   '#1FA855', // success / "good"
+  amber:  '#EAB308', // warning
+  sky:    '#3BA8E6', // info
+  coral:  '#F4677E', // danger warmth
+  grape:  '#7C5CE0', // achievements
 }
+
+// Grade bucket colours: a muted danger → warning → brand → success diverging scale
+// (meaning-bearing: low score → high score). Mid bucket anchors on the brand accent.
+const BUCKET_COLORS = [CHART.coral, '#E8924A', CHART.amber, CHART.brand, CHART.mint]
 
 export default function TeacherAnalytics() {
   const { profile, t } = useAuth()
@@ -128,8 +133,7 @@ export default function TeacherAnalytics() {
   }
 
   const maxBucket = Math.max(...gradeDistribution.flatMap(d => d.buckets), 1)
-  const bucketLabels = ['0-2', '2-4', '4-6', '6-8', '8-10']
-  const barColors = [PASTEL.rose, PASTEL.peach, PASTEL.amber, PASTEL.periwinkle, PASTEL.mint]
+  const bucketLabels = ['0–2', '2–4', '4–6', '6–8', '8–10']
 
   const lineW = 600
   const lineH = 200
@@ -144,11 +148,20 @@ export default function TeacherAnalytics() {
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
-          <span className="pastel-text">{t('analytics')}</span>
-        </h1>
+        <div className="flex items-center gap-3">
+          <div className="icon-chip icon-chip-periwinkle">
+            <BarChart3 className="w-5 h-5" />
+          </div>
+          <h1 className="font-display font-bold text-[26px] text-ink-900 tracking-[-0.01em]">
+            {t('analytics')}
+          </h1>
+        </div>
         <div className="w-56">
-          <select className="pastel-input" value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
+          <select
+            className="pastel-input"
+            value={selectedClass}
+            onChange={e => setSelectedClass(e.target.value)}
+          >
             {teacherClasses.length === 0 && <option>—</option>}
             {teacherClasses.map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
@@ -160,12 +173,15 @@ export default function TeacherAnalytics() {
       {/* At-risk students */}
       {atRiskStudents.length > 0 && (
         <div className="liquid-card overflow-hidden">
-          <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: 'rgba(124,110,224,0.12)' }}>
+          <div
+            className="flex items-center gap-2 px-5 py-4"
+            style={{ borderBottom: '1px solid var(--hairline)' }}
+          >
             <span className="icon-chip icon-chip-peach" style={{ width: 32, height: 32, borderRadius: 10 }}>
               <AlertTriangle className="w-4 h-4" />
             </span>
-            <h2 className="font-semibold text-sm" style={{ color: '#1a1a2e' }}>{t('at_risk')}</h2>
-            <span className="pastel-badge pastel-badge-rose ml-1">{atRiskStudents.length}</span>
+            <h2 className="font-semibold text-sm text-ink-900">{t('at_risk')}</h2>
+            <span className="pill-rose ml-1">{atRiskStudents.length}</span>
           </div>
           <div className="overflow-x-auto">
             <table className="pastel-table">
@@ -180,11 +196,14 @@ export default function TeacherAnalytics() {
               <tbody>
                 {atRiskStudents.map((s, i) => (
                   <tr key={i}>
-                    <td style={{ fontWeight: 600 }}>{s.full_name}</td>
-                    <td>{s.class_name}</td>
+                    <td className="font-semibold text-ink-900">{s.full_name}</td>
+                    <td className="text-ink-600">{s.class_name}</td>
                     <td><GradeBadge score={Math.round(s.avg_grade * 10) / 10} /></td>
                     <td>
-                      <span style={{ color: s.attendance_pct < 80 ? '#b83b54' : '#475569', fontWeight: 600 }}>
+                      <span
+                        className="tabular-nums font-semibold"
+                        style={{ color: s.attendance_pct < 80 ? '#B91C1C' : 'var(--ink-600)' }}
+                      >
                         {s.attendance_pct}%
                       </span>
                     </td>
@@ -196,32 +215,74 @@ export default function TeacherAnalytics() {
         </div>
       )}
 
-      {/* Grade distribution */}
+      {/* Grade distribution per subject */}
       {gradeDistribution.length > 0 && (
         <div className="liquid-card p-6">
-          <h2 className="text-xs tracking-widest uppercase mb-5 font-semibold" style={{ color: '#64748b' }}>{t('grades')}</h2>
-          <div className="space-y-6">
+          <h2 className="text-[13px] tracking-[0.04em] uppercase font-semibold text-ink-400 mb-5">
+            {t('grades')}
+          </h2>
+          <div className="space-y-7">
             {gradeDistribution.map(subject => (
               <div key={subject.name}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>{subject.name}</span>
-                  <span className="text-xs" style={{ color: '#64748b' }}>
-                    Orta: <span style={{ color: '#7c6ee0', fontWeight: 600 }}>{String(subject.avg).replace('.', ',')}</span>
+                  <span className="text-sm font-semibold text-ink-900">{subject.name}</span>
+                  <span className="text-xs text-ink-400 tabular-nums">
+                    Orta:{' '}
+                    <span className="text-brand-500 font-semibold">
+                      {String(subject.avg).replace('.', ',')}
+                    </span>
                     {' · '}{subject.total} qiymət
                   </span>
                 </div>
-                <svg width="100%" height="48" viewBox={`0 0 400 48`} preserveAspectRatio="xMinYMid meet">
+                {/* Custom inline bar chart (no Recharts dep needed for simple bars) */}
+                <svg
+                  width="100%"
+                  height="52"
+                  viewBox="0 0 400 52"
+                  preserveAspectRatio="xMinYMid meet"
+                  aria-hidden="true"
+                >
                   {subject.buckets.map((count, i) => {
-                    const barWidth = 70
-                    const gap = 10
-                    const x = i * (barWidth + gap)
-                    const barHeight = maxBucket > 0 ? (count / maxBucket) * 32 : 0
+                    const barW = 68
+                    const gap = 12
+                    const x = i * (barW + gap)
+                    const barH = maxBucket > 0 ? (count / maxBucket) * 34 : 0
                     return (
                       <g key={i}>
-                        <rect x={x} y={32 - barHeight} width={barWidth} height={barHeight} rx={4} fill={barColors[i]} opacity={0.85} />
-                        <text x={x + barWidth / 2} y={46} textAnchor="middle" className="text-[9px]" fill="#94a3b8">{bucketLabels[i]}</text>
+                        {/* background track */}
+                        <rect x={x} y={0} width={barW} height={34} rx={6} fill="var(--hairline)" opacity="0.6" />
+                        {/* filled bar */}
+                        <rect
+                          x={x}
+                          y={34 - barH}
+                          width={barW}
+                          height={barH}
+                          rx={6}
+                          fill={BUCKET_COLORS[i]}
+                          opacity={0.9}
+                        />
+                        <text
+                          x={x + barW / 2}
+                          y={48}
+                          textAnchor="middle"
+                          fontSize="9"
+                          fill="var(--ink-400)"
+                          fontFamily="Plus Jakarta Sans, sans-serif"
+                        >
+                          {bucketLabels[i]}
+                        </text>
                         {count > 0 && (
-                          <text x={x + barWidth / 2} y={28 - barHeight} textAnchor="middle" className="text-[10px]" fill="#475569" fontWeight="600">{count}</text>
+                          <text
+                            x={x + barW / 2}
+                            y={Math.max(28 - barH, 11)}
+                            textAnchor="middle"
+                            fontSize="10"
+                            fill="var(--ink-700)"
+                            fontWeight="600"
+                            fontFamily="Plus Jakarta Sans, sans-serif"
+                          >
+                            {count}
+                          </text>
                         )}
                       </g>
                     )
@@ -236,57 +297,99 @@ export default function TeacherAnalytics() {
       {/* Attendance heatmap */}
       {attendanceHeatmap.length > 0 && (
         <div className="liquid-card p-6">
-          <h2 className="text-xs tracking-widest uppercase mb-5 font-semibold" style={{ color: '#64748b' }}>{t('attendance')}</h2>
-          <div className="overflow-x-auto">
-            <svg width={attendanceHeatmap.length * (cellSize + cellGap) + 20} height={cellSize + 30}>
+          <h2 className="text-[13px] tracking-[0.04em] uppercase font-semibold text-ink-400 mb-5">
+            {t('attendance')}
+          </h2>
+          <div className="overflow-x-auto pb-1">
+            <svg
+              width={attendanceHeatmap.length * (cellSize + cellGap) + 20}
+              height={cellSize + 36}
+              aria-hidden="true"
+            >
               {attendanceHeatmap.map((day, i) => {
                 const x = i * (cellSize + cellGap)
-                const fill = day.rate >= 90 ? PASTEL.mint : day.rate >= 70 ? '#8fcebd' : day.rate >= 50 ? PASTEL.peach : PASTEL.rose
+                const fill =
+                  day.rate >= 90
+                    ? CHART.mint
+                    : day.rate >= 70
+                    ? '#7FD0A4'
+                    : day.rate >= 50
+                    ? CHART.amber
+                    : CHART.coral
                 return (
                   <g key={day.date}>
-                    <rect x={x} y={0} width={cellSize} height={cellSize} rx={3} fill={fill} opacity={0.9}>
+                    <rect x={x} y={0} width={cellSize} height={cellSize} rx={3} fill={fill} opacity={0.88}>
                       <title>{day.date}: {day.rate}%</title>
                     </rect>
                   </g>
                 )
               })}
-              <g>
-                <rect x={0} y={cellSize + 10} width={cellSize} height={cellSize} rx={3} fill={PASTEL.mint} />
-                <text x={cellSize + 4} y={cellSize + 21} className="text-[9px]" fill="#64748b">90%+</text>
-                <rect x={50} y={cellSize + 10} width={cellSize} height={cellSize} rx={3} fill="#8fcebd" />
-                <text x={64 + 4} y={cellSize + 21} className="text-[9px]" fill="#64748b">70-90%</text>
-                <rect x={120} y={cellSize + 10} width={cellSize} height={cellSize} rx={3} fill={PASTEL.peach} />
-                <text x={134 + 4} y={cellSize + 21} className="text-[9px]" fill="#64748b">50-70%</text>
-                <rect x={190} y={cellSize + 10} width={cellSize} height={cellSize} rx={3} fill={PASTEL.rose} />
-                <text x={204 + 4} y={cellSize + 21} className="text-[9px]" fill="#64748b">&lt;50%</text>
+              {/* Legend */}
+              <g fontFamily="Plus Jakarta Sans, sans-serif" fontSize="9" fill="var(--ink-400)">
+                <rect x={0} y={cellSize + 12} width={cellSize} height={cellSize} rx={3} fill={CHART.mint} />
+                <text x={cellSize + 4} y={cellSize + 23}>90%+</text>
+                <rect x={52} y={cellSize + 12} width={cellSize} height={cellSize} rx={3} fill="#7FD0A4" />
+                <text x={66 + 4} y={cellSize + 23}>70–90%</text>
+                <rect x={120} y={cellSize + 12} width={cellSize} height={cellSize} rx={3} fill={CHART.amber} />
+                <text x={134 + 4} y={cellSize + 23}>50–70%</text>
+                <rect x={192} y={cellSize + 12} width={cellSize} height={cellSize} rx={3} fill={CHART.coral} />
+                <text x={206 + 4} y={cellSize + 23}>&lt;50%</text>
               </g>
             </svg>
           </div>
         </div>
       )}
 
-      {/* Average trend line chart */}
+      {/* Average trend line */}
       {averageTrend.length > 1 && (
         <div className="liquid-card p-6">
-          <h2 className="text-xs tracking-widest uppercase mb-5 font-semibold" style={{ color: '#64748b' }}>{t('avg_grade')}</h2>
-          <svg width="100%" height={lineH + linePadY * 2} viewBox={`0 0 ${lineW} ${lineH + linePadY * 2}`} preserveAspectRatio="xMidYMid meet">
+          <h2 className="text-[13px] tracking-[0.04em] uppercase font-semibold text-ink-400 mb-5">
+            {t('avg_grade')}
+          </h2>
+          <svg
+            width="100%"
+            height={lineH + linePadY * 2}
+            viewBox={`0 0 ${lineW} ${lineH + linePadY * 2}`}
+            preserveAspectRatio="xMidYMid meet"
+            aria-hidden="true"
+          >
             <defs>
-              <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={PASTEL.periwinkle} stopOpacity="0.25" />
-                <stop offset="100%" stopColor={PASTEL.periwinkle} stopOpacity="0" />
+              <linearGradient id="analyticsLineGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={CHART.brand} stopOpacity="0.22" />
+                <stop offset="100%" stopColor={CHART.brand} stopOpacity="0" />
               </linearGradient>
             </defs>
+
+            {/* Grid lines */}
             {[0, 2.5, 5, 7.5, 10].map(v => {
               const y = linePadY + lineH - (v / 10) * lineH
               return (
                 <g key={v}>
-                  <line x1={linePadX} y1={y} x2={lineW - 10} y2={y} stroke="rgba(124,110,224,0.12)" strokeWidth={0.5} />
-                  <text x={linePadX - 8} y={y + 3} textAnchor="end" className="text-[9px]" fill="#94a3b8">{v}</text>
+                  <line
+                    x1={linePadX}
+                    y1={y}
+                    x2={lineW - 10}
+                    y2={y}
+                    stroke="var(--hairline)"
+                    strokeWidth={1}
+                  />
+                  <text
+                    x={linePadX - 8}
+                    y={y + 4}
+                    textAnchor="end"
+                    fontSize="10"
+                    fill="var(--ink-400)"
+                    fontFamily="Plus Jakarta Sans, sans-serif"
+                  >
+                    {v}
+                  </text>
                 </g>
               )
             })}
+
+            {/* Area fill */}
             <polygon
-              fill="url(#lineGrad)"
+              fill="url(#analyticsLineGrad)"
               points={[
                 `${linePadX},${linePadY + lineH}`,
                 ...averageTrend.map((d, i) => {
@@ -297,9 +400,11 @@ export default function TeacherAnalytics() {
                 `${linePadX + (lineW - linePadX - 10)},${linePadY + lineH}`,
               ].join(' ')}
             />
+
+            {/* Line */}
             <polyline
               fill="none"
-              stroke={PASTEL.periwinkle}
+              stroke={CHART.brand}
               strokeWidth={2.5}
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -309,17 +414,37 @@ export default function TeacherAnalytics() {
                 return `${x},${y}`
               }).join(' ')}
             />
+
+            {/* Data points */}
             {averageTrend.map((d, i) => {
               const x = linePadX + (i / (averageTrend.length - 1)) * (lineW - linePadX - 10)
               const y = linePadY + lineH - (d.avg / 10) * lineH
               return (
                 <g key={d.month}>
-                  <circle cx={x} cy={y} r={5} fill={PASTEL.periwinkle} />
+                  <circle cx={x} cy={y} r={5} fill={CHART.brand} />
                   <circle cx={x} cy={y} r={2.5} fill="white" />
-                  <text x={x} y={y - 12} textAnchor="middle" className="text-[10px]" fill={PASTEL.periwinkle} fontWeight="700">
+                  <text
+                    x={x}
+                    y={y - 12}
+                    textAnchor="middle"
+                    fontSize="10"
+                    fill={CHART.brand}
+                    fontWeight="700"
+                    fontFamily="Plus Jakarta Sans, sans-serif"
+                    className="tabular-nums"
+                  >
                     {String(d.avg).replace('.', ',')}
                   </text>
-                  <text x={x} y={linePadY + lineH + 14} textAnchor="middle" className="text-[9px]" fill="#94a3b8">{d.label}</text>
+                  <text
+                    x={x}
+                    y={linePadY + lineH + 15}
+                    textAnchor="middle"
+                    fontSize="9"
+                    fill="var(--ink-400)"
+                    fontFamily="Plus Jakarta Sans, sans-serif"
+                  >
+                    {d.label}
+                  </text>
                 </g>
               )
             })}
@@ -329,15 +454,12 @@ export default function TeacherAnalytics() {
 
       {/* Empty state */}
       {noData && (
-        <div className="liquid-card p-12">
-          <div className="text-center">
-            <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
-              <BarChart3 className="w-8 h-8" />
-            </div>
-            <p className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>{t('no_data')}</p>
-            <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>Sinif seçildikdə statistika burada görünəcək</p>
-          </div>
-        </div>
+        <EmptyState
+          tier={1}
+          icon={BarChart3}
+          title={t('no_data')}
+          description="Sinif seçildikdə statistika burada görünəcək."
+        />
       )}
     </div>
   )

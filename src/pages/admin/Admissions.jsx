@@ -1,22 +1,28 @@
 import { useState, useEffect } from 'react'
-import { Search, Plus, UserPlus, CheckCircle, XCircle } from 'lucide-react'
+import { Search, Plus, UserPlus, CheckCircle, XCircle, Users, Clock, TrendingUp } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
-import Card from '../../components/ui/Card'
 import Modal from '../../components/ui/Modal'
-import Table from '../../components/ui/Table'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
+import StatCard from '../../components/ui/StatCard'
 import { fmtNumeric } from '../../lib/dateUtils'
 import Avatar from '../../components/ui/Avatar'
 import Input from '../../components/ui/Input'
 import { Select } from '../../components/ui/Input'
 
-const statusConfig = {
-  pending:  { label: 'Gözlənilir',   className: 'bg-[rgba(232,168,124,0.15)] text-[#a55f33] border border-[rgba(232,168,124,0.4)]' },
-  accepted: { label: 'Qəbul edildi', className: 'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]' },
-  rejected: { label: 'Rədd edildi',  className: 'bg-[rgba(239,68,68,0.08)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]' },
+// LOW dial: pill-* classes, no glass blur, tight radius, one brand accent
+const STATUS_PILLS = {
+  pending:  'pill-peach',
+  accepted: 'pill-mint',
+  rejected: 'pill-rose',
+}
+
+const STATUS_LABELS = {
+  pending:  'Gözlənilir',
+  accepted: 'Qəbul edildi',
+  rejected: 'Rədd edildi',
 }
 
 const GRADES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
@@ -95,54 +101,53 @@ export default function Admissions() {
     }
   }
 
-  const filtered = applications
-    .filter(a => filterStatus === 'all' || a.status === filterStatus)
+  // Search-filtered set; the kanban groups by status (columns = pipeline stages).
+  const searched = applications
     .filter(a => a.full_name?.toLowerCase().includes(search.toLowerCase()) || a.email?.toLowerCase().includes(search.toLowerCase()))
 
-  const columns = [
-    {
-      key: 'full_name',
-      label: 'Müraciətçi',
-      render: (val, row) => (
-        <div className="flex items-center gap-3">
-          <Avatar name={val} size="sm" />
-          <div>
-            <p className="font-medium text-gray-900">{val}</p>
-            <p className="text-xs text-gray-400">{row.email}</p>
-          </div>
+  const pendingCount  = applications.filter(a => a.status === 'pending').length
+  const acceptedCount = applications.filter(a => a.status === 'accepted').length
+  const rejectedCount = applications.filter(a => a.status === 'rejected').length
+
+  // Pipeline columns. `filterStatus` (≠ all) focuses a single stage.
+  const PIPELINE = [
+    { id: 'pending',  label: STATUS_LABELS.pending,  dot: 'var(--warning)' },
+    { id: 'accepted', label: STATUS_LABELS.accepted, dot: 'var(--success)' },
+    { id: 'rejected', label: STATUS_LABELS.rejected, dot: 'var(--danger)' },
+  ].filter(col => filterStatus === 'all' || filterStatus === col.id)
+
+  const totalShown = searched.length
+
+  // Single application card inside a pipeline column.
+  const PipelineCard = ({ app }) => (
+    <button
+      onClick={() => setSelectedApp(app)}
+      className="w-full text-left bg-surface border border-hairline rounded-tile p-3 transition-all duration-150 hover:border-brand-200 hover:shadow-soft-lg"
+    >
+      <div className="flex items-center gap-2.5">
+        <Avatar name={app.full_name} size="sm" />
+        <div className="min-w-0">
+          <p className="font-semibold text-ink-900 text-[13px] truncate">{app.full_name}</p>
+          <p className="text-xs text-ink-400 truncate">{app.email}</p>
         </div>
-      ),
-    },
-    {
-      key: 'grade_applying',
-      label: 'Sinif',
-      render: (val) => <span className="font-medium">{val}-ci sinif</span>,
-    },
-    {
-      key: 'applied_at',
-      label: 'Müraciət tarixi',
-      render: (val) => val ? fmtNumeric(val) : '—',
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (val) => {
-        const cfg = statusConfig[val] || statusConfig.pending
-        return <span className={`rounded-full text-xs font-medium px-3 py-0.5 inline-flex items-center ${cfg.className}`}>{cfg.label}</span>
-      },
-    },
-  ]
+      </div>
+      <div className="flex items-center justify-between mt-2.5 text-xs">
+        <span className="font-medium text-ink-600 tabular-nums">{app.grade_applying}-ci sinif</span>
+        <span className="text-ink-400 tabular-nums">{app.applied_at ? fmtNumeric(app.applied_at) : '—'}</span>
+      </div>
+    </button>
+  )
 
   if (loading) return <PageSpinner />
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      {/* Page header */}
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Qəbul İdarəetməsi</span></h1>
-          <p className="text-sm text-[#64748b] mt-1">
-            {applications.filter(a => a.status === 'pending').length} gözlənilən ·{' '}
-            {applications.filter(a => a.status === 'accepted').length} qəbul edilən
+          <h1 className="text-2xl font-bold text-ink-900 font-display">Qəbul İdarəetməsi</h1>
+          <p className="text-sm text-ink-400 mt-0.5">
+            {pendingCount} gözlənilən · {acceptedCount} qəbul edilən · {rejectedCount} rədd edilən
           </p>
         </div>
         <Button onClick={() => { resetForm(); setAddModal(true) }}>
@@ -150,100 +155,144 @@ export default function Admissions() {
         </Button>
       </div>
 
-      <div className="flex gap-2 flex-wrap">
-        {[['all', 'Hamısı'], ['pending', 'Gözlənilir'], ['accepted', 'Qəbul edildi'], ['rejected', 'Rədd edildi']].map(([val, label]) => (
-          <button
-            key={val}
-            onClick={() => setFilterStatus(val)}
-            className="px-4 py-2 rounded-full text-sm font-semibold transition-all backdrop-blur-md"
-            style={filterStatus === val
-              ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 6px 16px rgba(124,110,224,0.25)' }
-              : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
-          >
-            {label}
-          </button>
-        ))}
+      {/* KPI strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StatCard label="Cəmi müraciət"  value={applications.length} icon={Users}      tone="periwinkle" />
+        <StatCard label="Gözlənilir"     value={pendingCount}         icon={Clock}      tone="sun" />
+        <StatCard label="Qəbul edilən"   value={acceptedCount}        icon={TrendingUp} tone="mint" />
+        <StatCard label="Rədd edilən"    value={rejectedCount}        icon={XCircle}    tone="coral" />
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
-        <input
-          type="text"
-          placeholder="Ad və ya e-poçt axtar..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+      {/* Toolbar: column-focus segmented (neutral grey active) + search */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="inline-flex items-center gap-1 p-1 rounded-input bg-surface-2 border border-hairline w-fit">
+          {[
+            ['all',      'Hamısı'],
+            ['pending',  'Gözlənilir'],
+            ['accepted', 'Qəbul edildi'],
+            ['rejected', 'Rədd edildi'],
+          ].map(([val, label]) => (
+            <button
+              key={val}
+              onClick={() => setFilterStatus(val)}
+              className={[
+                'px-3 py-1.5 rounded-ctl text-[13px] whitespace-nowrap transition-colors',
+                filterStatus === val
+                  ? 'bg-hairline-strong font-semibold text-ink-900'
+                  : 'text-ink-600 font-medium hover:text-ink-900',
+              ].join(' ')}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="relative sm:ml-auto sm:w-72">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
+          <input
+            type="text"
+            placeholder="Ad və ya e-poçt axtar..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pastel-input w-full pl-10 pr-4"
+          />
+        </div>
+      </div>
+
+      {error && (
+        <p className="text-sm text-danger bg-[rgba(239,68,68,0.08)] rounded-input px-3 py-2 border border-[rgba(239,68,68,0.2)]">
+          {error}
+        </p>
+      )}
+
+      {/* Kanban pipeline */}
+      {totalShown === 0 ? (
+        <EmptyState
+          tier={1}
+          icon={UserPlus}
+          title="Müraciət tapılmadı"
+          description={search ? `"${search}" üçün nəticə tapılmadı.` : 'Hələ müraciət daxil olmayıb.'}
+          actionLabel="Müraciət əlavə et"
+          onAction={() => { resetForm(); setAddModal(true) }}
         />
-      </div>
-
-      {error && <p className="text-sm text-red-600">{error}</p>}
-
-      <Card hover={false} className="p-0 overflow-hidden">
-        {filtered.length === 0 ? (
-          <EmptyState icon={UserPlus} title="Müraciət tapılmadı" description="Hələ müraciət daxil olmayıb." actionLabel="Müraciət əlavə et" onAction={() => { resetForm(); setAddModal(true) }} />
-        ) : (
-          <Table columns={columns} data={filtered} onRowClick={setSelectedApp} />
-        )}
-      </Card>
+      ) : (
+        <div className={`grid gap-4 ${PIPELINE.length === 1 ? 'grid-cols-1 max-w-md' : 'grid-cols-1 md:grid-cols-3'}`}>
+          {PIPELINE.map(col => {
+            const cards = searched.filter(a => a.status === col.id)
+            return (
+              <div key={col.id} className="flex flex-col rounded-tile bg-surface-2 border border-hairline">
+                {/* Quiet column header — dot + label + count */}
+                <div className="flex items-center gap-2 px-3.5 py-2.5 border-b border-hairline">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: col.dot }} />
+                  <span className="text-[13px] font-semibold text-ink-700">{col.label}</span>
+                  <span className="ml-auto text-xs font-medium text-ink-400 tabular-nums">{cards.length}</span>
+                </div>
+                {/* Cards */}
+                <div className="flex-1 p-2.5 space-y-2.5 min-h-[80px]">
+                  {cards.length === 0 ? (
+                    <p className="text-xs text-ink-400 text-center py-6">Boş</p>
+                  ) : (
+                    cards.map(app => <PipelineCard key={app.id} app={app} />)
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {/* Detail Modal */}
       <Modal open={!!selectedApp} onClose={() => setSelectedApp(null)} title="Müraciət Detalları" size="lg">
         {selectedApp && (
-          <div className="space-y-6">
+          <div className="space-y-5">
             <div className="flex items-center gap-4">
               <Avatar name={selectedApp.full_name} size="lg" />
-              <div>
-                <h3 className="font-serif text-2xl text-gray-900">{selectedApp.full_name}</h3>
-                <p className="text-sm text-gray-500">{selectedApp.email}</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-semibold text-ink-900 truncate">{selectedApp.full_name}</h3>
+                <p className="text-sm text-ink-400 mt-0.5">{selectedApp.email}</p>
               </div>
-              <div className="ml-auto">
-                <span className={`rounded-full text-sm font-medium px-4 py-1 ${(statusConfig[selectedApp.status] || statusConfig.pending).className}`}>
-                  {(statusConfig[selectedApp.status] || statusConfig.pending).label}
-                </span>
-              </div>
+              <span className={`pill ${STATUS_PILLS[selectedApp.status] || STATUS_PILLS.pending} shrink-0`}>
+                {STATUS_LABELS[selectedApp.status] || STATUS_LABELS.pending}
+              </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-surface rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Müraciət etdiyi sinif</p>
-                <p className="font-medium text-gray-900">{selectedApp.grade_applying}-ci sinif</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-canvas rounded-tile p-4 border border-hairline">
+                <p className="text-xs font-semibold text-ink-400 uppercase tracking-[0.04em] mb-1">Müraciət etdiyi sinif</p>
+                <p className="font-semibold text-ink-900">{selectedApp.grade_applying}-ci sinif</p>
               </div>
-              <div className="bg-surface rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Müraciət tarixi</p>
-                <p className="font-medium text-gray-900">{selectedApp.applied_at ? fmtNumeric(selectedApp.applied_at) : '—'}</p>
+              <div className="bg-canvas rounded-tile p-4 border border-hairline">
+                <p className="text-xs font-semibold text-ink-400 uppercase tracking-[0.04em] mb-1">Müraciət tarixi</p>
+                <p className="font-semibold text-ink-900 tabular-nums">{selectedApp.applied_at ? fmtNumeric(selectedApp.applied_at) : '—'}</p>
               </div>
               {selectedApp.parent_name && (
-                <div className="bg-surface rounded-lg p-4">
-                  <p className="text-xs text-gray-500 mb-1">Valideyn adı</p>
-                  <p className="font-medium text-gray-900">{selectedApp.parent_name}</p>
+                <div className="bg-canvas rounded-tile p-4 border border-hairline">
+                  <p className="text-xs font-semibold text-ink-400 uppercase tracking-[0.04em] mb-1">Valideyn adı</p>
+                  <p className="font-semibold text-ink-900">{selectedApp.parent_name}</p>
                 </div>
               )}
               {selectedApp.parent_phone && (
-                <div className="bg-surface rounded-lg p-4">
-                  <p className="text-xs text-gray-500 mb-1">Valideyn telefonu</p>
-                  <p className="font-medium text-gray-900">{selectedApp.parent_phone}</p>
+                <div className="bg-canvas rounded-tile p-4 border border-hairline">
+                  <p className="text-xs font-semibold text-ink-400 uppercase tracking-[0.04em] mb-1">Valideyn telefonu</p>
+                  <p className="font-semibold text-ink-900 tabular-nums">{selectedApp.parent_phone}</p>
                 </div>
               )}
             </div>
 
             {selectedApp.notes && (
-              <div className="bg-surface rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Qeydlər</p>
-                <p className="text-gray-700">{selectedApp.notes}</p>
+              <div className="bg-canvas rounded-tile p-4 border border-hairline">
+                <p className="text-xs font-semibold text-ink-400 uppercase tracking-[0.04em] mb-1">Qeydlər</p>
+                <p className="text-sm text-ink-700 leading-relaxed">{selectedApp.notes}</p>
               </div>
             )}
 
             {selectedApp.status === 'pending' && (
-              <div className="border-t border-border-soft pt-4">
-                <div className="mb-3">
-                  <Input
-                    label="Rədd səbəbi (ixtiyari)"
-                    value={rejectReason}
-                    onChange={e => setRejectReason(e.target.value)}
-                    placeholder="Rədd etmə səbəbini qeyd edin..."
-                  />
-                </div>
+              <div className="border-t border-hairline pt-4 space-y-3">
+                <Input
+                  label="Rədd səbəbi (ixtiyari)"
+                  value={rejectReason}
+                  onChange={e => setRejectReason(e.target.value)}
+                  placeholder="Rədd etmə səbəbini qeyd edin..."
+                />
                 <div className="flex gap-3">
                   <Button
                     className="flex-1"
@@ -288,17 +337,21 @@ export default function Admissions() {
             <Input label="Valideyn telefonu" value={form.parent_phone} onChange={e => setForm({ ...form, parent_phone: e.target.value })} placeholder="+994 50 000 0000" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Qeydlər</label>
+            <label className="block text-[13px] font-semibold text-ink-700 mb-1.5">Qeydlər</label>
             <textarea
               value={form.notes}
               onChange={e => setForm({ ...form, notes: e.target.value })}
               rows={3}
               placeholder="Əlavə məlumat..."
-              className="w-full border border-border-soft rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent resize-none"
+              className="pastel-input w-full resize-none"
             />
           </div>
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
-          <div className="flex justify-end gap-3 pt-4">
+          {error && (
+            <p className="text-sm text-danger bg-[rgba(239,68,68,0.08)] rounded-input px-3 py-2 border border-[rgba(239,68,68,0.2)]">
+              {error}
+            </p>
+          )}
+          <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleAdd} loading={saving} disabled={!form.full_name || !form.email}>{t('add')}</Button>
           </div>

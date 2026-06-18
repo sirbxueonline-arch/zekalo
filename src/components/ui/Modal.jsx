@@ -30,36 +30,29 @@ export default function Modal({ open, onClose, title, children, size = 'md' }) {
   const isFull = size === 'full'
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isFull ? 'p-0' : 'p-4'}`}>
+    <div className={`liquid-backdrop ${isFull ? '!p-0' : ''}`}>
+      <div className="absolute inset-0" onClick={onClose} />
       <div
-        className="absolute inset-0"
-        onClick={onClose}
-        style={{
-          background: 'rgba(26,26,46,0.45)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-        }}
-      />
-      <div
-        className={`liquid-card relative ${isFull ? 'w-screen h-screen mx-0 max-h-screen rounded-none' : `w-full ${sizes[size]} mx-4 max-h-[90vh]`} overflow-y-auto animate-in fade-in zoom-in-95 duration-200`}
-        style={{ padding: 0 }}
+        className={`liquid-modal relative flex flex-col ${
+          isFull
+            ? 'w-screen h-screen mx-0 max-h-screen !rounded-none'
+            : `w-full ${sizes[size]} mx-4 max-h-[90vh]`
+        } overflow-hidden`}
       >
-        <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
-          <h2 className="font-semibold text-xl text-[#1a1a2e]">{title}</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between gap-4 px-6 pt-5 pb-4 border-b border-hairline shrink-0">
+          <h2 className="font-display font-semibold text-[18px] leading-tight text-ink-900 truncate">{title}</h2>
           <button
             onClick={onClose}
-            className="ml-4 shrink-0 flex items-center justify-center w-9 h-9 rounded-full text-[#64748b] hover:text-[#1a1a2e] transition-all"
-            style={{
-              background: 'rgba(255,255,255,0.6)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              border: '1px solid rgba(124,110,224,0.18)',
-            }}
+            aria-label="Bağla"
+            className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full text-ink-400 hover:text-ink-900 hover:bg-hairline transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-[18px] h-[18px]" />
           </button>
         </div>
-        <div className="px-6 py-5">
+
+        {/* Body */}
+        <div className="px-6 py-5 overflow-y-auto">
           {children}
         </div>
       </div>

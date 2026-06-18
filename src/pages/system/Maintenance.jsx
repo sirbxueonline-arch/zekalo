@@ -1,22 +1,68 @@
+import Mascot from '../../components/ui/Mascot'
+
 export default function Maintenance() {
   return (
-    <div style={{
-      minHeight:'100vh', position:'relative', overflow:'hidden',
-      display:'flex', alignItems:'center', justifyContent:'center',
-      padding:'24px',
-      background:'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)',
-      backgroundSize:'400% 400%',
-      animation:'heroGradient 12s ease infinite',
-    }}>
-      <div className="hb1"/><div className="hb2"/><div className="hb4"/><div className="hb6"/>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+        background: 'var(--canvas)',
+      }}
+    >
+      <div
+        className="liquid-card"
+        style={{
+          padding: '48px 40px',
+          textAlign: 'center',
+          maxWidth: 440,
+          width: '100%',
+          borderRadius: 18,
+        }}
+      >
+        {/* One contained mascot — reading pose */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+          <Mascot pose="reading" size={96} bob />
+        </div>
 
-      <div className="liquid-card" style={{ position:'relative', zIndex:1, padding:'56px 48px', textAlign:'center', maxWidth:480 }}>
-        <h1 style={{ fontSize:32, fontWeight:800, marginBottom:24, letterSpacing:'-0.02em' }}>
-          <span style={{ color:'#1a1a2e' }}>Zir</span>
-          <span className="pastel-text">va</span>
+        {/* Brand wordmark */}
+        <h1
+          className="font-display"
+          style={{
+            fontSize: 32,
+            fontWeight: 800,
+            letterSpacing: '-0.02em',
+            marginBottom: 14,
+            lineHeight: 1.1,
+          }}
+        >
+          <span style={{ color: 'var(--ink-900)' }}>Zir</span>
+          <span style={{ color: 'var(--brand-500)' }}>va</span>
         </h1>
-        <h2 style={{ fontSize:22, fontWeight:700, color:'#1a1a2e', marginBottom:10, letterSpacing:'-0.015em' }}>Texniki xidmət</h2>
-        <p style={{ fontSize:14, color:'#64748b', lineHeight:1.6 }}>
+
+        <h2
+          style={{
+            fontSize: 18,
+            fontWeight: 600,
+            color: 'var(--ink-900)',
+            marginBottom: 10,
+          }}
+        >
+          Texniki xidmət
+        </h2>
+
+        <p
+          style={{
+            fontSize: 15,
+            color: 'var(--ink-600)',
+            lineHeight: 1.6,
+            maxWidth: 320,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        >
           Zirva yenilənir. Tezliklə geri qayıdacağıq.
         </p>
       </div>

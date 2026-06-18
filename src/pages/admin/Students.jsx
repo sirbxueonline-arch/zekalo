@@ -1,16 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Search, Plus, Edit2, Trash2, Download, Users, UserPlus } from 'lucide-react'
+import { Search, Plus, Edit2, Trash2, Download, Users, UserPlus, Filter, List, LayoutGrid, MoreHorizontal, X } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
-import Card from '../../components/ui/Card'
 import Input from '../../components/ui/Input'
 import { Select } from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
-import Table from '../../components/ui/Table'
 import { TableRowSkeleton } from '../../components/ui/Skeleton'
-import { GradeBadge } from '../../components/ui/Badge'
 import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
 import BulkAddModal from '../../components/ui/BulkAddModal'
@@ -40,6 +37,9 @@ export default function Students() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [form, setForm] = useState({ full_name: '', email: '', password: '', class_id: '', parent_email: '' })
+  const [view, setView] = useState('list')            // 'list' (default, management) | 'grid' (engagement)
+  const [selected, setSelected] = useState([])         // multi-select student ids
+  const [menuFor, setMenuFor] = useState(null)         // kebab menu open for this student id
 
   useEffect(() => {
     if (profile?.school_id) fetchData()
@@ -87,7 +87,6 @@ export default function Students() {
 
   async function createUser(email, password, full_name) {
     if (!profile.school_id) throw new Error('Məktəb məlumatı tapılmadı. Zəhmət olmasa yenidən daxil olun.')
-    // Use an isolated client so the admin's session is never touched
     const tempClient = createClient(
       import.meta.env.VITE_SUPABASE_URL,
       import.meta.env.VITE_SUPABASE_ANON_KEY,
@@ -100,7 +99,6 @@ export default function Students() {
 
     const userId = signUpData.user.id
 
-    // tempClient now holds the new user's session → RLS "users insert own profile" is satisfied
     const { error: profileError } = await tempClient.from('profiles').insert({
       id: userId,
       full_name,
@@ -219,7 +217,7 @@ export default function Students() {
       s.avg_grade ?? '',
     ])
     const csv = [headers.map(escapeCsvField).join(','), ...rows.map(r => r.map(escapeCsvField).join(','))].join('\n')
-    const BOM = '\uFEFF'
+    const BOM = '﻿'
     const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -234,7 +232,6 @@ export default function Students() {
     return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
   }
 
-  // Bulk import handler — called per-row by BulkAddModal
   async function handleBulkImport(row) {
     const email    = row.email?.trim()
     const name     = row.full_name?.trim()
@@ -246,7 +243,6 @@ export default function Students() {
 
     const userId = await createUser(email, password, name)
 
-    // class_id is the actual UUID from the select
     const classId = row.class_id?.trim()
     if (classId) {
       const { error: cmError } = await supabase.from('class_members').insert({
@@ -278,71 +274,51 @@ export default function Students() {
       return sortDir === 'asc' ? String(aVal).localeCompare(String(bVal)) : String(bVal).localeCompare(String(aVal))
     })
 
-  const columns = [
-    {
-      key: 'full_name',
-      label: t('full_name'),
-      sortable: true,
-      render: (val, row) => (
-        <div className="flex items-center gap-3">
-          <Avatar name={val} size="sm" />
-          <span className="font-medium text-gray-900">{val}</span>
-        </div>
-      ),
-    },
-    { key: 'class', label: t('class_name'), sortable: true, render: (val) => val?.name || '—' },
-    { key: 'email', label: t('email') },
-    {
-      key: 'attendance_pct',
-      label: 'Davamiyyət',
-      sortable: true,
-      render: (val) => val != null ? `${val}%` : '—',
-    },
-    {
-      key: 'avg_grade',
-      label: 'Ortalama',
-      sortable: true,
-      render: (val) => val != null ? <GradeBadge score={val} /> : '—',
-    },
-    {
-      key: 'actions',
-      label: '',
-      render: (_, row) => (
-        <div className="flex items-center gap-2">
-          <button onClick={(e) => { e.stopPropagation(); openEditModal(row) }} className="p-1.5 text-gray-400 hover:text-purple transition-colors" aria-label="Redaktə et">
-            <Edit2 className="w-4 h-4" />
-          </button>
-          <button onClick={(e) => { e.stopPropagation(); setDeleteModal(row) }} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" aria-label="Sil">
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-      ),
-    },
-  ]
+  // ── Multi-select (list mode) ───────────────────────────────────────────────
+  const visibleIds = filtered.map(s => s.id)
+  const allSelected = visibleIds.length > 0 && visibleIds.every(id => selected.includes(id))
+  const someSelected = selected.length > 0 && !allSelected
+
+  function toggleRow(id) {
+    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+  function toggleAll() {
+    setSelected(allSelected ? [] : visibleIds)
+  }
+  function clearSelection() {
+    setSelected([])
+  }
+
+  // Family-connection status — 6px dot + label, never a chunky badge (§4.1).
+  // Derived from existing data only; no schema assumptions.
+  function familyStatus(s) {
+    if (s.parent_linked || s.parent_id) return { tone: 'var(--mint, #1FA855)', label: 'Qoşulub' }
+    if (s.parent_email)                 return { tone: 'var(--sun, #EAB308)',  label: 'Dəvət göndərilib' }
+    return { tone: 'var(--ink-400)', label: 'Qoşulmayıb' }
+  }
 
   if (loading) return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="h-9 w-48 bg-gray-200 rounded-lg animate-pulse" />
-        <div className="flex gap-3">
-          <div className="h-9 w-28 bg-gray-200 rounded-lg animate-pulse" />
-          <div className="h-9 w-28 bg-gray-200 rounded-lg animate-pulse" />
-          <div className="h-9 w-32 bg-gray-200 rounded-lg animate-pulse" />
+        <div className="pastel-skeleton h-8 w-40 rounded-input" />
+        <div className="flex gap-2">
+          <div className="pastel-skeleton h-9 w-28 rounded-input" />
+          <div className="pastel-skeleton h-9 w-32 rounded-input" />
         </div>
       </div>
-      <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
-      <div className="bg-white rounded-2xl border border-border-soft overflow-hidden">
-        <table className="w-full">
+      <div className="pastel-skeleton h-10 rounded-input" />
+      <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
+        <table className="pastel-table">
           <thead>
-            <tr className="bg-surface border-b border-border-soft">
-              {['Ad Soyad', 'Sinif', 'E-poçt', 'Davamiyyət', 'Ortalama', ''].map((h) => (
-                <th key={h} className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+            <tr>
+              {['', t('full_name'), t('class_name'), 'Ailə', ''].map((h, i) => (
+                <th key={i}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <TableRowSkeleton key={i} cols={6} />
+            {Array.from({ length: 6 }).map((_, i) => (
+              <TableRowSkeleton key={i} cols={5} />
             ))}
           </tbody>
         </table>
@@ -351,66 +327,301 @@ export default function Students() {
   )
 
   return (
-    <div className="space-y-6">
-      {/* Page header with gradient banner */}
-      <div className="liquid-card relative overflow-hidden" style={{ padding: 0 }}>
+    <div className="space-y-4">
+      {/* Page header — LOW dial: title + count, no card chrome */}
+      <div className="flex items-end justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-ink-900 leading-tight">{t('students')}</h1>
+          <p className="text-sm text-ink-400 mt-1 tabular-nums">
+            {students.length} ümumi
+            {filtered.length !== students.length && <> · {filtered.length} nəticə</>}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="ghost" size="sm" onClick={() => setBulkModal(true)}>
+            <span className="flex items-center gap-1.5"><UserPlus className="w-4 h-4" /> Toplu əlavə</span>
+          </Button>
+          <Button size="sm" onClick={() => { resetForm(); setAddModal(true) }}>
+            <span className="flex items-center gap-1.5"><Plus className="w-4 h-4" /> {t('add_student')}</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* Toolbar — segmented [Şagirdlər] left · [Filter][Export CSV] text-buttons + grid/list toggle right */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        {/* Segmented control (single tab today; structured for Groups later) */}
         <div
-          aria-hidden="true"
-          className="section-blob"
-          style={{ top: '-40%', right: '-10%', width: '40%', height: '160%', background: 'radial-gradient(ellipse at center, rgba(124,110,224,0.32) 0%, transparent 65%)', opacity: 0.5 }}
-        />
-        <div className="relative px-7 py-6">
-          <div className="flex items-start justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('students')}</span></h1>
-              <p className="text-sm text-[#64748b] mt-1">{t('students')} idarəetməsi</p>
-              <div className="flex items-center gap-3 mt-3 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold backdrop-blur-md" style={{ background: 'rgba(255,255,255,0.6)', color: '#1a1a2e', border: '1px solid rgba(124,110,224,0.18)' }}>
-                  <Users className="w-3.5 h-3.5" style={{ color: '#7c6ee0' }} />
-                  Ümumi: {students.length}
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold backdrop-blur-md" style={{ background: 'rgba(93,184,163,0.14)', color: '#3a8170', border: '1px solid rgba(93,184,163,0.32)' }}>
-                  Nəticə: {filtered.length}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <Button variant="ghost" onClick={exportCsv}>
-                <span className="flex items-center gap-2"><Download className="w-4 h-4" /> {t('export_csv')}</span>
-              </Button>
-              <Button variant="ghost" onClick={() => setBulkModal(true)}>
-                <span className="flex items-center gap-2"><UserPlus className="w-4 h-4" /> Toplu əlavə</span>
-              </Button>
-              <Button onClick={() => { resetForm(); setAddModal(true) }}>
-                <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> {t('add_student')}</span>
-              </Button>
-            </div>
+          className="inline-flex items-center rounded-pill p-0.5"
+          style={{ background: 'var(--surface-2)', border: '1px solid var(--hairline-strong)' }}
+        >
+          <span
+            className="inline-flex items-center gap-1.5 rounded-pill px-3.5 h-8 text-[13px] font-semibold text-ink-900"
+            style={{ background: 'var(--surface)', boxShadow: '0 1px 2px rgba(20,22,40,.06)' }}
+          >
+            <Users className="w-4 h-4 text-brand-500" />
+            {t('students')}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-input text-[13px] font-medium text-ink-600 hover:text-ink-900 hover:bg-canvas transition-colors"
+          >
+            <Filter className="w-4 h-4" /> {t('filter')}
+          </button>
+          <button
+            type="button"
+            onClick={exportCsv}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-input text-[13px] font-medium text-ink-600 hover:text-ink-900 hover:bg-canvas transition-colors"
+          >
+            <Download className="w-4 h-4" /> {t('export_csv')}
+          </button>
+
+          {/* grid ↔ list toggle */}
+          <div
+            className="inline-flex items-center rounded-input p-0.5 ml-1"
+            style={{ background: 'var(--surface-2)', border: '1px solid var(--hairline-strong)' }}
+          >
+            <button
+              type="button"
+              onClick={() => setView('list')}
+              aria-label="Siyahı görünüşü"
+              aria-pressed={view === 'list'}
+              className="inline-flex items-center justify-center w-7 h-7 rounded-ctl transition-colors"
+              style={view === 'list'
+                ? { background: 'var(--surface)', color: 'var(--brand-500)', boxShadow: '0 1px 2px rgba(20,22,40,.06)' }
+                : { color: 'var(--ink-400)' }}
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setView('grid')}
+              aria-label="Tor görünüşü"
+              aria-pressed={view === 'grid'}
+              className="inline-flex items-center justify-center w-7 h-7 rounded-ctl transition-colors"
+              style={view === 'grid'
+                ? { background: 'var(--surface)', color: 'var(--brand-500)', boxShadow: '0 1px 2px rgba(20,22,40,.06)' }
+                : { color: 'var(--ink-400)' }}
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
 
       {/* Search bar */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: '#7c6ee0' }} />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
         <input
           type="text"
           placeholder={t('search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+          className="pastel-input w-full pl-10"
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="rounded-input px-4 py-2.5 text-sm font-medium" style={{ background: 'var(--danger-bg, #FEE2E2)', color: '#B91C1C', border: '1px solid #FECACA' }}>
+          {error}
+        </div>
+      )}
 
-      <Card hover={false} className="p-0 overflow-hidden">
-        {filtered.length === 0 ? (
-          <EmptyState icon={Users} title={t('no_data')} description={t('add_student')} actionLabel={t('add_student')} onAction={() => { resetForm(); setAddModal(true) }} />
-        ) : (
-          <Table columns={columns} data={filtered} />
-        )}
-      </Card>
+      {/* ── Content: empty / list / grid ─────────────────────────────────────── */}
+      {filtered.length === 0 ? (
+        <EmptyState
+          tier={1}
+          icon={Users}
+          title={search ? 'Nəticə tapılmadı' : t('no_data')}
+          description={search ? 'Axtarış sorğunuzu dəyişdirin.' : 'Yeni şagird əlavə etmək üçün düyməni basın.'}
+          actionLabel={search ? undefined : t('add_student')}
+          onAction={search ? undefined : () => { resetForm(); setAddModal(true) }}
+        />
+      ) : view === 'list' ? (
+        /* LIST — management mode: pastel-table, 40px rows, ☐ | Avatar+Name | Class | status | ⋯ */
+        <div className="rounded-tile overflow-hidden bg-surface" style={{ border: '1px solid var(--hairline-strong)' }}>
+          <div className="overflow-x-auto">
+            <table className="pastel-table">
+              <thead>
+                <tr>
+                  <th style={{ width: 44 }}>
+                    <input
+                      type="checkbox"
+                      className="zk-check"
+                      checked={allSelected}
+                      ref={el => { if (el) el.indeterminate = someSelected }}
+                      onChange={toggleAll}
+                      aria-label="Hamısını seç"
+                    />
+                  </th>
+                  <th
+                    onClick={() => handleSort('full_name')}
+                    className="cursor-pointer select-none"
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {t('full_name')}
+                      <span className="text-[10px]" style={{ color: sortKey === 'full_name' ? 'var(--brand-500)' : 'var(--ink-400)', opacity: sortKey === 'full_name' ? 1 : 0.5 }}>
+                        {sortKey === 'full_name' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
+                      </span>
+                    </span>
+                  </th>
+                  <th>{t('class_name')}</th>
+                  <th>Ailə</th>
+                  <th style={{ width: 44 }} aria-label="" />
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((s) => {
+                  const isSel = selected.includes(s.id)
+                  const fs = familyStatus(s)
+                  return (
+                    <tr
+                      key={s.id}
+                      className="group"
+                      style={isSel ? { background: 'var(--brand-50)' } : undefined}
+                    >
+                      <td style={isSel ? { background: 'var(--brand-50)' } : undefined}>
+                        <input
+                          type="checkbox"
+                          className="zk-check"
+                          checked={isSel}
+                          onChange={() => toggleRow(s.id)}
+                          aria-label={`${s.full_name} seç`}
+                        />
+                      </td>
+                      <td style={isSel ? { background: 'var(--brand-50)' } : undefined}>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Avatar name={s.full_name} variant="gem" size={28} ring={false} />
+                          <div className="min-w-0">
+                            <p className="font-semibold text-ink-900 truncate leading-tight">{s.full_name}</p>
+                            <p className="text-xs text-ink-400 truncate mt-0.5">{s.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={isSel ? { background: 'var(--brand-50)' } : undefined}>
+                        {s.class?.name
+                          ? <span className="text-ink-700">{s.class.name}</span>
+                          : <span className="text-ink-400">—</span>}
+                      </td>
+                      <td style={isSel ? { background: 'var(--brand-50)' } : undefined}>
+                        <span className="inline-flex items-center gap-2 text-ink-600">
+                          <span className="inline-block rounded-full shrink-0" style={{ width: 6, height: 6, background: fs.tone }} />
+                          {fs.label}
+                        </span>
+                      </td>
+                      <td className="relative" style={isSel ? { background: 'var(--brand-50)' } : undefined}>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setMenuFor(menuFor === s.id ? null : s.id) }}
+                          className={`p-1.5 rounded-input text-ink-400 hover:text-ink-900 hover:bg-canvas transition-all ${menuFor === s.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                          aria-label="Əməliyyatlar"
+                        >
+                          <MoreHorizontal className="w-4 h-4" />
+                        </button>
+                        {menuFor === s.id && (
+                          <>
+                            <div className="fixed inset-0 z-30" onClick={() => setMenuFor(null)} />
+                            <div
+                              className="absolute right-3 top-full -mt-1 z-40 w-40 rounded-tile bg-surface py-1"
+                              style={{ border: '1px solid var(--hairline-strong)', boxShadow: 'var(--shadow-pop, 0 8px 24px -8px rgba(20,22,40,.14))' }}
+                            >
+                              <button
+                                onClick={() => { setMenuFor(null); openEditModal(s) }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-ink-700 hover:bg-canvas transition-colors"
+                              >
+                                <Edit2 className="w-4 h-4 text-ink-400" /> {t('edit')}
+                              </button>
+                              <button
+                                onClick={() => { setMenuFor(null); setDeleteModal(s) }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-[13px] hover:bg-red-50 transition-colors"
+                                style={{ color: '#B91C1C' }}
+                              >
+                                <Trash2 className="w-4 h-4" /> {t('delete')}
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        /* GRID — engagement mode: wrapping white tiles, Avatar 56 (gem), name below */
+        <div className="flex flex-wrap gap-3">
+          {filtered.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => openEditModal(s)}
+              className="group flex flex-col items-center justify-center text-center bg-surface rounded-tile transition-all hover:-translate-y-0.5"
+              style={{ width: 96, minHeight: 112, padding: '14px 8px', border: '1px solid var(--hairline)' }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--shadow-soft-lg, 0 12px 28px -10px rgba(20,22,40,.14))' }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}
+            >
+              <Avatar name={s.full_name} variant="gem" size={56} ring={false} />
+              <span className="mt-2.5 text-[13px] font-semibold text-ink-900 leading-tight line-clamp-2 w-full px-0.5">
+                {s.full_name}
+              </span>
+            </button>
+          ))}
+          {/* Last tile — dashed "+ Şagird əlavə et" */}
+          <button
+            type="button"
+            onClick={() => { resetForm(); setAddModal(true) }}
+            className="flex flex-col items-center justify-center text-center rounded-tile transition-colors hover:bg-brand-50"
+            style={{ width: 96, minHeight: 112, padding: '14px 8px', border: '1.5px dashed var(--hairline-strong)', color: 'var(--brand-500)' }}
+          >
+            <span className="inline-flex items-center justify-center rounded-full" style={{ width: 40, height: 40, background: 'var(--brand-50)' }}>
+              <Plus className="w-5 h-5" />
+            </span>
+            <span className="mt-2.5 text-[13px] font-semibold leading-tight">{t('add_student')}</span>
+          </button>
+        </div>
+      )}
+
+      {/* ── Floating bulk-action bar (dark rounded pill, bottom-center) ───────── */}
+      {selected.length > 0 && (
+        <div
+          className="fixed left-1/2 bottom-6 z-50 -translate-x-1/2"
+          style={{ animation: 'zkBulkIn .18s cubic-bezier(.2,.8,.2,1)' }}
+        >
+          <div
+            className="flex items-center gap-1 rounded-pill pl-4 pr-1.5 py-1.5"
+            style={{ background: 'var(--ink-900, #1E2233)', boxShadow: '0 16px 48px -12px rgba(20,22,40,.45)' }}
+          >
+            <span className="text-[13px] font-semibold text-white tabular-nums">{selected.length} seçildi</span>
+            <span className="mx-1 h-4 w-px" style={{ background: 'rgba(255,255,255,.18)' }} />
+            <button
+              type="button"
+              onClick={() => { const first = students.find(x => x.id === selected[0]); if (first) openEditModal(first) }}
+              className="inline-flex items-center gap-1.5 rounded-pill px-3 h-8 text-[13px] font-medium text-white/90 hover:bg-white/10 transition-colors"
+            >
+              <Edit2 className="w-4 h-4" /> {t('edit')}
+            </button>
+            <button
+              type="button"
+              onClick={exportCsv}
+              className="inline-flex items-center gap-1.5 rounded-pill px-3 h-8 text-[13px] font-medium text-white/90 hover:bg-white/10 transition-colors"
+            >
+              <Download className="w-4 h-4" /> {t('export_csv')}
+            </button>
+            <button
+              type="button"
+              onClick={clearSelection}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-pill text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+              aria-label={t('cancel')}
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Single Add Modal */}
       <Modal open={addModal} onClose={() => { setAddModal(false); setError(null) }} title={t('add_student')}>
@@ -422,8 +633,10 @@ export default function Students() {
             <option value="">— Sinif seçin —</option>
             {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </Select>
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
-          <div className="flex justify-end gap-3 pt-4">
+          {error && (
+            <p className="text-sm rounded-input px-3 py-2" style={{ background: '#FEE2E2', color: '#B91C1C' }}>{error}</p>
+          )}
+          <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleAdd} loading={saving} disabled={!form.full_name || !form.email || !form.password}>{t('add')}</Button>
           </div>
@@ -439,8 +652,10 @@ export default function Students() {
             <option value="">— Sinif seçin —</option>
             {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </Select>
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
-          <div className="flex justify-end gap-3 pt-4">
+          {error && (
+            <p className="text-sm rounded-input px-3 py-2" style={{ background: '#FEE2E2', color: '#B91C1C' }}>{error}</p>
+          )}
+          <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={() => { setEditModal(null); resetForm(); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleEdit} loading={saving} disabled={!form.full_name || !form.email}>{t('save')}</Button>
           </div>
@@ -449,8 +664,8 @@ export default function Students() {
 
       {/* Delete Confirmation Modal */}
       <Modal open={!!deleteModal} onClose={() => setDeleteModal(null)} title={t('delete')} size="sm">
-        <p className="text-sm text-gray-600 mb-6">
-          <strong>{deleteModal?.full_name}</strong> adlı şagirdi silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.
+        <p className="text-sm text-ink-600 mb-6">
+          <strong className="text-ink-900">{deleteModal?.full_name}</strong> adlı şagirdi silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.
         </p>
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setDeleteModal(null)}>{t('cancel')}</Button>

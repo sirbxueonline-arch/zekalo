@@ -58,55 +58,16 @@ export default function AppLayout() {
   const title = titleKey ? t(titleKey) : 'Zirva'
 
   return (
-    <div className="min-h-screen flex relative" style={{ background: '#f8f7fb' }}>
-      {/* ── Ambient drifting blobs (fixed, behind everything) ── */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'fixed',
-          inset: 0,
-          pointerEvents: 'none',
-          zIndex: 0,
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          className="section-blob"
-          style={{
-            top: '-12%',
-            left: '-8%',
-            width: '60vw',
-            height: '60vh',
-            background: 'radial-gradient(ellipse at center, rgba(184,192,255,0.55) 0%, transparent 65%)',
-            animation: 'bd1 22s ease-in-out infinite alternate',
-            opacity: 0.55,
-          }}
-        />
-        <div
-          className="section-blob"
-          style={{
-            bottom: '-15%',
-            right: '-10%',
-            width: '55vw',
-            height: '55vh',
-            background: 'radial-gradient(ellipse at center, rgba(200,230,224,0.5) 0%, transparent 65%)',
-            animation: 'bd4 20s ease-in-out -6s infinite alternate',
-            opacity: 0.5,
-          }}
-        />
-      </div>
-
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', width: '100%' }}>
-        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        {/* Sidebar occupies 256 px on large screens */}
-        <div className="flex-1 lg:ml-[256px] flex flex-col min-h-screen">
-          <Topbar title={title} onMenuClick={() => setSidebarOpen(true)} />
-          <main className="flex-1 overflow-auto py-7 px-5 lg:px-8" style={{ background: 'transparent' }}>
-            <div className="max-w-[1400px] mx-auto w-full">
-              <Outlet />
-            </div>
-          </main>
-        </div>
+    <div className="min-h-screen flex bg-canvas">
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {/* Sidebar occupies 248px on large screens (matches expanded rail) */}
+      <div className="flex-1 lg:ml-[248px] flex flex-col min-h-screen min-w-0">
+        <Topbar title={title} onMenuClick={() => setSidebarOpen(true)} />
+        <main className="flex-1 overflow-auto py-6 px-5 lg:py-8 lg:px-8">
+          <div className="max-w-[1400px] mx-auto w-full">
+            <Outlet />
+          </div>
+        </main>
       </div>
     </div>
   )

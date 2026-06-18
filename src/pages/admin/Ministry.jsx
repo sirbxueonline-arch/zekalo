@@ -3,10 +3,10 @@ import { Building2, Send, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
-import Card from '../../components/ui/Card'
 import Table from '../../components/ui/Table'
 import { PageSpinner } from '../../components/ui/Spinner'
 import Badge from '../../components/ui/Badge'
+import EmptyState from '../../components/ui/EmptyState'
 
 export default function Ministry() {
   const { profile, t } = useAuth()
@@ -14,9 +14,12 @@ export default function Ministry() {
   if (profile?.school?.edition !== 'government') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <Building2 className="w-12 h-12 text-purple-mid mb-4" />
-        <h2 className="font-serif text-2xl text-gray-900 mb-2">{t('ministry')}</h2>
-        <p className="text-sm text-gray-500">Bu bolma yalniz dovlet maktablari ucundur</p>
+        <EmptyState
+          tier={1}
+          icon={Building2}
+          title={t('ministry')}
+          description="Bu bölmə yalnız dövlət məktəbləri üçündür."
+        />
       </div>
     )
   }
@@ -88,9 +91,9 @@ function MinistryContent() {
 
   const statusLabels = {
     draft: 'Qaralama',
-    submitted: 'Gonderildi',
-    accepted: 'Qebul edildi',
-    rejected: 'Redd edildi',
+    submitted: 'Göndərildi',
+    accepted: 'Qəbul edildi',
+    rejected: 'Rədd edildi',
     error: t('error'),
   }
   const statusVariants = {
@@ -103,19 +106,29 @@ function MinistryContent() {
 
   const pendingColumns = [
     { key: 'report_type', label: t('reports'), render: (val) => val || '—' },
-    { key: 'status', label: 'Status', render: (val) => <Badge variant={statusVariants[val] || 'default'}>{statusLabels[val] || val}</Badge> },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (val) => <Badge variant={statusVariants[val] || 'default'}>{statusLabels[val] || val}</Badge>,
+    },
     { key: 'created_at', label: t('date'), render: (val) => formatDate(val) },
   ]
 
   const historyColumns = [
     { key: 'created_at', label: t('date'), render: (val) => formatDate(val) },
     { key: 'report_type', label: t('reports'), render: (val) => val || '—' },
-    { key: 'status', label: 'Status', render: (val) => <Badge variant={statusVariants[val] || 'default'}>{statusLabels[val] || val}</Badge> },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (val) => <Badge variant={statusVariants[val] || 'default'}>{statusLabels[val] || val}</Badge>,
+    },
     { key: 'egov_reference', label: 'E-Gov istinad', render: (val) => val || '—' },
     {
       key: 'error_log',
       label: t('error'),
-      render: (val) => val ? <span className="text-red-600 text-xs max-w-[200px] truncate block">{val}</span> : '—',
+      render: (val) => val
+        ? <span className="text-danger text-[12px] font-medium max-w-[200px] truncate block">{val}</span>
+        : '—',
     },
   ]
 
@@ -125,53 +138,112 @@ function MinistryContent() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('ministry')}</span></h1>
+      {/* ── Page header ── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display font-bold text-[22px] text-ink-900 leading-snug">
+            {t('ministry')}
+          </h1>
+          <p className="text-[13px] text-ink-400 mt-0.5">
+            E-Gov.az inteqrasiyası
+          </p>
+        </div>
+      </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="rounded-tile border border-danger/30 bg-danger/5 px-4 py-3 text-[13px] text-danger font-medium">
+          {error}
+        </div>
+      )}
 
-      <Card hover={false}>
+      {/* ── Connection status banner ── */}
+      <div className="liquid-card p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Building2 className="w-5 h-5 text-gray-500" />
-            <span className="text-sm font-medium text-gray-700">E-Gov.az {t('test_connection')}</span>
+            <div className={`icon-chip ${connected ? 'icon-chip-mint' : 'icon-chip-coral'}`}
+              style={{ width: 36, height: 36 }}>
+              <Building2 className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-[14px] font-semibold text-ink-900">
+                E-Gov.az {t('test_connection')}
+              </p>
+              <p className="text-[12px] text-ink-400 mt-0.5">
+                {connected ? 'API açarı konfiqurasiya edilib' : 'API açarı tapılmadı'}
+              </p>
+            </div>
           </div>
           {connected ? (
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-teal" />
-              <span className="text-sm font-medium text-teal">Qosulub</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-pill bg-success/10">
+              <CheckCircle className="w-4 h-4 text-success" />
+              <span className="text-[13px] font-semibold text-success">Qoşulub</span>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <XCircle className="w-5 h-5 text-red-500" />
-              <span className="text-sm font-medium text-red-500">Qosulmayib</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-pill bg-danger/10">
+              <XCircle className="w-4 h-4 text-danger" />
+              <span className="text-[13px] font-semibold text-danger">Qoşulmayıb</span>
             </div>
           )}
         </div>
-      </Card>
+      </div>
 
-      <Card hover={false}>
-        <div className="flex items-center justify-between mb-6">
+      {/* ── Pending / draft reports ── */}
+      <div className="liquid-card overflow-hidden p-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
           <div className="flex items-center gap-3">
-            <Clock className="w-5 h-5 text-purple-mid" />
-            <h2 className="font-serif text-xl text-gray-900">{t('reports')}</h2>
-            {draftCount > 0 && <Badge variant="late">{draftCount} qaralama</Badge>}
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36 }}>
+              <Clock className="w-4 h-4" />
+            </div>
+            <h2 className="font-semibold text-[15px] text-ink-900">{t('reports')}</h2>
+            {draftCount > 0 && (
+              <Badge variant="late">{draftCount} qaralama</Badge>
+            )}
           </div>
           {draftCount > 0 && (
-            <Button variant="teal" onClick={handleBulkSubmit} loading={submitting}>
-              <span className="flex items-center gap-2"><Send className="w-4 h-4" /> {t('submit_egov')}</span>
+            <Button variant="primary" size="sm" onClick={handleBulkSubmit} loading={submitting}>
+              <span className="flex items-center gap-2">
+                <Send className="w-4 h-4" />
+                {t('submit_egov')}
+              </span>
             </Button>
           )}
         </div>
-        <Table columns={pendingColumns} data={pendingReports} emptyMessage={t('no_data')} />
-      </Card>
+        {pendingReports.length === 0 ? (
+          <EmptyState
+            tier={1}
+            icon={Clock}
+            title={t('no_data')}
+            description="Gözləyən hesabat yoxdur."
+            className="border-none shadow-none"
+          />
+        ) : (
+          <Table columns={pendingColumns} data={pendingReports} emptyMessage={t('no_data')} />
+        )}
+      </div>
 
-      <Card hover={false}>
-        <div className="flex items-center gap-3 mb-6">
-          <Building2 className="w-5 h-5 text-purple-mid" />
-          <h2 className="font-serif text-xl text-gray-900">{t('reports')}</h2>
+      {/* ── Full history ── */}
+      <div className="liquid-card overflow-hidden p-0">
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-hairline">
+          <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36 }}>
+            <Building2 className="w-4 h-4" />
+          </div>
+          <h2 className="font-semibold text-[15px] text-ink-900">{t('reports')}</h2>
+          <span className="text-[12px] text-ink-400 ml-auto tabular-nums">
+            {historyReports.length} qeyd
+          </span>
         </div>
-        <Table columns={historyColumns} data={historyReports} emptyMessage={t('no_data')} />
-      </Card>
+        {historyReports.length === 0 ? (
+          <EmptyState
+            tier={1}
+            icon={Building2}
+            title={t('no_data')}
+            description="Hesabat tarixi hələ boşdur."
+            className="border-none shadow-none"
+          />
+        ) : (
+          <Table columns={historyColumns} data={historyReports} emptyMessage={t('no_data')} />
+        )}
+      </div>
     </div>
   )
 }

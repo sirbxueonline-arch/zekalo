@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { FileText, Send, Printer, Sparkles } from 'lucide-react'
+import EmptyState from '../../components/ui/EmptyState'
+import Button from '../../components/ui/Button'
 
 const reportTypeKeys = [
   { value: 'class', labelKey: 'class_report' },
@@ -132,7 +134,7 @@ export default function TeacherReports() {
     const printWindow = window.open('', '', 'width=800,height=600')
     printWindow.document.write(`
       <html><head><title>${t('reports')}</title>
-      <style>body{font-family:system-ui;padding:2rem;color:#1a1a2e}table{width:100%;border-collapse:collapse}th,td{border:1px solid #e2e8f0;padding:8px;text-align:left;font-size:13px}th{background:#f8f7fb;color:#64748b;font-weight:600}h2{color:#7c6ee0}</style>
+      <style>body{font-family:system-ui;padding:2rem;color:#1E2233}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ECEDF3;padding:8px;text-align:left;font-size:13px}th{background:#F6F6FB;color:#9AA0B0;font-weight:600}h2{color:#574FCF}</style>
       </head><body>${previewRef.current.innerHTML}</body></html>
     `)
     printWindow.document.close()
@@ -181,21 +183,34 @@ export default function TeacherReports() {
 
   return (
     <div className="space-y-5 relative">
+      {/* Toast */}
       {submitToast && (
-        <div className={`fixed top-6 right-6 ${submitToast === 'success' ? 'toast-success' : 'toast-error'} px-4 py-3 rounded-2xl text-sm font-semibold z-50`}>
+        <div
+          className={`fixed top-6 right-6 px-4 py-3 rounded-tile text-sm font-semibold z-50 flex items-center gap-2 shadow-modal ${
+            submitToast === 'success' ? 'toast-success' : 'toast-error'
+          }`}
+        >
           {submitToast === 'success' ? 'Hesabat göndərildi' : 'Xəta baş verdi'}
         </div>
       )}
 
-      <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
-        <span className="pastel-text">{t('reports')}</span>
-      </h1>
+      {/* Page header */}
+      <div className="flex items-center gap-3">
+        <div className="icon-chip icon-chip-periwinkle">
+          <FileText className="w-5 h-5" />
+        </div>
+        <h1 className="font-display font-bold text-[26px] text-ink-900 tracking-[-0.01em]">
+          {t('reports')}
+        </h1>
+      </div>
 
-      {/* Filters */}
+      {/* Filters card */}
       <div className="liquid-card p-5">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('reports')}</label>
+            <label className="block text-[13px] font-semibold mb-1.5 uppercase tracking-[0.04em] text-ink-400">
+              {t('reports')}
+            </label>
             <select className="pastel-input" value={reportType} onChange={e => setReportType(e.target.value)}>
               {reportTypeKeys.map(rt => (
                 <option key={rt.value} value={rt.value}>{t(rt.labelKey)}</option>
@@ -203,7 +218,9 @@ export default function TeacherReports() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('class_name')}</label>
+            <label className="block text-[13px] font-semibold mb-1.5 uppercase tracking-[0.04em] text-ink-400">
+              {t('class_name')}
+            </label>
             <select className="pastel-input" value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
               {teacherClasses.length === 0 && <option>—</option>}
               {teacherClasses.map(c => (
@@ -212,49 +229,62 @@ export default function TeacherReports() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('date')}</label>
+            <label className="block text-[13px] font-semibold mb-1.5 uppercase tracking-[0.04em] text-ink-400">
+              {t('date')}
+            </label>
             <input type="date" className="pastel-input" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('date')}</label>
+            <label className="block text-[13px] font-semibold mb-1.5 uppercase tracking-[0.04em] text-ink-400">
+              {t('date')}
+            </label>
             <input type="date" className="pastel-input" value={dateTo} onChange={e => setDateTo(e.target.value)} />
           </div>
         </div>
 
         <div className="flex gap-3 mt-5 flex-wrap">
-          <button
+          <Button
             onClick={generateReport}
             disabled={generating || !selectedClass}
-            className="btn-pastel"
-            style={{ padding: '10px 22px', fontSize: 13, opacity: (generating || !selectedClass) ? 0.5 : 1 }}
+            loading={generating}
+            variant="primary"
+            size="md"
           >
-            <Sparkles className="w-4 h-4" /> {generating ? '...' : t('reports')}
-          </button>
+            <Sparkles className="w-4 h-4" />
+            {generating ? '...' : t('reports')}
+          </Button>
+
           {reportData && (
             <>
-              <button onClick={handlePrint} className="btn-ghost-pastel" style={{ padding: '10px 22px', fontSize: 13 }}>
+              <Button onClick={handlePrint} variant="secondary" size="md">
                 <Printer className="w-4 h-4" /> {t('print')}
-              </button>
+              </Button>
               {reportType === 'ministry' && isGovernment && (
-                <button
+                <Button
                   onClick={handleMinistrySubmit}
                   disabled={submitting}
-                  className="btn-ghost-pastel"
-                  style={{ padding: '10px 22px', fontSize: 13, borderColor: 'rgba(93,184,163,0.4)', color: '#3d8a73' }}
+                  loading={submitting}
+                  variant="teal"
+                  size="md"
                 >
                   <Send className="w-4 h-4" /> {submitting ? '...' : t('submit_egov')}
-                </button>
+                </Button>
               )}
             </>
           )}
         </div>
       </div>
 
+      {/* Report preview */}
       {reportData && (
         <div className="liquid-card p-6">
           <div ref={previewRef}>
-            <h2 className="text-2xl font-bold mb-1" style={{ color: '#1a1a2e' }}>{reportData.className}</h2>
-            <p className="text-sm mb-6" style={{ color: '#64748b' }}>{formatDate(dateFrom)} - {formatDate(dateTo)}</p>
+            <h2 className="font-display font-bold text-xl text-ink-900 mb-1 tracking-[-0.01em]">
+              {reportData.className}
+            </h2>
+            <p className="text-sm text-ink-400 mb-6 tabular-nums">
+              {formatDate(dateFrom)} — {formatDate(dateTo)}
+            </p>
 
             {(reportData.type === 'class' || reportData.type === 'student') && (
               <table className="pastel-table">
@@ -268,17 +298,26 @@ export default function TeacherReports() {
                 <tbody>
                   {reportData.students.map(s => (
                     <tr key={s.id}>
-                      <td style={{ fontWeight: 600 }}>{s.full_name}</td>
-                      <td style={{ textAlign: 'center' }}>{s.grades.length}</td>
+                      <td className="font-semibold text-ink-900">{s.full_name}</td>
+                      <td className="text-center tabular-nums">{s.grades.length}</td>
                       <td style={{ textAlign: 'center' }}>
                         {s.avg != null ? (
-                          <span className="pastel-badge" style={{
-                            background: s.avg >= 8 ? 'rgba(93,184,163,0.16)' : s.avg >= 5 ? 'rgba(232,168,124,0.18)' : 'rgba(229,107,127,0.14)',
-                            color: s.avg >= 8 ? '#3d8a73' : s.avg >= 5 ? '#b46a3e' : '#b83b54',
-                          }}>
+                          <span
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-pill text-xs font-semibold tabular-nums"
+                            style={{
+                              background: s.avg >= 8
+                                ? 'rgba(34,197,94,0.14)'
+                                : s.avg >= 5
+                                ? 'rgba(245,158,11,0.14)'
+                                : 'rgba(239,68,68,0.12)',
+                              color: s.avg >= 8 ? '#15803D' : s.avg >= 5 ? '#B45309' : '#B91C1C',
+                            }}
+                          >
                             {String(s.avg).replace('.', ',')}
                           </span>
-                        ) : '—'}
+                        ) : (
+                          <span className="text-ink-400">—</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -300,11 +339,16 @@ export default function TeacherReports() {
                 <tbody>
                   {reportData.students.map(s => (
                     <tr key={s.id}>
-                      <td style={{ fontWeight: 600 }}>{s.full_name}</td>
-                      <td style={{ textAlign: 'center', color: '#3d8a73', fontWeight: 600 }}>{s.present}</td>
-                      <td style={{ textAlign: 'center', color: '#b46a3e', fontWeight: 600 }}>{s.late}</td>
-                      <td style={{ textAlign: 'center', color: '#b83b54', fontWeight: 600 }}>{s.absent}</td>
-                      <td style={{ textAlign: 'center', fontWeight: 700, color: s.pct >= 85 ? '#3d8a73' : '#b83b54' }}>{s.pct}%</td>
+                      <td className="font-semibold text-ink-900">{s.full_name}</td>
+                      <td className="text-center tabular-nums font-semibold" style={{ color: '#15803D' }}>{s.present}</td>
+                      <td className="text-center tabular-nums font-semibold" style={{ color: '#B45309' }}>{s.late}</td>
+                      <td className="text-center tabular-nums font-semibold" style={{ color: '#B91C1C' }}>{s.absent}</td>
+                      <td
+                        className="text-center tabular-nums font-bold"
+                        style={{ color: s.pct >= 85 ? '#15803D' : '#B91C1C' }}
+                      >
+                        {s.pct}%
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -323,9 +367,16 @@ export default function TeacherReports() {
                 <tbody>
                   {reportData.students.map(s => (
                     <tr key={s.id}>
-                      <td style={{ fontWeight: 600 }}>{s.full_name}</td>
-                      <td style={{ textAlign: 'center' }}>{s.avg != null ? String(s.avg).replace('.', ',') : '—'}</td>
-                      <td style={{ textAlign: 'center', fontWeight: 700, color: s.attendancePct >= 85 ? '#3d8a73' : '#b83b54' }}>{s.attendancePct}%</td>
+                      <td className="font-semibold text-ink-900">{s.full_name}</td>
+                      <td className="text-center tabular-nums">
+                        {s.avg != null ? String(s.avg).replace('.', ',') : <span className="text-ink-400">—</span>}
+                      </td>
+                      <td
+                        className="text-center tabular-nums font-bold"
+                        style={{ color: s.attendancePct >= 85 ? '#15803D' : '#B91C1C' }}
+                      >
+                        {s.attendancePct}%
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -335,22 +386,23 @@ export default function TeacherReports() {
         </div>
       )}
 
+      {/* Empty state */}
       {!reportData && !generating && (
-        <div className="liquid-card p-12">
-          <div className="text-center">
-            <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
-              <FileText className="w-8 h-8" />
-            </div>
-            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>{t('reports')}</p>
-            <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>{t('no_data')}</p>
-          </div>
-        </div>
+        <EmptyState
+          tier={1}
+          icon={FileText}
+          title={t('reports')}
+          description={t('no_data')}
+        />
       )}
 
+      {/* Ministry report history */}
       {ministryReports.length > 0 && (
         <div className="liquid-card overflow-hidden">
-          <div className="px-5 py-4 border-b" style={{ borderColor: 'rgba(124,110,224,0.12)' }}>
-            <h2 className="text-xs tracking-widest uppercase font-semibold" style={{ color: '#64748b' }}>{t('ministry_report')}</h2>
+          <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--hairline)' }}>
+            <h2 className="text-[13px] tracking-[0.04em] uppercase font-semibold text-ink-400">
+              {t('ministry_report')}
+            </h2>
           </div>
           <table className="pastel-table">
             <thead>
@@ -364,15 +416,21 @@ export default function TeacherReports() {
             <tbody>
               {ministryReports.map(r => (
                 <tr key={r.id}>
-                  <td>{formatDate(r.created_at)}</td>
+                  <td className="tabular-nums">{formatDate(r.created_at)}</td>
                   <td>{r.report_type}</td>
-                  <td>{formatDate(r.date_from)} - {formatDate(r.date_to)}</td>
+                  <td className="tabular-nums">{formatDate(r.date_from)} — {formatDate(r.date_to)}</td>
                   <td>
-                    <span className={
-                      r.status === 'approved' ? 'pastel-badge pastel-badge-mint' :
-                      r.status === 'submitted' ? 'pastel-badge pastel-badge-blue' :
-                      'pastel-badge pastel-badge-slate'
-                    }>{r.status}</span>
+                    <span
+                      className={
+                        r.status === 'approved'
+                          ? 'pill-mint'
+                          : r.status === 'submitted'
+                          ? 'pill-blue'
+                          : 'pill-muted'
+                      }
+                    >
+                      {r.status}
+                    </span>
                   </td>
                 </tr>
               ))}

@@ -5,6 +5,7 @@ import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import Modal from '../../components/ui/Modal'
 import Button from '../../components/ui/Button'
+import StatCard from '../../components/ui/StatCard'
 import { fmtNumeric } from '../../lib/dateUtils'
 import {
   ClipboardList,
@@ -18,23 +19,15 @@ import {
   Paperclip,
 } from 'lucide-react'
 
-// ─── Pastel palette ──────────────────────────────────────────────────────────
-const COLOR_PERI  = '#7c6ee0'
-const COLOR_MINT  = '#5db8a3'
-const COLOR_PEACH = '#e8a87c'
-const COLOR_BLUE  = '#6b9dde'
+// ─── Subject tag — single neutral brand tint (color reserved for status) ─────
+const SUBJECT_TAG = {
+  color: 'var(--brand-600)',
+  bg: 'var(--brand-50)',
+  border: 'var(--brand-200)',
+}
 
-const SUBJ_PALETTE = [
-  { color: COLOR_PERI,  bg: 'rgba(124,110,224,0.16)', border: 'rgba(124,110,224,0.30)' },
-  { color: COLOR_MINT,  bg: 'rgba(93,184,163,0.16)',  border: 'rgba(93,184,163,0.30)' },
-  { color: COLOR_PEACH, bg: 'rgba(232,168,124,0.20)', border: 'rgba(232,168,124,0.35)' },
-  { color: COLOR_BLUE,  bg: 'rgba(107,157,222,0.16)', border: 'rgba(107,157,222,0.30)' },
-]
-
-function subjectStyle(name = '') {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  return SUBJ_PALETTE[Math.abs(hash) % SUBJ_PALETTE.length]
+function subjectStyle() {
+  return SUBJECT_TAG
 }
 
 // ─── Date / countdown helpers ─────────────────────────────────────────────────
@@ -57,19 +50,14 @@ function DueDateChip({ dueDate, status }) {
   if (!dueDate) return null
   const days = daysDiff(dueDate)
 
-  // Already submitted / graded — plain date
   if (status === 'submitted' || status === 'graded') {
     return (
       <span
         className="inline-flex items-center gap-1 text-xs"
         style={{
-          padding: '3px 10px',
-          borderRadius: 999,
-          background: 'rgba(255,255,255,0.55)',
-          color: '#64748b',
-          border: '1px solid rgba(124,110,224,0.18)',
-          backdropFilter: 'blur(12px)',
-          fontWeight: 500,
+          padding: '3px 10px', borderRadius: 9999,
+          background: 'var(--surface)', color: 'var(--ink-400)',
+          border: '1px solid var(--hairline-strong)', fontWeight: 500,
         }}
       >
         <Clock className="w-3 h-3" />
@@ -80,7 +68,7 @@ function DueDateChip({ dueDate, status }) {
 
   if (days < 0) {
     return (
-      <span className="pill-rose inline-flex items-center gap-1 text-xs font-semibold" style={{ padding: '3px 10px', borderRadius: 999 }}>
+      <span className="pill-rose inline-flex items-center gap-1 text-xs font-semibold" style={{ padding: '3px 10px', borderRadius: 9999 }}>
         <AlertCircle className="w-3 h-3" />
         {Math.abs(days)} gün gecikmişdir
       </span>
@@ -88,7 +76,7 @@ function DueDateChip({ dueDate, status }) {
   }
   if (days === 0) {
     return (
-      <span className="pill-peach inline-flex items-center gap-1 text-xs font-semibold" style={{ padding: '3px 10px', borderRadius: 999 }}>
+      <span className="pill-peach inline-flex items-center gap-1 text-xs font-semibold" style={{ padding: '3px 10px', borderRadius: 9999 }}>
         <Clock className="w-3 h-3" />
         Bu gün son tarixdir!
       </span>
@@ -96,7 +84,7 @@ function DueDateChip({ dueDate, status }) {
   }
   if (days <= 3) {
     return (
-      <span className="pill-peach inline-flex items-center gap-1 text-xs font-medium" style={{ padding: '3px 10px', borderRadius: 999 }}>
+      <span className="pill-peach inline-flex items-center gap-1 text-xs font-medium" style={{ padding: '3px 10px', borderRadius: 9999 }}>
         <Clock className="w-3 h-3" />
         {days} gün qaldı
       </span>
@@ -106,13 +94,9 @@ function DueDateChip({ dueDate, status }) {
     <span
       className="inline-flex items-center gap-1 text-xs"
       style={{
-        padding: '3px 10px',
-        borderRadius: 999,
-        background: 'rgba(255,255,255,0.55)',
-        color: '#64748b',
-        border: '1px solid rgba(124,110,224,0.18)',
-        backdropFilter: 'blur(12px)',
-        fontWeight: 500,
+        padding: '3px 10px', borderRadius: 9999,
+        background: 'var(--surface)', color: 'var(--ink-400)',
+        border: '1px solid var(--hairline-strong)', fontWeight: 500,
       }}
     >
       <Clock className="w-3 h-3" />
@@ -134,7 +118,7 @@ function StatusBadge({ status }) {
   return (
     <span
       className={`${meta.cls} inline-flex items-center text-xs font-semibold`}
-      style={{ padding: '3px 12px', borderRadius: 999 }}
+      style={{ padding: '3px 12px', borderRadius: 9999 }}
     >
       {meta.label}
     </span>
@@ -145,38 +129,28 @@ function StatusBadge({ status }) {
 function ScoreDisplay({ score, maxScore }) {
   if (score == null) return null
   const pct = maxScore ? Math.min(Math.round((score / maxScore) * 100), 100) : 0
-  const color = pct >= 80 ? COLOR_MINT : pct >= 50 ? COLOR_PEACH : '#ef6c6c'
+  const color =
+    pct >= 80 ? 'var(--mint)'
+    : pct >= 50 ? 'var(--sun)'
+    : 'var(--coral)'
 
   return (
     <div className="flex items-center gap-2">
       <span
         className="inline-flex items-center text-xs font-bold"
         style={{
-          padding: '3px 12px',
-          borderRadius: 999,
-          background: color,
-          color: '#fff',
-          boxShadow: `0 2px 8px ${color}40`,
+          padding: '3px 12px', borderRadius: 9999,
+          background: color, color: '#fff',
         }}
       >
         {score}/{maxScore ?? '—'}
       </span>
       {maxScore != null && (
-        <div
-          style={{
-            width: 64,
-            height: 6,
-            borderRadius: 999,
-            background: 'rgba(124,110,224,0.10)',
-            overflow: 'hidden',
-          }}
-        >
+        <div className="xp-track" style={{ width: 64, height: 6 }}>
           <div
             style={{
-              height: '100%',
-              borderRadius: 999,
-              width: `${pct}%`,
-              background: color,
+              height: '100%', borderRadius: 9999,
+              width: `${pct}%`, background: color,
               transition: 'width .35s ease',
             }}
           />
@@ -186,23 +160,21 @@ function ScoreDisplay({ score, maxScore }) {
   )
 }
 
-// ─── Feedback panel ──────────────────────────────────────────────────────────
+// ─── Teacher feedback panel ───────────────────────────────────────────────────
 function FeedbackPanel({ feedback }) {
   if (!feedback) return null
   return (
-    <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(124,110,224,0.10)' }}>
-      <p className="text-xs font-bold mb-2" style={{ color: '#7c6ee0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+    <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--hairline)' }}>
+      <p className="text-xs font-bold mb-2 uppercase tracking-wider" style={{ color: 'var(--brand-500)' }}>
         Müəllim rəyi
       </p>
       <div
         style={{
-          background: 'rgba(124,110,224,0.08)',
-          borderRadius: 12,
-          padding: '10px 12px',
-          border: '1px solid rgba(124,110,224,0.14)',
+          background: 'var(--brand-50)', borderRadius: 12,
+          padding: '10px 14px', border: '1px solid var(--brand-200)',
         }}
       >
-        <p className="text-sm whitespace-pre-wrap" style={{ color: '#1a1a2e', lineHeight: 1.55 }}>
+        <p className="text-sm whitespace-pre-wrap" style={{ color: 'var(--ink-900)', lineHeight: 1.55 }}>
           {feedback}
         </p>
       </div>
@@ -238,7 +210,7 @@ function validateFile(file) {
 
 function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error }) {
   const [content, setContent] = useState('')
-  const [file, setFile] = useState(null)
+  const [file, setFile]       = useState(null)
   const [dragOver, setDragOver] = useState(false)
   const [fileError, setFileError] = useState(null)
   const fileInputRef = useRef(null)
@@ -280,35 +252,33 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
     <Modal open={open} onClose={onClose} title="Tapşırığı Təhvil Ver" size="lg">
       {assignment && (
         <div className="space-y-4">
-          {/* Assignment header */}
+          {/* Assignment summary header */}
           <div
             className="flex items-start gap-3 p-4"
             style={{
-              background: 'rgba(255,255,255,0.55)',
-              border: '1px solid rgba(124,110,224,0.16)',
-              borderRadius: 16,
-              backdropFilter: 'blur(12px)',
+              background: 'var(--brand-50)',
+              border: '1px solid var(--brand-200)',
+              borderRadius: 12,
             }}
           >
             <div
               className="flex items-center justify-center flex-shrink-0"
               style={{
-                width: 36, height: 36, borderRadius: 12,
-                background: sStyle.bg,
-                border: `1px solid ${sStyle.border}`,
+                width: 36, height: 36, borderRadius: 10,
+                background: 'var(--surface)', border: '1px solid var(--brand-200)',
               }}
             >
               <FileText className="w-4 h-4" style={{ color: sStyle.color }} />
             </div>
             <div className="flex-1 min-w-0">
-              <p style={{ fontSize: 12, fontWeight: 700, color: sStyle.color, marginBottom: 2 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: sStyle.color, marginBottom: 2 }}>
                 {assignment.subject?.name}
               </p>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a2e' }}>
+              <h3 className="font-semibold" style={{ fontSize: 14, color: 'var(--ink-900)' }}>
                 {assignment.title}
               </h3>
               {assignment.description && (
-                <p className="text-xs mt-1" style={{ color: '#64748b', lineHeight: 1.5 }}>
+                <p className="text-xs mt-1" style={{ color: 'var(--ink-400)', lineHeight: 1.5 }}>
                   {assignment.description}
                 </p>
               )}
@@ -319,22 +289,22 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
             <div
               className="flex items-center gap-2 px-4 py-3"
               style={{
-                background: 'rgba(239,108,108,0.10)',
-                border: '1px solid rgba(239,108,108,0.25)',
+                background: 'rgba(251,113,133,0.10)',
+                border: '1px solid rgba(251,113,133,0.25)',
                 borderRadius: 12,
               }}
             >
-              <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#ef6c6c' }} />
-              <p className="text-xs font-medium" style={{ color: '#b13838' }}>
+              <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--coral)' }} />
+              <p className="text-xs font-medium" style={{ color: '#B91C1C' }}>
                 Son tarix keçib. Cavabınız gecikmiş kimi qeyd ediləcək.
               </p>
             </div>
           )}
 
           <div>
-            <label className="block" style={{ fontSize: 13, fontWeight: 600, color: '#1a1a2e', marginBottom: 6 }}>
+            <label className="block" style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-900)', marginBottom: 6 }}>
               Mətn cavabı
-              <span className="ml-1 text-xs font-normal" style={{ color: '#94a3b8' }}>(istəyə görə)</span>
+              <span className="ml-1 text-xs font-normal" style={{ color: 'var(--ink-400)' }}>(istəyə görə)</span>
             </label>
             <textarea
               className="pastel-input"
@@ -344,38 +314,32 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
               onChange={e => setContent(e.target.value)}
               style={{ resize: 'vertical', minHeight: 90 }}
             />
-            <p className="text-xs mt-1 text-right" style={{ color: '#94a3b8' }}>{content.length} simvol</p>
+            <p className="text-xs mt-1 text-right" style={{ color: 'var(--ink-400)' }}>
+              {content.length} simvol
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px" style={{ background: 'rgba(124,110,224,0.18)' }} />
-            <span className="text-xs font-medium" style={{ color: '#94a3b8' }}>və ya fayl yükləyin</span>
-            <div className="flex-1 h-px" style={{ background: 'rgba(124,110,224,0.18)' }} />
+            <div className="flex-1 h-px" style={{ background: 'var(--hairline)' }} />
+            <span className="text-xs font-medium" style={{ color: 'var(--ink-400)' }}>və ya fayl yükləyin</span>
+            <div className="flex-1 h-px" style={{ background: 'var(--hairline)' }} />
           </div>
 
+          {/* Drop zone */}
           <div
             style={{
-              border: `2px dashed ${dragOver ? COLOR_PERI : file ? COLOR_MINT : 'rgba(124,110,224,0.30)'}`,
-              borderRadius: 16,
-              background: dragOver
-                ? 'rgba(124,110,224,0.08)'
-                : file
-                ? 'rgba(93,184,163,0.08)'
-                : 'rgba(255,255,255,0.55)',
+              border: `2px dashed ${dragOver ? 'var(--brand-400)' : file ? 'var(--mint)' : 'var(--hairline-strong)'}`,
+              borderRadius: 14,
+              background: dragOver ? 'var(--brand-50)' : file ? 'rgba(31,168,85,0.06)' : 'var(--surface)',
               cursor: !file ? 'pointer' : 'default',
-              transition: 'all .25s cubic-bezier(.22,1,.36,1)',
+              transition: 'all .2s var(--ease-out-quint)',
             }}
             onDrop={handleDrop}
             onDragOver={e => { e.preventDefault(); setDragOver(true) }}
             onDragLeave={() => setDragOver(false)}
             onClick={() => !file && fileInputRef.current?.click()}
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              className="hidden"
-              onChange={handleFileChange}
-            />
+            <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} />
 
             {file ? (
               <div className="flex items-center gap-3 px-5 py-4">
@@ -383,23 +347,23 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
                   className="flex items-center justify-center flex-shrink-0"
                   style={{
                     width: 40, height: 40, borderRadius: 12,
-                    background: 'rgba(93,184,163,0.18)',
-                    border: '1px solid rgba(93,184,163,0.32)',
+                    background: 'rgba(34,197,94,0.14)',
+                    border: '1px solid rgba(34,197,94,0.28)',
                   }}
                 >
-                  <Paperclip className="w-5 h-5" style={{ color: COLOR_MINT }} />
+                  <Paperclip className="w-5 h-5" style={{ color: 'var(--mint)' }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold truncate" style={{ color: '#1a1a2e' }}>{file.name}</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{formatFileSize(file.size)}</p>
+                  <p className="text-sm font-bold truncate" style={{ color: 'var(--ink-900)' }}>{file.name}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--ink-400)' }}>{formatFileSize(file.size)}</p>
                 </div>
                 <button
                   type="button"
                   onClick={e => { e.stopPropagation(); setFile(null) }}
                   className="flex-shrink-0 transition-all flex items-center justify-center"
-                  style={{ width: 32, height: 32, borderRadius: 8, color: '#94a3b8' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,108,108,0.10)'; e.currentTarget.style.color = '#b13838' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8' }}
+                  style={{ width: 32, height: 32, borderRadius: 8, color: 'var(--ink-400)' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(251,113,133,0.10)'; e.currentTarget.style.color = '#B91C1C' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--ink-400)' }}
                   aria-label="Bağla"
                 >
                   <X className="w-4 h-4" />
@@ -407,20 +371,13 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
               </div>
             ) : (
               <div className="px-5 py-8 text-center">
-                <div
-                  className="flex items-center justify-center mx-auto mb-3"
-                  style={{
-                    width: 44, height: 44, borderRadius: 14,
-                    background: 'rgba(124,110,224,0.10)',
-                    border: '1px solid rgba(124,110,224,0.18)',
-                  }}
-                >
-                  <Upload className="w-5 h-5" style={{ color: COLOR_PERI }} />
+                <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 44, height: 44 }}>
+                  <Upload className="w-5 h-5" />
                 </div>
-                <p style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>
+                <p className="font-semibold" style={{ fontSize: 14, color: 'var(--ink-900)' }}>
                   Faylı sürükləyin və ya seçin
                 </p>
-                <p className="text-xs mt-1" style={{ color: '#64748b' }}>
+                <p className="text-xs mt-1" style={{ color: 'var(--ink-400)' }}>
                   PDF, Word, Excel, şəkil, mətn — maks. 50MB
                 </p>
               </div>
@@ -431,13 +388,13 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
             <div
               className="flex items-start gap-2 px-4 py-3"
               style={{
-                background: 'rgba(239,108,108,0.10)',
-                border: '1px solid rgba(239,108,108,0.25)',
+                background: 'rgba(251,113,133,0.10)',
+                border: '1px solid rgba(251,113,133,0.25)',
                 borderRadius: 12,
               }}
             >
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#ef6c6c' }} />
-              <p className="text-xs font-medium" style={{ color: '#b13838' }}>{fileError}</p>
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--coral)' }} />
+              <p className="text-xs font-medium" style={{ color: '#B91C1C' }}>{fileError}</p>
             </div>
           )}
 
@@ -445,13 +402,13 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
             <div
               className="flex items-start gap-2 px-4 py-3"
               style={{
-                background: 'rgba(239,108,108,0.10)',
-                border: '1px solid rgba(239,108,108,0.25)',
+                background: 'rgba(251,113,133,0.10)',
+                border: '1px solid rgba(251,113,133,0.25)',
                 borderRadius: 12,
               }}
             >
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#ef6c6c' }} />
-              <p className="text-xs font-medium" style={{ color: '#b13838' }}>{error}</p>
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--coral)' }} />
+              <p className="text-xs font-medium" style={{ color: '#B91C1C' }}>{error}</p>
             </div>
           )}
 
@@ -476,40 +433,45 @@ function SubmitModal({ assignment, open, onClose, onSubmit, submitting, error })
   )
 }
 
-// ─── Assignment card ─────────────────────────────────────────────────────────
+// ─── Assignment card — left accent bar + hover lift ───────────────────────────
 function AssignmentCard({ assignment, status, submission, onSubmitClick }) {
   const sStyle = subjectStyle(assignment.subject?.name || '')
 
   return (
     <div
-      className="liquid-card pastel-hover overflow-hidden"
+      className="liquid-card overflow-hidden"
       style={{
         padding: 0,
-        borderLeft: `4px solid ${sStyle.color}`,
+        borderLeft: '3px solid var(--brand-300)',
+        transition: 'transform .15s var(--ease-out-quint), box-shadow .15s var(--ease-out-quint)',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.transform = 'translateY(-2px)'
+        e.currentTarget.style.boxShadow = 'var(--shadow-soft-lg)'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = ''
       }}
     >
       <div className="px-6 py-5">
         <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span
-              style={{
-                display: 'inline-flex', alignItems: 'center',
-                background: sStyle.bg,
-                color: sStyle.color,
-                border: `1px solid ${sStyle.border}`,
-                borderRadius: 999,
-                padding: '4px 12px',
-                fontSize: 12,
-                fontWeight: 700,
-              }}
-            >
-              {assignment.subject?.name || 'Fənn'}
-            </span>
-          </div>
+          {/* Subject tag — neutral brand chip */}
+          <span
+            style={{
+              display: 'inline-flex', alignItems: 'center',
+              background: sStyle.bg, color: sStyle.color,
+              border: `1px solid ${sStyle.border}`,
+              borderRadius: 8, padding: '4px 10px',
+              fontSize: 12, fontWeight: 600,
+            }}
+          >
+            {assignment.subject?.name || 'Fənn'}
+          </span>
           <DueDateChip dueDate={assignment.due_date} status={status} />
         </div>
 
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a2e', marginBottom: 6, lineHeight: 1.35 }}>
+        <h3 className="font-semibold" style={{ fontSize: 15, color: 'var(--ink-900)', marginBottom: 6, lineHeight: 1.35 }}>
           {assignment.title}
         </h3>
 
@@ -517,13 +479,9 @@ function AssignmentCard({ assignment, status, submission, onSubmitClick }) {
           <p
             className="mb-4"
             style={{
-              fontSize: 14,
-              color: '#64748b',
-              lineHeight: 1.55,
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
+              fontSize: 14, color: 'var(--ink-600)', lineHeight: 1.55,
+              display: '-webkit-box', WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical', overflow: 'hidden',
             }}
           >
             {assignment.description}
@@ -541,7 +499,7 @@ function AssignmentCard({ assignment, status, submission, onSubmitClick }) {
           {status === 'pending' && (
             <Button onClick={() => onSubmitClick(assignment)} size="sm">
               <span className="flex items-center gap-1.5">
-                <Upload className="w-3.5 h-3.5" />
+                <Send className="w-3.5 h-3.5" />
                 Təhvil ver
               </span>
             </Button>
@@ -554,32 +512,13 @@ function AssignmentCard({ assignment, status, submission, onSubmitClick }) {
   )
 }
 
-// ─── Overview pill ───────────────────────────────────────────────────────────
-function OverviewPill({ icon: Icon, label, count, tone }) {
-  return (
-    <div
-      className={`${tone} flex items-center gap-2.5`}
-      style={{
-        padding: '10px 16px',
-        borderRadius: 999,
-        fontSize: 13,
-        fontWeight: 600,
-      }}
-    >
-      <Icon className="w-4 h-4 flex-shrink-0" />
-      <span>{label}</span>
-      <span className="ml-auto font-bold tabular-nums">{count}</span>
-    </div>
-  )
-}
-
-// ─── Filter tabs ─────────────────────────────────────────────────────────────
+// ─── Filter pill ─────────────────────────────────────────────────────────────
 const FILTER_TABS = [
-  { key: 'all', label: 'Hamısı' },
-  { key: 'pending', label: 'Gözləyən' },
+  { key: 'all',       label: 'Hamısı' },
+  { key: 'pending',   label: 'Gözləyən' },
   { key: 'submitted', label: 'Təhvil verilmiş' },
-  { key: 'late', label: 'Gecikmiş' },
-  { key: 'graded', label: 'Qiymətləndirilmiş' },
+  { key: 'late',      label: 'Gecikmiş' },
+  { key: 'graded',    label: 'Qiymətləndirilmiş' },
 ]
 
 function FilterPill({ active, onClick, count, isOverdue, children }) {
@@ -589,16 +528,13 @@ function FilterPill({ active, onClick, count, isOverdue, children }) {
       className="inline-flex items-center transition-all whitespace-nowrap flex-shrink-0"
       style={{
         padding: '8px 16px',
-        borderRadius: 999,
+        borderRadius: 9999,
         fontSize: 13,
         fontWeight: 600,
         gap: 6,
-        background: active
-          ? 'linear-gradient(135deg, rgba(124,110,224,0.18) 0%, rgba(93,184,163,0.18) 100%)'
-          : 'rgba(255,255,255,0.55)',
-        border: active ? '1px solid rgba(124,110,224,0.5)' : '1px solid rgba(124,110,224,0.18)',
-        color: active ? '#5448a8' : '#475569',
-        backdropFilter: 'blur(12px)',
+        background: active ? 'var(--brand-100)' : 'var(--surface)',
+        border: active ? '1.5px solid var(--brand-400)' : '1px solid var(--hairline-strong)',
+        color: active ? 'var(--brand-600)' : 'var(--ink-600)',
         cursor: 'pointer',
       }}
     >
@@ -606,9 +542,9 @@ function FilterPill({ active, onClick, count, isOverdue, children }) {
       {count > 0 && (
         <span
           style={{
-            background: isOverdue ? 'rgba(239,108,108,0.20)' : 'rgba(124,110,224,0.22)',
-            color: isOverdue ? '#b13838' : '#5448a8',
-            borderRadius: 999,
+            background: isOverdue ? 'rgba(244,103,126,0.16)' : 'var(--brand-100)',
+            color: isOverdue ? '#B91C1C' : 'var(--brand-600)',
+            borderRadius: 9999,
             padding: '2px 8px',
             fontSize: 10,
             fontWeight: 700,
@@ -625,14 +561,14 @@ function FilterPill({ active, onClick, count, isOverdue, children }) {
 export default function StudentAssignments() {
   const { profile } = useAuth()
 
-  const [loading, setLoading] = useState(true)
-  const [assignments, setAssignments] = useState([])
-  const [submissions, setSubmissions] = useState([])
-  const [fetchError, setFetchError] = useState(null)
-  const [activeTab, setActiveTab] = useState('all')
+  const [loading, setLoading]                 = useState(true)
+  const [assignments, setAssignments]         = useState([])
+  const [submissions, setSubmissions]         = useState([])
+  const [fetchError, setFetchError]           = useState(null)
+  const [activeTab, setActiveTab]             = useState('all')
   const [selectedAssignment, setSelectedAssignment] = useState(null)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState(null)
+  const [submitting, setSubmitting]           = useState(false)
+  const [submitError, setSubmitError]         = useState(null)
 
   useEffect(() => {
     if (!profile) return
@@ -747,7 +683,7 @@ export default function StudentAssignments() {
     setSubmitting(false)
   }
 
-  // Counts
+  // ── Counts ────────────────────────────────────────────────────────────────
   const counts = { pending: 0, submitted: 0, late: 0, graded: 0 }
   assignments.forEach(a => {
     const s = getStatus(a)
@@ -759,7 +695,6 @@ export default function StudentAssignments() {
       ? assignments
       : assignments.filter(a => getStatus(a) === activeTab)
 
-  // Loading / empty states
   if (loading) return <PageSpinner />
 
   if (fetchError) {
@@ -775,11 +710,14 @@ export default function StudentAssignments() {
   if (assignments.length === 0) {
     return (
       <div className="space-y-6">
-        <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-          <span className="pastel-text">Tapşırıqlar</span>
+        <h1
+          className="font-display"
+          style={{ fontSize: 32, fontWeight: 800, color: 'var(--ink-900)', letterSpacing: '-0.02em', lineHeight: 1.12 }}
+        >
+          Tapşırıqlar
         </h1>
         <EmptyState
-          icon={ClipboardList}
+          pose="reading"
           title="Tapşırıq yoxdur"
           description="Müəlliminiz tapşırıq əlavə etdikdə burada görünəcək."
         />
@@ -789,19 +727,29 @@ export default function StudentAssignments() {
 
   return (
     <div className="space-y-6">
-      <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-        <span className="pastel-text">Tapşırıqlar</span>
-      </h1>
 
-      {/* Status overview pills */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <OverviewPill icon={ClipboardList} label="Gözləyən"          count={counts.pending}   tone="pill-peri" />
-        <OverviewPill icon={CheckCircle2}  label="Təhvil verilmiş"   count={counts.submitted} tone="pill-mint" />
-        <OverviewPill icon={AlertCircle}   label="Gecikmiş"          count={counts.late}      tone="pill-rose" />
-        <OverviewPill icon={Send}          label="Qiymətləndirilmiş" count={counts.graded}    tone="pill-blue" />
+      {/* ── Page header ── */}
+      <div className="flex items-center gap-3">
+        <div className="icon-chip icon-chip-periwinkle" style={{ width: 44, height: 44 }}>
+          <ClipboardList className="w-5 h-5" />
+        </div>
+        <h1
+          className="font-display"
+          style={{ fontSize: 32, fontWeight: 800, color: 'var(--ink-900)', letterSpacing: '-0.02em', lineHeight: 1.12 }}
+        >
+          Tapşırıqlar
+        </h1>
       </div>
 
-      {/* Filter tabs */}
+      {/* ── Status overview KPI cards ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatCard label="Gözləyən"          value={counts.pending}   icon={ClipboardList} tone="periwinkle" />
+        <StatCard label="Təhvil verilmiş"   value={counts.submitted} icon={CheckCircle2}  tone="mint" />
+        <StatCard label="Gecikmiş"          value={counts.late}      icon={AlertCircle}   tone="coral" />
+        <StatCard label="Qiymətləndirilmiş" value={counts.graded}    icon={Send}          tone="blue" />
+      </div>
+
+      {/* ── Filter pills ── */}
       <div className="flex gap-2 overflow-x-auto pb-1">
         {FILTER_TABS.map(tab => (
           <FilterPill
@@ -816,10 +764,10 @@ export default function StudentAssignments() {
         ))}
       </div>
 
-      {/* Assignment cards */}
+      {/* ── Assignment cards ── */}
       {filtered.length === 0 ? (
         <EmptyState
-          icon={ClipboardList}
+          pose="thinking"
           title="Bu kateqoriyada tapşırıq yoxdur"
           description="Filtri dəyişərək digər tapşırıqları görə bilərsiniz."
         />
@@ -841,7 +789,7 @@ export default function StudentAssignments() {
         </div>
       )}
 
-      {/* Submit modal */}
+      {/* ── Submit modal ── */}
       <SubmitModal
         assignment={selectedAssignment}
         open={!!selectedAssignment}

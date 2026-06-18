@@ -414,13 +414,13 @@ function AssignAdminModal({ open, onClose, onAssigned, school, L }) {
       size="lg"
     >
       <div className="space-y-5">
-        {/* Mode tabs */}
-        <div className="flex gap-2 p-1 rounded-2xl" style={{ background: 'rgba(124,110,224,0.08)' }}>
+        {/* Mode tabs — segmented pill group */}
+        <div className="flex gap-1 p-1 rounded-pill" style={{ background: 'var(--surface-2)', border: '1px solid var(--hairline)' }}>
           <button
             type="button"
             onClick={() => setMode('existing')}
-            className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all ${
-              mode === 'existing' ? 'bg-white text-[#1a1a2e] shadow-sm' : 'text-[#64748b] hover:text-[#1a1a2e]'
+            className={`flex-1 py-2 px-4 rounded-pill text-sm font-semibold transition-all ${
+              mode === 'existing' ? 'bg-surface text-ink-900 shadow-soft' : 'text-ink-600 hover:text-ink-900'
             }`}
           >
             {tx(L, 'Mövcud istifadəçi', 'Existing user', 'Существующий пользователь', 'Mevcut kullanıcı')}
@@ -428,8 +428,8 @@ function AssignAdminModal({ open, onClose, onAssigned, school, L }) {
           <button
             type="button"
             onClick={() => setMode('new')}
-            className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all ${
-              mode === 'new' ? 'bg-white text-[#1a1a2e] shadow-sm' : 'text-[#64748b] hover:text-[#1a1a2e]'
+            className={`flex-1 py-2 px-4 rounded-pill text-sm font-semibold transition-all ${
+              mode === 'new' ? 'bg-surface text-ink-900 shadow-soft' : 'text-ink-600 hover:text-ink-900'
             }`}
           >
             {tx(L, 'Yeni istifadəçi yarat', 'Create new user', 'Создать пользователя', 'Yeni kullanıcı oluştur')}
@@ -455,10 +455,10 @@ function AssignAdminModal({ open, onClose, onAssigned, school, L }) {
             <div className="max-h-80 overflow-y-auto -mx-2">
               {searching ? (
                 <div className="flex items-center justify-center py-10">
-                  <Loader2 className="w-5 h-5 animate-spin text-[#7c6ee0]" />
+                  <Loader2 className="w-5 h-5 animate-spin text-brand-500" />
                 </div>
               ) : searchResults.length === 0 ? (
-                <p className="text-sm text-[#64748b] text-center py-8">
+                <p className="text-sm text-ink-400 text-center py-8">
                   {searchQuery
                     ? tx(L, 'Heç bir istifadəçi tapılmadı', 'No users found', 'Пользователи не найдены', 'Kullanıcı bulunamadı')
                     : tx(L, 'Axtarmaq üçün e-poçt yazın', 'Type email to search', 'Введите email для поиска', 'Aramak için email yazın')}
@@ -468,12 +468,12 @@ function AssignAdminModal({ open, onClose, onAssigned, school, L }) {
                   {searchResults.map(p => (
                     <div
                       key={p.id}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/60 transition-colors"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-tile hover:bg-brand-50 transition-colors"
                     >
                       <Avatar name={p.full_name || p.email} size="sm" color={p.avatar_color} />
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-[#1a1a2e] truncate">{p.full_name || '—'}</p>
-                        <p className="text-xs text-[#64748b] truncate">{p.email}</p>
+                        <p className="text-sm font-semibold text-ink-900 truncate">{p.full_name || '—'}</p>
+                        <p className="text-xs text-ink-600 truncate">{p.email}</p>
                       </div>
                       <Badge variant={p.role === 'admin' ? 'info' : p.role === 'super_admin' ? 'info' : 'neutral'}>
                         {p.role}
@@ -518,9 +518,9 @@ function AssignAdminModal({ open, onClose, onAssigned, school, L }) {
               helperText={tx(L, 'Admin daxil olduqdan sonra şifrəni dəyişməlidir', 'Admin should change password after first login', 'Админ должен сменить пароль после входа', 'Yönetici giriş sonrası şifresini değiştirmeli')}
               placeholder="••••••••"
             />
-            <div className="flex items-start gap-3 p-3 rounded-xl" style={{ background: 'rgba(107,157,222,0.10)', border: '1px solid rgba(107,157,222,0.25)' }}>
-              <Mail className="w-4 h-4 text-[#6b9dde] flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-[#2f5a8c]">
+            <div className="flex items-start gap-3 p-3 rounded-input" style={{ background: '#DBEAFE', border: '1px solid rgba(59,130,246,0.25)' }}>
+              <Mail className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#1D4ED8' }} />
+              <p className="text-xs leading-relaxed" style={{ color: '#1D4ED8' }}>
                 {tx(L, 'Bu istifadəçi e-poçt vasitəsilə təsdiq linki alacaq və ilk girişdən sonra admin paneline yönəldiləcək.',
                       'This user will receive a confirmation email and be redirected to the admin panel after first login.',
                       'Пользователь получит письмо подтверждения и будет перенаправлен в админ-панель.',
@@ -731,22 +731,26 @@ export default function SuperAdminSchools() {
 
   if (error) {
     return (
-      <div className="text-center py-16">
-        <p className="text-red-600 text-sm mb-4">{error}</p>
-        <Button onClick={fetchData}>
-          <span className="flex items-center gap-2"><RefreshCw className="w-4 h-4" /> {tx(L, 'Yenidən cəhd et', 'Retry', 'Повторить', 'Tekrar dene')}</span>
-        </Button>
-      </div>
+      <EmptyState
+        pose="thinking"
+        title={tx(L, 'Nəsə düz getmədi', 'Something went wrong', 'Что-то пошло не так', 'Bir şeyler ters gitti')}
+        description={error}
+        action={
+          <Button onClick={fetchData} variant="primary">
+            <span className="flex items-center gap-2"><RefreshCw className="w-4 h-4" /> {tx(L, 'Yenidən cəhd et', 'Retry', 'Повторить', 'Tekrar dene')}</span>
+          </Button>
+        }
+      />
     )
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-7">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-4xl text-gray-900">{tx(L, 'Məktəblər', 'Schools', 'Школы', 'Okullar')}</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="font-display font-extrabold text-[28px] leading-tight text-ink-900">{tx(L, 'Məktəblər', 'Schools', 'Школы', 'Okullar')}</h1>
+          <p className="text-sm text-ink-600 mt-1">
             {tx(L, 'Platformada qeydiyyatlı bütün məktəbləri idarə edin',
                   'Manage all schools registered on the platform',
                   'Управляйте всеми школами на платформе',
@@ -754,7 +758,7 @@ export default function SuperAdminSchools() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={fetchData} variant="ghost" className="flex items-center gap-2">
+          <Button onClick={fetchData} variant="secondary" className="flex items-center gap-2">
             <RefreshCw className="w-4 h-4" />
             {tx(L, 'Yenilə', 'Refresh', 'Обновить', 'Yenile')}
           </Button>
@@ -765,26 +769,26 @@ export default function SuperAdminSchools() {
         </div>
       </div>
 
-      {/* Summary stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard label={tx(L, 'Ümumi məktəblər', 'Total schools', 'Всего школ', 'Toplam okullar')} value={totalSchools} icon={School} />
-        <StatCard label={tx(L, 'Dövlət məktəbləri', 'Government schools', 'Государственные', 'Devlet okulları')} value={govCount} icon={BookOpen} />
-        <StatCard label={tx(L, 'IB məktəbləri', 'IB schools', 'IB школы', 'IB okulları')} value={ibCount} icon={GraduationCap} />
-        <StatCard label={tx(L, 'Bu ay qeydiyyat', 'This month', 'В этом месяце', 'Bu ay')} value={thisMonthCount} icon={Calendar} />
+      {/* Summary stat cards — calm, single brand accent led; each KPI owns a hue */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatCard label={tx(L, 'Ümumi məktəblər', 'Total schools', 'Всего школ', 'Toplam okullar')} value={totalSchools} icon={School} tone="periwinkle" />
+        <StatCard label={tx(L, 'Dövlət məktəbləri', 'Government schools', 'Государственные', 'Devlet okulları')} value={govCount} icon={BookOpen} tone="periwinkle" />
+        <StatCard label={tx(L, 'IB məktəbləri', 'IB schools', 'IB школы', 'IB okulları')} value={ibCount} icon={GraduationCap} tone="periwinkle" />
+        <StatCard label={tx(L, 'Bu ay qeydiyyat', 'This month', 'В этом месяце', 'Bu ay')} value={thisMonthCount} icon={Calendar} tone="periwinkle" />
       </div>
 
       {/* Filters */}
-      <Card hover={false} className="p-6">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <Card hover={false} className="p-5">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
               <input
                 type="text"
                 placeholder={tx(L, 'Məktəb adı, rayon və ya admin axtar...', 'Search school, district or admin...', 'Поиск по имени, району или админу...', 'Okul, ilçe veya yönetici ara...')}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full border border-border-soft rounded-md pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+                className="pastel-input pl-10"
               />
             </div>
           </div>
@@ -807,31 +811,35 @@ export default function SuperAdminSchools() {
       </Card>
 
       {/* Schools table */}
-      <Card hover={false} className="p-0 overflow-hidden">
-        <div className="px-8 py-5 border-b border-border-soft flex items-center gap-3">
-          <School className="w-5 h-5 text-purple-mid" />
-          <h2 className="font-serif text-xl text-gray-900">{tx(L, 'Məktəblər siyahısı', 'Schools list', 'Список школ', 'Okullar listesi')}</h2>
-          <span className="ml-auto text-xs text-gray-400">{filtered.length} {tx(L, 'məktəb', 'schools', 'школ', 'okul')}</span>
+      <Card hover={false} flat className="p-0 overflow-hidden">
+        <div className="px-6 py-4 border-b border-hairline flex items-center gap-3">
+          <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36, borderRadius: 12 }}>
+            <School className="w-[18px] h-[18px]" />
+          </div>
+          <h2 className="font-semibold text-[15px] text-ink-900">{tx(L, 'Məktəblər siyahısı', 'Schools list', 'Список школ', 'Okullar listesi')}</h2>
+          <span className="ml-auto text-xs font-medium text-ink-400 tabular-nums">{filtered.length} {tx(L, 'məktəb', 'schools', 'школ', 'okul')}</span>
         </div>
         {filtered.length === 0 ? (
-          <EmptyState
-            icon={School}
-            title={tx(L, 'Məktəb tapılmadı', 'No schools found', 'Школы не найдены', 'Okul bulunamadı')}
-            description={tx(L, 'Axtarış meyarlarınıza uyğun məktəb yoxdur.', 'No schools match your search criteria.', 'Нет школ, соответствующих поиску.', 'Arama kriterlerinize uygun okul yok.')}
-          />
+          <div className="p-6">
+            <EmptyState
+              pose="thinking"
+              title={tx(L, 'Məktəb tapılmadı', 'No schools found', 'Школы не найдены', 'Okul bulunamadı')}
+              description={tx(L, 'Axtarış meyarlarınıza uyğun məktəb yoxdur.', 'No schools match your search criteria.', 'Нет школ, соответствующих поиску.', 'Arama kriterlerinize uygun okul yok.')}
+            />
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pastel-table">
               <thead>
-                <tr className="bg-surface">
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{tx(L, 'Məktəb adı', 'School name', 'Название', 'Okul adı')}</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{tx(L, 'Rayon', 'District', 'Район', 'İlçe')}</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{tx(L, 'Növ', 'Edition', 'Тип', 'Tür')}</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">Admin</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">{tx(L, 'Şagirdlər', 'Students', 'Ученики', 'Öğrenciler')}</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-center">{tx(L, 'Müəllimlər', 'Teachers', 'Учителя', 'Öğretmenler')}</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{tx(L, 'Qeydiyyat', 'Created', 'Создано', 'Oluşturuldu')}</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-right">{tx(L, 'Əməliyyat', 'Actions', 'Действия', 'İşlemler')}</th>
+                <tr>
+                  <th>{tx(L, 'Məktəb adı', 'School name', 'Название', 'Okul adı')}</th>
+                  <th>{tx(L, 'Rayon', 'District', 'Район', 'İlçe')}</th>
+                  <th>{tx(L, 'Növ', 'Edition', 'Тип', 'Tür')}</th>
+                  <th>Admin</th>
+                  <th className="num">{tx(L, 'Şagirdlər', 'Students', 'Ученики', 'Öğrenciler')}</th>
+                  <th className="num">{tx(L, 'Müəllimlər', 'Teachers', 'Учителя', 'Öğretmenler')}</th>
+                  <th>{tx(L, 'Qeydiyyat', 'Created', 'Создано', 'Oluşturuldu')}</th>
+                  <th style={{ textAlign: 'right' }}>{tx(L, 'Əməliyyat', 'Actions', 'Действия', 'İşlemler')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -840,25 +848,27 @@ export default function SuperAdminSchools() {
                   return (
                     <tr
                       key={school.id || i}
-                      className="border-b border-border-soft hover:bg-surface transition-colors"
+                      className="group cursor-pointer"
+                      onClick={() => openDetail(school)}
                     >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">{school.name}</span>
+                      <td>
+                        <div className="flex items-center gap-3">
+                          <Avatar name={school.name} size="sm" ring={false} />
+                          <span className="font-semibold text-ink-900">{school.name}</span>
                           {school.blocked && (
-                            <Badge variant="absent">{tx(L, 'Blok', 'Blocked', 'Заблок.', 'Engellenmiş')}</Badge>
+                            <Badge variant="rose">{tx(L, 'Blok', 'Blocked', 'Заблок.', 'Engellenmiş')}</Badge>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{school.district || '—'}</td>
-                      <td className="px-6 py-4">
+                      <td className="text-ink-600">{school.district || '—'}</td>
+                      <td>
                         <EditionBadge edition={school.edition} govLabel={tx(L, 'Dövlət', 'Government', 'Гос.', 'Devlet')} />
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{adminBySchool[school.id] || '—'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900 font-medium text-center">{counts.student}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900 font-medium text-center">{counts.teacher}</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{formatDate(school.created_at)}</td>
-                      <td className="px-6 py-4">
+                      <td className="text-ink-600">{adminBySchool[school.id] || '—'}</td>
+                      <td className="num font-semibold text-ink-900">{counts.student}</td>
+                      <td className="num font-semibold text-ink-900">{counts.teacher}</td>
+                      <td className="text-ink-400 tabular-nums">{formatDate(school.created_at)}</td>
+                      <td onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5 flex-wrap">
                           <Button
                             variant="ghost"
@@ -916,8 +926,10 @@ export default function SuperAdminSchools() {
         {blockConfirmSchool && (
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-              <p className="text-sm text-gray-700">
+              <div className="icon-chip icon-chip-peach shrink-0" style={{ width: 36, height: 36, borderRadius: 12 }}>
+                <AlertTriangle className="w-[18px] h-[18px]" />
+              </div>
+              <p className="text-sm text-ink-700 leading-relaxed">
                 {blockConfirmSchool.blocked
                   ? `"${blockConfirmSchool.name}" ${tx(L, 'məktəbini aktivləşdirmək istədiyinizə əminsiniz?', 'school will be activated. Are you sure?', 'школа будет активирована. Вы уверены?', 'okulu aktifleştirilecek. Emin misiniz?')}`
                   : `"${blockConfirmSchool.name}" ${tx(L, 'məktəbini blok etmək istədiyinizə əminsiniz?', 'school will be blocked. Are you sure?', 'школа будет заблокирована. Вы уверены?', 'okulu engellenecek. Emin misiniz?')}`}
@@ -949,60 +961,78 @@ export default function SuperAdminSchools() {
         {detailSchool && (
           <div className="space-y-6">
             {/* School info */}
-            <div className="bg-surface rounded-xl p-5 space-y-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-serif text-2xl text-gray-900">{detailSchool.name}</h3>
-                  <p className="text-sm text-gray-500 mt-0.5">{detailSchool.district || '—'}</p>
+            <div className="rounded-tile p-5 space-y-4" style={{ background: 'var(--surface-2)', border: '1px solid var(--hairline)' }}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar name={detailSchool.name} size="lg" ring={false} />
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-[17px] leading-tight text-ink-900 truncate">{detailSchool.name}</h3>
+                    <p className="text-sm text-ink-600 mt-0.5">{detailSchool.district || '—'}</p>
+                  </div>
                 </div>
-                <EditionBadge edition={detailSchool.edition} govLabel={tx(L, 'Dövlət', 'Government', 'Гос.', 'Devlet')} />
+                <div className="flex items-center gap-2 shrink-0">
+                  {detailSchool.blocked && (
+                    <Badge variant="rose">{tx(L, 'Blok', 'Blocked', 'Заблок.', 'Engellenmiş')}</Badge>
+                  )}
+                  <EditionBadge edition={detailSchool.edition} govLabel={tx(L, 'Dövlət', 'Government', 'Гос.', 'Devlet')} />
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-4 text-sm pt-1">
                 <div>
-                  <span className="text-xs text-gray-400 uppercase tracking-wider">{tx(L, 'Dil', 'Language', 'Язык', 'Dil')}</span>
-                  <p className="text-gray-900 font-medium mt-0.5">{LANG_LABELS[detailSchool.default_language] || detailSchool.default_language || '—'}</p>
+                  <span className="text-[11px] font-semibold text-ink-400 uppercase tracking-[0.04em]">{tx(L, 'Dil', 'Language', 'Язык', 'Dil')}</span>
+                  <p className="text-ink-900 font-medium mt-0.5">{LANG_LABELS[detailSchool.default_language] || detailSchool.default_language || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-gray-400 uppercase tracking-wider">{tx(L, 'Qeydiyyat tarixi', 'Created', 'Создано', 'Oluşturuldu')}</span>
-                  <p className="text-gray-900 font-medium mt-0.5">{formatDate(detailSchool.created_at)}</p>
+                  <span className="text-[11px] font-semibold text-ink-400 uppercase tracking-[0.04em]">{tx(L, 'Qeydiyyat tarixi', 'Created', 'Создано', 'Oluşturuldu')}</span>
+                  <p className="text-ink-900 font-medium mt-0.5 tabular-nums">{formatDate(detailSchool.created_at)}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-gray-400 uppercase tracking-wider">Admin</span>
-                  <p className="text-gray-900 font-medium mt-0.5">{adminBySchool[detailSchool.id] || '—'}</p>
+                  <span className="text-[11px] font-semibold text-ink-400 uppercase tracking-[0.04em]">Admin</span>
+                  <p className="text-ink-900 font-medium mt-0.5">{adminBySchool[detailSchool.id] || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-gray-400 uppercase tracking-wider">{tx(L, 'Admin e-poçt', 'Admin email', 'Email админа', 'Yönetici email')}</span>
-                  <p className="text-gray-900 font-medium mt-0.5 break-all">{adminEmailBySchool[detailSchool.id] || '—'}</p>
+                  <span className="text-[11px] font-semibold text-ink-400 uppercase tracking-[0.04em]">{tx(L, 'Admin e-poçt', 'Admin email', 'Email админа', 'Yönetici email')}</span>
+                  <p className="text-ink-900 font-medium mt-0.5 break-all">{adminEmailBySchool[detailSchool.id] || '—'}</p>
                 </div>
               </div>
             </div>
 
-            {/* Stats */}
+            {/* Stats — calm KPI tiles, each owns a hue */}
             {detailLoading ? (
-              <div className="flex items-center justify-center py-6">
-                <RefreshCw className="w-5 h-5 animate-spin text-purple-mid" />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[0, 1, 2, 3].map(i => (
+                  <div key={i} className="pastel-skeleton rounded-tile" style={{ height: 96 }} />
+                ))}
               </div>
             ) : detailStats && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="bg-white border border-border-soft rounded-xl p-4 text-center">
-                  <Users className="w-5 h-5 text-purple-mid mx-auto mb-1" />
-                  <p className="text-2xl font-semibold text-gray-900">{detailStats.students}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{tx(L, 'Şagirdlər', 'Students', 'Ученики', 'Öğrenciler')}</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-surface rounded-tile p-4 flex flex-col items-center text-center" style={{ border: '1px solid var(--hairline)' }}>
+                  <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36, borderRadius: 12 }}>
+                    <Users className="w-[18px] h-[18px]" />
+                  </div>
+                  <p className="font-display font-bold text-[26px] leading-none text-ink-900 mt-2 tabular-nums">{detailStats.students}</p>
+                  <p className="text-xs text-ink-400 mt-1">{tx(L, 'Şagirdlər', 'Students', 'Ученики', 'Öğrenciler')}</p>
                 </div>
-                <div className="bg-white border border-border-soft rounded-xl p-4 text-center">
-                  <GraduationCap className="w-5 h-5 text-purple-mid mx-auto mb-1" />
-                  <p className="text-2xl font-semibold text-gray-900">{detailStats.teachers}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{tx(L, 'Müəllimlər', 'Teachers', 'Учителя', 'Öğretmenler')}</p>
+                <div className="bg-surface rounded-tile p-4 flex flex-col items-center text-center" style={{ border: '1px solid var(--hairline)' }}>
+                  <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36, borderRadius: 12 }}>
+                    <GraduationCap className="w-[18px] h-[18px]" />
+                  </div>
+                  <p className="font-display font-bold text-[26px] leading-none text-ink-900 mt-2 tabular-nums">{detailStats.teachers}</p>
+                  <p className="text-xs text-ink-400 mt-1">{tx(L, 'Müəllimlər', 'Teachers', 'Учителя', 'Öğretmenler')}</p>
                 </div>
-                <div className="bg-white border border-border-soft rounded-xl p-4 text-center">
-                  <Heart className="w-5 h-5 text-purple-mid mx-auto mb-1" />
-                  <p className="text-2xl font-semibold text-gray-900">{detailStats.parents}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{tx(L, 'Valideynlər', 'Parents', 'Родители', 'Veliler')}</p>
+                <div className="bg-surface rounded-tile p-4 flex flex-col items-center text-center" style={{ border: '1px solid var(--hairline)' }}>
+                  <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36, borderRadius: 12 }}>
+                    <Heart className="w-[18px] h-[18px]" />
+                  </div>
+                  <p className="font-display font-bold text-[26px] leading-none text-ink-900 mt-2 tabular-nums">{detailStats.parents}</p>
+                  <p className="text-xs text-ink-400 mt-1">{tx(L, 'Valideynlər', 'Parents', 'Родители', 'Veliler')}</p>
                 </div>
-                <div className="bg-white border border-border-soft rounded-xl p-4 text-center">
-                  <BookOpen className="w-5 h-5 text-purple-mid mx-auto mb-1" />
-                  <p className="text-2xl font-semibold text-gray-900">{detailStats.classes}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{tx(L, 'Siniflər', 'Classes', 'Классы', 'Sınıflar')}</p>
+                <div className="bg-surface rounded-tile p-4 flex flex-col items-center text-center" style={{ border: '1px solid var(--hairline)' }}>
+                  <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36, borderRadius: 12 }}>
+                    <BookOpen className="w-[18px] h-[18px]" />
+                  </div>
+                  <p className="font-display font-bold text-[26px] leading-none text-ink-900 mt-2 tabular-nums">{detailStats.classes}</p>
+                  <p className="text-xs text-ink-400 mt-1">{tx(L, 'Siniflər', 'Classes', 'Классы', 'Sınıflar')}</p>
                 </div>
               </div>
             )}
@@ -1010,25 +1040,30 @@ export default function SuperAdminSchools() {
             {/* Recent notifications */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Bell className="w-4 h-4 text-purple-mid" />
-                <h4 className="font-medium text-gray-900 text-sm">{tx(L, 'Son bildirişlər', 'Recent notifications', 'Последние уведомления', 'Son bildirimler')}</h4>
+                <Bell className="w-4 h-4 text-brand-500" />
+                <h4 className="font-semibold text-ink-900 text-sm">{tx(L, 'Son bildirişlər', 'Recent notifications', 'Последние уведомления', 'Son bildirimler')}</h4>
               </div>
               {detailLoading ? (
-                <p className="text-sm text-gray-400 py-3">{tx(L, 'Yüklənir...', 'Loading...', 'Загрузка...', 'Yükleniyor...')}</p>
+                <div className="space-y-2">
+                  {[0, 1, 2].map(i => (
+                    <div key={i} className="pastel-skeleton rounded-tile" style={{ height: 52 }} />
+                  ))}
+                </div>
               ) : detailNotifications.length === 0 ? (
-                <p className="text-sm text-gray-400 py-3">{tx(L, 'Heç bir bildiriş tapılmadı', 'No notifications found', 'Уведомлений нет', 'Bildirim yok')}</p>
+                <p className="text-sm text-ink-400 py-3">{tx(L, 'Heç bir bildiriş tapılmadı', 'No notifications found', 'Уведомлений нет', 'Bildirim yok')}</p>
               ) : (
-                <div className="space-y-0 border border-border-soft rounded-xl overflow-hidden">
+                <div className="rounded-tile overflow-hidden" style={{ border: '1px solid var(--hairline)' }}>
                   {detailNotifications.map((n, i) => (
                     <div
                       key={n.id || i}
-                      className="flex items-start justify-between px-4 py-3 border-b border-border-soft last:border-0 hover:bg-surface transition-colors"
+                      className="flex items-start justify-between px-4 py-3 transition-colors hover:bg-brand-50"
+                      style={{ borderBottom: i === detailNotifications.length - 1 ? 'none' : '1px solid var(--hairline)' }}
                     >
                       <div className="min-w-0 mr-4">
-                        <p className="text-sm font-medium text-gray-900 truncate">{n.title}</p>
-                        {n.body && <p className="text-xs text-gray-500 truncate mt-0.5">{n.body}</p>}
+                        <p className="text-sm font-semibold text-ink-900 truncate">{n.title}</p>
+                        {n.body && <p className="text-xs text-ink-600 truncate mt-0.5">{n.body}</p>}
                       </div>
-                      <span className="text-xs text-gray-400 whitespace-nowrap shrink-0">{formatDateTime(n.created_at)}</span>
+                      <span className="text-xs text-ink-400 whitespace-nowrap shrink-0 tabular-nums">{formatDateTime(n.created_at)}</span>
                     </div>
                   ))}
                 </div>
@@ -1036,7 +1071,7 @@ export default function SuperAdminSchools() {
             </div>
 
             {/* Quick actions: edit, assign admin */}
-            <div className="pt-2 border-t border-border-soft flex flex-wrap gap-2">
+            <div className="pt-4 border-t border-hairline flex flex-wrap gap-2">
               <Button variant="secondary" onClick={() => { closeDetail(); setEditSchool(detailSchool) }} className="!px-4 !py-2 text-sm">
                 <span className="flex items-center gap-2"><Pencil className="w-4 h-4" />{tx(L, 'Redaktə et', 'Edit', 'Изменить', 'Düzenle')}</span>
               </Button>
@@ -1046,14 +1081,14 @@ export default function SuperAdminSchools() {
             </div>
 
             {/* Block / Unblock action */}
-            <div className="pt-2 border-t border-border-soft space-y-3">
+            <div className="pt-4 border-t border-hairline space-y-3">
               {blockError && (
-                <p className="text-sm text-red-600 bg-red-50 rounded-md px-3 py-2">{blockError}</p>
+                <p className="text-sm font-medium text-danger rounded-input px-3 py-2" style={{ background: 'var(--danger-bg, #FEE2E2)' }}>{blockError}</p>
               )}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{tx(L, 'Məktəb statusu', 'School status', 'Статус школы', 'Okul durumu')}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-sm font-semibold text-ink-900">{tx(L, 'Məktəb statusu', 'School status', 'Статус школы', 'Okul durumu')}</p>
+                  <p className="text-xs text-ink-600 mt-0.5">
                     {detailSchool.blocked
                       ? tx(L, 'Bu məktəb hal-hazırda bloklanmışdır.', 'This school is currently blocked.', 'Эта школа заблокирована.', 'Bu okul şu an engellenmiş.')
                       : tx(L, 'Bu məktəb aktivdir.', 'This school is active.', 'Эта школа активна.', 'Bu okul aktif.')}

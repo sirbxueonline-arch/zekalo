@@ -27,25 +27,31 @@ function getScoreLabel(pct) {
   return 'Zəif'
 }
 
+// Tone → design-system token classes
+const SECTION_TONES = {
+  periwinkle: { chip: 'icon-chip-periwinkle', text: 'text-brand-500' },
+  mint:       { chip: 'icon-chip-mint',       text: 'text-mint'      },
+}
+
 function SectionTitle({ icon: Icon, children, tone = 'periwinkle' }) {
-  const palette = {
-    periwinkle: { bg: 'rgba(124,110,224,0.14)', color: '#7c6ee0' },
-    mint:       { bg: 'rgba(93,184,163,0.14)',  color: '#5db8a3' },
-  }
-  const p = palette[tone] || palette.periwinkle
+  const t = SECTION_TONES[tone] || SECTION_TONES.periwinkle
   return (
-    <div className="flex items-center gap-3 mb-4">
-      <span
-        className="flex items-center justify-center"
-        style={{ width: 36, height: 36, borderRadius: 12, background: p.bg }}
-      >
-        <Icon className="w-4 h-4" style={{ color: p.color }} />
+    <div className="flex items-center gap-3 mb-5">
+      <span className={`icon-chip ${t.chip}`} style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0 }}>
+        <Icon className="w-5 h-5" />
       </span>
-      <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.01em' }}>
+      <h2 className="text-ink-900" style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>
         {children}
       </h2>
     </div>
   )
+}
+
+// Urgency → leading-dot status pill class (meaning-bearing color only).
+function daysLeftPill(d) {
+  if (d <= 3)  return 'pill-rose'
+  if (d <= 7)  return 'pill-peach'
+  return 'pill-mint'
 }
 
 export default function StudentExams() {
@@ -116,7 +122,7 @@ export default function StudentExams() {
   if (fetchError) {
     return (
       <EmptyState
-        icon={ClipboardList}
+        pose="thinking"
         title="Xəta baş verdi"
         description={fetchError}
       />
@@ -124,10 +130,24 @@ export default function StudentExams() {
   }
 
   return (
-    <div className="space-y-8">
-      <h1 style={{ fontSize: 36, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-        <span className="pastel-text">İmtahanlar</span>
-      </h1>
+    <div className="space-y-10">
+      {/* Page hero */}
+      <div className="flex items-center gap-4">
+        <div
+          className="icon-chip icon-chip-periwinkle"
+          style={{ width: 56, height: 56, borderRadius: 16, flexShrink: 0 }}
+        >
+          <ClipboardList className="w-7 h-7" />
+        </div>
+        <div>
+          <h1 className="font-display text-ink-900" style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.12 }}>
+            İmtahanlar
+          </h1>
+          <p className="text-sm text-ink-400 mt-0.5">
+            {upcoming.length} gələcək · {results.length} nəticə
+          </p>
+        </div>
+      </div>
 
       {/* Upcoming exams */}
       <section>
@@ -137,54 +157,55 @@ export default function StudentExams() {
 
         {upcoming.length === 0 ? (
           <EmptyState
-            icon={Calendar}
+            pose="sleeping"
             title="Gələcək imtahan yoxdur"
-            description="Yaxın zamanda planlanmış imtahan tapılmadı."
+            description="Yaxın zamanda planlanmış imtahan tapılmadı. Rahatlayın!"
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {upcoming.map(exam => {
               const examDate = new Date(exam.exam_date)
               const today = new Date()
               today.setHours(0, 0, 0, 0)
               const daysLeft = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24))
-              const urgency =
-                daysLeft <= 3 ? 'poor' :
-                daysLeft <= 7 ? 'late' :
-                                'present'
               return (
-                <Card key={exam.id} className="flex flex-col gap-3">
+                <Card key={exam.id} className="flex flex-col gap-4">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.25 }}>
+                    <div className="min-w-0">
+                      <h3
+                        className="text-ink-900"
+                        style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.3 }}
+                      >
                         {exam.title}
                       </h3>
-                      <p className="text-sm mt-0.5" style={{ color: '#64748b' }}>
-                        {exam.subject?.name}
-                      </p>
+                      <p className="text-sm mt-0.5 text-ink-400">{exam.subject?.name}</p>
                     </div>
-                    <Badge variant={urgency}>
+                    {/* Countdown status pill — leading dot, meaning-bearing color */}
+                    <span className={`${daysLeftPill(daysLeft)} tabular-nums flex-shrink-0`}>
                       {daysLeft === 0 ? 'Bu gün' : daysLeft === 1 ? 'Sabah' : `${daysLeft} gün`}
-                    </Badge>
+                    </span>
                   </div>
 
-                  <div className="space-y-2 text-sm" style={{ color: '#475569' }}>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" style={{ color: '#7c6ee0' }} />
-                      <span>{formatDate(exam.exam_date)}</span>
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-2.5 text-sm text-ink-600">
+                      <Calendar className="w-4 h-4 text-ink-400 flex-shrink-0" />
+                      {formatDate(exam.exam_date)}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" style={{ color: '#5db8a3' }} />
-                      <span>{exam.duration_minutes} dəqiqə</span>
+                    <div className="flex items-center gap-2.5 text-sm text-ink-600">
+                      <Clock className="w-4 h-4 text-ink-400 flex-shrink-0" />
+                      {exam.duration_minutes} dəqiqə
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Award className="w-4 h-4" style={{ color: '#e8a87c' }} />
-                      <span>Maksimum bal: {exam.max_score}</span>
+                    <div className="flex items-center gap-2.5 text-sm text-ink-600">
+                      <Award className="w-4 h-4 text-ink-400 flex-shrink-0" />
+                      Maks. bal: <strong className="text-ink-900 tabular-nums">{exam.max_score}</strong>
                     </div>
                   </div>
 
-                  <div className="pt-2" style={{ borderTop: '1px solid rgba(124,110,224,0.10)' }}>
-                    <span className="text-xs" style={{ color: '#64748b' }}>{exam.class?.name}</span>
+                  <div
+                    className="pt-3 text-xs text-ink-400 font-semibold"
+                    style={{ borderTop: '1px solid var(--hairline)' }}
+                  >
+                    {exam.class?.name}
                   </div>
                 </Card>
               )
@@ -195,12 +216,13 @@ export default function StudentExams() {
 
       {/* Past results */}
       <section>
-        <SectionTitle icon={ClipboardList} tone="mint">
+        <SectionTitle icon={ClipboardList} tone="periwinkle">
           Nəticələr
         </SectionTitle>
 
         {results.length === 0 ? (
           <EmptyState
+            tier={1}
             icon={ClipboardList}
             title="Nəticə yoxdur"
             description="Hələ heç bir imtahan nəticəniz yoxdur."
@@ -226,10 +248,10 @@ export default function StudentExams() {
                       : 0
                     return (
                       <tr key={r.id}>
-                        <td style={{ fontWeight: 600, color: '#1a1a2e' }}>{r.exam.title}</td>
-                        <td style={{ color: '#475569' }}>{r.exam.subject?.name}</td>
-                        <td style={{ color: '#475569' }}>{formatDate(r.exam.exam_date)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 700 }}>
+                        <td className="font-semibold text-ink-900">{r.exam.title}</td>
+                        <td className="text-ink-600">{r.exam.subject?.name}</td>
+                        <td className="text-ink-600">{formatDate(r.exam.exam_date)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 700 }} className="tabular-nums text-ink-900">
                           {r.score} / {r.exam.max_score}
                         </td>
                         <td style={{ textAlign: 'center' }}>

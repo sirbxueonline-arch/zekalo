@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { GraduationCap, BookOpen, LayoutDashboard, Sparkles, ArrowRight, Check, Zap } from 'lucide-react'
+import { GraduationCap, BookOpen, LayoutDashboard, Sparkles, ArrowRight, Check, Zap, Stars } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 import LandingNav from '../components/layout/LandingNav'
 import { useSEO } from '../hooks/useSEO'
@@ -118,27 +118,22 @@ export default function ZekaAIPage() {
   })
 
   const cards = [
-    { icon:GraduationCap,    title:s.c1, sub:s.c1_sub, features:s.c1f, accent:'#7c6ee0', bg:'rgba(184,192,255,0.35)' },
-    { icon:BookOpen,         title:s.c2, sub:s.c2_sub, features:s.c2f, accent:'#5db8a3', bg:'rgba(200,230,224,0.45)' },
-    { icon:LayoutDashboard,  title:s.c3, sub:s.c3_sub, features:s.c3f, accent:'#6b9dde', bg:'rgba(232,236,255,0.55)' },
+    { icon:GraduationCap,    title:s.c1, sub:s.c1_sub, features:s.c1f, accent:'#574FCF', soft:'rgba(87,79,207,0.08)',  chip:'icon-chip-periwinkle' },
+    { icon:BookOpen,         title:s.c2, sub:s.c2_sub, features:s.c2f, accent:'#6D28D9', soft:'rgba(124,92,224,0.08)', chip:'icon-chip-grape' },
+    { icon:LayoutDashboard,  title:s.c3, sub:s.c3_sub, features:s.c3f, accent:'#574FCF', soft:'rgba(87,79,207,0.08)',  chip:'icon-chip-periwinkle' },
   ]
 
   const stats = [
-    { v:s.stat1_v, sub:s.stat1_s, accent:'#7c6ee0' },
-    { v:s.stat2_v, sub:s.stat2_s, accent:'#5db8a3' },
-    { v:s.stat3_v, sub:s.stat3_s, accent:'#6b9dde' },
+    { v:s.stat1_v, sub:s.stat1_s, accent:'var(--ink-900)' },
+    { v:s.stat2_v, sub:s.stat2_s, accent:'var(--ink-900)' },
+    { v:s.stat3_v, sub:s.stat3_s, accent:'var(--ink-900)' },
   ]
 
   return (
-    <div style={{ background:'#f8f7fb' }}>
+    <div style={{ background:'var(--canvas)' }}>
       <style>{`
-        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
-        @keyframes float-chat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-        @keyframes heroGradient {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
+        .zeka-spark { position:absolute; color:var(--grape); pointer-events:none; opacity:.4; }
+        .zeka-orbit { position:absolute; pointer-events:none; opacity:.7; }
         @media(max-width:1023px){
           .zeka-hero-grid { grid-template-columns: 1fr !important; }
           .zeka-chat-col { display: none !important; }
@@ -154,35 +149,52 @@ export default function ZekaAIPage() {
         minHeight:660,
         display:'flex',
         alignItems:'center',
-        background:'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)',
-        backgroundSize:'400% 400%',
-        animation:'heroGradient 12s ease infinite',
+        background:'var(--canvas)',
       }}>
-        {/* Drifting pastel blobs */}
+        {/* Single static brand wash */}
         <div className="hb1"/>
-        <div className="hb2"/>
-        <div className="hb4"/>
-        <div className="hb6"/>
+
+        {/* Sparkle motifs — static "smart" signal (brand + grape) */}
+        <Sparkles className="zeka-spark" style={{ top:'16%', left:'7%', width:24, height:24 }}/>
+        <Sparkles className="zeka-spark" style={{ top:'24%', right:'6%', width:20, height:20, color:'var(--brand-500)' }}/>
+        <Stars     className="zeka-spark" style={{ bottom:'16%', right:'10%', width:22, height:22 }}/>
 
         <div className="max-w-7xl mx-auto px-6 sm:px-10 py-24 w-full" style={{ position:'relative', zIndex:1 }}>
           <div className="zeka-hero-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, alignItems:'center' }}>
 
             {/* Left: text */}
             <div>
-              <h1 style={{
+              {/* Eyebrow badge */}
+              <div style={{
+                display:'inline-flex', alignItems:'center', gap:8, marginBottom:22,
+                padding:'7px 14px 7px 10px', borderRadius:999,
+                background:'#fff', border:'1px solid var(--hairline-strong)',
+                boxShadow:'0 1px 2px rgba(20,22,40,.05)',
+              }}>
+                <span style={{
+                  width:24, height:24, borderRadius:8, display:'inline-flex', alignItems:'center', justifyContent:'center',
+                  background:'linear-gradient(135deg, var(--brand-500), var(--grape))',
+                }}>
+                  <Sparkles style={{ width:13, height:13, color:'#fff' }}/>
+                </span>
+                <span style={{ fontSize:12.5, fontWeight:600, letterSpacing:'-0.01em', color:'var(--ink-700)' }}>
+                  {lang==='az'?'Süni intellekt köməkçisi':'AI assistant'}
+                </span>
+              </div>
+
+              <h1 className="font-display" style={{
                 fontSize:'clamp(3rem,7vw,5.25rem)',
                 fontWeight:800,
                 lineHeight:1.04,
                 letterSpacing:'-0.04em',
                 marginBottom:22,
-                color:'#1a1a2e',
               }}>
                 <span className="pastel-text">{s.hero_h1}</span>
               </h1>
-              <p style={{ fontSize:'clamp(1.05rem,2vw,1.25rem)', color:'#1a1a2e', lineHeight:1.6, marginBottom:6, fontWeight:500 }}>
+              <p style={{ fontSize:'clamp(1.05rem,2vw,1.25rem)', color:'var(--ink-900)', lineHeight:1.6, marginBottom:6, fontWeight:600 }}>
                 {s.hero_tag}
               </p>
-              <p style={{ fontSize:'clamp(1.05rem,2vw,1.25rem)', color:'#64748b', lineHeight:1.6, marginBottom:38, fontWeight:500 }}>
+              <p style={{ fontSize:'clamp(1.05rem,2vw,1.25rem)', color:'var(--ink-600)', lineHeight:1.6, marginBottom:38, fontWeight:500 }}>
                 {s.hero_tag2}
               </p>
               <Link to="/daxil-ol" className="btn-pastel">
@@ -191,27 +203,30 @@ export default function ZekaAIPage() {
             </div>
 
             {/* Right: chat card */}
-            <div className="zeka-chat-col" style={{ animation:'float-chat 5s ease-in-out infinite' }}>
-              <div className="liquid-card" style={{ padding:28 }}>
+            <div className="zeka-chat-col" style={{ position:'relative' }}>
+              {/* Static sparkle accent on the card */}
+              <Sparkles className="zeka-orbit" style={{ top:-16, right:18, width:30, height:30, color:'var(--grape)', zIndex:2 }}/>
+
+              <div className="liquid-card" style={{ padding:28, borderRadius:18 }}>
                 {/* Chat header */}
-                <div style={{ display:'flex', alignItems:'center', gap:10, paddingBottom:18, marginBottom:18, borderBottom:'1px solid rgba(124,110,224,0.12)' }}>
-                  <div style={{ width:38, height:38, borderRadius:12, background:'linear-gradient(135deg,#7c6ee0,#5db8a3)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 14px rgba(124,110,224,0.4)' }}>
-                    <Sparkles style={{ width:16, height:16, color:'#fff' }}/>
+                <div style={{ display:'flex', alignItems:'center', gap:10, paddingBottom:18, marginBottom:18, borderBottom:'1px solid var(--hairline)' }}>
+                  <div style={{ width:40, height:40, borderRadius:12, background:'linear-gradient(135deg, var(--brand-500), var(--grape))', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Sparkles style={{ width:17, height:17, color:'#fff' }}/>
                   </div>
                   <div>
-                    <div style={{ fontSize:13, fontWeight:700, color:'#1a1a2e' }}>{lang==='az'?'Zəka':'Zeka'}</div>
+                    <div style={{ fontSize:13.5, fontWeight:600, color:'var(--ink-900)' }}>{lang==='az'?'Zəka':'Zeka'}</div>
                     <div style={{ display:'flex', alignItems:'center', gap:5 }}>
-                      <span style={{ width:6, height:6, borderRadius:'50%', background:'#5db8a3', display:'inline-block', animation:'pulse-dot 2s ease-in-out infinite' }}/>
-                      <span style={{ fontSize:11, color:'#5db8a3', fontWeight:600 }}>{lang==='az'?'Aktiv':'Online'}</span>
+                      <span style={{ width:6, height:6, borderRadius:'50%', background:'var(--mint)', display:'inline-block' }}/>
+                      <span style={{ fontSize:11, color:'var(--mint-dark, #15803D)', fontWeight:600 }}>{lang==='az'?'Aktiv':'Online'}</span>
                     </div>
                   </div>
-                  <div style={{ marginLeft:'auto', fontSize:11, color:'#64748b', fontWeight:500 }}>Zirva+</div>
+                  <span style={{ marginLeft:'auto', fontSize:11, fontWeight:600, color:'var(--brand-700)', padding:'4px 10px', borderRadius:999, background:'var(--brand-50)' }}>Zirva+</span>
                 </div>
 
                 {/* User bubble */}
                 <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:14 }}>
                   <div style={{
-                    background:'linear-gradient(135deg,#7c6ee0,#5db8a3)',
+                    background:'var(--brand-500)',
                     color:'#fff',
                     fontSize:13,
                     fontWeight:500,
@@ -219,21 +234,20 @@ export default function ZekaAIPage() {
                     borderRadius:'18px 18px 4px 18px',
                     maxWidth:'82%',
                     lineHeight:1.5,
-                    boxShadow:'0 6px 18px rgba(124,110,224,0.28)',
                   }}>
                     {s.chat_user}
                   </div>
                 </div>
 
                 {/* Zeka reply */}
-                <div style={{ display:'flex', alignItems:'flex-start', gap:10, marginBottom:18 }}>
-                  <div style={{ width:28, height:28, borderRadius:9, flexShrink:0, background:'rgba(184,192,255,0.45)', border:'1px solid rgba(124,110,224,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <Sparkles style={{ width:12, height:12, color:'#7c6ee0' }}/>
+                <div style={{ display:'flex', alignItems:'flex-start', gap:10, marginBottom:16 }}>
+                  <div style={{ width:30, height:30, borderRadius:8, flexShrink:0, background:'var(--brand-50)', border:'1px solid var(--hairline-strong)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Sparkles style={{ width:13, height:13, color:'var(--grape)' }}/>
                   </div>
                   <div style={{
-                    background:'rgba(255,255,255,0.7)',
-                    border:'1px solid rgba(124,110,224,0.12)',
-                    color:'#1a1a2e',
+                    background:'var(--surface-2, #FBFBFE)',
+                    border:'1px solid var(--hairline)',
+                    color:'var(--ink-900)',
                     fontSize:13,
                     padding:'11px 14px',
                     borderRadius:'4px 18px 18px 18px',
@@ -243,11 +257,18 @@ export default function ZekaAIPage() {
                   </div>
                 </div>
 
+                {/* Typing indicator — Zeka thinking (static) */}
+                <div style={{ display:'flex', alignItems:'center', gap:5, paddingLeft:40, marginBottom:16 }}>
+                  {[0,1,2].map(i => (
+                    <span key={i} style={{ width:6, height:6, borderRadius:'50%', background:'var(--brand-300, #B3A9F0)' }}/>
+                  ))}
+                </div>
+
                 {/* Input hint */}
-                <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:14, background:'rgba(255,255,255,0.55)', border:'1px solid rgba(124,110,224,0.14)' }}>
-                  <span style={{ fontSize:13, color:'#64748b', flex:1 }}>{s.chat_hint}</span>
-                  <div style={{ width:28, height:28, borderRadius:9, background:'linear-gradient(135deg,#7c6ee0,#5db8a3)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 10px rgba(124,110,224,0.35)' }}>
-                    <ArrowRight style={{ width:12, height:12, color:'#fff' }}/>
+                <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px 10px 16px', borderRadius:10, background:'var(--surface)', border:'1px solid var(--hairline-strong)' }}>
+                  <span style={{ fontSize:13, color:'var(--ink-400)', flex:1 }}>{s.chat_hint}</span>
+                  <div style={{ width:30, height:30, borderRadius:8, background:'var(--brand-500)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <ArrowRight style={{ width:13, height:13, color:'#fff' }}/>
                   </div>
                 </div>
               </div>
@@ -257,16 +278,15 @@ export default function ZekaAIPage() {
       </section>
 
       {/* ── Who it's for ── */}
-      <section style={{ background:'#f8f7fb', padding:'104px 24px', position:'relative', overflow:'hidden' }}>
-        <div className="section-blob" style={{ width:520, height:520, top:-180, left:-160, background:'radial-gradient(circle, rgba(184,192,255,0.55), transparent 70%)' }}/>
-        <div className="section-blob" style={{ width:480, height:480, bottom:-180, right:-140, background:'radial-gradient(circle, rgba(200,230,224,0.55), transparent 70%)' }}/>
+      <section style={{ background:'var(--canvas)', padding:'104px 24px', position:'relative', overflow:'hidden' }}>
+        <div className="section-blob" style={{ width:520, height:520, top:-180, left:-160, background:'radial-gradient(circle, rgba(87,79,207,0.08), transparent 70%)' }}/>
 
         <div style={{ maxWidth:1140, margin:'0 auto', position:'relative', zIndex:1 }}>
           <div style={{ textAlign:'center', marginBottom:64 }}>
-            <h2 style={{ fontSize:'clamp(1.8rem,3.4vw,2.6rem)', fontWeight:800, color:'#1a1a2e', marginBottom:12, letterSpacing:'-0.025em' }}>
+            <h2 className="font-display" style={{ fontSize:'clamp(1.8rem,3.4vw,2.6rem)', fontWeight:800, marginBottom:12, letterSpacing:'-0.025em' }}>
               <span className="pastel-text">{s.who_title}</span>
             </h2>
-            <p style={{ fontSize:16, color:'#64748b', fontWeight:500, maxWidth:520, margin:'0 auto', lineHeight:1.6 }}>{s.who_sub}</p>
+            <p style={{ fontSize:16, color:'var(--ink-600)', fontWeight:500, maxWidth:520, margin:'0 auto', lineHeight:1.6 }}>{s.who_sub}</p>
           </div>
 
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))', gap:24 }}>
@@ -274,16 +294,18 @@ export default function ZekaAIPage() {
               const IC = c.icon
               return (
                 <div key={c.title} className="liquid-card" style={{ padding:30, position:'relative', overflow:'hidden' }}>
-                  <div style={{ position:'absolute', top:-30, right:-30, width:120, height:120, borderRadius:'50%', background:c.bg, filter:'blur(12px)', pointerEvents:'none' }}/>
-                  <div style={{ width:50, height:50, borderRadius:14, background:c.bg, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:18, position:'relative', zIndex:1 }}>
-                    <IC style={{ width:22, height:22, color:c.accent }}/>
+                  {/* Soft accent halo */}
+                  <div style={{ position:'absolute', top:-40, right:-40, width:140, height:140, borderRadius:'50%', background:c.soft, filter:'blur(14px)', pointerEvents:'none' }}/>
+                  {/* Icon tile — flat token chip */}
+                  <div className={`icon-chip ${c.chip}`} style={{ width:52, height:52, borderRadius:14, marginBottom:18, position:'relative', zIndex:1 }}>
+                    <IC style={{ width:23, height:23 }}/>
                   </div>
-                  <h3 style={{ fontSize:18, fontWeight:800, color:'#1a1a2e', marginBottom:4, position:'relative', zIndex:1 }}>{c.title}</h3>
-                  <p style={{ fontSize:13, color:'#64748b', fontWeight:500, marginBottom:22, position:'relative', zIndex:1 }}>{c.sub}</p>
+                  <h3 style={{ fontSize:16, fontWeight:600, color:'var(--ink-900)', marginBottom:4, position:'relative', zIndex:1 }}>{c.title}</h3>
+                  <p style={{ fontSize:13, color:'var(--ink-600)', fontWeight:500, marginBottom:22, position:'relative', zIndex:1 }}>{c.sub}</p>
                   <ul style={{ listStyle:'none', padding:0, margin:0, display:'flex', flexDirection:'column', gap:11, position:'relative', zIndex:1 }}>
                     {c.features.map(f => (
-                      <li key={f} style={{ display:'flex', alignItems:'flex-start', gap:10, fontSize:13.5, color:'#1a1a2e', fontWeight:500, lineHeight:1.5 }}>
-                        <span style={{ width:20, height:20, borderRadius:'50%', background:c.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
+                      <li key={f} style={{ display:'flex', alignItems:'flex-start', gap:10, fontSize:13.5, color:'var(--ink-700)', fontWeight:500, lineHeight:1.5 }}>
+                        <span style={{ width:20, height:20, borderRadius:'50%', background:c.soft, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
                           <Check style={{ width:11, height:11, color:c.accent, strokeWidth:3 }}/>
                         </span>
                         {f}
@@ -298,22 +320,35 @@ export default function ZekaAIPage() {
       </section>
 
       {/* ── Stats ── */}
-      <section style={{ background:'#f8f7fb', padding:'88px 24px', position:'relative', overflow:'hidden' }}>
-        <div className="section-blob" style={{ width:600, height:400, top:'50%', left:'50%', transform:'translate(-50%,-50%)', background:'radial-gradient(ellipse, rgba(245,230,216,0.5), transparent 70%)' }}/>
-        <div style={{ maxWidth:1000, margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))', gap:22, position:'relative', zIndex:1 }}>
-          {stats.map((st,i) => (
-            <div key={i} className="liquid-card" style={{ padding:'34px 28px', textAlign:'center' }}>
-              <div style={{
-                fontSize:'clamp(1.9rem,4vw,2.7rem)',
-                fontWeight:800,
-                letterSpacing:'-0.03em',
-                color:st.accent,
-                lineHeight:1.1,
-                marginBottom:10,
-              }}>{st.v}</div>
-              <div style={{ fontSize:14, color:'#64748b', fontWeight:500 }}>{st.sub}</div>
+      <section style={{ background:'var(--canvas)', padding:'88px 24px', position:'relative', overflow:'hidden' }}>
+        <div style={{ maxWidth:1080, margin:'0 auto', position:'relative', zIndex:1 }}>
+          {/* Flat tinted stat band */}
+          <div style={{
+            position:'relative', overflow:'hidden',
+            borderRadius:18, padding:'48px 28px',
+            background:'linear-gradient(135deg, var(--brand-50) 0%, #F1ECFE 100%)',
+            border:'1px solid var(--hairline)',
+          }}>
+            <Sparkles className="zeka-spark" style={{ top:18, left:22, width:18, height:18, color:'var(--brand-300, #B3A9F0)' }}/>
+            <Stars className="zeka-spark" style={{ bottom:18, right:26, width:18, height:18, color:'var(--grape)' }}/>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))', gap:22, position:'relative', zIndex:1 }}>
+              {stats.map((st,i) => (
+                <div key={i} style={{ textAlign:'center', position:'relative' }}>
+                  {i>0 && <div style={{ position:'absolute', left:-11, top:'50%', transform:'translateY(-50%)', width:1, height:48, background:'var(--hairline-strong)' }} className="hidden sm:block"/>}
+                  <div className="font-display" style={{
+                    fontSize:'clamp(2rem,4.2vw,2.9rem)',
+                    fontWeight:800,
+                    letterSpacing:'-0.03em',
+                    color:st.accent,
+                    lineHeight:1.05,
+                    marginBottom:10,
+                    fontVariantNumeric:'tabular-nums',
+                  }}>{st.v}</div>
+                  <div style={{ fontSize:14, color:'var(--ink-600)', fontWeight:600 }}>{st.sub}</div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
@@ -323,29 +358,29 @@ export default function ZekaAIPage() {
         overflow:'hidden',
         padding:'112px 24px',
         textAlign:'center',
-        background:'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)',
-        backgroundSize:'400% 400%',
-        animation:'heroGradient 14s ease infinite',
+        background:'var(--canvas)',
       }}>
-        <div className="section-blob" style={{ width:560, height:480, top:-120, left:'10%', background:'radial-gradient(ellipse, rgba(184,192,255,0.5), transparent 70%)' }}/>
-        <div className="section-blob" style={{ width:520, height:440, bottom:-140, right:'8%', background:'radial-gradient(ellipse, rgba(200,230,224,0.5), transparent 70%)' }}/>
+        <div className="section-blob" style={{ width:560, height:480, top:-120, left:'10%', background:'radial-gradient(ellipse, rgba(87,79,207,0.10), transparent 70%)' }}/>
+
+        <Sparkles className="zeka-spark" style={{ top:'20%', left:'18%', width:22, height:22 }}/>
+        <Stars className="zeka-spark" style={{ bottom:'22%', right:'20%', width:22, height:22, color:'var(--grape)' }}/>
 
         <div style={{ position:'relative', zIndex:1, maxWidth:600, margin:'0 auto' }}>
-          <div style={{ width:60, height:60, borderRadius:18, background:'linear-gradient(135deg,#7c6ee0,#5db8a3)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 26px', boxShadow:'0 12px 32px rgba(124,110,224,0.4)' }}>
+          <div style={{ width:60, height:60, borderRadius:14, background:'linear-gradient(135deg, var(--brand-500), var(--grape))', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 26px' }}>
             <Zap style={{ width:26, height:26, color:'#fff' }}/>
           </div>
-          <h2 style={{ fontSize:'clamp(1.8rem,3.6vw,2.6rem)', fontWeight:800, color:'#1a1a2e', marginBottom:14, lineHeight:1.2, letterSpacing:'-0.025em' }}>
+          <h2 className="font-display" style={{ fontSize:'clamp(1.8rem,3.6vw,2.6rem)', fontWeight:800, marginBottom:14, lineHeight:1.2, letterSpacing:'-0.025em' }}>
             <span className="pastel-text">{s.cta_h}</span>
           </h2>
-          <p style={{ fontSize:16.5, color:'#64748b', marginBottom:38, lineHeight:1.65, fontWeight:500 }}>{s.cta_sub}</p>
+          <p style={{ fontSize:16.5, color:'var(--ink-600)', marginBottom:38, lineHeight:1.65, fontWeight:500 }}>{s.cta_sub}</p>
           <Link to="/contact" className="btn-pastel">
             {s.cta_btn} <ArrowRight style={{ width:15, height:15 }}/>
           </Link>
         </div>
       </section>
 
-      <footer style={{ background:'#f8f7fb', borderTop:'1px solid rgba(124,110,224,0.12)', padding:'24px', textAlign:'center' }}>
-        <p style={{ color:'#64748b', fontSize:13 }}>{s.footer}</p>
+      <footer style={{ background:'var(--canvas)', borderTop:'1px solid var(--hairline)', padding:'24px', textAlign:'center' }}>
+        <p style={{ color:'var(--ink-400)', fontSize:13 }}>{s.footer}</p>
       </footer>
     </div>
   )

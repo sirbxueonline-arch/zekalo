@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import {
-  Search, Plus, Trash2, AlertTriangle, ShieldAlert, Award, FileText, BookOpen,
+  Search, Plus, Trash2, AlertTriangle, ShieldAlert, Award, FileText, BookOpen, Check,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -22,17 +22,18 @@ const TYPE_LABELS = {
   note: 'Qeyd',
 }
 
-const TYPE_BADGE_CLASSES = {
-  warning:      'bg-[rgba(232,168,124,0.15)] text-[#a55f33] border border-[rgba(232,168,124,0.4)]',
-  detention:    'bg-[rgba(231,154,98,0.18)] text-[#a55f33] border border-[rgba(231,154,98,0.4)]',
-  suspension:   'bg-[rgba(239,68,68,0.10)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]',
-  commendation: 'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]',
-  note:         'bg-[rgba(255,255,255,0.6)] text-[#64748b] border border-[rgba(124,110,224,0.18)]',
+// Pill class for each discipline type using design-system tokens
+const TYPE_PILL_CLASS = {
+  warning:      'pill-peach',
+  detention:    'pill-peach',
+  suspension:   'pill-rose',
+  commendation: 'pill-mint',
+  note:         'pill-muted',
 }
 
 function TypeBadge({ type }) {
   return (
-    <span className={`rounded-full text-xs font-medium px-3 py-0.5 inline-flex items-center ${TYPE_BADGE_CLASSES[type] || TYPE_BADGE_CLASSES.note}`}>
+    <span className={TYPE_PILL_CLASS[type] || TYPE_PILL_CLASS.note}>
       {TYPE_LABELS[type] || type}
     </span>
   )
@@ -197,7 +198,7 @@ export default function AdminDiscipline() {
       render: (val) => (
         <div className="flex items-center gap-3">
           <Avatar name={val?.full_name} size="sm" />
-          <span className="font-medium text-gray-900">{val?.full_name || '—'}</span>
+          <span className="font-medium text-ink-900">{val?.full_name || '—'}</span>
         </div>
       ),
     },
@@ -209,13 +210,13 @@ export default function AdminDiscipline() {
     {
       key: 'date',
       label: 'Tarix',
-      render: (val) => <span className="text-gray-600">{formatDate(val)}</span>,
+      render: (val) => <span className="text-ink-600 tabular-nums">{formatDate(val)}</span>,
     },
     {
       key: 'description',
       label: 'Təsvir',
       render: (val) => (
-        <span className="text-gray-600" title={val}>
+        <span className="text-ink-600" title={val}>
           {val && val.length > 60 ? val.slice(0, 60) + '…' : val || '—'}
         </span>
       ),
@@ -223,15 +224,15 @@ export default function AdminDiscipline() {
     {
       key: 'recorder',
       label: 'Qeyd edən',
-      render: (val) => <span className="text-gray-500">{val?.full_name || '—'}</span>,
+      render: (val) => <span className="text-ink-400">{val?.full_name || '—'}</span>,
     },
     {
       key: 'parent_notified',
       label: 'Valideyn bildirildi',
       render: (val) => (
-        <span className={`text-lg ${val ? 'text-teal' : 'text-gray-300'}`}>
-          {val ? '✓' : '✗'}
-        </span>
+        val
+          ? <span className="pill-mint inline-flex items-center gap-1"><Check className="w-3 h-3" />Bildirildi</span>
+          : <span className="pill-muted">—</span>
       ),
     },
     {
@@ -240,7 +241,7 @@ export default function AdminDiscipline() {
       render: (_, row) => (
         <button
           onClick={(e) => { e.stopPropagation(); setDeleteModal(row) }}
-          className="p-1.5 text-gray-400 hover:text-red-600 transition-colors"
+          className="p-1.5 text-ink-400 hover:text-danger-text transition-colors rounded-tile hover:bg-danger-tint"
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -254,31 +255,33 @@ export default function AdminDiscipline() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">İntizam Jurnalı</span></h1>
-        <Button onClick={() => { resetForm(); setAddModal(true) }}>
-          <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Qeyd əlavə et</span>
+        <div>
+          <h1 className="text-2xl font-display font-bold text-ink-900 tracking-tight">İntizam Jurnalı</h1>
+        </div>
+        <Button size="sm" onClick={() => { resetForm(); setAddModal(true) }}>
+          <Plus className="w-4 h-4 mr-1.5" />
+          Qeyd əlavə et
         </Button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Xəbərdarlıq (bu ay)" value={statsWarnings} icon={AlertTriangle} />
-        <StatCard label="Uzaqlaşdırma (bu ay)" value={statsSuspensions} icon={ShieldAlert} />
-        <StatCard label="Təşəkkür (bu ay)" value={statsCommendations} icon={Award} />
-        <StatCard label="Cəmi qeydlər" value={statsTotal} icon={FileText} />
+        <StatCard label="Xəbərdarlıq (bu ay)" value={statsWarnings} icon={AlertTriangle} tone="periwinkle" />
+        <StatCard label="Uzaqlaşdırma (bu ay)" value={statsSuspensions} icon={ShieldAlert} tone="periwinkle" />
+        <StatCard label="Təşəkkür (bu ay)" value={statsCommendations} icon={Award} tone="periwinkle" />
+        <StatCard label="Cəmi qeydlər" value={statsTotal} icon={FileText} tone="periwinkle" />
       </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-end">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
           <input
             type="text"
             placeholder="Şagird adı ilə axtar..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-            style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+            className="pastel-input pl-10"
           />
         </div>
         <div className="w-44">
@@ -298,12 +301,17 @@ export default function AdminDiscipline() {
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="text-sm text-danger-text bg-danger-tint border border-danger/20 rounded-input px-4 py-2.5">
+          {error}
+        </p>
+      )}
 
       {/* Table */}
       <Card hover={false} className="p-0 overflow-hidden">
         {filtered.length === 0 ? (
           <EmptyState
+            tier={1}
             icon={BookOpen}
             title="Qeyd tapılmadı"
             description="Filtrə uyğun intizam qeydi yoxdur"
@@ -320,30 +328,34 @@ export default function AdminDiscipline() {
         <div className="space-y-4">
           {/* Student picker */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Şagird</label>
-            <div className="border border-border-soft rounded-md overflow-hidden">
-              <div className="p-2 border-b border-border-soft">
+            <label className="block text-[13px] font-semibold text-ink-700 mb-1.5">Şagird</label>
+            <div className="border border-hairline-strong rounded-tile overflow-hidden">
+              <div className="p-2 border-b border-hairline">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-400 pointer-events-none" />
                   <input
                     type="text"
                     placeholder="Axtar..."
                     value={studentSearch}
                     onChange={(e) => setStudentSearch(e.target.value)}
-                    className="w-full pl-8 pr-3 py-1.5 text-sm focus:outline-none"
+                    className="w-full pl-8 pr-3 py-1.5 text-sm focus:outline-none text-ink-900 bg-transparent"
                   />
                 </div>
               </div>
-              <div className="max-h-40 overflow-y-auto">
+              <div className="max-h-40 overflow-y-auto scrollbar-thin">
                 {filteredStudents.length === 0 && (
-                  <p className="text-center py-4 text-xs text-gray-400">Şagird tapılmadı</p>
+                  <p className="text-center py-4 text-xs text-ink-400">Şagird tapılmadı</p>
                 )}
                 {filteredStudents.map(s => (
                   <button
                     key={s.id}
                     type="button"
                     onClick={() => setForm(f => ({ ...f, student_id: s.id }))}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-surface transition-colors ${form.student_id === s.id ? 'bg-purple-light text-purple' : 'text-gray-700'}`}
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors ${
+                      form.student_id === s.id
+                        ? 'bg-brand-50 text-brand-700 font-semibold'
+                        : 'text-ink-700 hover:bg-surface-2'
+                    }`}
                   >
                     <Avatar name={s.full_name} size="sm" />
                     {s.full_name}
@@ -383,12 +395,16 @@ export default function AdminDiscipline() {
               type="checkbox"
               checked={form.parent_notified}
               onChange={(e) => setForm(f => ({ ...f, parent_notified: e.target.checked }))}
-              className="w-4 h-4 rounded border-border-soft accent-purple"
+              className="w-4 h-4 rounded border-hairline-strong accent-brand-500"
             />
-            <span className="text-sm text-gray-700">Valideyn bildirildi</span>
+            <span className="text-sm text-ink-700">Valideyn bildirildi</span>
           </label>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="text-sm text-danger-text bg-danger-tint border border-danger/20 rounded-input px-3 py-2">
+              {error}
+            </p>
+          )}
 
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={() => { setAddModal(false); resetForm() }}>Ləğv et</Button>
@@ -399,8 +415,8 @@ export default function AdminDiscipline() {
 
       {/* Delete Modal */}
       <Modal open={!!deleteModal} onClose={() => setDeleteModal(null)} title="Qeydi sil" size="sm">
-        <p className="text-sm text-gray-600 mb-6">
-          <strong>{deleteModal?.student?.full_name}</strong> şagirdinə aid bu qeydi silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.
+        <p className="text-sm text-ink-600 mb-6">
+          <strong className="text-ink-900">{deleteModal?.student?.full_name}</strong> şagirdinə aid bu qeydi silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.
         </p>
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setDeleteModal(null)}>Ləğv et</Button>

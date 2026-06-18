@@ -13,18 +13,21 @@ import Avatar from '../../components/ui/Avatar'
 import Input from '../../components/ui/Input'
 import { Select, Textarea } from '../../components/ui/Input'
 
+// Low-dial (§2.2): leave type is categorical, not status → keep it muted (neutral chip).
+// Saturated color is reserved for the meaning-bearing status pill below.
 const leaveTypes = {
-  sick:         { label: 'Xəstəlik',           className: 'bg-[rgba(239,68,68,0.08)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]' },
-  personal:     { label: 'Şəxsi',              className: 'bg-[rgba(232,168,124,0.15)] text-[#a55f33] border border-[rgba(232,168,124,0.4)]' },
-  professional: { label: 'Peşəkar inkişaf',    className: 'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7] border border-[rgba(124,110,224,0.28)]' },
-  maternity:    { label: 'Doğuş məzuniyyəti',  className: 'bg-[rgba(157,146,234,0.15)] text-[#5e4fc7] border border-[rgba(157,146,234,0.32)]' },
-  other:        { label: 'Digər',              className: 'bg-[rgba(255,255,255,0.6)] text-[#64748b] border border-[rgba(124,110,224,0.18)]' },
+  sick:         { label: 'Xəstəlik',           pillClass: 'pill-muted' },
+  personal:     { label: 'Şəxsi',              pillClass: 'pill-muted' },
+  professional: { label: 'Peşəkar inkişaf',    pillClass: 'pill-muted' },
+  maternity:    { label: 'Doğuş məzuniyyəti',  pillClass: 'pill-muted' },
+  other:        { label: 'Digər',              pillClass: 'pill-muted' },
 }
 
+// Status carries real meaning (pending/approved/rejected) → functional color stays.
 const statusConfig = {
-  pending:  { label: 'Gözlənilir',  className: 'bg-[rgba(232,168,124,0.15)] text-[#a55f33] border border-[rgba(232,168,124,0.4)]' },
-  approved: { label: 'Təsdiqləndi', className: 'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]' },
-  rejected: { label: 'Rədd edildi', className: 'bg-[rgba(239,68,68,0.08)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]' },
+  pending:  { label: 'Gözlənilir',  pillClass: 'pill-peach' },
+  approved: { label: 'Təsdiqləndi', pillClass: 'pill-mint'  },
+  rejected: { label: 'Rədd edildi', pillClass: 'pill-rose'  },
 }
 
 function daysBetween(start, end) {
@@ -127,6 +130,8 @@ export default function LeaveRequests() {
     .filter(r => filterStatus === 'all' || r.status === filterStatus)
     .filter(r => r.teacher_name?.toLowerCase().includes(search.toLowerCase()))
 
+  const pendingCount = requests.filter(r => r.status === 'pending').length
+
   const columns = [
     {
       key: 'teacher_name',
@@ -134,7 +139,7 @@ export default function LeaveRequests() {
       render: (val) => (
         <div className="flex items-center gap-3">
           <Avatar name={val} size="sm" />
-          <span className="font-medium text-gray-900">{val}</span>
+          <span className="font-semibold text-ink-900">{val}</span>
         </div>
       ),
     },
@@ -143,14 +148,14 @@ export default function LeaveRequests() {
       label: 'Növ',
       render: (val) => {
         const cfg = leaveTypes[val] || leaveTypes.other
-        return <span className={`rounded-full text-xs font-medium px-3 py-0.5 ${cfg.className}`}>{cfg.label}</span>
+        return <span className={cfg.pillClass}>{cfg.label}</span>
       },
     },
     {
       key: 'start_date',
       label: 'Tarix aralığı',
       render: (val, row) => (
-        <span className="text-sm text-gray-700">
+        <span className="text-sm text-ink-700 tabular-nums">
           {val ? fmtNumeric(val) : '—'} – {row.end_date ? fmtNumeric(row.end_date) : '—'}
         </span>
       ),
@@ -158,14 +163,18 @@ export default function LeaveRequests() {
     {
       key: 'days',
       label: 'Gün',
-      render: (_, row) => <span className="font-medium">{daysBetween(row.start_date, row.end_date)}</span>,
+      render: (_, row) => (
+        <span className="font-semibold text-ink-700 tabular-nums">
+          {daysBetween(row.start_date, row.end_date)}
+        </span>
+      ),
     },
     {
       key: 'status',
       label: 'Status',
       render: (val) => {
         const cfg = statusConfig[val] || statusConfig.pending
-        return <span className={`rounded-full text-xs font-medium px-3 py-0.5 inline-flex items-center ${cfg.className}`}>{cfg.label}</span>
+        return <span className={cfg.pillClass}>{cfg.label}</span>
       },
     },
   ]
@@ -174,52 +183,70 @@ export default function LeaveRequests() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Məzuniyyət Sorğuları</span></h1>
-          <p className="text-sm text-[#64748b] mt-1">
-            {requests.filter(r => r.status === 'pending').length} gözlənilən sorğu
-          </p>
+          <h1 className="text-2xl font-bold text-ink-900 font-display">Məzuniyyət Sorğuları</h1>
+          {pendingCount > 0 && (
+            <p className="text-sm text-ink-400 mt-0.5 tabular-nums">
+              <span className="text-warning font-semibold">{pendingCount}</span> gözlənilən sorğu
+            </p>
+          )}
         </div>
         <Button onClick={() => { resetForm(); setAddModal(true) }}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Sorğu əlavə et</span>
         </Button>
       </div>
 
+      {/* Status filter tabs */}
       <div className="flex gap-2 flex-wrap">
         {[['all', 'Hamısı'], ['pending', 'Gözlənilir'], ['approved', 'Təsdiqləndi'], ['rejected', 'Rədd edildi']].map(([val, label]) => (
           <button
             key={val}
             onClick={() => setFilterStatus(val)}
-            className="px-4 py-2 rounded-full text-sm font-semibold transition-all backdrop-blur-md"
-            style={filterStatus === val
-              ? { background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)', color: '#fff', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 6px 16px rgba(124,110,224,0.25)' }
-              : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
+            className={`px-3 py-1 rounded-input text-xs font-semibold transition-all border ${
+              filterStatus === val
+                ? 'bg-brand-500 text-white border-brand-500 shadow-soft'
+                : 'bg-surface text-ink-600 border-hairline hover:border-brand-300 hover:text-brand-600'
+            }`}
           >
             {label}
           </button>
         ))}
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
+      {/* Search bar */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
         <input
           type="text"
           placeholder="Müəllim adı axtar..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+          className="pastel-input pl-9"
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-input px-3 py-2">{error}</p>
+      )}
 
+      {/* Table */}
       <Card hover={false} className="p-0 overflow-hidden">
         {filtered.length === 0 ? (
-          <EmptyState icon={CalendarOff} title="Sorğu tapılmadı" description="Hələ məzuniyyət sorğusu yoxdur." actionLabel="Sorğu əlavə et" onAction={() => { resetForm(); setAddModal(true) }} />
+          <EmptyState
+            icon={CalendarOff}
+            title="Sorğu tapılmadı"
+            description="Hələ məzuniyyət sorğusu yoxdur."
+            actionLabel="Sorğu əlavə et"
+            onAction={() => { resetForm(); setAddModal(true) }}
+          />
         ) : (
-          <Table columns={columns} data={filtered} onRowClick={row => { setSelectedReq(row); setAdminNote(row.admin_note || '') }} />
+          <Table
+            columns={columns}
+            data={filtered}
+            onRowClick={row => { setSelectedReq(row); setAdminNote(row.admin_note || '') }}
+          />
         )}
       </Card>
 
@@ -227,52 +254,54 @@ export default function LeaveRequests() {
       <Modal open={!!selectedReq} onClose={() => setSelectedReq(null)} title="Məzuniyyət Sorğusu" size="lg">
         {selectedReq && (
           <div className="space-y-5">
+            {/* Teacher header */}
             <div className="flex items-center gap-4">
               <Avatar name={selectedReq.teacher_name} size="lg" />
               <div>
-                <h3 className="font-serif text-2xl text-gray-900">{selectedReq.teacher_name}</h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className={`rounded-full text-xs font-medium px-3 py-0.5 ${(leaveTypes[selectedReq.leave_type] || leaveTypes.other).className}`}>
+                <h3 className="text-lg font-semibold text-ink-900">{selectedReq.teacher_name}</h3>
+                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                  <span className={(leaveTypes[selectedReq.leave_type] || leaveTypes.other).pillClass}>
                     {(leaveTypes[selectedReq.leave_type] || leaveTypes.other).label}
                   </span>
-                  <span className={`rounded-full text-xs font-medium px-3 py-0.5 ${(statusConfig[selectedReq.status] || statusConfig.pending).className}`}>
+                  <span className={(statusConfig[selectedReq.status] || statusConfig.pending).pillClass}>
                     {(statusConfig[selectedReq.status] || statusConfig.pending).label}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-surface rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Başlama</p>
-                <p className="font-medium">{selectedReq.start_date ? fmtNumeric(selectedReq.start_date) : '—'}</p>
+            {/* Date summary tiles */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-surface-2 border border-hairline rounded-tile p-3.5">
+                <p className="text-xs font-semibold text-ink-400 uppercase tracking-wide mb-1">Başlama</p>
+                <p className="font-semibold text-ink-900 tabular-nums text-sm">{selectedReq.start_date ? fmtNumeric(selectedReq.start_date) : '—'}</p>
               </div>
-              <div className="bg-surface rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Bitmə</p>
-                <p className="font-medium">{selectedReq.end_date ? fmtNumeric(selectedReq.end_date) : '—'}</p>
+              <div className="bg-surface-2 border border-hairline rounded-tile p-3.5">
+                <p className="text-xs font-semibold text-ink-400 uppercase tracking-wide mb-1">Bitmə</p>
+                <p className="font-semibold text-ink-900 tabular-nums text-sm">{selectedReq.end_date ? fmtNumeric(selectedReq.end_date) : '—'}</p>
               </div>
-              <div className="bg-surface rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Gün sayı</p>
-                <p className="font-medium text-purple">{daysBetween(selectedReq.start_date, selectedReq.end_date)} gün</p>
+              <div className="bg-brand-50 border border-brand-100 rounded-tile p-3.5">
+                <p className="text-xs font-semibold text-ink-400 uppercase tracking-wide mb-1">Gün sayı</p>
+                <p className="font-bold text-brand-700 tabular-nums text-lg font-display">{daysBetween(selectedReq.start_date, selectedReq.end_date)} gün</p>
               </div>
             </div>
 
             {selectedReq.reason && (
-              <div className="bg-surface rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Səbəb</p>
-                <p className="text-gray-700">{selectedReq.reason}</p>
+              <div className="bg-surface-2 border border-hairline rounded-tile p-4">
+                <p className="text-xs font-semibold text-ink-400 uppercase tracking-wide mb-1.5">Səbəb</p>
+                <p className="text-sm text-ink-700">{selectedReq.reason}</p>
               </div>
             )}
 
             {selectedReq.admin_note && (
-              <div className="bg-teal-light rounded-lg p-4">
-                <p className="text-xs text-[#085041] mb-1">Admin qeydi</p>
-                <p className="text-[#085041]">{selectedReq.admin_note}</p>
+              <div className="bg-success/8 border border-success/20 rounded-tile p-4">
+                <p className="text-xs font-semibold text-success/80 uppercase tracking-wide mb-1.5">Admin qeydi</p>
+                <p className="text-sm text-ink-700">{selectedReq.admin_note}</p>
               </div>
             )}
 
             {selectedReq.status === 'pending' && (
-              <div className="border-t border-border-soft pt-4 space-y-3">
+              <div className="border-t border-hairline pt-4 space-y-3">
                 <Textarea
                   label="Admin qeydi (ixtiyari)"
                   value={adminNote}
@@ -292,7 +321,7 @@ export default function LeaveRequests() {
             )}
 
             {selectedReq.status !== 'pending' && (
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-4 border-t border-hairline">
                 <Button variant="ghost" onClick={() => setSelectedReq(null)}>Bağla</Button>
               </div>
             )}
@@ -316,10 +345,14 @@ export default function LeaveRequests() {
           </div>
           <Textarea label="Səbəb" value={form.reason} onChange={e => setForm({ ...form, reason: e.target.value })} rows={3} placeholder="Məzuniyyət səbəbi..." />
           {form.start_date && form.end_date && (
-            <p className="text-sm text-purple font-medium">{daysBetween(form.start_date, form.end_date)} gün</p>
+            <p className="text-sm font-semibold text-brand-600 tabular-nums">
+              {daysBetween(form.start_date, form.end_date)} gün
+            </p>
           )}
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
-          <div className="flex justify-end gap-3 pt-4">
+          {error && (
+            <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-input px-3 py-2">{error}</p>
+          )}
+          <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
             <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleAdd} loading={saving} disabled={!form.teacher_id || !form.start_date || !form.end_date}>{t('add')}</Button>
           </div>

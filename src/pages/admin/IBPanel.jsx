@@ -3,7 +3,6 @@ import { BookOpen, Plus, Edit2, Download, FileText } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
-import Card from '../../components/ui/Card'
 import Input from '../../components/ui/Input'
 import { Select } from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
@@ -11,6 +10,7 @@ import Table from '../../components/ui/Table'
 import StatCard from '../../components/ui/StatCard'
 import { PageSpinner } from '../../components/ui/Spinner'
 import Badge from '../../components/ui/Badge'
+import EmptyState from '../../components/ui/EmptyState'
 
 
 function escapeCsvField(val) {
@@ -28,9 +28,12 @@ export default function IBPanel() {
   if (profile?.school?.edition !== 'ib') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <BookOpen className="w-12 h-12 text-purple-mid mb-4" />
-        <h2 className="font-serif text-2xl text-gray-900 mb-2">{t('ib_panel')}</h2>
-        <p className="text-sm text-gray-500">Bu bolma yalniz IB maktablari ucundur</p>
+        <EmptyState
+          tier={1}
+          icon={BookOpen}
+          title={t('ib_panel')}
+          description="Bu bölmə yalnız IB məktəbləri üçündür."
+        />
       </div>
     )
   }
@@ -133,7 +136,7 @@ function IBPanelContent() {
       e.submitted_date || '',
     ])
     const csv = [headers.map(escapeCsvField).join(','), ...rows.map(r => r.map(escapeCsvField).join(','))].join('\n')
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -152,7 +155,7 @@ function IBPanelContent() {
       e.submitted_date || '',
     ])
     const csv = [headers.map(escapeCsvField).join(','), ...rows.map(r => r.map(escapeCsvField).join(','))].join('\n')
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -183,16 +186,34 @@ function IBPanelContent() {
   }
 
   const columns = [
-    { key: 'student', label: t('students'), render: (val) => val?.full_name || '—' },
-    { key: 'topic', label: t('subject'), render: (val) => <span className="font-medium text-gray-900">{val || '—'}</span> },
+    {
+      key: 'student',
+      label: t('students'),
+      render: (val) => (
+        <span className="font-medium text-ink-900">{val?.full_name || '—'}</span>
+      ),
+    },
+    {
+      key: 'topic',
+      label: t('subject'),
+      render: (val) => <span className="font-medium text-ink-900">{val || '—'}</span>,
+    },
     { key: 'supervisor', label: 'Supervisor', render: (val) => val?.full_name || '—' },
-    { key: 'status', label: 'Status', render: (val) => <Badge variant={statusVariants[val] || 'default'}>{statusLabels[val] || val}</Badge> },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (val) => <Badge variant={statusVariants[val] || 'default'}>{statusLabels[val] || val}</Badge>,
+    },
     { key: 'submitted_date', label: t('date'), render: (val) => formatDate(val) },
     {
       key: 'actions',
       label: '',
       render: (_, row) => (
-        <button onClick={() => openEditEssay(row)} className="p-1.5 text-gray-400 hover:text-purple transition-colors">
+        <button
+          onClick={() => openEditEssay(row)}
+          className="p-1.5 text-ink-400 hover:text-brand-500 transition-colors rounded"
+          aria-label={t('edit')}
+        >
           <Edit2 className="w-4 h-4" />
         </button>
       ),
@@ -203,60 +224,152 @@ function IBPanelContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('ib_panel')}</span></h1>
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" onClick={exportIBReport}>
-            <span className="flex items-center gap-2"><FileText className="w-4 h-4" /> IB {t('reports')}</span>
+      {/* ── Page header ── */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="font-display font-bold text-[22px] text-ink-900 leading-snug">
+            {t('ib_panel')}
+          </h1>
+          <p className="text-[13px] text-ink-400 mt-0.5">
+            MYP · DP · Extended Essay
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={exportIBReport}>
+            <span className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              IB {t('reports')}
+            </span>
           </Button>
-          <Button variant="ghost" onClick={exportCEESA}>
-            <span className="flex items-center gap-2"><Download className="w-4 h-4" /> CEESA {t('export_csv')}</span>
+          <Button variant="secondary" size="sm" onClick={exportCEESA}>
+            <span className="flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              CEESA {t('export_csv')}
+            </span>
           </Button>
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="rounded-tile border border-danger/30 bg-danger/5 px-4 py-3 text-[13px] text-danger font-medium">
+          {error}
+        </div>
+      )}
 
+      {/* ── KPI row ── */}
       <div>
-        <p className="text-xs tracking-widest text-gray-400 uppercase mb-3">{t('ib_panel')}</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StatCard label={`MYP ${t('students')}`} value={mypCount} icon={BookOpen} />
-          <StatCard label={`DP ${t('students')}`} value={dpCount} icon={BookOpen} />
+        <p className="text-[11px] font-semibold tracking-[0.07em] uppercase text-ink-400 mb-3">
+          {t('ib_panel')}
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <StatCard
+            label={`MYP ${t('students')}`}
+            value={mypCount}
+            icon={BookOpen}
+            tone="periwinkle"
+          />
+          <StatCard
+            label={`DP ${t('students')}`}
+            value={dpCount}
+            icon={BookOpen}
+            tone="periwinkle"
+          />
         </div>
       </div>
 
-      <Card hover={false}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="font-serif text-xl text-gray-900">Extended Essay</h2>
-          <Button onClick={() => { resetForm(); setEssayModal({}) }}>
-            <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> {t('add')}</span>
+      {/* ── Extended Essays table ── */}
+      <div className="liquid-card overflow-hidden p-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
+          <div className="flex items-center gap-3">
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36 }}>
+              <BookOpen className="w-4 h-4" />
+            </div>
+            <h2 className="font-semibold text-[15px] text-ink-900">Extended Essay</h2>
+            <span className="text-[12px] text-ink-400 tabular-nums ml-1">
+              {essays.length} qeyd
+            </span>
+          </div>
+          <Button size="sm" onClick={() => { resetForm(); setEssayModal({}) }}>
+            <span className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              {t('add')}
+            </span>
           </Button>
         </div>
-        <Table columns={columns} data={essays} emptyMessage={t('no_data')} />
-      </Card>
+        {essays.length === 0 ? (
+          <EmptyState
+            tier={1}
+            icon={FileText}
+            title={t('no_data')}
+            description="Hələ heç bir Extended Essay əlavə edilməyib."
+            actionLabel={t('add')}
+            onAction={() => { resetForm(); setEssayModal({}) }}
+            className="border-none shadow-none"
+          />
+        ) : (
+          <Table columns={columns} data={essays} emptyMessage={t('no_data')} />
+        )}
+      </div>
 
-      <Modal open={!!essayModal} onClose={() => { setEssayModal(null); resetForm(); setError(null) }} title={essayModal?.id ? t('edit') : t('add')}>
+      {/* ── Add / Edit Modal ── */}
+      <Modal
+        open={!!essayModal}
+        onClose={() => { setEssayModal(null); resetForm(); setError(null) }}
+        title={essayModal?.id ? t('edit') : t('add')}
+      >
         <div className="space-y-4">
-          <Select label={t('students')} value={form.student_id} onChange={(e) => setForm({ ...form, student_id: e.target.value })}>
+          <Select
+            label={t('students')}
+            value={form.student_id}
+            onChange={(e) => setForm({ ...form, student_id: e.target.value })}
+          >
             <option value="">{t('students')}</option>
-            {students.map(s => <option key={s.id} value={s.id}>{s.full_name}</option>)}
+            {students.map(s => (
+              <option key={s.id} value={s.id}>{s.full_name}</option>
+            ))}
           </Select>
-          <Input label={t('subject')} value={form.topic} onChange={(e) => setForm({ ...form, topic: e.target.value })} placeholder="Extended essay movzusu" />
-          <Select label="Supervisor" value={form.supervisor_id} onChange={(e) => setForm({ ...form, supervisor_id: e.target.value })}>
+          <Input
+            label={t('subject')}
+            value={form.topic}
+            onChange={(e) => setForm({ ...form, topic: e.target.value })}
+            placeholder="Extended essay mövzusu"
+          />
+          <Select
+            label="Supervisor"
+            value={form.supervisor_id}
+            onChange={(e) => setForm({ ...form, supervisor_id: e.target.value })}
+          >
             <option value="">Supervisor</option>
-            {teachers.map(tc => <option key={tc.id} value={tc.id}>{tc.full_name}</option>)}
+            {teachers.map(tc => (
+              <option key={tc.id} value={tc.id}>{tc.full_name}</option>
+            ))}
           </Select>
-          <Select label="Status" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+          <Select
+            label="Status"
+            value={form.status}
+            onChange={(e) => setForm({ ...form, status: e.target.value })}
+          >
             <option value="not_started">Başlanmayıb</option>
             <option value="draft">Qaralama</option>
             <option value="in_progress">Davam edir</option>
             <option value="submitted">Təslim edildi</option>
             <option value="graded">Qiymətləndirilib</option>
           </Select>
-          <Input label={t('date')} type="date" value={form.submitted_date} onChange={(e) => setForm({ ...form, submitted_date: e.target.value })} />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
+          <Input
+            label={t('date')}
+            type="date"
+            value={form.submitted_date}
+            onChange={(e) => setForm({ ...form, submitted_date: e.target.value })}
+          />
+          {error && (
+            <div className="rounded-tile border border-danger/30 bg-danger/5 px-3 py-2 text-[13px] text-danger font-medium">
+              {error}
+            </div>
+          )}
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="ghost" onClick={() => { setEssayModal(null); resetForm(); setError(null) }}>{t('cancel')}</Button>
+            <Button variant="ghost" onClick={() => { setEssayModal(null); resetForm(); setError(null) }}>
+              {t('cancel')}
+            </Button>
             <Button onClick={handleSaveEssay} loading={saving}>{t('save')}</Button>
           </div>
         </div>

@@ -24,31 +24,9 @@ const ROOMS = [
 
 const HOURS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00']
 
-const roomTypeColors = {
-  classroom: 'bg-[rgba(107,157,222,0.14)] text-[#3d6da7]',
-  lab:       'bg-[rgba(93,184,163,0.14)] text-[#3a8170]',
-  meeting:   'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7]',
-  sports:    'bg-[rgba(232,168,124,0.16)] text-[#a55f33]',
-  library:   'bg-[rgba(232,168,124,0.14)] text-[#a55f33]',
-  arts:      'bg-[rgba(157,146,234,0.14)] text-[#5e4fc7]',
-}
-
-const bookingColors = [
-  'text-white',
-  'text-white',
-  'text-white',
-  'text-white',
-  'text-white',
-  'text-white',
-]
-const bookingGradients = [
-  'linear-gradient(135deg, #7c6ee0 0%, #9d92ea 100%)',
-  'linear-gradient(135deg, #5db8a3 0%, #7fcab8 100%)',
-  'linear-gradient(135deg, #6b9dde 0%, #5283c7 100%)',
-  'linear-gradient(135deg, #e8a87c 0%, #cf8d62 100%)',
-  'linear-gradient(135deg, #9d92ea 0%, #7c6ee0 100%)',
-  'linear-gradient(135deg, #7fcab8 0%, #5db8a3 100%)',
-]
+// Low-dial (§2.2 color restraint): room type is categorical, not status — keep it
+// muted. Saturated rainbow rotation collapses to a single neutral chip.
+const roomTypePill = 'pill-muted'
 
 function formatDate(date) {
   return date.toISOString().split('T')[0]
@@ -172,7 +150,7 @@ export default function RoomBooking() {
     return bookings.filter(b => b.room_id === roomId)
   }
 
-  function bookingStyle(booking, colorIndex) {
+  function bookingStyle(booking) {
     const startMin = timeToMinutes(booking.time_from)
     const endMin = timeToMinutes(booking.time_to)
     const dayStart = timeToMinutes('08:00')
@@ -187,10 +165,13 @@ export default function RoomBooking() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Otaq Rezervasiyası</span></h1>
-          <p className="text-sm text-[#64748b] mt-1">{bookings.length} bu gün üçün rezervasiya</p>
+          <h1 className="text-2xl font-bold text-ink-900 font-display">Otaq Rezervasiyası</h1>
+          <p className="text-sm text-ink-400 mt-0.5 tabular-nums">
+            {bookings.length} bu gün üçün rezervasiya
+          </p>
         </div>
         <Button onClick={() => { resetForm(); setAddModal(true) }}>
           <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> Rezervasiya et</span>
@@ -198,61 +179,72 @@ export default function RoomBooking() {
       </div>
 
       {/* Date Navigation */}
-      <div className="flex items-center gap-4">
-        <button onClick={() => changeDate(-1)} className="p-2 rounded-lg border border-border-soft hover:border-purple hover:text-purple transition-colors">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => changeDate(-1)}
+          className="p-1.5 rounded-input border border-hairline hover:border-brand-300 hover:text-brand-600 transition-colors text-ink-600"
+        >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <h2 className="font-medium text-gray-900 capitalize">{displayDate(selectedDate)}</h2>
-        <button onClick={() => changeDate(1)} className="p-2 rounded-lg border border-border-soft hover:border-purple hover:text-purple transition-colors">
+        <h2 className="font-semibold text-ink-900 capitalize text-sm">{displayDate(selectedDate)}</h2>
+        <button
+          onClick={() => changeDate(1)}
+          className="p-1.5 rounded-input border border-hairline hover:border-brand-300 hover:text-brand-600 transition-colors text-ink-600"
+        >
           <ChevronRight className="w-4 h-4" />
         </button>
-        <button onClick={() => setSelectedDate(formatDate(new Date()))} className="text-sm text-purple hover:underline">Bu gün</button>
+        <button
+          onClick={() => setSelectedDate(formatDate(new Date()))}
+          className="pill-peri cursor-pointer text-xs"
+        >
+          Bu gün
+        </button>
       </div>
 
-      {/* Hour Header */}
-      <Card hover={false} className="p-4 overflow-x-auto">
+      {/* Timeline Grid */}
+      <div className="bg-surface border border-hairline rounded-tile p-4 overflow-x-auto">
         <div className="min-w-[700px]">
           {/* Time axis */}
-          <div className="flex mb-2 pl-36">
+          <div className="flex mb-3 pl-36">
             {HOURS.map(h => (
-              <div key={h} className="flex-1 text-xs text-gray-400 font-medium">{h}</div>
+              <div key={h} className="flex-1 text-xs text-ink-400 font-semibold tabular-nums">{h}</div>
             ))}
           </div>
 
           {/* Rooms */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {ROOMS.map((room, ri) => {
               const roomBookings = getBookingsForRoom(room.id)
               return (
                 <div key={room.id} className="flex items-center gap-3">
                   {/* Room label */}
-                  <div className="w-32 shrink-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{room.name}</p>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${roomTypeColors[room.type] || 'bg-surface text-gray-600'}`}>
+                  <div className="w-32 shrink-0 pr-2">
+                    <p className="text-sm font-semibold text-ink-700 truncate">{room.name}</p>
+                    <span className={`${roomTypePill} text-[10px] mt-0.5`}>
                       {room.type}
                     </span>
                   </div>
 
                   {/* Timeline bar */}
-                  <div className="flex-1 relative h-10 bg-surface rounded-lg border border-border-soft overflow-hidden">
+                  <div className="flex-1 relative h-9 bg-surface-2 rounded-input border border-hairline overflow-hidden">
                     {/* Hour gridlines */}
                     {HOURS.slice(0, -1).map((_, i) => (
                       <div
                         key={i}
-                        className="absolute top-0 bottom-0 w-px bg-gray-100"
+                        className="absolute top-0 bottom-0 w-px bg-hairline"
                         style={{ left: `${(i / (HOURS.length - 1)) * 100}%` }}
                       />
                     ))}
 
-                    {/* Bookings */}
-                    {roomBookings.map((booking, bi) => (
+                    {/* Booking blocks — §4.7 muted: brand tint fill + accent left-bar + dark text */}
+                    {roomBookings.map((booking) => (
                       <div
                         key={booking.id}
-                        className={`absolute top-1 bottom-1 rounded-lg px-2 flex items-center overflow-hidden ${bookingColors[bi % bookingColors.length]}`}
-                        style={{ ...bookingStyle(booking, bi), background: bookingGradients[bi % bookingGradients.length], boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)' }}
+                        className="absolute top-1 bottom-1 rounded-ctl pl-2.5 pr-2 flex items-center overflow-hidden bg-brand-50 border-l-2 border-brand-400"
+                        style={bookingStyle(booking)}
                         title={`${booking.teacher_name}: ${booking.purpose}`}
                       >
-                        <span className="text-xs font-medium truncate">{booking.teacher_name} · {booking.purpose}</span>
+                        <span className="text-xs font-semibold text-ink-700 truncate">{booking.teacher_name} · {booking.purpose}</span>
                       </div>
                     ))}
                   </div>
@@ -261,33 +253,39 @@ export default function RoomBooking() {
             })}
           </div>
         </div>
-      </Card>
+      </div>
 
-      {/* Today's Bookings List */}
+      {/* Booking Cards */}
       <div>
-        <h3 className="font-serif text-xl text-gray-900 mb-4">Bugünün rezervasiyaları</h3>
+        <h3 className="text-base font-semibold text-ink-900 mb-4">Bugünün rezervasiyaları</h3>
         {bookings.length === 0 ? (
-          <EmptyState icon={DoorOpen} title="Bu gün rezervasiya yoxdur" description="Yeni rezervasiya əlavə edin." actionLabel="Rezervasiya et" onAction={() => { resetForm(); setAddModal(true) }} />
+          <EmptyState
+            icon={DoorOpen}
+            title="Bu gün rezervasiya yoxdur"
+            description="Yeni rezervasiya əlavə edin."
+            actionLabel="Rezervasiya et"
+            onAction={() => { resetForm(); setAddModal(true) }}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {bookings.map((booking, i) => {
+            {bookings.map((booking) => {
               const room = ROOMS.find(r => r.id === booking.room_id)
               return (
-                <Card key={booking.id} className="p-5 flex flex-col gap-3">
-                  <div className="flex items-start justify-between">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roomTypeColors[room?.type] || 'bg-surface text-gray-600'}`}>
+                <div key={booking.id} className="bg-surface border border-hairline rounded-tile p-4 flex flex-col gap-3 hover:shadow-soft-lg transition-shadow">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className={roomTypePill}>
                       {room?.name || booking.room_id}
                     </span>
-                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${bookingColors[i % bookingColors.length]}`} style={{ background: bookingGradients[i % bookingGradients.length], boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)' }}>
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-input bg-brand-50 text-brand-700 tabular-nums">
                       {booking.time_from} – {booking.time_to}
                     </span>
                   </div>
-                  <p className="font-medium text-gray-900">{booking.purpose}</p>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <p className="font-semibold text-ink-900 text-sm">{booking.purpose}</p>
+                  <div className="flex items-center gap-2 text-xs text-ink-400">
                     <Clock className="w-3.5 h-3.5" />
-                    {booking.teacher_name}
+                    <span>{booking.teacher_name}</span>
                   </div>
-                </Card>
+                </div>
               )
             })}
           </div>
@@ -315,8 +313,10 @@ export default function RoomBooking() {
             </Select>
           </div>
           <Input label="Məqsəd" value={form.purpose} onChange={e => setForm({ ...form, purpose: e.target.value })} placeholder="Dərs, toplantı, test..." />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
-          <div className="flex justify-end gap-3 pt-4">
+          {error && (
+            <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-input px-3 py-2">{error}</p>
+          )}
+          <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
             <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleAdd} loading={saving} disabled={!form.room_id || !form.date}>{t('add')}</Button>
           </div>

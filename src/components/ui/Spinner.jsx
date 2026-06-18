@@ -1,5 +1,7 @@
-// Pastel ring spinner — periwinkle ring with mint + periwinkle accent arc.
-// Drop-in replacement for the previous Loader2 spinner; same prop signature.
+// Friendly brand-500 spinner — a soft brand-tinted track with a bright
+// brand-500 arc that sweeps round. Same prop signature as before; PageSpinner
+// keeps its export. Motion collapses under prefers-reduced-motion (handled
+// globally in index.css).
 const SIZE_MAP = {
   sm: { d: 16, w: 2 },
   md: { d: 32, w: 3 },
@@ -10,20 +12,35 @@ export default function Spinner({ size = 'md', className = '' }) {
   const s = SIZE_MAP[size] || SIZE_MAP.md
   return (
     <div className={`flex items-center justify-center ${className}`}>
-      <PastelRing diameter={s.d} thickness={s.w} />
+      <BrandRing diameter={s.d} thickness={s.w} />
     </div>
   )
 }
 
 export function PageSpinner() {
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <PastelRing diameter={42} thickness={3.5} />
+    <div
+      className="flex flex-col items-center justify-center gap-3 min-h-[60vh]"
+      style={{ background: 'var(--canvas)' }}
+    >
+      <BrandRing diameter={44} thickness={4} />
+      {/* tiny bobbing brand dot — a little spark of life under the ring */}
+      <span
+        aria-hidden="true"
+        className="animate-bob"
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: 999,
+          background: 'var(--brand-500)',
+          boxShadow: '0 4px 10px -2px rgba(87,79,207,0.45)',
+        }}
+      />
     </div>
   )
 }
 
-function PastelRing({ diameter, thickness }) {
+function BrandRing({ diameter, thickness }) {
   return (
     <span
       role="status"
@@ -33,12 +50,11 @@ function PastelRing({ diameter, thickness }) {
         width: diameter,
         height: diameter,
         borderRadius: '50%',
-        // soft periwinkle base ring
-        border: `${thickness}px solid rgba(124,110,224,0.18)`,
-        // active arc — mint primary, periwinkle secondary
-        borderTopColor: '#5db8a3',
-        borderRightColor: '#7c6ee0',
-        animationDuration: '0.85s',
+        // soft brand base track
+        border: `${thickness}px solid var(--brand-100, #ECE9FE)`,
+        // bright brand-500 leading arc
+        borderTopColor: 'var(--brand-500)',
+        animationDuration: '0.7s',
         animationTimingFunction: 'linear',
       }}
     />

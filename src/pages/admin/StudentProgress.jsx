@@ -51,8 +51,8 @@ export default function AdminStudentProgress() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Şagird Tərəqqisi</span></h1>
-        <p className="text-sm text-[#64748b] mt-1">Şagird seçin — qiymət dinamikası və inkişaf trendlərini görün</p>
+        <h1 className="text-2xl font-display font-bold text-ink-900 tracking-tight">Şagird Tərəqqisi</h1>
+        <p className="text-sm text-ink-400 mt-0.5">Şagird seçin — qiymət dinamikası və inkişaf trendlərini görün</p>
       </div>
 
       {/* Student picker */}
@@ -60,14 +60,13 @@ export default function AdminStudentProgress() {
         <div className="flex gap-3 flex-wrap">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
             <input
               type="text"
               placeholder="Ad ilə axtar..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-              style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+              className="pastel-input pl-10"
             />
           </div>
           {/* Class filter */}
@@ -75,39 +74,47 @@ export default function AdminStudentProgress() {
             <select
               value={classFilter}
               onChange={e => setClassFilter(e.target.value)}
-              className="appearance-none rounded-full pl-4 pr-10 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-              style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+              className="pastel-input appearance-none pr-9 cursor-pointer"
             >
               <option value="">Bütün siniflər</option>
               {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
-            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#7c6ee0' }} />
+            <ChevronDown className="w-4 h-4 text-ink-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
 
         {/* Student list */}
         {filtered.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-4">Şagird tapılmadı</p>
+          <p className="text-sm text-ink-400 text-center py-4">Şagird tapılmadı</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-56 overflow-y-auto pr-1">
-            {filtered.map(s => (
-              <button
-                key={s.id}
-                onClick={() => setSelectedStudent(s)}
-                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all backdrop-blur-md"
-                style={selectedStudent?.id === s.id
-                  ? { background: 'rgba(124,110,224,0.12)', border: '1px solid rgba(124,110,224,0.4)' }
-                  : { background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(124,110,224,0.15)' }}
-              >
-                <Avatar name={s.full_name} size="sm" />
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ color: selectedStudent?.id === s.id ? '#5e4fc7' : '#1a1a2e' }}>
-                    {s.full_name}
-                  </p>
-                  {s.class && <p className="text-xs" style={{ color: '#94a3b8' }}>{s.class.name}</p>}
-                </div>
-              </button>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-60 overflow-y-auto pr-1 scrollbar-thin">
+            {filtered.map(s => {
+              const isSelected = selectedStudent?.id === s.id
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => setSelectedStudent(s)}
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-tile text-left transition-colors border ${
+                    isSelected
+                      ? 'bg-brand-50 border-brand-300'
+                      : 'bg-surface border-hairline hover:border-brand-200 hover:bg-brand-50/40'
+                  }`}
+                >
+                  <Avatar name={s.full_name} size="sm" />
+                  <div className="min-w-0">
+                    <p className={`text-sm font-semibold truncate ${isSelected ? 'text-brand-700' : 'text-ink-900'}`}>
+                      {s.full_name}
+                    </p>
+                    {s.class && (
+                      <p className="text-xs text-ink-400 truncate">{s.class.name}</p>
+                    )}
+                  </div>
+                  {isSelected && (
+                    <span className="ml-auto w-2 h-2 rounded-full bg-brand-500 flex-shrink-0" />
+                  )}
+                </button>
+              )
+            })}
           </div>
         )}
       </div>
@@ -115,17 +122,20 @@ export default function AdminStudentProgress() {
       {/* Progress view for selected student */}
       {selectedStudent ? (
         <div>
-          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border-soft">
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-hairline">
             <Avatar name={selectedStudent.full_name} size="md" />
             <div>
-              <h2 className="font-serif text-2xl text-gray-900">{selectedStudent.full_name}</h2>
-              {selectedStudent.class && <p className="text-sm text-gray-500">{selectedStudent.class.name} sinfi</p>}
+              <h2 className="text-xl font-semibold text-ink-900">{selectedStudent.full_name}</h2>
+              {selectedStudent.class && (
+                <p className="text-sm text-ink-400">{selectedStudent.class.name} sinfi</p>
+              )}
             </div>
           </div>
           <ProgressView studentId={selectedStudent.id} studentName={selectedStudent.full_name} />
         </div>
       ) : (
         <EmptyState
+          tier={1}
           icon={Users}
           title="Şagird seçin"
           description="Yuxarıdan şagird seçin — onun tərəqqi qrafiki burada görünəcək"

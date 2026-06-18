@@ -5,12 +5,14 @@ import {
   Users, BarChart2, ArrowRight, Check, Shield, Globe, Menu, X,
   Building2, Lock, Clock, Award, Bell, ClipboardList, ClipboardCheck,
   PenLine, TrendingUp, Calendar, HeartHandshake, LayoutDashboard,
-  Mail, HelpCircle, Layers, Star, Zap, CheckCircle, Sliders, Phone,
+  Mail, HelpCircle, Layers, Zap, CheckCircle, Sliders, Phone,
   Server, ChevronRight
 } from 'lucide-react'
 import { useLang } from '../contexts/LanguageContext'
 import LandingNav from '../components/layout/LandingNav'
 import { useSEO } from '../hooks/useSEO'
+import CountUp from '../components/ui/CountUp'
+import Mascot from '../components/ui/Mascot'
 
 /* ─── translations ─── */
 const STR = {
@@ -337,100 +339,37 @@ function ZirvaLogo({ size = 32, invert = false }) {
   )
 }
 
-/* ─── Styles ─── */
-const globalStyles = `
-  body, * { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+/* ─── Landing motion + decoration styles (rendered live; tokenized) ─── */
+const landingStyles = `
+  @keyframes lPopIn   { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
 
-  @keyframes floatY {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-10px); }
-  }
-  @keyframes floatY2 {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-8px); }
-  }
-  @keyframes popIn {
-    0%   { opacity: 0; transform: scale(0.9) translateY(6px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  .float-a  { animation: floatY  6s ease-in-out infinite; }
-  .float-b  { animation: floatY2 7.5s ease-in-out infinite 1.2s; }
-  .float-c  { animation: floatY  5.5s ease-in-out infinite 0.5s; }
-  .pop-in   { animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
-
-  .nav-link-line { position: relative; }
-  .nav-link-line::after {
-    content: ''; position: absolute; left: 50%; bottom: -1px;
-    width: 0; height: 2px;
-    background: linear-gradient(90deg,#534AB7,#1D9E75);
-    border-radius: 2px;
-    transition: width .22s ease, left .22s ease;
-  }
-  .nav-link-line:hover::after { width: calc(100% - 16px); left: 8px; }
-
-  .card-lift {
-    transition: transform .24s cubic-bezier(.34,1,.64,1), box-shadow .24s ease;
-  }
-  .card-lift:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 56px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
-  }
-
-  .hero-glow-l {
-    position:absolute; top:-10%; left:-8%;
-    width:52%; height:60%;
-    background: radial-gradient(ellipse, rgba(83,74,183,.22) 0%, transparent 70%);
-    pointer-events:none;
-  }
-  .hero-glow-r {
-    position:absolute; top:10%; right:-6%;
-    width:44%; height:52%;
-    background: radial-gradient(ellipse, rgba(29,158,117,.12) 0%, transparent 70%);
-    pointer-events:none;
-  }
-  .hero-glow-b {
-    position:absolute; bottom:0; left:25%;
-    width:50%; height:30%;
-    background: radial-gradient(ellipse, rgba(99,102,241,.15) 0%, transparent 70%);
-    pointer-events:none;
-  }
-  .hero-dots {
-    background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);
-    background-size: 28px 28px;
-  }
-
-  .purple-text {
-    background: linear-gradient(135deg, #a78bfa 0%, #818cf8 45%, #93c5fd 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* ── Dropdown entry animation ── */
-  @keyframes ddIn {
-    from { opacity: 0; margin-top: -8px; }
-    to   { opacity: 1; margin-top: 0; }
-  }
-  .dd-animated {
-    animation: ddIn 0.17s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
+  .pop-in  { animation: lPopIn 0.4s cubic-bezier(.2,.8,.2,1) both; }
 
   /* ── Scroll-fade-up ── */
   .fade-up {
     opacity: 0;
-    transform: translateY(28px);
-    transition: opacity 0.55s cubic-bezier(.22,1,.36,1), transform 0.55s cubic-bezier(.22,1,.36,1);
+    transform: translateY(20px);
+    transition: opacity 0.5s cubic-bezier(.2,.8,.2,1), transform 0.5s cubic-bezier(.2,.8,.2,1);
   }
-  .fade-up.visible {
-    opacity: 1;
-    transform: translateY(0);
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── Dotted journey connector (numbered steps) ── */
+  .journey-line {
+    background-image: linear-gradient(to right, var(--hairline-strong) 55%, transparent 0%);
+    background-position: top;
+    background-size: 14px 2px;
+    background-repeat: repeat-x;
   }
 
   /* ── Mobile overrides ── */
   html { overflow-x: hidden; }
   @media(max-width:639px){
     .hero-section { min-height: unset !important; padding-bottom: 80px !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pop-in { animation: none !important; }
+    .fade-up { opacity: 1 !important; transform: none !important; transition: none !important; }
   }
 `
 
@@ -449,346 +388,6 @@ function useFadeUp(threshold = 0.15) {
   return ref
 }
 
-/* ══════════════════════════════════════ NAV — moved to LandingNav.jsx ══ */
-function Nav({ s, lang, setLang }) {
-  const [open, setOpen]             = useState(false)
-  const [dropdown, setDropdown]     = useState(null)
-  const [mobileOpen, setMobileOpen] = useState(null)
-  const [scrolled, setScrolled]     = useState(false)
-  const closeTimer = useRef(null)
-  const L = s.lang
-
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 56)
-    window.addEventListener('scroll', fn, { passive:true })
-    return () => window.removeEventListener('scroll', fn)
-  }, [])
-
-  const openDd  = (name) => { clearTimeout(closeTimer.current); setDropdown(name) }
-  const closeDd = ()     => { closeTimer.current = setTimeout(() => setDropdown(null), 150) }
-  const keepDd  = ()     => clearTimeout(closeTimer.current)
-
-  const solItems = [
-    { to:'/ib-pyp',             logo:'/pyp.png', accent:'#f59e0b', title:L==='az'?'IB İlk İllər (PYP)':L==='tr'?'IB İlk Yıllar (PYP)':'IB Primary Years (PYP)',   desc:L==='az'?'3–12 yaş · Kiçik şagirdlər':L==='tr'?'3–12 yaş · Küçük öğrenciler':'Ages 3–12 · Foundation learning' },
-    { to:'/ib-myp',             logo:'/myp.png', accent:'#ef4444', title:L==='az'?'IB Orta İllər (MYP)':L==='tr'?'IB Orta Yıllar (MYP)':'IB Middle Years (MYP)',   desc:L==='az'?'11–16 yaş · Birgə planlaşdırma':L==='tr'?'11–16 yaş · Ortak planlama':'Ages 11–16 · Collaborative planning' },
-    { to:'/ib-diploma',         logo:'/dp.png',  accent:'#3b82f6', title:L==='az'?'IB Diploma (DP)':L==='tr'?'IB Diploma (DP)':'IB Diploma (DP)',                  desc:L==='az'?'16–19 yaş · Tam DP dəstəyi':L==='tr'?'16–19 yaş · Tam DP desteği':'Ages 16–19 · Full DP support' },
-    { to:'/ib-career',          logo:'/cp.png',  accent:'#a855f7', title:L==='az'?'IB Karyera (CP)':L==='tr'?'IB Kariyer (CP)':'IB Career-Related (CP)',           desc:L==='az'?'16–19 yaş · Karyera yönümlü':L==='tr'?'16–19 yaş · Kariyer odaklı':'Ages 16–19 · Career-focused' },
-    { to:'/government-schools', icon:Building2,  accent:'#1D9E75', title:L==='az'?'Dövlət Məktəbləri':L==='tr'?'Devlet Okulları':'Government Schools',             desc:L==='az'?'Nazirlik inteqrasiyası':L==='tr'?'Bakanlık entegrasyonu':'Ministry integration' },
-  ]
-  const resItems = [
-    { to:'/ceo-letter', icon:FileText,     accent:'#534AB7', title:L==='az'?'CEO Məktubu':L==='tr'?'CEO Mektubu':'CEO Letter',                  desc:L==='az'?'Zirva-nın vizyonu':L==='tr'?'Zirva\'nın vizyonu':'Our vision & mission' },
-    { to:'/resources',  icon:BookOpen,     accent:'#534AB7', title:L==='az'?'Resurs Kitabxanası':L==='tr'?'Kaynak Kütüphanesi':'Resource Library',desc:L==='az'?'Bələdçilər & şablonlar':L==='tr'?'Rehberler & şablonlar':'Guides & templates' },
-    { to:'/blog',       icon:PenLine,      accent:'#534AB7', title:'Blog',                                                                        desc:L==='az'?'Məqalələr & yeniliklər':L==='tr'?'Makaleler & haberler':'Articles & updates' },
-    { to:'/contact',    icon:Star,         accent:'#534AB7', title:L==='az'?'Müştəri Rəyləri':L==='tr'?'Müşteri Görüşleri':'Customer Reviews',    desc:L==='az'?'Real istifadəçi hekayələri':L==='tr'?'Gerçek kullanıcı hikayeleri':'Real user stories' },
-  ]
-  const compItems = [
-    { to:'/about',    icon:Users,          accent:'#1D9E75', title:L==='az'?'Haqqımızda':L==='tr'?'Hakkımızda':'About Us',  desc:L==='az'?'Komanda & missiya':L==='tr'?'Ekip & misyon':'Team & mission' },
-    { to:'/careers',  icon:TrendingUp,     accent:'#1D9E75', title:L==='az'?'Karyera':L==='tr'?'Kariyer':'Careers',         desc:L==='az'?'Açıq vakansiyalar':L==='tr'?'Açık pozisyonlar':'Open positions' },
-    { to:'/partners', icon:HeartHandshake, accent:'#1D9E75', title:L==='az'?'Tərəfdaşlar':L==='tr'?'Ortaklar':'Partners',   desc:L==='az'?'Əməkdaşlıq imkanları':L==='tr'?'Ortaklık fırsatları':'Partnership opportunities' },
-    { to:'/contact',  icon:Mail,           accent:'#1D9E75', title:L==='az'?'Əlaqə':L==='tr'?'İletişim':'Contact',          desc:L==='az'?'Bizimlə əlaqə saxla':L==='tr'?'Bize ulaşın':'Get in touch' },
-  ]
-  const featItems = [
-    { to:'/features/curriculum',    icon:BookOpen,       accent:'#7c3aed', title:L==='az'?'Kurikulum İdarəetməsi':L==='tr'?'Müfredat Yönetimi':'Curriculum Management',  desc:L==='az'?'Birgə planlaşdırma, 600+ standart':L==='tr'?'Ortak planlama, 600+ standart':'Collaborative planning, 600+ standards' },
-    { to:'/features/assessment',    icon:ClipboardCheck, accent:'#2563eb', title:L==='az'?'Qiymətləndirmə & Jurnal':L==='tr'?'Değerlendirme & Not Defteri':'Assessment & Gradebook', desc:L==='az'?'IB + milli sistem dəstəyi':L==='tr'?'IB + ulusal sistem desteği':'IB + national system support' },
-    { to:'/features/attendance',    icon:Calendar,       accent:'#059669', title:L==='az'?'Davamiyyət':L==='tr'?'Devam Takibi':'Attendance',             desc:L==='az'?'Bir toxunuşla qeydiyyat':L==='tr'?'Tek dokunuşla kayıt':'One-tap registration' },
-    { to:'/features/reports',       icon:BarChart2,      accent:'#d97706', title:L==='az'?'Hesabatlar & Analitika':L==='tr'?'Raporlar & Analitik':'Reports & Analytics',   desc:L==='az'?'Nazirlik + IB hesabatları':L==='tr'?'Bakanlık + IB raporları':'Ministry + IB reporting' },
-    { to:'/features/communication', icon:MessageSquare,  accent:'#0891b2', title:L==='az'?'Kommunikasiya':L==='tr'?'İletişim':'Communication',            desc:L==='az'?'Müəllim-valideyn mesajlaşma':L==='tr'?'Öğretmen-veli mesajlaşma':'Teacher-parent messaging' },
-    { to:'/features/timetable',     icon:Clock,          accent:'#7c3aed', title:L==='az'?'Cədvəl İdarəetməsi':L==='tr'?'Program Yönetimi':'Timetable Management',       desc:L==='az'?'Avtomatik cədvəl generatoru':L==='tr'?'Otomatik program oluşturucu':'Auto timetable generator' },
-    { to:'/features/student-staff', icon:Users,          accent:'#be185d', title:L==='az'?'Şagird & Heyət':L==='tr'?'Öğrenci & Personel':'Student & Staff',              desc:L==='az'?'Profillər, portfolio, intizam':L==='tr'?'Profiller, portfolyo, disiplin':'Profiles, portfolio, discipline' },
-    { to:'/zeka-ai',                icon:Sparkles,       accent:'#6d28d9', title:L==='az'?'Zəka AI':L==='tr'?'Zeka AI':'Zeka AI',                           desc:L==='az'?'AI müəllim köməkçisi':L==='tr'?'AI öğretim asistanı':'AI teaching assistant' },
-  ]
-
-  const navItems = [
-    { label: s.nav_solutions, key: 'solutions' },
-    { label: s.nav_features,  key: 'features'  },
-    { label: s.nav_resources, key: 'resources'  },
-    { label: L==='az'?'Şirkət':L==='tr'?'Şirket':'Company', key: 'company' },
-  ]
-
-  const DdItem = ({ to, logo, icon: Icon, title, desc, accent = '#534AB7' }) => (
-    <Link to={to} onClick={() => setDropdown(null)}
-      style={{
-        display:'flex', alignItems:'flex-start', gap:13, padding:'11px 12px',
-        borderRadius:16, textDecoration:'none',
-        transition:'background 0.15s ease',
-        background:'transparent',
-      }}
-      onMouseEnter={e => { e.currentTarget.style.background = `${accent}0d` }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
-      {/* Icon with gradient tinted background */}
-      <div style={{
-        width:44, height:44, borderRadius:13, flexShrink:0,
-        background:`linear-gradient(135deg, ${accent}28, ${accent}10)`,
-        border:`1px solid ${accent}22`,
-        display:'flex', alignItems:'center', justifyContent:'center',
-        marginTop:1,
-      }}>
-        {logo
-          ? <img src={logo} alt={title} style={{ width:24, height:24, objectFit:'contain', mixBlendMode:'multiply' }}/>
-          : <Icon style={{ width:19, height:19, color:accent }}/>
-        }
-      </div>
-      <div>
-        <p style={{ fontSize:14, fontWeight:700, color:'#111827', lineHeight:1.3, marginBottom:3 }}>{title}</p>
-        <p style={{ fontSize:12, color:'#9ca3af', lineHeight:1.45, fontWeight:400 }}>{desc}</p>
-      </div>
-    </Link>
-  )
-
-  const ddStyle = {
-    position:'absolute', top:'calc(100% + 12px)', zIndex:300,
-    background:'#fff', borderRadius:22,
-    border:'1px solid rgba(0,0,0,0.07)',
-    boxShadow:'0 8px 10px -4px rgba(0,0,0,0.04), 0 24px 60px -8px rgba(0,0,0,0.16)',
-    padding:'16px 10px 10px',
-  }
-  const caretBase = {
-    position:'absolute', top:-7, width:13, height:13,
-    background:'#fff', border:'1px solid rgba(0,0,0,0.07)',
-    borderBottom:'none', borderRight:'none', transform:'rotate(45deg)',
-  }
-
-  return (
-    <>
-      <style>{globalStyles}</style>
-
-      {/* ── Outer wrapper: fixed, always floats in air ── */}
-      <header style={{
-        position:'fixed', top:0, left:0, right:0, zIndex:50,
-        padding: scrolled ? '8px 20px' : '10px 20px 0',
-        background:'transparent',
-        transition:'padding .3s ease',
-      }}>
-
-        {/* ── Inner pill — always pill-shaped, position:relative for mega menus ── */}
-        <div style={{
-          position:'relative',
-          maxWidth:1260, margin:'0 auto',
-          background:'rgba(255,255,255,0.94)',
-          backdropFilter:'blur(20px)',
-          WebkitBackdropFilter:'blur(20px)',
-          borderRadius: 999,
-          height: 62,
-          display:'flex', alignItems:'center', justifyContent:'space-between',
-          padding:'0 20px',
-          boxShadow: scrolled
-            ? '0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05)'
-            : '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12)',
-          border: scrolled ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.55)',
-          transition:'box-shadow .3s ease, border .3s ease',
-        }}>
-
-          {/* Brand */}
-          <Link to="/" className="flex items-center gap-2.5 flex-1">
-            <ZirvaLogo size={27} />
-            <span className="text-[18px] font-extrabold text-gray-900 tracking-tight">Zirva</span>
-          </Link>
-
-          {/* Center nav — triggers only, panels rendered separately below */}
-          <nav className="hidden lg:flex items-center gap-0.5">
-            {navItems.map(({ label, to, key }) => (
-              <div key={label}
-                onMouseEnter={() => key ? openDd(key) : setDropdown(null)}
-                onMouseLeave={key ? closeDd : undefined}
-              >
-                {to ? (
-                  <Link to={to}
-                    className="flex items-center px-3.5 py-2 text-[13.5px] text-gray-600 hover:text-gray-900 font-semibold rounded-lg hover:bg-black/[0.05] transition-colors">
-                    {label}
-                  </Link>
-                ) : (
-                  <button
-                    className="flex items-center gap-1 px-3.5 py-2 text-[13.5px] font-semibold rounded-lg hover:bg-black/[0.05] transition-colors"
-                    style={{ color:dropdown===key?'#534AB7':'#4b5563', background:'transparent', border:'none', cursor:'pointer' }}>
-                    {label}
-                    <ChevronRight className="w-[11px] h-[11px] transition-transform duration-200"
-                      style={{ transform:dropdown===key?'rotate(-90deg)':'rotate(90deg)', color:dropdown===key?'#534AB7':'#9ca3af' }}/>
-                  </button>
-                )}
-              </div>
-            ))}
-          </nav>
-
-          {/* Right actions */}
-          <div className="hidden lg:flex items-center gap-1.5" style={{ flex:1, justifyContent:'flex-end' }}>
-            <Link to="/daxil-ol"
-              className="px-4 py-2 text-[13.5px] text-gray-500 hover:text-gray-900 font-semibold rounded-lg hover:bg-black/[0.05] transition-all">
-              {s.nav_signin}
-            </Link>
-            <Link to="/contact"
-              className="inline-flex items-center gap-1.5 text-white text-[13.5px] font-bold px-5 py-[10px] rounded-full transition-all hover:-translate-y-px"
-              style={{ background:'#1a0a3e', boxShadow:'0 2px 12px rgba(26,10,62,0.45)' }}>
-              {s.nav_demo}
-            </Link>
-          </div>
-
-          {/* Mobile toggle */}
-          <button onClick={() => setOpen(v => !v)}
-            className="lg:hidden p-2 text-gray-600 rounded-lg hover:bg-black/[0.06] transition-colors">
-            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-
-          {/* ── Mega menu panels — full pill width, ManageBac style ── */}
-          {dropdown && (
-            <div style={{ position:'absolute', top:'calc(100% + 10px)', left:0, right:0, zIndex:300 }}
-              onMouseEnter={keepDd} onMouseLeave={closeDd}>
-
-              {/* Solutions */}
-              {dropdown==='solutions' && (
-                <div className="dd-animated" style={{
-                  background:'#fff', borderRadius:20,
-                  border:'1px solid rgba(0,0,0,0.07)',
-                  boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)',
-                  padding:'28px 20px 20px',
-                }}>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:0 }}>
-                    {/* Col 1 */}
-                    <div style={{ paddingRight:20, borderRight:'1px solid rgba(0,0,0,0.06)' }}>
-                      <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
-                        {L==='az'?'IB Proqramları üçün':L==='tr'?'IB Programları için':'For IB Continuum'}
-                      </p>
-                      {solItems.slice(0,4).map(item => <DdItem key={item.to} {...item}/>)}
-                    </div>
-                    {/* Col 2 */}
-                    <div style={{ paddingLeft:20 }}>
-                      <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
-                        {L==='az'?'Milli Kurikulum':L==='tr'?'Ulusal Müfredat':'National Curriculum'}
-                      </p>
-                      <DdItem {...solItems[4]}/>
-                    </div>
-                  </div>
-                  <div style={{ height:1, background:'rgba(0,0,0,0.06)', margin:'16px 0 14px' }}/>
-                  <Link to="/solutions" onClick={() => setDropdown(null)}
-                    style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', borderRadius:12, background:'rgba(29,158,117,0.05)', border:'1px solid rgba(29,158,117,0.12)', textDecoration:'none' }}>
-                    <span style={{ fontSize:12.5, fontWeight:700, color:'#1D9E75' }}>
-                      {L==='az'?'Bütün həllər':L==='tr'?'Tüm çözümler':L==='ru'?'Все решения':'All solutions'}
-                    </span>
-                    <div style={{ display:'flex', gap:4 }}>
-                      {['#f59e0b','#ef4444','#3b82f6','#a855f7','#1D9E75'].map(c => (
-                        <div key={c} style={{ width:7, height:7, borderRadius:'50%', background:c, opacity:0.7 }}/>
-                      ))}
-                    </div>
-                  </Link>
-                </div>
-              )}
-
-              {/* Resources */}
-              {dropdown==='resources' && (
-                <div className="dd-animated" style={{
-                  background:'#fff', borderRadius:20,
-                  border:'1px solid rgba(0,0,0,0.07)',
-                  boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)',
-                  padding:'24px 20px 18px',
-                }}>
-                  <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
-                    {L==='az'?'Resurslar':L==='tr'?'Kaynaklar':'Resources'}
-                  </p>
-                  <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)' }}>
-                    {resItems.map(item => <DdItem key={item.to} {...item}/>)}
-                  </div>
-                </div>
-              )}
-
-              {/* Features */}
-              {dropdown==='features' && (
-                <div className="dd-animated" style={{
-                  background:'#fff', borderRadius:20,
-                  border:'1px solid rgba(0,0,0,0.07)',
-                  boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)',
-                  padding:'24px 20px 18px',
-                }}>
-                  <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
-                    {L==='az'?'Platform Xüsusiyyətləri':L==='tr'?'Platform Özellikleri':'Platform Features'}
-                  </p>
-                  <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)' }}>
-                    {featItems.map(item => <DdItem key={item.to} {...item}/>)}
-                  </div>
-                  <div style={{ height:1, background:'rgba(0,0,0,0.06)', margin:'12px 0 10px' }}/>
-                  <Link to="/features" onClick={() => setDropdown(null)}
-                    style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', borderRadius:12, background:'rgba(124,58,237,0.05)', border:'1px solid rgba(124,58,237,0.1)', textDecoration:'none' }}>
-                    <span style={{ fontSize:12.5, fontWeight:700, color:'#7c3aed' }}>
-                      {L==='az'?'Bütün xüsusiyyətlər':L==='tr'?'Tüm özellikler':L==='ru'?'Все возможности':'All features'}
-                    </span>
-                    <div style={{ display:'flex', gap:4 }}>
-                      {['#7c3aed','#2563eb','#059669','#d97706','#0891b2','#be185d','#6d28d9'].map(c => (
-                        <div key={c} style={{ width:7, height:7, borderRadius:'50%', background:c, opacity:0.65 }}/>
-                      ))}
-                    </div>
-                  </Link>
-                </div>
-              )}
-
-              {/* Company */}
-              {dropdown==='company' && (
-                <div className="dd-animated" style={{
-                  background:'#fff', borderRadius:20,
-                  border:'1px solid rgba(0,0,0,0.07)',
-                  boxShadow:'0 8px 48px -6px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.05)',
-                  padding:'24px 20px 18px',
-                }}>
-                  <p style={{ fontSize:13.5, fontWeight:700, color:'#111827', marginBottom:12, paddingLeft:12 }}>
-                    {L==='az'?'Şirkət':L==='tr'?'Şirket':'Company'}
-                  </p>
-                  <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)' }}>
-                    {compItems.map(item => <DdItem key={item.to+item.title} {...item}/>)}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Mobile drawer */}
-        {open && (
-          <div style={{ maxWidth:1260, margin:'0 auto', marginTop:6 }}
-            className="lg:hidden bg-white rounded-2xl shadow-xl border border-gray-100 px-5 pt-3 pb-5">
-            <div className="space-y-0.5 mb-4">
-              {[
-                { label:s.nav_solutions, key:'solutions', items:solItems },
-                { label:s.nav_features,  key:'features',  items:featItems },
-                { label:s.nav_resources, key:'resources', items:resItems },
-                { label:L==='az'?'Şirkət':L==='tr'?'Şirket':'Company', key:'company', items:compItems },
-              ].map(({ label, key, items }) => (
-                <div key={key}>
-                  <button onClick={() => setMobileOpen(mobileOpen===key?null:key)}
-                    className="w-full flex items-center justify-between py-3 px-3 text-[15px] text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors">
-                    {label}
-                    <ChevronRight className="w-4 h-4 text-gray-400 transition-transform duration-200"
-                      style={{ transform:mobileOpen===key?'rotate(-90deg)':'rotate(90deg)' }}/>
-                  </button>
-                  {mobileOpen===key && (
-                    <div className="pl-3 pb-2 space-y-0.5">
-                      {items.map(item => (
-                        <Link key={item.to+item.title} to={item.to}
-                          onClick={() => { setOpen(false); setMobileOpen(null) }}
-                          className="flex items-center gap-2.5 py-2 px-3 text-[14px] text-gray-600 font-medium rounded-lg hover:bg-gray-50 transition-colors">
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                            style={{ background:`${item.accent||'#534AB7'}12` }}>
-                            {item.logo
-                              ? <img src={item.logo} alt={item.title} className="w-4 h-4 object-contain" style={{ mixBlendMode:'multiply' }}/>
-                              : item.icon && <item.icon className="w-3.5 h-3.5" style={{ color:item.accent||'#534AB7' }}/>
-                            }
-                          </div>
-                          {item.title}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
-              <Link to="/daxil-ol" className="text-sm text-gray-500 font-semibold px-3 py-2">{s.nav_signin}</Link>
-              <Link to="/contact" className="text-white text-sm font-bold px-4 py-2.5 rounded-full"
-                style={{ background:'#1a0a3e' }}>{s.nav_demo}</Link>
-            </div>
-          </div>
-        )}
-      </header>
-    </>
-  )
-}
-
 /* ══════════════════════════════════════ DASHBOARD MOCKUP ══ */
 function DashboardMockup({ s }) {
   const sideItems = [
@@ -799,58 +398,57 @@ function DashboardMockup({ s }) {
     { icon: MessageSquare,   label: s.tab_comms,      active: false },
     { icon: Sparkles,        label: s.tab_zeka,       active: false },
   ]
+  // Calm data view: brand for identity, status colors carry meaning only. No rainbow rotation.
   const stats = [
-    { label:s.dash_students,   value:'342',  trend:'+12',   icon:Users,        color:'#534AB7', bg:'#ede9fe' },
-    { label:s.dash_avg_grade,  value:'7.8',  trend:'↑0.4',  icon:TrendingUp,   color:'#1D9E75', bg:'#d1fae5' },
-    { label:s.dash_attendance, value:'94%',  trend:'↑2.1%', icon:CheckCircle,  color:'#3b82f6', bg:'#dbeafe' },
-    { label:s.dash_ai,         value:'1.2k', trend:'+180',  icon:Sparkles,     color:'#f59e0b', bg:'#fef3c7' },
+    { label:s.dash_students,   value:'342',  trend:'+12',   icon:Users,        color:'#574FCF', bg:'#E8E6FB' },
+    { label:s.dash_avg_grade,  value:'7.8',  trend:'+0.4',  icon:TrendingUp,   color:'#15803D', bg:'#E7F6EE' },
+    { label:s.dash_attendance, value:'94%',  trend:'+2.1%', icon:CheckCircle,  color:'#15803D', bg:'#E7F6EE' },
+    { label:s.dash_ai,         value:'1.2k', trend:'+180',  icon:Sparkles,     color:'#574FCF', bg:'#E8E6FB' },
   ]
   const timetable = [
-    { time:'09:00', subj:s.dash_math,    rm:'301', color:'#534AB7' },
-    { time:'10:30', subj:s.dash_physics, rm:'202', color:'#1D9E75' },
-    { time:'12:00', subj:s.dash_english, rm:'105', color:'#f59e0b' },
+    { time:'09:00', subj:s.dash_math,    rm:'301' },
+    { time:'10:30', subj:s.dash_physics, rm:'202' },
+    { time:'12:00', subj:s.dash_english, rm:'105' },
   ]
   const activity = [
-    { ev:s.dash_ev1, t:'2m',  color:'#1D9E75', bg:'#d1fae5' },
-    { ev:s.dash_ev2, t:'15m', color:'#1D9E75', bg:'#d1fae5' },
-    { ev:s.dash_ev3, t:'1h',  color:'#534AB7', bg:'#ede9fe' },
+    { ev:s.dash_ev1, t:'2m',  color:'#15803D', bg:'#E7F6EE' },
+    { ev:s.dash_ev2, t:'15m', color:'#15803D', bg:'#E7F6EE' },
+    { ev:s.dash_ev3, t:'1h',  color:'#574FCF', bg:'#E8E6FB' },
   ]
 
-  const R = { borderRadius:999 }
-
   return (
-    <div style={{ borderRadius:18, overflow:'hidden', border:'1px solid rgba(255,255,255,0.12)', boxShadow:'0 40px 90px -16px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)' }}>
+    <div style={{ borderRadius:14, overflow:'hidden', border:'1px solid var(--hairline-strong)', boxShadow:'0 24px 60px -20px rgba(20,22,40,0.20), 0 0 0 1px rgba(255,255,255,0.6)' }}>
 
-      {/* ── Chrome bar ── */}
-      <div style={{ background:'#161224', padding:'10px 16px', display:'flex', alignItems:'center', gap:12 }}>
+      {/* ── Browser device chrome ── */}
+      <div style={{ background:'#1E2233', padding:'10px 16px', display:'flex', alignItems:'center', gap:12 }}>
         <div style={{ display:'flex', gap:6 }}>
-          {['#ff5f57','#ffbd2e','#28c840'].map(c => <div key={c} style={{ width:11, height:11, borderRadius:'50%', background:c }}/>)}
+          {['rgba(255,255,255,0.22)','rgba(255,255,255,0.22)','rgba(255,255,255,0.22)'].map((c,i) => <div key={i} style={{ width:11, height:11, borderRadius:'50%', background:c }}/>)}
         </div>
-        <div style={{ flex:1, background:'#221d33', borderRadius:7, padding:'5px 0', fontSize:11, color:'#6b7280', textAlign:'center', maxWidth:280, margin:'0 auto' }}>
+        <div style={{ flex:1, background:'rgba(255,255,255,0.08)', borderRadius:7, padding:'5px 0', fontSize:11, color:'rgba(255,255,255,0.5)', textAlign:'center', maxWidth:280, margin:'0 auto' }}>
           app.zirva.az/admin/dashboard
         </div>
       </div>
 
-      {/* ── App shell ── */}
-      <div style={{ display:'flex', height:450, background:'#f5f4fb' }}>
+      {/* ── App shell — light, the real product ── */}
+      <div style={{ display:'flex', height:450, background:'#F6F6FB' }}>
 
-        {/* Sidebar */}
-        <div style={{ width:186, background:'#0f0c1b', display:'flex', flexDirection:'column', flexShrink:0 }}>
+        {/* Sidebar — near-white with right hairline */}
+        <div style={{ width:186, background:'#FBFBFE', borderRight:'1px solid #ECEDF3', display:'flex', flexDirection:'column', flexShrink:0 }}>
           {/* Logo */}
-          <div style={{ padding:'13px 14px 12px', borderBottom:'1px solid rgba(255,255,255,0.06)', display:'flex', alignItems:'center', gap:9, flexShrink:0 }}>
-            <div style={{ width:29, height:29, borderRadius:9, background:'linear-gradient(135deg,#534AB7,#7c3aed)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-              <span style={{ color:'#fff', fontSize:13, fontWeight:800 }}>Z</span>
+          <div style={{ padding:'13px 14px 12px', borderBottom:'1px solid #ECEDF3', display:'flex', alignItems:'center', gap:9, flexShrink:0 }}>
+            <div style={{ width:29, height:29, borderRadius:8, background:'#574FCF', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <span className="font-display" style={{ color:'#fff', fontSize:13, fontWeight:800 }}>Z</span>
             </div>
             <div>
-              <p style={{ margin:0, color:'#fff', fontSize:13, fontWeight:700, lineHeight:1, letterSpacing:'-0.01em' }}>Zirva</p>
-              <p style={{ margin:'2px 0 0', color:'rgba(255,255,255,0.22)', fontSize:8, fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase' }}>School Platform</p>
+              <p className="font-display" style={{ margin:0, color:'#1E2233', fontSize:13, fontWeight:800, lineHeight:1, letterSpacing:'-0.01em' }}>Zirva</p>
+              <p style={{ margin:'2px 0 0', color:'#9AA0B0', fontSize:8, fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase' }}>School Platform</p>
             </div>
           </div>
 
           {/* Nav */}
           <div style={{ flex:1, padding:'8px 8px 4px' }}>
             {/* Section: Main */}
-            <p style={{ margin:'4px 0 5px', fontSize:7.5, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:'rgba(255,255,255,0.18)', padding:'0 8px' }}>
+            <p style={{ margin:'4px 0 5px', fontSize:7.5, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:'#9AA0B0', padding:'0 8px' }}>
               {s.lang==='az'?'Əsas':s.lang==='tr'?'Ana Menü':s.lang==='ru'?'Главное':'Main'}
             </p>
             {[
@@ -862,20 +460,19 @@ function DashboardMockup({ s }) {
               <div key={label} style={{
                 display:'flex', alignItems:'center', gap:8, padding:'7px 10px',
                 borderRadius:8, marginBottom:1.5, position:'relative', overflow:'hidden',
-                background: active ? 'rgba(83,74,183,0.22)' : 'transparent',
-                border: active ? '1px solid rgba(83,74,183,0.18)' : '1px solid transparent',
+                background: active ? '#F3F2FD' : 'transparent',
               }}>
-                {active && <div style={{ position:'absolute', left:0, top:0, bottom:0, width:3, background:'linear-gradient(to bottom,#a78bfa,#6d28d9)', borderRadius:'0 2px 2px 0' }}/>}
-                <Icon style={{ width:13, height:13, color: active ? '#a78bfa' : 'rgba(255,255,255,0.28)', flexShrink:0, marginLeft: active ? 5 : 0 }}/>
-                <span style={{ fontSize:11, fontWeight: active ? 600 : 400, color: active ? '#ddd6fe' : 'rgba(255,255,255,0.38)' }}>{label}</span>
+                {active && <div style={{ position:'absolute', left:0, top:6, bottom:6, width:3, background:'#574FCF', borderRadius:'0 3px 3px 0' }}/>}
+                <Icon style={{ width:13, height:13, color: active ? '#574FCF' : '#9AA0B0', flexShrink:0, marginLeft: active ? 5 : 0 }}/>
+                <span style={{ fontSize:11, fontWeight: active ? 700 : 500, color: active ? '#3E37A6' : '#5A6072' }}>{label}</span>
               </div>
             ))}
 
             {/* Divider */}
-            <div style={{ height:1, background:'rgba(255,255,255,0.05)', margin:'8px 2px' }}/>
+            <div style={{ height:1, background:'#ECEDF3', margin:'8px 2px' }}/>
 
             {/* Section: More */}
-            <p style={{ margin:'4px 0 5px', fontSize:7.5, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:'rgba(255,255,255,0.18)', padding:'0 8px' }}>
+            <p style={{ margin:'4px 0 5px', fontSize:7.5, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:'#9AA0B0', padding:'0 8px' }}>
               {s.lang==='az'?'Əlaqə':s.lang==='tr'?'İletişim':s.lang==='ru'?'Связь':'Comms'}
             </p>
             {[
@@ -883,30 +480,30 @@ function DashboardMockup({ s }) {
               { icon:FileText, label:s.lang==='az'?'Hesabatlar':s.lang==='tr'?'Raporlar':s.lang==='ru'?'Отчёты':'Reports' },
             ].map(({ icon:Icon, label }) => (
               <div key={label} style={{ display:'flex', alignItems:'center', gap:8, padding:'7px 10px', borderRadius:8, marginBottom:1.5 }}>
-                <Icon style={{ width:13, height:13, color:'rgba(255,255,255,0.25)', flexShrink:0 }}/>
-                <span style={{ fontSize:11, fontWeight:400, color:'rgba(255,255,255,0.35)' }}>{label}</span>
+                <Icon style={{ width:13, height:13, color:'#9AA0B0', flexShrink:0 }}/>
+                <span style={{ fontSize:11, fontWeight:500, color:'#5A6072' }}>{label}</span>
               </div>
             ))}
 
             {/* Zeka AI pill */}
-            <div style={{ margin:'8px 0 0', padding:'7px 10px', borderRadius:9, background:'linear-gradient(135deg,rgba(83,74,183,0.28),rgba(124,58,237,0.16))', border:'1px solid rgba(124,58,237,0.22)', display:'flex', alignItems:'center', gap:8 }}>
-              <Sparkles style={{ width:12, height:12, color:'#a78bfa', flexShrink:0 }}/>
-              <span style={{ fontSize:11, fontWeight:600, color:'#c4b5fd', flex:1 }}>{s.tab_zeka}</span>
-              <span style={{ fontSize:7, fontWeight:800, color:'#a78bfa', letterSpacing:'0.05em', textTransform:'uppercase', background:'rgba(124,58,237,0.25)', padding:'2px 5px', borderRadius:4, flexShrink:0 }}>AI</span>
+            <div style={{ margin:'8px 0 0', padding:'7px 10px', borderRadius:8, background:'#F3F2FD', border:'1px solid #D4CFF7', display:'flex', alignItems:'center', gap:8 }}>
+              <Sparkles style={{ width:12, height:12, color:'#574FCF', flexShrink:0 }}/>
+              <span style={{ fontSize:11, fontWeight:700, color:'#3E37A6', flex:1 }}>{s.tab_zeka}</span>
+              <span style={{ fontSize:7, fontWeight:800, color:'#fff', letterSpacing:'0.05em', textTransform:'uppercase', background:'#574FCF', padding:'2px 5px', borderRadius:4, flexShrink:0 }}>AI</span>
             </div>
           </div>
 
           {/* User profile */}
-          <div style={{ padding:'10px', borderTop:'1px solid rgba(255,255,255,0.06)', flexShrink:0 }}>
-            <div style={{ display:'flex', alignItems:'center', gap:9, padding:'7px 8px', borderRadius:9, background:'rgba(255,255,255,0.04)' }}>
-              <div style={{ width:26, height:26, borderRadius:'50%', background:'linear-gradient(135deg,#534AB7,#7c3aed)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          <div style={{ padding:'10px', borderTop:'1px solid #ECEDF3', flexShrink:0 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:9, padding:'7px 8px', borderRadius:8, background:'#fff', border:'1px solid #ECEDF3' }}>
+              <div style={{ width:26, height:26, borderRadius:'50%', background:'#574FCF', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                 <span style={{ color:'#fff', fontSize:11, fontWeight:800 }}>A</span>
               </div>
               <div style={{ flex:1, minWidth:0 }}>
-                <p style={{ margin:0, fontSize:10, fontWeight:600, color:'rgba(255,255,255,0.75)', lineHeight:1.1 }}>Admin</p>
-                <p style={{ margin:0, fontSize:8, color:'rgba(255,255,255,0.28)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>admin@zirva.az</p>
+                <p style={{ margin:0, fontSize:10, fontWeight:700, color:'#3A3F52', lineHeight:1.1 }}>Admin</p>
+                <p style={{ margin:0, fontSize:8, color:'#9AA0B0', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>admin@zirva.az</p>
               </div>
-              <ChevronRight style={{ width:10, height:10, color:'rgba(255,255,255,0.18)', flexShrink:0 }}/>
+              <ChevronRight style={{ width:10, height:10, color:'#9AA0B0', flexShrink:0 }}/>
             </div>
           </div>
         </div>
@@ -915,17 +512,17 @@ function DashboardMockup({ s }) {
         <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
           {/* Topbar */}
-          <div style={{ background:'#fff', borderBottom:'1px solid #eeedf8', padding:'9px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
+          <div style={{ background:'#fff', borderBottom:'1px solid #ECEDF3', padding:'9px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
             <div>
-              <p style={{ margin:0, fontSize:12, fontWeight:700, color:'#111827' }}>{s.dash_welcome}</p>
-              <p style={{ margin:'2px 0 0', fontSize:10, color:'#9ca3af' }}>{s.dash_school}</p>
+              <p className="font-display" style={{ margin:0, fontSize:13, fontWeight:800, color:'#1E2233' }}>{s.dash_welcome}</p>
+              <p style={{ margin:'2px 0 0', fontSize:10, color:'#9AA0B0' }}>{s.dash_school}</p>
             </div>
             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-              <div style={{ display:'flex', alignItems:'center', gap:5, background:'#f0fdf4', borderRadius:20, padding:'3px 10px', border:'1px solid #bbf7d0' }}>
-                <div style={{ width:6, height:6, borderRadius:'50%', background:'#22c55e' }}/>
-                <span style={{ fontSize:9.5, color:'#16a34a', fontWeight:700 }}>Live</span>
+              <div style={{ display:'flex', alignItems:'center', gap:5, background:'#E7F6EE', borderRadius:999, padding:'3px 10px' }}>
+                <div style={{ width:6, height:6, borderRadius:'50%', background:'#1FA855' }}/>
+                <span style={{ fontSize:9.5, color:'#15803D', fontWeight:700 }}>Live</span>
               </div>
-              <div style={{ width:28, height:28, borderRadius:'50%', background:'linear-gradient(135deg,#534AB7,#7c3aed)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <div style={{ width:28, height:28, borderRadius:'50%', background:'#574FCF', display:'flex', alignItems:'center', justifyContent:'center' }}>
                 <span style={{ color:'#fff', fontSize:11, fontWeight:800 }}>A</span>
               </div>
             </div>
@@ -934,15 +531,15 @@ function DashboardMockup({ s }) {
           {/* Stats */}
           <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8, padding:'10px 12px 8px' }}>
             {stats.map(({ label, value, trend, icon: Icon, color, bg }) => (
-              <div key={label} style={{ background:'#fff', borderRadius:11, padding:'10px 11px', border:'1px solid #eeedf8', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+              <div key={label} style={{ background:'#fff', borderRadius:12, padding:'10px 11px', border:'1px solid #ECEDF3' }}>
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:7 }}>
-                  <p style={{ margin:0, fontSize:9, color:'#9ca3af', fontWeight:500 }}>{label}</p>
+                  <p style={{ margin:0, fontSize:9, color:'#9AA0B0', fontWeight:600 }}>{label}</p>
                   <div style={{ width:22, height:22, borderRadius:7, background:bg, display:'flex', alignItems:'center', justifyContent:'center' }}>
                     <Icon style={{ width:11, height:11, color }}/>
                   </div>
                 </div>
-                <p style={{ margin:0, fontSize:18, fontWeight:800, color:'#111827', lineHeight:1 }}>{value}</p>
-                <p style={{ margin:'4px 0 0', fontSize:9, color, fontWeight:700 }}>{trend}</p>
+                <p className="font-display" style={{ margin:0, fontSize:20, fontWeight:700, color:'#1E2233', lineHeight:1, letterSpacing:'-0.01em', fontVariantNumeric:'tabular-nums' }}>{value}</p>
+                <p style={{ margin:'4px 0 0', fontSize:9, color:'#15803D', fontWeight:700 }}>{trend}</p>
               </div>
             ))}
           </div>
@@ -950,27 +547,27 @@ function DashboardMockup({ s }) {
           {/* Panels */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, padding:'0 12px 10px', flex:1, minHeight:0 }}>
             {/* Timetable */}
-            <div style={{ background:'#fff', borderRadius:11, padding:'11px 13px', border:'1px solid #eeedf8', overflow:'hidden' }}>
-              <p style={{ margin:'0 0 9px', fontSize:10.5, fontWeight:700, color:'#374151' }}>{s.dash_timetable}</p>
-              {timetable.map(({ time, subj, rm, color }) => (
-                <div key={time} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 0', borderBottom:'1px solid #f5f4fb' }}>
-                  <span style={{ fontSize:9, color:'#9ca3af', width:32, flexShrink:0, fontVariantNumeric:'tabular-nums' }}>{time}</span>
-                  <div style={{ width:7, height:7, borderRadius:'50%', background:color, flexShrink:0 }}/>
-                  <span style={{ fontSize:10.5, color:'#374151', flex:1, fontWeight:500 }}>{subj}</span>
-                  <span style={{ fontSize:9, color:'#9ca3af', background:'#f5f4fb', borderRadius:5, padding:'2px 6px', fontWeight:600 }}>{rm}</span>
+            <div style={{ background:'#fff', borderRadius:12, padding:'11px 13px', border:'1px solid #ECEDF3', overflow:'hidden' }}>
+              <p style={{ margin:'0 0 9px', fontSize:10.5, fontWeight:700, color:'#3A3F52' }}>{s.dash_timetable}</p>
+              {timetable.map(({ time, subj, rm }) => (
+                <div key={time} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 0', borderBottom:'1px solid #F6F6FB' }}>
+                  <span style={{ fontSize:9, color:'#9AA0B0', width:32, flexShrink:0, fontVariantNumeric:'tabular-nums' }}>{time}</span>
+                  <div style={{ width:7, height:7, borderRadius:'50%', background:'#574FCF', flexShrink:0 }}/>
+                  <span style={{ fontSize:10.5, color:'#3A3F52', flex:1, fontWeight:500 }}>{subj}</span>
+                  <span style={{ fontSize:9, color:'#5A6072', background:'#F6F6FB', borderRadius:5, padding:'2px 6px', fontWeight:600 }}>{rm}</span>
                 </div>
               ))}
             </div>
             {/* Activity */}
-            <div style={{ background:'#fff', borderRadius:11, padding:'11px 13px', border:'1px solid #eeedf8', overflow:'hidden' }}>
-              <p style={{ margin:'0 0 9px', fontSize:10.5, fontWeight:700, color:'#374151' }}>{s.dash_activity}</p>
+            <div style={{ background:'#fff', borderRadius:12, padding:'11px 13px', border:'1px solid #ECEDF3', overflow:'hidden' }}>
+              <p style={{ margin:'0 0 9px', fontSize:10.5, fontWeight:700, color:'#3A3F52' }}>{s.dash_activity}</p>
               {activity.map(({ ev, t, color, bg }) => (
-                <div key={ev} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 0', borderBottom:'1px solid #f5f4fb' }}>
+                <div key={ev} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 0', borderBottom:'1px solid #F6F6FB' }}>
                   <div style={{ width:20, height:20, borderRadius:'50%', background:bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                     <Check style={{ width:10, height:10, color }}/>
                   </div>
-                  <span style={{ fontSize:10.5, color:'#374151', flex:1, fontWeight:500, lineHeight:1.3 }}>{ev}</span>
-                  <span style={{ fontSize:9, color:'#9ca3af', flexShrink:0 }}>{t}</span>
+                  <span style={{ fontSize:10.5, color:'#3A3F52', flex:1, fontWeight:500, lineHeight:1.3 }}>{ev}</span>
+                  <span style={{ fontSize:9, color:'#9AA0B0', flexShrink:0 }}>{t}</span>
                 </div>
               ))}
             </div>
@@ -987,37 +584,37 @@ function FeatureVisual({ idx, s }) {
   if (idx === 0) return (
     <div className="space-y-2.5">
       {[
-        { label:'Unit 1 · Algebra',    tags:['MYP','DP'], pct:85, c:'teal'   },
-        { label:'Unit 2 · Geometry',   tags:['MYP'],      pct:60, c:'purple' },
-        { label:'Unit 3 · Statistics', tags:['National'], pct:40, c:'teal'   },
-      ].map(({ label, tags, pct, c }) => (
-        <div key={label} className="bg-surface rounded-xl p-3.5 border border-border-soft">
+        { label:'Unit 1 · Algebra',    tags:['MYP','DP'], pct:85 },
+        { label:'Unit 2 · Geometry',   tags:['MYP'],      pct:60 },
+        { label:'Unit 3 · Statistics', tags:['National'], pct:40 },
+      ].map(({ label, tags, pct }) => (
+        <div key={label} className="rounded-tile p-3.5" style={{ background:'#fff', border:'1px solid var(--hairline)' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-700 text-xs font-medium">{label}</span>
-            <div className="flex gap-1">{tags.map(t => <span key={t} className="bg-purple-light text-purple text-[9px] px-1.5 py-0.5 rounded-md font-medium">{t}</span>)}</div>
+            <span className="text-xs font-medium" style={{ color:'#3A3F52' }}>{label}</span>
+            <div className="flex gap-1">{tags.map(t => <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-md font-semibold" style={{ background:'#E8E6FB', color:'#574FCF' }}>{t}</span>)}</div>
           </div>
-          <div className="h-1.5 bg-gray-100 rounded-full"><div className={`h-full rounded-full ${c==='teal'?'bg-teal':'bg-purple'}`} style={{ width:`${pct}%` }}/></div>
-          <p className="text-gray-400 text-[9px] mt-1">{pct}% coverage</p>
+          <div className="h-1.5 rounded-full" style={{ background:'var(--hairline)' }}><div className="h-full rounded-full" style={{ width:`${pct}%`, background:'#574FCF' }}/></div>
+          <p className="text-[9px] mt-1" style={{ color:'#9AA0B0' }}>{pct}% coverage</p>
         </div>
       ))}
     </div>
   )
   if (idx === 2) return (
     <div className="space-y-1.5">
-      <div className="bg-surface rounded-lg px-3 py-2 grid grid-cols-4 text-[9px] text-gray-400 font-semibold uppercase tracking-wide border border-border-soft">
+      <div className="rounded-lg px-3 py-2 grid grid-cols-4 text-[9px] font-semibold uppercase tracking-wide" style={{ background:'#FBFBFE', color:'#9AA0B0', border:'1px solid var(--hairline)' }}>
         <span>Student</span><span>Crit. A</span><span>Crit. B</span><span>Grade</span>
       </div>
       {[
-        { n:'Aytən M.',a:'7',b:'6',g:'7',c:'teal'   },
-        { n:'Rauf A.', a:'5',b:'5',g:'5',c:'purple' },
-        { n:'Günel H.',a:'8',b:'7',g:'8',c:'teal'   },
-        { n:'Nigar Q.',a:'6',b:'6',g:'6',c:'purple' },
-      ].map(({ n,a,b,g,c }) => (
-        <div key={n} className="bg-white rounded-lg px-3 py-2 grid grid-cols-4 items-center border border-border-soft">
-          <span className="text-gray-700 text-[10px] font-medium">{n}</span>
-          <span className="text-gray-500 text-[10px]">{a}</span>
-          <span className="text-gray-500 text-[10px]">{b}</span>
-          <span className={`text-[10px] font-bold ${c==='teal'?'text-teal':'text-purple'}`}>{g}</span>
+        { n:'Aytən M.',a:'7',b:'6',g:'7' },
+        { n:'Rauf A.', a:'5',b:'5',g:'5' },
+        { n:'Günel H.',a:'8',b:'7',g:'8' },
+        { n:'Nigar Q.',a:'6',b:'6',g:'6' },
+      ].map(({ n,a,b,g }) => (
+        <div key={n} className="rounded-lg px-3 py-2 grid grid-cols-4 items-center" style={{ background:'#fff', border:'1px solid var(--hairline)' }}>
+          <span className="text-[10px] font-medium" style={{ color:'#3A3F52' }}>{n}</span>
+          <span className="text-[10px] tabular-nums" style={{ color:'#5A6072' }}>{a}</span>
+          <span className="text-[10px] tabular-nums" style={{ color:'#5A6072' }}>{b}</span>
+          <span className="text-[10px] font-bold tabular-nums" style={{ color:'#574FCF' }}>{g}</span>
         </div>
       ))}
     </div>
@@ -1025,40 +622,42 @@ function FeatureVisual({ idx, s }) {
   if (idx === 4) return (
     <div className="space-y-2">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-gray-400 text-[10px]">Today · 9A Mathematics</span>
-        <span className="bg-teal-light text-teal text-[9px] font-semibold px-2 py-0.5 rounded-full">94%</span>
+        <span className="text-[10px]" style={{ color:'#9AA0B0' }}>Today · 9A Mathematics</span>
+        <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full tabular-nums" style={{ background:'#E7F6EE', color:'#15803D' }}>94%</span>
       </div>
       {[
-        { n:'Aytən M.',  st:'present',c:'teal'   },
-        { n:'Rauf A.',   st:'late',   c:'yellow' },
-        { n:'Günel H.',  st:'present',c:'teal'   },
-        { n:'Nigar Q.',  st:'absent', c:'red'    },
-        { n:'Kamran B.', st:'present',c:'teal'   },
-      ].map(({ n,st,c }) => (
-        <div key={n} className="bg-white rounded-lg px-3 py-2 flex items-center justify-between border border-border-soft">
-          <span className="text-gray-700 text-[10px] font-medium">{n}</span>
-          <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${c==='teal'?'bg-teal-light text-teal':c==='yellow'?'bg-yellow-50 text-yellow-600':'bg-red-50 text-red-500'}`}>{st}</span>
+        { n:'Aytən M.',  st:'present', dot:'#16A34A', bg:'#E7F6EE', fg:'#15803D' },
+        { n:'Rauf A.',   st:'late',    dot:'#F59E0B', bg:'#FEF3C7', fg:'#B45309' },
+        { n:'Günel H.',  st:'present', dot:'#16A34A', bg:'#E7F6EE', fg:'#15803D' },
+        { n:'Nigar Q.',  st:'absent',  dot:'#EF4444', bg:'#FEE2E2', fg:'#B91C1C' },
+        { n:'Kamran B.', st:'present', dot:'#16A34A', bg:'#E7F6EE', fg:'#15803D' },
+      ].map(({ n,st,dot,bg,fg }) => (
+        <div key={n} className="rounded-lg px-3 py-2 flex items-center justify-between" style={{ background:'#fff', border:'1px solid var(--hairline)' }}>
+          <span className="text-[10px] font-medium" style={{ color:'#3A3F52' }}>{n}</span>
+          <span className="inline-flex items-center gap-1.5 text-[9px] font-semibold px-2 py-0.5 rounded-full" style={{ background:bg, color:fg }}>
+            <span style={{ width:5, height:5, borderRadius:'50%', background:dot, flexShrink:0 }}/>{st}
+          </span>
         </div>
       ))}
     </div>
   )
   if (idx === 5) return (
     <div className="space-y-2.5">
-      <div className="flex items-center gap-2 bg-purple-light rounded-xl px-3 py-2.5 border border-purple/10">
-        <div className="w-7 h-7 bg-purple rounded-full flex items-center justify-center shrink-0"><Sparkles className="w-3.5 h-3.5 text-white"/></div>
-        <div><p className="text-[9px] text-purple/60 font-medium">{s.tab_zeka}</p><p className="text-purple text-[10px] leading-snug font-medium">{s.lang==='az'?'Əlbəttə! Gəl addım-addım izah edək...':s.lang==='tr'?'Tabii! Adım adım açıklayalım...':'Of course! Let\'s go through this step by step...'}</p></div>
+      <div className="flex items-center gap-2 rounded-tile px-3 py-2.5" style={{ background:'#F3F2FD', border:'1px solid #D4CFF7' }}>
+        <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ background:'#574FCF' }}><Sparkles className="w-3.5 h-3.5 text-white"/></div>
+        <div><p className="text-[9px] font-semibold" style={{ color:'#574FCF' }}>{s.tab_zeka}</p><p className="text-[10px] leading-snug font-medium" style={{ color:'#3E37A6' }}>{s.lang==='az'?'Əlbəttə! Gəl addım-addım izah edək...':s.lang==='tr'?'Tabii! Adım adım açıklayalım...':'Of course! Let\'s go through this step by step...'}</p></div>
       </div>
       {[
         { label:'Quadratic equations',sub:'IB MYP · Mathematics',   pct:72 },
         { label:'Essay feedback',      sub:'English Language & Lit', pct:91 },
         { label:'DP Core reflection',  sub:'CAS / TOK',              pct:55 },
       ].map(({ label, sub, pct }) => (
-        <div key={label} className="bg-white rounded-xl px-3 py-2.5 border border-border-soft">
+        <div key={label} className="rounded-tile px-3 py-2.5" style={{ background:'#fff', border:'1px solid var(--hairline)' }}>
           <div className="flex items-center justify-between mb-1.5">
-            <div><p className="text-gray-700 text-[10px] font-medium">{label}</p><p className="text-gray-400 text-[9px]">{sub}</p></div>
-            <span className="text-teal text-[9px] font-bold">{pct}%</span>
+            <div><p className="text-[10px] font-medium" style={{ color:'#3A3F52' }}>{label}</p><p className="text-[9px]" style={{ color:'#9AA0B0' }}>{sub}</p></div>
+            <span className="text-[9px] font-bold tabular-nums" style={{ color:'#574FCF' }}>{pct}%</span>
           </div>
-          <div className="h-1 bg-gray-100 rounded-full"><div className="h-full bg-teal rounded-full" style={{ width:`${pct}%` }}/></div>
+          <div className="h-1 rounded-full" style={{ background:'var(--hairline)' }}><div className="h-full rounded-full" style={{ width:`${pct}%`, background:'#574FCF' }}/></div>
         </div>
       ))}
     </div>
@@ -1066,91 +665,91 @@ function FeatureVisual({ idx, s }) {
   if (idx === 1) return (
     <div className="space-y-2.5">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-gray-400 text-[10px] font-medium uppercase tracking-wide">{s.lang==='az'?'Tapşırıqlar':s.lang==='tr'?'Ödevler':'Assignments'}</span>
-        <span className="bg-purple-light text-purple text-[9px] font-semibold px-2 py-0.5 rounded-full">{s.lang==='az'?'3 aktiv':s.lang==='tr'?'3 aktif':'3 active'}</span>
+        <span className="text-[10px] font-medium uppercase tracking-wide" style={{ color:'#9AA0B0' }}>{s.lang==='az'?'Tapşırıqlar':s.lang==='tr'?'Ödevler':'Assignments'}</span>
+        <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full" style={{ background:'#E8E6FB', color:'#574FCF' }}>{s.lang==='az'?'3 aktiv':s.lang==='tr'?'3 aktif':'3 active'}</span>
       </div>
       {[
-        { title:'Quadratic Equations – HW',subj:s.dash_math,  due:'20 Apr',pct:68,c:'purple' },
-        { title:'Essay: Romeo & Juliet',   subj:s.dash_english,due:'22 Apr',pct:42,c:'teal'   },
-        { title:'Lab Report – Titration',  subj:s.lang==='az'?'Kimya':s.lang==='tr'?'Kimya':'Chemistry', due:'25 Apr',pct:85,c:'purple' },
-      ].map(({ title, subj, due, pct, c }) => (
-        <div key={title} className="bg-white rounded-xl border border-border-soft p-3.5">
+        { title:'Quadratic Equations – HW',subj:s.dash_math,  due:'20 Apr',pct:68,c:'#574FCF',bg:'#E8E6FB' },
+        { title:'Essay: Romeo & Juliet',   subj:s.dash_english,due:'22 Apr',pct:42,c:'#574FCF',bg:'#E8E6FB' },
+        { title:'Lab Report – Titration',  subj:s.lang==='az'?'Kimya':s.lang==='tr'?'Kimya':'Chemistry', due:'25 Apr',pct:85,c:'#574FCF',bg:'#E8E6FB' },
+      ].map(({ title, subj, due, pct, c, bg }) => (
+        <div key={title} className="rounded-tile p-3.5" style={{ background:'#fff', border:'1px solid var(--hairline)' }}>
           <div className="flex items-start justify-between gap-2 mb-2">
-            <div><p className="text-gray-800 text-[11px] font-semibold leading-snug">{title}</p><p className="text-gray-400 text-[9px] mt-0.5">{subj} · {s.lang==='az'?'Son tarix:':s.lang==='tr'?'Son tarih:':'Due:'} {due}</p></div>
-            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${c==='teal'?'bg-teal-light text-teal':'bg-purple-light text-purple'}`}>{pct}%</span>
+            <div><p className="text-[11px] font-semibold leading-snug" style={{ color:'#1E2233' }}>{title}</p><p className="text-[9px] mt-0.5" style={{ color:'#9AA0B0' }}>{subj} · {s.lang==='az'?'Son tarix:':s.lang==='tr'?'Son tarih:':'Due:'} {due}</p></div>
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 tabular-nums" style={{ background:bg, color:c }}>{pct}%</span>
           </div>
-          <div className="h-1.5 bg-gray-100 rounded-full"><div className={`h-full rounded-full ${c==='teal'?'bg-teal':'bg-purple'}`} style={{ width:`${pct}%` }}/></div>
-          <p className="text-gray-400 text-[9px] mt-1">{pct}% {s.lang==='az'?'təhvil verildi':s.lang==='tr'?'teslim edildi':'submitted'}</p>
+          <div className="h-1.5 rounded-full" style={{ background:'var(--hairline)' }}><div className="h-full rounded-full" style={{ width:`${pct}%`, background:c }}/></div>
+          <p className="text-[9px] mt-1" style={{ color:'#9AA0B0' }}>{pct}% {s.lang==='az'?'təhvil verildi':s.lang==='tr'?'teslim edildi':'submitted'}</p>
         </div>
       ))}
     </div>
   )
   if (idx === 3) return (
     <div className="space-y-2.5">
-      <div className="bg-white rounded-xl border border-border-soft p-3.5">
+      <div className="rounded-tile p-3.5" style={{ background:'#fff', border:'1px solid var(--hairline)' }}>
         <div className="flex items-center justify-between mb-3">
-          <div><p className="text-gray-800 text-[11px] font-semibold">{s.lang==='az'?'Şagird Qiymət Cədvəli':s.lang==='tr'?'Öğrenci Not Tablosu':'Student Grade Sheet'}</p><p className="text-gray-400 text-[9px]">9A · April 2025</p></div>
+          <div><p className="text-[11px] font-semibold" style={{ color:'#1E2233' }}>{s.lang==='az'?'Şagird Qiymət Cədvəli':s.lang==='tr'?'Öğrenci Not Tablosu':'Student Grade Sheet'}</p><p className="text-[9px]" style={{ color:'#9AA0B0' }}>9A · April 2025</p></div>
           <div className="flex gap-1">
-            <span className="bg-surface border border-border-soft text-gray-500 text-[8px] font-semibold px-2 py-0.5 rounded-md">PDF</span>
-            <span className="bg-surface border border-border-soft text-gray-500 text-[8px] font-semibold px-2 py-0.5 rounded-md">Excel</span>
+            <span className="text-[8px] font-semibold px-2 py-0.5 rounded-md" style={{ background:'#FBFBFE', border:'1px solid var(--hairline)', color:'#5A6072' }}>PDF</span>
+            <span className="text-[8px] font-semibold px-2 py-0.5 rounded-md" style={{ background:'#FBFBFE', border:'1px solid var(--hairline)', color:'#5A6072' }}>Excel</span>
           </div>
         </div>
         <div className="space-y-1.5">
-          <div className="grid grid-cols-4 text-[8px] text-gray-400 font-semibold uppercase tracking-wide pb-1 border-b border-gray-50">
+          <div className="grid grid-cols-4 text-[8px] font-semibold uppercase tracking-wide pb-1" style={{ color:'#9AA0B0', borderBottom:'1px solid var(--hairline)' }}>
             <span>{s.dash_students}</span><span>{s.dash_math}</span><span>{s.dash_physics}</span><span>{s.lang==='az'?'Ortalama':s.lang==='tr'?'Ortalama':'Average'}</span>
           </div>
           {[
-            { n:'Aytən M.',m:'8',p:'7',avg:'7.5',c:'teal' },
-            { n:'Rauf A.', m:'6',p:'5',avg:'5.5',c:'red'  },
-            { n:'Günel H.',m:'9',p:'8',avg:'8.5',c:'teal' },
+            { n:'Aytən M.',m:'8',p:'7',avg:'7.5',c:'#16A34A' },
+            { n:'Rauf A.', m:'6',p:'5',avg:'5.5',c:'#EF4444' },
+            { n:'Günel H.',m:'9',p:'8',avg:'8.5',c:'#16A34A' },
           ].map(({ n,m,p,avg,c }) => (
-            <div key={n} className="grid grid-cols-4 items-center py-1 border-b border-gray-50 last:border-0">
-              <span className="text-gray-700 text-[10px] font-medium">{n}</span>
-              <span className="text-gray-500 text-[10px]">{m}</span>
-              <span className="text-gray-500 text-[10px]">{p}</span>
-              <span className={`text-[10px] font-bold ${c==='teal'?'text-teal':'text-red-500'}`}>{avg}</span>
+            <div key={n} className="grid grid-cols-4 items-center py-1 last:border-0" style={{ borderBottom:'1px solid var(--hairline)' }}>
+              <span className="text-[10px] font-medium" style={{ color:'#3A3F52' }}>{n}</span>
+              <span className="text-[10px] tabular-nums" style={{ color:'#5A6072' }}>{m}</span>
+              <span className="text-[10px] tabular-nums" style={{ color:'#5A6072' }}>{p}</span>
+              <span className="text-[10px] font-bold tabular-nums" style={{ color:c }}>{avg}</span>
             </div>
           ))}
         </div>
       </div>
       <div className="flex gap-2">
-        <div className="flex-1 bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-teal/10 flex items-center justify-center shrink-0"><CheckCircle className="w-3.5 h-3.5 text-teal"/></div>
-          <div><p className="text-gray-700 text-[10px] font-medium">{s.lang==='az'?'E-Gov.az ixracı':s.lang==='tr'?'E-Gov.az dışa aktarma':'E-Gov.az export'}</p><p className="text-teal text-[9px]">{s.lang==='az'?'Hazır':s.lang==='tr'?'Hazır':'Ready'}</p></div>
+        <div className="flex-1 rounded-tile px-3 py-2.5 flex items-center gap-2" style={{ background:'#fff', border:'1px solid var(--hairline)' }}>
+          <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style={{ background:'#E7F6EE' }}><CheckCircle className="w-3.5 h-3.5" style={{ color:'#16A34A' }}/></div>
+          <div><p className="text-[10px] font-medium" style={{ color:'#3A3F52' }}>{s.lang==='az'?'E-Gov.az ixracı':s.lang==='tr'?'E-Gov.az dışa aktarma':'E-Gov.az export'}</p><p className="text-[9px]" style={{ color:'#15803D' }}>{s.lang==='az'?'Hazır':s.lang==='tr'?'Hazır':'Ready'}</p></div>
         </div>
-        <div className="flex-1 bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-purple/10 flex items-center justify-center shrink-0"><FileText className="w-3.5 h-3.5 text-purple"/></div>
-          <div><p className="text-gray-700 text-[10px] font-medium">IB Audit</p><p className="text-purple text-[9px]">{s.lang==='az'?'Sənədlər hazır':s.lang==='tr'?'Belgeler hazır':'Docs ready'}</p></div>
+        <div className="flex-1 rounded-tile px-3 py-2.5 flex items-center gap-2" style={{ background:'#fff', border:'1px solid var(--hairline)' }}>
+          <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style={{ background:'#E8E6FB' }}><FileText className="w-3.5 h-3.5" style={{ color:'#574FCF' }}/></div>
+          <div><p className="text-[10px] font-medium" style={{ color:'#3A3F52' }}>IB Audit</p><p className="text-[9px]" style={{ color:'#574FCF' }}>{s.lang==='az'?'Sənədlər hazır':s.lang==='tr'?'Belgeler hazır':'Docs ready'}</p></div>
         </div>
       </div>
     </div>
   )
   if (idx === 6) return (
     <div className="space-y-2">
-      <div className="bg-purple-light border border-purple/20 rounded-xl px-3.5 py-2.5 flex items-start gap-2.5">
-        <div className="w-6 h-6 rounded-lg bg-purple flex items-center justify-center shrink-0 mt-0.5"><Bell className="w-3 h-3 text-white"/></div>
-        <div><p className="text-purple text-[10px] font-semibold">{s.lang==='az'?'Məktəb Elanı':s.lang==='tr'?'Okul Duyurusu':'School Notice'}</p><p className="text-purple/70 text-[9px] leading-snug mt-0.5">{s.lang==='az'?'Yarımillik imtahanlar 12 May tarixindən başlayır.':s.lang==='tr'?'Dönem sonu sınavları 12 Mayıs\'ta başlıyor.':'Mid-year exams start May 12.'}</p></div>
+      <div className="rounded-tile px-3.5 py-2.5 flex items-start gap-2.5" style={{ background:'#E8E6FB', border:'1px solid #D4CFF7' }}>
+        <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background:'#574FCF' }}><Bell className="w-3 h-3 text-white"/></div>
+        <div><p className="text-[10px] font-semibold" style={{ color:'#3E37A6' }}>{s.lang==='az'?'Məktəb Elanı':s.lang==='tr'?'Okul Duyurusu':'School Notice'}</p><p className="text-[9px] leading-snug mt-0.5" style={{ color:'#574FCF' }}>{s.lang==='az'?'Yarımillik imtahanlar 12 May tarixindən başlayır.':s.lang==='tr'?'Dönem sonu sınavları 12 Mayıs\'ta başlıyor.':'Mid-year exams start May 12.'}</p></div>
       </div>
-      <div className="bg-white rounded-xl border border-border-soft p-3 space-y-2">
-        <p className="text-[9px] text-gray-400 font-medium uppercase tracking-wide mb-2">{s.lang==='az'?'Müəllim → Valideyn':s.lang==='tr'?'Öğretmen → Veli':'Teacher → Parent'}</p>
+      <div className="rounded-tile p-3 space-y-2" style={{ background:'#fff', border:'1px solid var(--hairline)' }}>
+        <p className="text-[9px] font-medium uppercase tracking-wide mb-2" style={{ color:'#9AA0B0' }}>{s.lang==='az'?'Müəllim → Valideyn':s.lang==='tr'?'Öğretmen → Veli':'Teacher → Parent'}</p>
         <div className="flex items-end gap-2">
-          <div className="w-6 h-6 rounded-full bg-purple flex items-center justify-center text-white text-[8px] font-bold shrink-0">M</div>
-          <div className="bg-surface rounded-xl rounded-bl-md px-3 py-2 max-w-[75%]">
-            <p className="text-gray-700 text-[10px] leading-snug">{s.lang==='az'?'Aytənin riyaziyyat nəticəsi bu ay yaxşılaşıb. Təbriklər!':s.lang==='tr'?'Ayten\'in matematik notu bu ay yükseldi. Tebrikler!':'Ayten\'s math score improved this month. Congrats!'}</p>
-            <p className="text-gray-400 text-[8px] mt-1">09:42</p>
+          <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[8px] font-bold shrink-0" style={{ background:'#574FCF' }}>M</div>
+          <div className="rounded-xl rounded-bl-md px-3 py-2 max-w-[75%]" style={{ background:'#FBFBFE', border:'1px solid var(--hairline)' }}>
+            <p className="text-[10px] leading-snug" style={{ color:'#3A3F52' }}>{s.lang==='az'?'Aytənin riyaziyyat nəticəsi bu ay yaxşılaşıb. Təbriklər!':s.lang==='tr'?'Ayten\'in matematik notu bu ay yükseldi. Tebrikler!':'Ayten\'s math score improved this month. Congrats!'}</p>
+            <p className="text-[8px] mt-1" style={{ color:'#9AA0B0' }}>09:42</p>
           </div>
         </div>
         <div className="flex items-end gap-2 flex-row-reverse">
-          <div className="w-6 h-6 rounded-full bg-teal flex items-center justify-center text-white text-[8px] font-bold shrink-0">V</div>
-          <div className="bg-teal-light rounded-xl rounded-br-md px-3 py-2 max-w-[75%]">
-            <p className="text-teal text-[10px] leading-snug">{s.lang==='az'?'Çox sağ olun! Evdə də çox çalışır.':s.lang==='tr'?'Teşekkürler! Evde de çok çalışıyor.':'Thank you! She studies hard at home too.'}</p>
-            <p className="text-teal/60 text-[8px] mt-1">09:55</p>
+          <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[8px] font-bold shrink-0" style={{ background:'#1FA855' }}>V</div>
+          <div className="rounded-xl rounded-br-md px-3 py-2 max-w-[75%]" style={{ background:'#E7F6EE' }}>
+            <p className="text-[10px] leading-snug" style={{ color:'#15803D' }}>{s.lang==='az'?'Çox sağ olun! Evdə də çox çalışır.':s.lang==='tr'?'Teşekkürler! Evde de çok çalışıyor.':'Thank you! She studies hard at home too.'}</p>
+            <p className="text-[8px] mt-1" style={{ color:'#15803D' }}>09:55</p>
           </div>
         </div>
       </div>
-      <div className="bg-white rounded-xl border border-border-soft px-3 py-2.5 flex items-center justify-between">
-        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500 shrink-0"/><p className="text-gray-700 text-[10px] font-medium">{s.lang==='az'?'3 oxunmamış mesaj':s.lang==='tr'?'3 okunmamış mesaj':'3 unread messages'}</p></div>
-        <span className="text-purple text-[9px] font-semibold">{s.lang==='az'?'Hamısına bax →':s.lang==='tr'?'Tümünü gör →':'View all →'}</span>
+      <div className="rounded-tile px-3 py-2.5 flex items-center justify-between" style={{ background:'#fff', border:'1px solid var(--hairline)' }}>
+        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full shrink-0" style={{ background:'#574FCF' }}/><p className="text-[10px] font-medium" style={{ color:'#3A3F52' }}>{s.lang==='az'?'3 oxunmamış mesaj':s.lang==='tr'?'3 okunmamış mesaj':'3 unread messages'}</p></div>
+        <span className="text-[9px] font-semibold" style={{ color:'#574FCF' }}>{s.lang==='az'?'Hamısına bax →':s.lang==='tr'?'Tümünü gör →':'View all →'}</span>
       </div>
     </div>
   )
@@ -1162,137 +761,79 @@ function FeatureVisual({ idx, s }) {
 ══════════════════════════════════════════════════════════ */
 
 /* ─── HERO ─── */
-const BLOB_CSS = `
-  @keyframes bd1{0%{transform:translate(0,0) scale(1)}33%{transform:translate(8vw,-6vh) scale(1.1)}66%{transform:translate(-5vw,5vh) scale(0.92)}100%{transform:translate(6vw,4vh) scale(1.06)}}
-  @keyframes bd2{0%{transform:translate(0,0) scale(1)}40%{transform:translate(-7vw,5vh) scale(1.09)}100%{transform:translate(5vw,-7vh) scale(0.93)}}
-  @keyframes bd3{0%{transform:translate(0,0) scale(1)}50%{transform:translate(6vw,6vh) scale(1.11)}100%{transform:translate(-6vw,-5vh) scale(0.91)}}
-  @keyframes bd4{0%{transform:translate(0,0) scale(1)}45%{transform:translate(-6vw,-5vh) scale(1.08)}100%{transform:translate(6vw,7vh) scale(0.93)}}
-  @keyframes bd5{0%{transform:translate(0,0) scale(1)}35%{transform:translate(8vw,-6vh) scale(1.09)}70%{transform:translate(-4vw,5vh) scale(0.94)}100%{transform:translate(5vw,-3vh) scale(1.06)}}
-  @keyframes bd6{0%{transform:translate(0,0) scale(1)}50%{transform:translate(-5vw,-7vh) scale(1.08)}100%{transform:translate(7vw,4vh) scale(0.92)}}
-  .hb1,.hb2,.hb3,.hb4,.hb5,.hb6{position:absolute;border-radius:50%;pointer-events:none;will-change:transform;}
-  .hb1{width:75vw;height:65vh;top:-10%;left:-10%;background:radial-gradient(ellipse at center,rgba(184,192,255,1) 0%,rgba(184,192,255,0) 70%);filter:blur(50px);animation:bd1 16s ease-in-out infinite alternate;}
-  .hb2{width:65vw;height:60vh;top:-8%;right:-10%;background:radial-gradient(ellipse at center,rgba(180,225,215,1) 0%,rgba(180,225,215,0) 70%);filter:blur(55px);animation:bd2 13s ease-in-out -4s infinite alternate;}
-  .hb3{width:85vw;height:75vh;top:20%;left:5%;background:radial-gradient(ellipse at center,rgba(210,220,255,1) 0%,rgba(210,220,255,0) 70%);filter:blur(45px);animation:bd3 19s ease-in-out -7s infinite alternate;}
-  .hb4{width:60vw;height:55vh;bottom:-5%;right:-5%;background:radial-gradient(ellipse at center,rgba(248,220,200,1) 0%,rgba(248,220,200,0) 70%);filter:blur(50px);animation:bd4 15s ease-in-out -2s infinite alternate;}
-  .hb5{width:70vw;height:62vh;bottom:-10%;left:-5%;background:radial-gradient(ellipse at center,rgba(200,185,255,1) 0%,rgba(200,185,255,0) 70%);filter:blur(60px);animation:bd5 21s ease-in-out -10s infinite alternate;}
-  .hb6{width:55vw;height:50vh;bottom:8%;left:22%;background:radial-gradient(ellipse at center,rgba(170,230,210,1) 0%,rgba(170,230,210,0) 70%);filter:blur(40px);animation:bd6 18s ease-in-out -6s infinite alternate;}
-  @keyframes textGradient{0%{background-position:0% center}100%{background-position:200% center}}
-  @media(prefers-reduced-motion:reduce){.hb1,.hb2,.hb3,.hb4,.hb5,.hb6{animation-play-state:paused!important}}
-`
-
 function Hero({ s }) {
   const L = s.lang
-
-  useEffect(() => {
-    const id = 'zirva-hero-blob-css'
-    if (document.getElementById(id)) return
-    const el = document.createElement('style')
-    el.id = id
-    el.textContent = BLOB_CSS
-    document.head.appendChild(el)
-    return () => { try { document.head.removeChild(el) } catch(_){} }
-  }, [])
 
   return (
     <section className="hero-section" style={{
       minHeight:'100vh', position:'relative', overflow:'hidden',
     }}>
 
-      {/* ── Animated pastel blobs ── */}
-      <div aria-hidden="true" style={{ position:'absolute', inset:0, zIndex:0 }}>
-        <div className="hb1"/>
-        <div className="hb2"/>
-        <div className="hb3"/>
-        <div className="hb4"/>
-        <div className="hb5"/>
-        <div className="hb6"/>
+      {/* ── One subtle static brand wash (no perpetual motion) ── */}
+      <div aria-hidden="true" style={{ position:'absolute', inset:0, zIndex:0, pointerEvents:'none' }}>
+        <div style={{
+          position:'absolute', top:'-12%', left:'50%', transform:'translateX(-50%)',
+          width:'78vw', height:'62vh',
+          background:'radial-gradient(ellipse at center, rgba(87,79,207,0.12) 0%, transparent 66%)',
+          filter:'blur(80px)', borderRadius:'50%',
+        }}/>
       </div>
 
-      {/* SVG noise / grain overlay — film-bokeh softness */}
-      <svg aria-hidden="true" style={{
-        position:'absolute', inset:0, width:'100%', height:'100%',
-        zIndex:2, opacity:0.06, mixBlendMode:'overlay', pointerEvents:'none',
-      }}>
-        <filter id="hero-noise">
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
-          <feColorMatrix type="saturate" values="0"/>
-        </filter>
-        <rect width="100%" height="100%" filter="url(#hero-noise)"/>
-      </svg>
-
-      {/* Bottom fade — blends into white PartnerBar */}
+      {/* Bottom fade — blends into the canvas PartnerBar */}
       <div style={{
         position:'absolute', bottom:0, left:0, right:0, height:'28%', zIndex:3, pointerEvents:'none',
-        background:'linear-gradient(to top, rgba(248,247,251,0.95) 0%, transparent 100%)',
+        background:'linear-gradient(to top, rgba(246,246,251,0.95) 0%, transparent 100%)',
       }}/>
 
       {/* ── Content ── */}
       <div className="max-w-5xl mx-auto px-5 sm:px-10 flex flex-col items-center"
         style={{ position:'relative', zIndex:10, paddingTop:'clamp(140px, 20vh, 220px)', paddingBottom:0 }}>
 
-        {/* Headline */}
-        <h1 style={{
+        {/* Trust eyebrow */}
+        <div className="pop-in" style={{
+          display:'inline-flex', alignItems:'center', gap:8, marginBottom:24,
+          padding:'7px 14px 7px 8px', borderRadius:999,
+          background:'#FFFFFF',
+          border:'1px solid var(--hairline-strong)', boxShadow:'0 1px 2px rgba(20,22,40,.05), 0 6px 16px -6px rgba(20,22,40,.10)',
+        }}>
+          <span style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:24, height:24, borderRadius:999, background:'#E8E6FB' }}>
+            <Sparkles style={{ width:13, height:13, color:'#574FCF' }}/>
+          </span>
+          <span style={{ fontSize:12.5, fontWeight:700, color:'#3A3F52' }}>
+            {L==='az'?'Azərbaycanın №1 məktəb platforması':L==='tr'?"Azerbaycan'ın №1 okul platformu":L==='ru'?'Платформа №1 для школ Азербайджана':"Azerbaijan's #1 school platform"}
+          </span>
+        </div>
+
+        {/* Headline — Bricolage display, one static gradient accent word (no animation) */}
+        <h1 className="font-display" style={{
           textAlign:'center', fontWeight:800,
-          fontSize:'clamp(2.8rem, 6vw, 5.5rem)',
-          lineHeight:1.08, letterSpacing:'-0.03em',
-          color:'#1a1a2e', marginBottom:24, maxWidth:'20ch',
+          fontSize:'clamp(2.9rem, 6.2vw, 5.5rem)',
+          lineHeight:1.06, letterSpacing:'-0.02em',
+          color:'#1E2233', marginBottom:22, maxWidth:'18ch',
         }}>
           {s.hero_h1a}
           <br/>
-          <span style={{
-            background:'linear-gradient(128deg, #534AB7 0%, #7c3aed 35%, #1D9E75 65%, #534AB7 100%)',
-            backgroundSize:'200% auto',
-            WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
-            animation:'textGradient 4s linear infinite',
-          }}>
+          <span className="pastel-text">
             {s.hero_h1b}
           </span>
         </h1>
 
         {/* Sub-copy */}
         <p style={{
-          textAlign:'center', color:'#64748b',
-          fontSize:'clamp(15px, 1.8vw, 18px)', lineHeight:1.7,
-          maxWidth:520, fontWeight:400, marginBottom:44,
+          textAlign:'center', color:'#5A6072',
+          fontSize:'clamp(15px, 1.8vw, 19px)', lineHeight:1.7,
+          maxWidth:540, fontWeight:400, marginBottom:40,
         }}>
           {s.hero_sub}
         </p>
 
-        {/* CTAs */}
-        <div style={{ display:'flex', gap:12, flexWrap:'wrap', justifyContent:'center', marginBottom:72 }}>
-          <Link to="/features"
-            style={{
-              display:'inline-flex', alignItems:'center', gap:8,
-              padding:'14px 34px', borderRadius:999,
-              background:'rgba(255,255,255,0.55)',
-              backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)',
-              border:'1.5px solid rgba(83,74,183,0.22)',
-              color:'#1a1a2e',
-              fontWeight:600, fontSize:15.5,
-              textDecoration:'none', whiteSpace:'nowrap',
-              transition:'all .17s ease',
-              boxShadow:'0 2px 16px rgba(83,74,183,0.08)',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.85)'; e.currentTarget.style.borderColor='rgba(83,74,183,0.45)' }}
-            onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.55)'; e.currentTarget.style.borderColor='rgba(83,74,183,0.22)' }}
-          >
+        {/* CTA pair — ghost + flat brand */}
+        <div style={{ display:'flex', gap:14, flexWrap:'wrap', justifyContent:'center', marginBottom:72 }}>
+          <Link to="/features" className="btn-ghost-pastel" style={{ padding:'14px 28px', fontSize:15 }}>
             {s.hero_cta1}
           </Link>
-          <Link to="/contact"
-            style={{
-              display:'inline-flex', alignItems:'center', gap:8,
-              padding:'14px 34px', borderRadius:999,
-              background:'linear-gradient(135deg, #534AB7 0%, #7c3aed 100%)',
-              color:'#fff',
-              fontWeight:700, fontSize:15.5,
-              textDecoration:'none', whiteSpace:'nowrap',
-              boxShadow:'0 4px 24px rgba(83,74,183,0.38)',
-              transition:'all .17s ease',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 32px rgba(83,74,183,0.5)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 4px 24px rgba(83,74,183,0.38)' }}
-          >
-            {s.hero_cta2} <ArrowRight style={{ width:15, height:15, flexShrink:0 }}/>
+          <Link to="/contact" className="btn-pastel" style={{ padding:'14px 30px', fontSize:15 }}>
+            {s.hero_cta2} <ArrowRight style={{ width:16, height:16, flexShrink:0 }}/>
           </Link>
         </div>
 
@@ -1300,49 +841,49 @@ function Hero({ s }) {
         {/* Dashboard area — hidden on small screens */}
         <div className="hidden sm:block" style={{ position:'relative', width:'100%', maxWidth:1000 }}>
 
-          {/* Soft glow behind mockup */}
+          {/* Soft neutral lift behind mockup */}
           <div style={{ position:'absolute', bottom:-20, left:'10%', right:'10%', height:100,
-            background:'rgba(83,74,183,0.18)', filter:'blur(55px)', borderRadius:'50%' }}/>
+            background:'rgba(20,22,40,0.10)', filter:'blur(55px)', borderRadius:'50%' }}/>
 
-          {/* Floating chip — left */}
-          <div className="float-a" style={{
+          {/* Pinned chip — left */}
+          <div style={{
             position:'absolute', zIndex:20, left:-12, top:44,
-            background:'rgba(255,255,255,0.92)', backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
-            borderRadius:16, padding:'12px 16px',
-            boxShadow:'0 20px 56px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.1)',
-            border:'1px solid rgba(255,255,255,0.6)',
+            background:'#FFFFFF',
+            borderRadius:14, padding:'12px 16px',
+            boxShadow:'0 8px 24px -8px rgba(20,22,40,.14)',
+            border:'1px solid var(--hairline)',
           }}>
             <div style={{ display:'flex', alignItems:'center', gap:11 }}>
-              <div style={{ width:38, height:38, borderRadius:10, background:'rgba(83,74,183,0.10)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                <Sparkles style={{ width:17, height:17, color:'#534AB7' }}/>
+              <div style={{ width:38, height:38, borderRadius:12, background:'#E8E6FB', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <Sparkles style={{ width:17, height:17, color:'#574FCF' }}/>
               </div>
               <div>
-                <p style={{ fontSize:12.5, fontWeight:800, color:'#0d0d1a', lineHeight:1.2, margin:0 }}>Zəka AI</p>
-                <p style={{ fontSize:11, fontWeight:600, color:'#1D9E75', display:'flex', alignItems:'center', gap:4, marginTop:3, margin:0 }}>
-                  <span style={{ width:5, height:5, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 6px rgba(34,197,94,0.6)', flexShrink:0, display:'inline-block' }}/>
+                <p style={{ fontSize:12.5, fontWeight:700, color:'#1E2233', lineHeight:1.2, margin:0 }}>Zəka AI</p>
+                <p style={{ fontSize:11, fontWeight:600, color:'#15803D', display:'flex', alignItems:'center', gap:4, marginTop:3, margin:0 }}>
+                  <span style={{ width:5, height:5, borderRadius:'50%', background:'#1FA855', flexShrink:0, display:'inline-block' }}/>
                   {L==='az'?'Aktiv · Hazır':L==='tr'?'Aktif · Hazır':'Active · Ready'}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Floating chip — right */}
-          <div className="float-b" style={{
+          {/* Pinned chip — right */}
+          <div style={{
             position:'absolute', zIndex:20, right:-12, top:60,
-            background:'rgba(255,255,255,0.92)', backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
-            borderRadius:16, padding:'12px 16px',
-            boxShadow:'0 20px 56px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.1)',
-            border:'1px solid rgba(255,255,255,0.6)',
+            background:'#FFFFFF',
+            borderRadius:14, padding:'12px 16px',
+            boxShadow:'0 8px 24px -8px rgba(20,22,40,.14)',
+            border:'1px solid var(--hairline)',
           }}>
             <div style={{ display:'flex', alignItems:'center', gap:11 }}>
-              <div style={{ width:38, height:38, borderRadius:10, background:'rgba(29,158,117,0.10)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                <GraduationCap style={{ width:17, height:17, color:'#1D9E75' }}/>
+              <div style={{ width:38, height:38, borderRadius:12, background:'#E7F6EE', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <GraduationCap style={{ width:17, height:17, color:'#15803D' }}/>
               </div>
               <div>
-                <p style={{ fontSize:12.5, fontWeight:800, color:'#0d0d1a', lineHeight:1.2, margin:0 }}>
+                <p style={{ fontSize:12.5, fontWeight:700, color:'#1E2233', lineHeight:1.2, margin:0 }}>
                   {L==='az'?'IB + Milli Kurikulum':L==='tr'?'IB + Ulusal Müfredat':'IB + National Curriculum'}
                 </p>
-                <p style={{ fontSize:11, fontWeight:600, color:'#534AB7', display:'flex', alignItems:'center', gap:4, marginTop:3, margin:0 }}>
+                <p style={{ fontSize:11, fontWeight:600, color:'#574FCF', display:'flex', alignItems:'center', gap:4, marginTop:3, margin:0 }}>
                   <Check style={{ width:10, height:10 }}/>
                   {L==='az'?'Tam dəstəklənir':L==='tr'?'Tam destekleniyor':'Fully supported'}
                 </p>
@@ -1350,7 +891,7 @@ function Hero({ s }) {
             </div>
           </div>
 
-          {/* Dashboard — flat, ManageBac style */}
+          {/* Dashboard — the real light product */}
           <DashboardMockup s={s}/>
         </div>
 
@@ -1370,12 +911,12 @@ function PartnerBar({ s }) {
   const track = [...items, ...items, ...items]
   return (
     <div style={{ position:'relative', padding:'40px 0 48px' }}>
-      <p style={{ textAlign:'center', fontSize:10.5, color:'#94a3b8', fontWeight:700, letterSpacing:'0.24em', textTransform:'uppercase', marginBottom:28 }}>
+      <p style={{ textAlign:'center', fontSize:10.5, color:'#9AA0B0', fontWeight:700, letterSpacing:'0.24em', textTransform:'uppercase', marginBottom:28 }}>
         {s.trust_title}
       </p>
       <div style={{ position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', left:0, top:0, bottom:0, width:140, zIndex:2, background:'linear-gradient(to right, #f8f7fb, transparent)', pointerEvents:'none' }}/>
-        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:140, zIndex:2, background:'linear-gradient(to left, #f8f7fb, transparent)', pointerEvents:'none' }}/>
+        <div style={{ position:'absolute', left:0, top:0, bottom:0, width:140, zIndex:2, background:'linear-gradient(to right, #F6F6FB, transparent)', pointerEvents:'none' }}/>
+        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:140, zIndex:2, background:'linear-gradient(to left, #F6F6FB, transparent)', pointerEvents:'none' }}/>
         <div style={{ display:'flex', alignItems:'center', gap:84, animation:'partnerScroll 32s linear infinite', width:'max-content' }}>
           {track.map(({ name, url, img }, i) => (
             <a key={i} href={url} target="_blank" rel="noopener noreferrer"
@@ -1392,13 +933,183 @@ function PartnerBar({ s }) {
   )
 }
 
+/* ─── STAT BAND ─── */
+function StatBand({ s }) {
+  const ref = useFadeUp()
+  const L = s.lang
+  // Flat lilac band, huge Bricolage numbers with count-up on scroll.
+  const [seen, setSeen] = useState(false)
+  const bandRef = useRef(null)
+  useEffect(() => {
+    const el = bandRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setSeen(true); obs.disconnect() } }, { threshold: 0.3 })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  const stats = [
+    { to: 600, suffix: '+', label: L==='az'?'Daxili standart':L==='tr'?'Yerleşik standart':L==='ru'?'Встроенных стандартов':'Built-in standards' },
+    { to: 5,   suffix: '',  label: L==='az'?'Kurikulum çərçivəsi':L==='tr'?'Müfredat çerçevesi':L==='ru'?'Учебных программ':'Curriculum frameworks' },
+    { to: 3,   suffix: '',  label: L==='az'?'Dil dəstəyi':L==='tr'?'Dil desteği':L==='ru'?'Языка поддержки':'Languages supported' },
+    { to: 24,  suffix: '/7',label: L==='az'?'Canlı dəstək':L==='tr'?'Canlı destek':L==='ru'?'Поддержка':'Live support' },
+  ]
+  return (
+    <section ref={ref} className="fade-up" style={{ padding:'24px 0 88px' }}>
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        <div ref={bandRef} style={{
+          background:'linear-gradient(120deg, #F3F2FD 0%, #E8E6FB 100%)',
+          borderRadius:18, padding:'clamp(32px,5vw,52px) clamp(20px,4vw,48px)',
+          border:'1px solid var(--hairline)',
+        }}>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6">
+            {stats.map(({ to, suffix, label }) => (
+              <div key={label} className="text-center">
+                <div className="font-display tabular-nums" style={{ fontSize:'clamp(2.6rem,5vw,3.8rem)', fontWeight:800, lineHeight:1, color:'#574FCF', letterSpacing:'-0.02em' }}>
+                  {seen ? <CountUp to={to} duration={1100} suffix={suffix} /> : <span className="tabular-nums">0{suffix}</span>}
+                </div>
+                <p style={{ marginTop:10, fontSize:13.5, fontWeight:600, color:'#5A6072' }}>{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── AUDIENCE SWITCHER ─── */
+function AudienceSwitcher({ s }) {
+  const ref = useFadeUp()
+  const L = s.lang
+  const [active, setActive] = useState(0)
+  // One brand accent across all audiences (color restraint); each role keeps its own icon.
+  const accent = '#574FCF'
+  const tint = '#E8E6FB'
+  const audiences = [
+    {
+      key: 'students', icon:GraduationCap,
+      tab: L==='az'?'Şagirdlər':L==='tr'?'Öğrenciler':L==='ru'?'Ученики':'Students',
+      title: L==='az'?'Şagirdlər üçün':L==='tr'?'Öğrenciler için':L==='ru'?'Для учеников':'For students',
+      body: L==='az'?'Tapşırıqlar, qiymətlər və irəliləyiş — hamısı bir yerdə, aydın və motivasiyaedici.':L==='tr'?'Ödevler, notlar ve ilerleme — hepsi tek yerde, net ve motive edici.':L==='ru'?'Задания, оценки и прогресс — всё в одном месте, понятно и мотивирующе.':'Assignments, grades and progress — all in one place, clear and motivating.',
+      pts: [s.t3, s.t2, s.co4],
+    },
+    {
+      key: 'teachers', icon:PenLine,
+      tab: L==='az'?'Müəllimlər':L==='tr'?'Öğretmenler':L==='ru'?'Учителя':'Teachers',
+      title: L==='az'?'Müəllimlər üçün':L==='tr'?'Öğretmenler için':L==='ru'?'Для учителей':'For teachers',
+      body: L==='az'?'Planlaşdırmadan qiymətləndirməyə — Zəka AI ilə həftələrlə vaxta qənaət.':L==='tr'?'Planlamadan değerlendirmeye — Zeka AI ile haftalarca zaman tasarrufu.':L==='ru'?'От планирования до оценивания — экономия недель времени с Зека AI.':'From planning to grading — save weeks of time with Zeka AI.',
+      pts: [s.c1, s.a1, s.z3],
+    },
+    {
+      key: 'parents', icon:HeartHandshake,
+      tab: L==='az'?'Valideynlər':L==='tr'?'Veliler':L==='ru'?'Родители':'Parents',
+      title: L==='az'?'Valideynlər üçün':L==='tr'?'Veliler için':L==='ru'?'Для родителей':'For parents',
+      body: L==='az'?'Övladınızın irəliləyişini real vaxtda izləyin və müəllimlərlə birbaşa əlaqə saxlayın.':L==='tr'?"Çocuğunuzun ilerlemesini gerçek zamanlı takip edin ve öğretmenlerle doğrudan iletişim kurun.":L==='ru'?'Следите за успехами ребёнка в реальном времени и общайтесь с учителями напрямую.':"Track your child's progress in real time and message teachers directly.",
+      pts: [s.at2, s.co1, s.co3],
+    },
+    {
+      key: 'admins', icon:Building2,
+      tab: L==='az'?'Adminlər':L==='tr'?'Yöneticiler':L==='ru'?'Администраторы':'Admins',
+      title: L==='az'?'Rəhbərlik üçün':L==='tr'?'Yönetim için':L==='ru'?'Для руководства':'For administrators',
+      body: L==='az'?'Bütün məktəbin əməliyyatları, hesabatları və uyğunluğu vahid idarə panelində.':L==='tr'?'Tüm okul operasyonları, raporları ve uyumluluğu tek panelde.':L==='ru'?'Все операции школы, отчёты и соответствие в едином дашборде.':'Every school operation, report and compliance check in one dashboard.',
+      pts: [s.r1, s.r2, s.b5t],
+    },
+  ]
+  const a = audiences[active]
+  const Icon = a.icon
+  return (
+    <section ref={ref} className="fade-up py-28" style={{ position:'relative' }}>
+      <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
+        <div className="text-center mb-12">
+          <h2 className="font-display font-extrabold mb-4" style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em', color:'#1E2233' }}>
+            {L==='az'?'Hər kəs üçün düşünülüb':L==='tr'?'Herkes için tasarlandı':L==='ru'?'Создано для каждого':'Built for everyone'}
+          </h2>
+          <p className="text-base max-w-xl mx-auto leading-relaxed" style={{ color:'#5A6072' }}>
+            {L==='az'?'Şagird, müəllim, valideyn və rəhbərlik — hər rol üçün uyğunlaşdırılmış təcrübə.':L==='tr'?'Öğrenci, öğretmen, veli ve yönetim — her rol için uyarlanmış deneyim.':L==='ru'?'Ученик, учитель, родитель и руководство — опыт под каждую роль.':'Students, teachers, parents and admins — an experience tailored to every role.'}
+          </p>
+        </div>
+
+        {/* Segmented switcher */}
+        <div className="flex flex-wrap justify-center gap-2 mb-10">
+          {audiences.map((aud, i) => {
+            const on = i === active
+            const AudIcon = aud.icon
+            return (
+              <button key={aud.key} onClick={() => setActive(i)}
+                className="inline-flex items-center gap-2 transition-all"
+                style={{
+                  padding:'10px 18px', borderRadius:999, fontSize:14, fontWeight:600, cursor:'pointer',
+                  border: on ? `1px solid ${accent}` : '1px solid var(--hairline-strong)',
+                  background: on ? tint : '#fff',
+                  color: on ? accent : '#5A6072',
+                }}>
+                <AudIcon style={{ width:16, height:16 }}/>
+                {aud.tab}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Panel */}
+        <div className="liquid-card overflow-hidden" style={{ borderRadius:18 }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2">
+            {/* Copy */}
+            <div className="p-8 sm:p-12 flex flex-col justify-center">
+              <div className="icon-chip mb-6" style={{ background:tint, color:accent }}>
+                <Icon style={{ width:22, height:22 }}/>
+              </div>
+              <h3 className="font-bold mb-3" style={{ fontSize:'clamp(1.25rem,2.4vw,1.6rem)', color:'#1E2233', letterSpacing:'-0.01em' }}>{a.title}</h3>
+              <p className="text-base leading-relaxed mb-7" style={{ color:'#5A6072', maxWidth:440 }}>{a.body}</p>
+              <ul className="space-y-3">
+                {a.pts.map(p => (
+                  <li key={p} className="flex items-start gap-3">
+                    <span className="rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ width:20, height:20, background:tint }}>
+                      <Check style={{ width:12, height:12, color:accent }}/>
+                    </span>
+                    <span className="text-sm font-medium" style={{ color:'#3A3F52' }}>{p}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Accent visual panel */}
+            <div className="relative flex items-center justify-center p-10" style={{ background:`linear-gradient(140deg, ${tint} 0%, #FFFFFF 100%)`, minHeight:280 }}>
+              <div aria-hidden="true" style={{ position:'absolute', top:'14%', right:'12%', width:64, height:64, borderRadius:16, background:'#fff', boxShadow:'0 8px 24px -8px rgba(20,22,40,.14)', display:'flex', alignItems:'center', justifyContent:'center', transform:'rotate(8deg)' }}>
+                <Icon style={{ width:28, height:28, color:accent }}/>
+              </div>
+              <div style={{
+                width:'min(320px,82%)', background:'#fff', borderRadius:14, border:'1px solid var(--hairline)',
+                boxShadow:'0 8px 24px -8px rgba(20,22,40,.14)', padding:'22px 24px',
+              }}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="rounded-full" style={{ width:36, height:36, background:accent }}/>
+                  <div>
+                    <div className="font-semibold" style={{ fontSize:14, color:'#1E2233' }}>{a.tab}</div>
+                    <div style={{ fontSize:11, color:'#9AA0B0' }}>app.zirva.az</div>
+                  </div>
+                </div>
+                {[78, 92, 64].map((w, i) => (
+                  <div key={i} className="mb-2.5">
+                    <div className="rounded-full" style={{ height:8, background:'var(--hairline)', overflow:'hidden' }}>
+                      <div className="rounded-full" style={{ height:'100%', width:`${w}%`, background:accent, opacity: 0.85 - i*0.18 }}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /* ─── WHAT WE DO ─── */
 function WhatWeDo({ s }) {
   const ref = useFadeUp()
   const L = s.lang
   const cols = [
     {
-      icon: BookOpen, color: '#534AB7',
+      icon: BookOpen,
       eyebrow: L==='az' ? 'Kurikulum' : L==='tr' ? 'Müfredat' : 'Curriculum',
       title:   L==='az' ? 'Tədris & Kurikulum' : L==='tr' ? 'Öğretim & Müfredat' : 'Teaching & Curriculum',
       body:    L==='az'
@@ -1413,7 +1124,7 @@ function WhatWeDo({ s }) {
         : ['Collaborative curriculum planning','600+ built-in standards','IBIS & E-Gov.az integration'],
     },
     {
-      icon: BarChart2, color: '#1D9E75',
+      icon: BarChart2,
       eyebrow: L==='az' ? 'Qiymətləndirmə' : L==='tr' ? 'Değerlendirme' : 'Assessment',
       title:   L==='az' ? 'Qiymətləndirmə & Hesabat' : L==='tr' ? 'Değerlendirme & Raporlama' : 'Assessment & Reporting',
       body:    L==='az'
@@ -1428,7 +1139,7 @@ function WhatWeDo({ s }) {
         : ['IB A–D criteria grading','Ministry-compliant reporting','Automatic E-Gov.az export'],
     },
     {
-      icon: MessageSquare, color: '#534AB7',
+      icon: MessageSquare,
       eyebrow: L==='az' ? 'Kommunikasiya' : L==='tr' ? 'İletişim' : 'Communication',
       title:   L==='az' ? 'Kommunikasiya & AI' : L==='tr' ? 'İletişim & AI' : 'Communication & AI',
       body:    L==='az'
@@ -1444,22 +1155,19 @@ function WhatWeDo({ s }) {
     },
   ]
 
-  // Override colors to pastel rotation
-  const pastelColors = ['#7c6ee0', '#5db8a3', '#e8a87c']
-  const pastelCols = cols.map((c, i) => ({ ...c, color: pastelColors[i] }))
+  // One brand accent across all cards (color restraint — saturation lives in avatars/status only).
+  const pastelCols = cols.map((c) => ({ ...c, color: '#574FCF', tint: '#E8E6FB' }))
 
   return (
     <section ref={ref} className="fade-up py-28" style={{ position:'relative' }}>
-      {/* subtle pastel blobs */}
-
       <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
         <div className="max-w-2xl mb-16">
-          <h2 className="font-extrabold leading-tight mb-5"
-            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.025em', color:'#1a1a2e' }}>
+          <h2 className="font-display font-extrabold leading-tight mb-5"
+            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em', color:'#1E2233' }}>
             {L==='az' ? 'Bir platforma.' : L==='tr' ? 'Tek platform.' : 'One platform.'}<br/>
             <span className="pastel-text">{L==='az' ? 'Bütün məktəb əməliyyatları.' : L==='tr' ? 'Her okul operasyonu.' : 'Every school operation.'}</span>
           </h2>
-          <p className="text-base leading-relaxed font-normal" style={{ color:'#64748b' }}>
+          <p className="text-base leading-relaxed font-normal" style={{ color:'#5A6072' }}>
             {L==='az'
               ? 'Zirva+ məktəb idarəetməsinin hər tərəfini — kurikulumdan kommunikasiyaya, qiymətləndirmədən AI köməkçisinə qədər — vahid platformada birləşdirir.'
               : L==='tr'
@@ -1469,20 +1177,17 @@ function WhatWeDo({ s }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {pastelCols.map(({ icon: Icon, color, eyebrow, title, body, pts }) => (
+          {pastelCols.map(({ icon: Icon, color, tint, title, body, pts }) => (
             <div key={title} className="liquid-card p-8 cursor-default">
-              <div className="w-12 h-12 flex items-center justify-center mb-6" style={{
-                background:`linear-gradient(135deg, ${color}25 0%, ${color}10 100%)`,
-                borderRadius:14, border:`1px solid ${color}30`,
-              }}>
-                <Icon className="w-5 h-5" style={{ color }}/>
+              <div className="icon-chip mb-6" style={{ background:tint, color }}>
+                <Icon className="w-5 h-5"/>
               </div>
-              <h3 className="font-bold text-xl mb-3 leading-tight" style={{ letterSpacing:'-0.015em', color:'#1a1a2e' }}>{title}</h3>
-              <p className="text-sm leading-relaxed mb-6" style={{ color:'#64748b' }}>{body}</p>
+              <h3 className="font-semibold text-lg mb-3 leading-tight" style={{ letterSpacing:'-0.01em', color:'#1E2233' }}>{title}</h3>
+              <p className="text-sm leading-relaxed mb-6" style={{ color:'#5A6072' }}>{body}</p>
               <ul className="space-y-2.5">
                 {pts.map(p => (
-                  <li key={p} className="flex items-center gap-2.5 text-sm font-medium" style={{ color:'#475569' }}>
-                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background:`${color}20` }}>
+                  <li key={p} className="flex items-center gap-2.5 text-sm font-medium" style={{ color:'#3A3F52' }}>
+                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background:tint }}>
                       <Check className="w-2.5 h-2.5" style={{ color }}/>
                     </div>
                     {p}
@@ -1504,19 +1209,11 @@ function Solutions({ s }) {
   const L = s.lang
 
   const ibCards = [
-    { logo:'/pyp.png', title:s.sol_pyp_t, desc:s.sol_pyp_d, age:'3–12',  accent:'#f59e0b', accent2:'#fbbf24', code:'PYP', to:'/ib-pyp' },
-    { logo:'/myp.png', title:s.sol_myp_t, desc:s.sol_myp_d, age:'11–16', accent:'#ef4444', accent2:'#f87171', code:'MYP', to:'/ib-myp' },
-    { logo:'/dp.png',  title:s.sol_dp_t,  desc:s.sol_dp_d,  age:'16–19', accent:'#3b82f6', accent2:'#60a5fa', code:'DP',  to:'/ib-diploma' },
-    { logo:'/cp.png',  title:s.sol_cp_t,  desc:s.sol_cp_d,  age:'16–19', accent:'#a855f7', accent2:'#c084fc', code:'CP',  to:'/ib-career' },
-    { logo:null, icon:Building2, title:s.sol_gov_t, desc:s.sol_gov_d, age:'6–18',  accent:'#1D9E75', accent2:'#34d399', code:'GOV', to:'/government-schools', isGov:true },
-  ]
-
-  const curriculumPills = [
-    { logo:'/pyp.png',  alt:'IB Primary Years',  color:'#f59e0b', to:'/ib-pyp' },
-    { logo:'/myp.png',  alt:'IB Middle Years',   color:'#ef4444', to:'/ib-myp' },
-    { logo:'/dp.png',   alt:'IB Diploma',        color:'#3b82f6', to:'/ib-diploma' },
-    { logo:'/cp.png',   alt:'IB Career-Related', color:'#a855f7', to:'/ib-career' },
-    { logo:'/egov.png', alt:L==='az'?'Milli Kurikulum':L==='tr'?'Ulusal Müfredat':'National Curriculum', color:'#1D9E75', to:'/government-schools' },
+    { logo:'/pyp.png', title:s.sol_pyp_t, desc:s.sol_pyp_d, to:'/ib-pyp' },
+    { logo:'/myp.png', title:s.sol_myp_t, desc:s.sol_myp_d, to:'/ib-myp' },
+    { logo:'/dp.png',  title:s.sol_dp_t,  desc:s.sol_dp_d,  to:'/ib-diploma' },
+    { logo:'/cp.png',  title:s.sol_cp_t,  desc:s.sol_cp_d,  to:'/ib-career' },
+    { logo:null, icon:Building2, title:s.sol_gov_t, desc:s.sol_gov_d, to:'/government-schools', isGov:true },
   ]
 
   return (
@@ -1541,7 +1238,7 @@ function Solutions({ s }) {
         {/* ── Header ── */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-14">
           <div>
-            <h2 style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', fontWeight:800, letterSpacing:'-0.025em', lineHeight:1.1, color:'#1a1a2e' }}>
+            <h2 className="font-display" style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', fontWeight:800, letterSpacing:'-0.02em', lineHeight:1.1, color:'#1E2233' }}>
               {L==='az'
                 ? <><span className="pastel-text">Hər kurikulum</span><br/>üçün hazırlanmış</>
                 : L==='tr'
@@ -1549,40 +1246,35 @@ function Solutions({ s }) {
                 : <>Built for<br/><span className="pastel-text">every curriculum</span></>}
             </h2>
           </div>
-          <p className="text-base leading-relaxed font-normal max-w-sm" style={{ color:'#64748b' }}>{s.sol_sub}</p>
+          <p className="text-base leading-relaxed font-normal max-w-sm" style={{ color:'#5A6072' }}>{s.sol_sub}</p>
         </div>
 
         {/* ── IB + Government programmes ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
-          {ibCards.map(({ logo, icon:Icon, title, desc, age, accent, accent2, to, isGov }) => (
+          {ibCards.map(({ logo, icon:Icon, title, desc, to, isGov }) => (
             <Link key={title} to={to} className="liquid-card p-6 relative overflow-hidden flex flex-col no-underline"
               style={{ textDecoration:'none' }}>
-              {/* Top accent bar — softer */}
-              <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:`linear-gradient(90deg, ${accent}, ${accent2})`, opacity:.7, borderRadius:'24px 24px 0 0' }}/>
-              {/* Soft corner glow */}
-              <div style={{ position:'absolute', top:-30, right:-30, width:120, height:120, background:`radial-gradient(circle, ${accent}25 0%, transparent 70%)`, borderRadius:'50%', pointerEvents:'none' }}/>
-
               <div className="relative flex flex-col h-full">
                 <div className="mb-5">
                   {logo ? (
-                    <div className="rounded-xl p-2.5 inline-flex" style={{ background:`linear-gradient(135deg, ${accent}15, ${accent}05)`, border:`1px solid ${accent}20` }}>
+                    <div className="rounded-tile p-2.5 inline-flex" style={{ background:'var(--surface-2)', border:'1px solid var(--hairline)' }}>
                       <img src={logo} alt={title} className="h-9 w-auto object-contain" style={{ mixBlendMode:'multiply' }}/>
                     </div>
                   ) : (
-                    <div className="rounded-xl flex items-center justify-center" style={{ width:48, height:48, background:`linear-gradient(135deg, ${accent}25, ${accent2}10)`, border:`1px solid ${accent}30` }}>
-                      <Icon style={{ width:22, height:22, color:accent }}/>
+                    <div className="rounded-tile flex items-center justify-center" style={{ width:48, height:48, background:'#E8E6FB' }}>
+                      <Icon style={{ width:22, height:22, color:'#574FCF' }}/>
                     </div>
                   )}
                 </div>
 
-                <h3 className="font-bold text-base mb-2 leading-snug" style={{ letterSpacing:'-0.01em', color:'#1a1a2e' }}>{title}</h3>
-                <p className="text-sm leading-relaxed mb-4 flex-1" style={{ color:'#64748b' }}>{desc}</p>
+                <h3 className="font-semibold text-base mb-2 leading-snug" style={{ letterSpacing:'-0.01em', color:'#1E2233' }}>{title}</h3>
+                <p className="text-sm leading-relaxed mb-4 flex-1" style={{ color:'#5A6072' }}>{desc}</p>
 
-                <div className="flex items-center justify-between pt-3 mt-auto" style={{ borderTop:'1px solid rgba(124,110,224,0.1)' }}>
-                  <span style={{ fontSize:10.5, fontWeight:700, color:accent, letterSpacing:'0.14em', textTransform:'uppercase' }}>
+                <div className="flex items-center justify-between pt-3 mt-auto" style={{ borderTop:'1px solid var(--hairline)' }}>
+                  <span style={{ fontSize:10.5, fontWeight:700, color:'#574FCF', letterSpacing:'0.14em', textTransform:'uppercase' }}>
                     {isGov ? (L==='az' ? 'Dövlət' : L==='tr' ? 'Ulusal' : 'National') : (L==='az' ? 'Ətraflı' : L==='tr' ? 'Devamı' : 'Learn more')}
                   </span>
-                  <ArrowRight className="w-3.5 h-3.5" style={{ color:accent }}/>
+                  <ArrowRight className="w-3.5 h-3.5" style={{ color:'#574FCF' }}/>
                 </div>
               </div>
             </Link>
@@ -1597,14 +1289,15 @@ function Solutions({ s }) {
 /* ─── FEATURES ─── */
 function Features({ s }) {
   const ref = useFadeUp()
-  const palette = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde', '#7c6ee0', '#5db8a3']
+  // One brand accent across the grid (color restraint — no rainbow rotation).
+  const brand = { c:'#574FCF', t:'#E8E6FB' }
   const grid = [
-    { icon:BookOpen,      title:s.tab_curriculum, pts:[s.c1,s.c2,s.c3], color:palette[0] },
-    { icon:PenLine,       title:s.tab_teaching,   pts:[s.t1,s.t2,s.t3], color:palette[1] },
-    { icon:BarChart2,     title:s.tab_assessment, pts:[s.a1,s.a2,s.a3], color:palette[2] },
-    { icon:FileText,      title:s.tab_reports,    pts:[s.r1,s.r2,s.r3], color:palette[3] },
-    { icon:ClipboardList, title:s.tab_attendance, pts:[s.at1,s.at2,s.at3], color:palette[4] },
-    { icon:MessageSquare, title:s.tab_comms,      pts:[s.co1,s.co2,s.co3], color:palette[5] },
+    { icon:BookOpen,      title:s.tab_curriculum, pts:[s.c1,s.c2,s.c3], ...brand },
+    { icon:PenLine,       title:s.tab_teaching,   pts:[s.t1,s.t2,s.t3], ...brand },
+    { icon:BarChart2,     title:s.tab_assessment, pts:[s.a1,s.a2,s.a3], ...brand },
+    { icon:FileText,      title:s.tab_reports,    pts:[s.r1,s.r2,s.r3], ...brand },
+    { icon:ClipboardList, title:s.tab_attendance, pts:[s.at1,s.at2,s.at3], ...brand },
+    { icon:MessageSquare, title:s.tab_comms,      pts:[s.co1,s.co2,s.co3], ...brand },
   ]
 
   return (
@@ -1612,28 +1305,28 @@ function Features({ s }) {
 
       <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
         <div className="text-center mb-16">
-          <h2 className="font-extrabold mb-5"
-            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.025em', color:'#1a1a2e' }}>
+          <h2 className="font-display font-extrabold mb-5"
+            style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em', color:'#1E2233' }}>
             {s.feat_title} <span className="pastel-text">{s.feat_title_b}</span>
           </h2>
-          <p className="text-base max-w-xl mx-auto leading-relaxed" style={{ color:'#64748b' }}>{s.feat_sub}</p>
+          <p className="text-base max-w-xl mx-auto leading-relaxed" style={{ color:'#5A6072' }}>{s.feat_sub}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14">
-          {grid.map(({ icon:Icon, title, pts, color }) => (
+          {grid.map(({ icon:Icon, title, pts, c, t }) => (
             <div key={title} className="liquid-card p-7 cursor-default group">
-              <div className="w-12 h-12 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300"
-                style={{ background:`linear-gradient(135deg, ${color}25, ${color}10)`, borderRadius:14, border:`1px solid ${color}25` }}>
-                <Icon className="w-5 h-5" style={{ color }}/>
+              <div className="icon-chip mb-5"
+                style={{ background:t, color:c }}>
+                <Icon className="w-5 h-5"/>
               </div>
-              <h3 className="font-bold text-lg mb-4 leading-snug" style={{ letterSpacing:'-0.015em', color:'#1a1a2e' }}>{title}</h3>
+              <h3 className="font-semibold text-lg mb-4 leading-snug" style={{ letterSpacing:'-0.01em', color:'#1E2233' }}>{title}</h3>
               <ul className="space-y-2.5">
                 {pts.map(p => (
                   <li key={p} className="flex items-start gap-2.5">
-                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background:`${color}20` }}>
-                      <Check className="w-2.5 h-2.5" style={{ color }}/>
+                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background:t }}>
+                      <Check className="w-2.5 h-2.5" style={{ color:c }}/>
                     </div>
-                    <span className="text-sm leading-relaxed" style={{ color:'#64748b' }}>{p}</span>
+                    <span className="text-sm leading-relaxed" style={{ color:'#5A6072' }}>{p}</span>
                   </li>
                 ))}
               </ul>
@@ -1645,6 +1338,61 @@ function Features({ s }) {
           <Link to="/contact" className="btn-pastel">
             {s.feat_cta} <ArrowRight className="w-4 h-4"/>
           </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── HOW IT WORKS (numbered journey) ─── */
+function HowItWorks({ s }) {
+  const ref = useFadeUp()
+  const L = s.lang
+  const color = '#574FCF'
+  const steps = [
+    {
+      n: '1', icon: Sliders,
+      title: L==='az'?'Qurun':L==='tr'?'Kurun':L==='ru'?'Настройте':'Set up',
+      body:  L==='az'?'Məktəbinizi, kurikulumunuzu və sinifləri dəqiqələr içində konfiqurasiya edin.':L==='tr'?'Okulunuzu, müfredatınızı ve sınıfları dakikalar içinde yapılandırın.':L==='ru'?'Настройте школу, учебный план и классы за считанные минуты.':'Configure your school, curriculum and classes in minutes.',
+    },
+    {
+      n: '2', icon: Users,
+      title: L==='az'?'Dəvət edin':L==='tr'?'Davet edin':L==='ru'?'Пригласите':'Invite',
+      body:  L==='az'?'Müəllimləri, şagirdləri və valideynləri bir kliklə platformaya əlavə edin.':L==='tr'?'Öğretmenleri, öğrencileri ve velileri tek tıkla platforma ekleyin.':L==='ru'?'Добавьте учителей, учеников и родителей одним кликом.':'Add teachers, students and parents with a single click.',
+    },
+    {
+      n: '3', icon: TrendingUp,
+      title: L==='az'?'İrəliləyin':L==='tr'?'İlerleyin':L==='ru'?'Развивайтесь':'Grow',
+      body:  L==='az'?'Qiymətləndirin, ünsiyyət qurun və Zəka AI ilə hər gün vaxta qənaət edin.':L==='tr'?'Değerlendirin, iletişim kurun ve Zeka AI ile her gün zaman kazanın.':L==='ru'?'Оценивайте, общайтесь и экономьте время каждый день с Зека AI.':'Assess, communicate and save time every day with Zeka AI.',
+    },
+  ]
+  return (
+    <section ref={ref} className="fade-up py-28" style={{ position:'relative' }}>
+      <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
+        <div className="text-center mb-16">
+          <h2 className="font-display font-extrabold mb-4" style={{ fontSize:'clamp(2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em', color:'#1E2233' }}>
+            {L==='az'?'Üç sadə addım':L==='tr'?'Üç basit adım':L==='ru'?'Три простых шага':'Three simple steps'}
+          </h2>
+          <p className="text-base max-w-md mx-auto" style={{ color:'#5A6072' }}>
+            {L==='az'?'Qurmaqdan irəliləməyə qədər — dəqiqələr, həftələr deyil.':L==='tr'?'Kurmaktan büyümeye — dakikalar, haftalar değil.':L==='ru'?'От настройки до роста — за минуты, а не недели.':'From setup to growth — minutes, not weeks.'}
+          </p>
+        </div>
+
+        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* journey line connecting the circles (desktop) */}
+          <div aria-hidden="true" className="journey-line hidden md:block" style={{ position:'absolute', top:34, left:'16%', right:'16%', height:3, zIndex:0 }}/>
+          {steps.map(({ n, icon:Icon, title, body }) => (
+            <div key={n} className="relative text-center flex flex-col items-center" style={{ zIndex:1 }}>
+              <div className="relative mb-6">
+                <div className="rounded-full flex items-center justify-center" style={{ width:70, height:70, background:color, boxShadow:'0 8px 24px -8px rgba(20,22,40,.14)' }}>
+                  <Icon style={{ width:28, height:28, color:'#fff' }}/>
+                </div>
+                <span className="font-display absolute -top-2 -right-2 rounded-full flex items-center justify-center" style={{ width:28, height:28, background:'#fff', border:`2px solid ${color}`, color, fontSize:14, fontWeight:800 }}>{n}</span>
+              </div>
+              <h3 className="font-semibold text-lg mb-2" style={{ color:'#1E2233' }}>{title}</h3>
+              <p className="text-sm leading-relaxed" style={{ color:'#5A6072', maxWidth:300 }}>{body}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -1670,22 +1418,22 @@ function ProductShowcase({ s }) {
 
           {/* Left */}
           <div>
-            <h2 className="font-extrabold leading-tight mb-6"
-              style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.03em', color:'#1a1a2e' }}>
+            <h2 className="font-display font-extrabold leading-tight mb-6"
+              style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em', color:'#1E2233' }}>
               {L==='az'
                 ? <>Hər şey<br/>bir yerdə,<br/><span className="pastel-text">real vaxtda.</span></>
                 : L==='tr'
                 ? <>Her şey<br/>bir arada,<br/><span className="pastel-text">gerçek zamanlı.</span></>
                 : <>Everything<br/>together,<br/><span className="pastel-text">in real time.</span></>}
             </h2>
-            <p className="text-base leading-relaxed mb-10" style={{ maxWidth:400, color:'#64748b' }}>{s.feat_sub}</p>
+            <p className="text-base leading-relaxed mb-10" style={{ maxWidth:400, color:'#5A6072' }}>{s.feat_sub}</p>
             <ul className="space-y-3.5 mb-12">
               {bullets.map(({ icon:Icon, text }) => (
                 <li key={text} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background:'rgba(93,184,163,0.2)' }}>
-                    <Check className="w-3 h-3" style={{ color:'#5db8a3' }}/>
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background:'#DCFCE7' }}>
+                    <Check className="w-3 h-3" style={{ color:'#16A34A' }}/>
                   </div>
-                  <span className="text-sm font-medium" style={{ color:'#475569' }}>{text}</span>
+                  <span className="text-sm font-medium" style={{ color:'#3A3F52' }}>{text}</span>
                 </li>
               ))}
             </ul>
@@ -1696,9 +1444,9 @@ function ProductShowcase({ s }) {
 
           {/* Right */}
           <div className="liquid-card overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom:'1px solid rgba(124,110,224,0.1)' }}>
-              <span className="text-xs font-bold uppercase tracking-widest" style={{ color:'#94a3b8', letterSpacing:'0.18em' }}>{s.tab_assessment}</span>
-              <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background:'rgba(93,184,163,0.15)', color:'#5db8a3' }}>IB MYP · 9A</span>
+            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom:'1px solid var(--hairline)' }}>
+              <span className="text-xs font-bold uppercase tracking-widest" style={{ color:'#9AA0B0', letterSpacing:'0.18em' }}>{s.tab_assessment}</span>
+              <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background:'#DCFCE7', color:'#15803D' }}>IB MYP · 9A</span>
             </div>
             <div className="p-6">
               <FeatureVisual idx={2} s={s}/>
@@ -1716,8 +1464,8 @@ function ZekaAI({ s }) {
   const ref = useFadeUp()
   const isAz = s.isAz
   const L = s.lang
-  const periwinkle = '#7c6ee0'
-  const mint = '#5db8a3'
+  const periwinkle = '#574FCF'
+  const mint = '#1FA855'
   return (
     <section ref={ref} id="zeka" className="fade-up py-28" style={{ position:'relative' }}>
 
@@ -1726,8 +1474,8 @@ function ZekaAI({ s }) {
 
           {/* Left */}
           <div>
-            <h2 className="font-extrabold leading-tight mb-6"
-              style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.03em', color:'#1a1a2e' }}>
+            <h2 className="font-display font-extrabold leading-tight mb-6"
+              style={{ fontSize:'clamp(2.2rem,4.5vw,3.2rem)', letterSpacing:'-0.02em', color:'#1E2233' }}>
               {L==='az'
                 ? <>Müəllimin<br/><span className="pastel-text">ən güclü köməkçisi</span></>
                 : L==='tr'
@@ -1735,7 +1483,7 @@ function ZekaAI({ s }) {
                 : <>The teacher's<br/><span className="pastel-text">most powerful tool</span></>}
             </h2>
 
-            <p className="text-base leading-relaxed mb-10" style={{ maxWidth:400, color:'#64748b' }}>
+            <p className="text-base leading-relaxed mb-10" style={{ maxWidth:400, color:'#5A6072' }}>
               {L==='az'
                 ? 'Claude AI ilə gücləndirilmiş Zəka AI hesabat yazır, qiymətlər analiz edir, valideyn xülasələri hazırlayır — Azərbaycan, ingilis və rus dillərində.'
                 : L==='tr'
@@ -1749,7 +1497,7 @@ function ZekaAI({ s }) {
                   <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background:`${periwinkle}25` }}>
                     <Check className="w-3 h-3" style={{ color:periwinkle }}/>
                   </div>
-                  <span className="text-sm font-medium" style={{ color:'#475569' }}>{item}</span>
+                  <span className="text-sm font-medium" style={{ color:'#3A3F52' }}>{item}</span>
                 </li>
               ))}
             </ul>
@@ -1763,12 +1511,12 @@ function ZekaAI({ s }) {
           <div className="liquid-card overflow-hidden">
 
             {/* Header */}
-            <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom:'1px solid rgba(124,110,224,0.12)', background:'rgba(255,255,255,0.5)' }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background:`linear-gradient(135deg, ${periwinkle}, ${mint})`, boxShadow:`0 4px 12px ${periwinkle}40` }}>
+            <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom:'1px solid var(--hairline)', background:'#FBFBFE' }}>
+              <div className="w-10 h-10 rounded-tile flex items-center justify-center shrink-0" style={{ background:periwinkle }}>
                 <Sparkles className="w-4 h-4 text-white"/>
               </div>
               <div>
-                <p className="text-sm font-bold" style={{ color:'#1a1a2e' }}>Zəka AI</p>
+                <p className="text-sm font-bold" style={{ color:'#1E2233' }}>Zəka AI</p>
                 <p className="text-[11px] font-medium flex items-center gap-1.5" style={{ color:mint }}>
                   <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background:mint, boxShadow:`0 0 6px ${mint}` }}/>
                   Online
@@ -1783,31 +1531,31 @@ function ZekaAI({ s }) {
             </div>
 
             {/* Messages */}
-            <div className="p-5 space-y-4" style={{ minHeight:300, background:'rgba(255,255,255,0.3)' }}>
+            <div className="p-5 space-y-4" style={{ minHeight:300, background:'#fff' }}>
               <div className="flex justify-end">
-                <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm" style={{ maxWidth:240, background:`linear-gradient(135deg, ${periwinkle}, ${mint})`, boxShadow:`0 4px 16px ${periwinkle}30` }}>
+                <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm" style={{ maxWidth:240, background:periwinkle }}>
                   {L==='az' ? 'IB MYP kriteriyaları üzrə hesabat yaz' : L==='tr' ? 'IB MYP kriterleri için rapor yaz' : 'Write an IB MYP criteria report'}
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background:`linear-gradient(135deg, ${periwinkle}, ${mint})` }}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background:periwinkle }}>
                   <Sparkles className="w-3.5 h-3.5 text-white"/>
                 </div>
                 <div className="rounded-2xl rounded-tl-sm px-4 py-3"
-                  style={{ background:'rgba(255,255,255,0.85)', backdropFilter:'blur(12px)', border:`1px solid ${periwinkle}15`, maxWidth:260 }}>
-                  <p className="text-sm font-semibold mb-2" style={{ color:'#1a1a2e' }}>
+                  style={{ background:'#fff', border:'1px solid var(--hairline)', boxShadow:'0 1px 2px rgba(20,22,40,.05)', maxWidth:260 }}>
+                  <p className="text-sm font-semibold mb-2" style={{ color:'#1E2233' }}>
                     {L==='az' ? 'Hesabat hazırlanır...' : L==='tr' ? 'Rapor hazırlanıyor...' : 'Generating report...'}
                   </p>
                   <div className="space-y-1.5">
                     {[
                       { label: L==='az'?'A kriteriyas:':L==='tr'?'A kriteri:':'Criterion A:', val:'6/8', c:periwinkle },
-                      { label: L==='az'?'B kriteriyas:':L==='tr'?'B kriteri:':'Criterion B:', val:'7/8', c:mint },
-                      { label: L==='az'?'C kriteriyas:':L==='tr'?'C kriteri:':'Criterion C:', val:'5/8', c:'#e8a87c' },
+                      { label: L==='az'?'B kriteriyas:':L==='tr'?'B kriteri:':'Criterion B:', val:'7/8', c:periwinkle },
+                      { label: L==='az'?'C kriteriyas:':L==='tr'?'C kriteri:':'Criterion C:', val:'5/8', c:periwinkle },
                     ].map(({ label, val, c }) => (
                       <div key={label} className="flex items-center gap-2">
                         <Check className="w-3 h-3 shrink-0" style={{ color:c }}/>
-                        <span className="text-xs" style={{ color:'#64748b' }}>{label} <strong style={{ color:c }}>{val}</strong></span>
+                        <span className="text-xs" style={{ color:'#5A6072' }}>{label} <strong style={{ color:c }}>{val}</strong></span>
                       </div>
                     ))}
                   </div>
@@ -1815,18 +1563,18 @@ function ZekaAI({ s }) {
               </div>
 
               <div className="flex justify-end">
-                <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm" style={{ maxWidth:240, background:`linear-gradient(135deg, ${periwinkle}, ${mint})`, boxShadow:`0 4px 16px ${periwinkle}30` }}>
+                <div className="text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm" style={{ maxWidth:240, background:periwinkle }}>
                   {L==='az' ? 'Valideyn üçün qısa xülasə yaz' : L==='tr' ? 'Veli için kısa özet yaz' : 'Write a short summary for parents'}
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background:`linear-gradient(135deg, ${periwinkle}, ${mint})` }}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background:periwinkle }}>
                   <Sparkles className="w-3.5 h-3.5 text-white"/>
                 </div>
                 <div className="rounded-2xl rounded-tl-sm px-4 py-3"
-                  style={{ background:'rgba(255,255,255,0.85)', backdropFilter:'blur(12px)', border:`1px solid ${periwinkle}15`, maxWidth:260 }}>
-                  <p className="text-xs leading-relaxed" style={{ color:'#475569' }}>
+                  style={{ background:'#fff', border:'1px solid var(--hairline)', boxShadow:'0 1px 2px rgba(20,22,40,.05)', maxWidth:260 }}>
+                  <p className="text-xs leading-relaxed" style={{ color:'#3A3F52' }}>
                     {L==='az'
                       ? 'Şagirdiniz bu rüb əla nəticələr göstərdi. Xüsusilə B kriteriyasında yüksək bal aldı.'
                       : L==='tr'
@@ -1838,11 +1586,11 @@ function ZekaAI({ s }) {
             </div>
 
             {/* Input */}
-            <div className="px-4 py-3 flex items-center gap-3" style={{ borderTop:`1px solid ${periwinkle}12`, background:'rgba(255,255,255,0.5)' }}>
-              <div className="flex-1 rounded-lg px-4 py-2.5 text-xs" style={{ background:'rgba(124,110,224,0.06)', border:`1px solid ${periwinkle}20`, color:'#94a3b8' }}>
+            <div className="px-4 py-3 flex items-center gap-3" style={{ borderTop:'1px solid var(--hairline)', background:'#FBFBFE' }}>
+              <div className="flex-1 rounded-lg px-4 py-2.5 text-xs" style={{ background:'#fff', border:'1px solid var(--hairline)', color:'#9AA0B0' }}>
                 {L==='az' ? 'Zəka AI ilə yazın...' : L==='tr' ? 'Zeka AI ile yazın...' : 'Ask Zeka AI...'}
               </div>
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background:`linear-gradient(135deg, ${periwinkle}, ${mint})`, boxShadow:`0 4px 12px ${periwinkle}40` }}>
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background:periwinkle }}>
                 <ArrowRight className="w-4 h-4 text-white"/>
               </div>
             </div>
@@ -1859,15 +1607,14 @@ function Compliance({ s }) {
   const ref = useFadeUp()
   const L = s.lang
   const cards = [
-    { icon:Server,    title:s.s1t, desc:s.s1d, label:L==='az'?'AZ Serverləri':L==='tr'?'AZ Sunucuları':'AZ Servers', color:'#534AB7' },
-    { icon:Shield,    title:s.s2t, desc:s.s2d, label:'ISO/IEC 27001',                                                color:'#1D9E75' },
-    { icon:Lock,      title:s.s3t, desc:s.s3d, label:L==='az'?'GDPR Uyğunluğu':L==='tr'?'GDPR Uyumlu':'GDPR Compliant', color:'#534AB7' },
-    { icon:Users,     title:s.s4t, desc:s.s4d, label:'24/7',                                                         color:'#1D9E75' },
+    { icon:Server,    title:s.s1t, desc:s.s1d, label:L==='az'?'AZ Serverləri':L==='tr'?'AZ Sunucuları':'AZ Servers' },
+    { icon:Shield,    title:s.s2t, desc:s.s2d, label:'ISO/IEC 27001' },
+    { icon:Lock,      title:s.s3t, desc:s.s3d, label:L==='az'?'GDPR Uyğunluğu':L==='tr'?'GDPR Uyumlu':'GDPR Compliant' },
+    { icon:Users,     title:s.s4t, desc:s.s4d, label:'24/7' },
   ]
 
-  // Re-color compliance cards in pastel rotation
-  const palette = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde']
-  const pastelCards = cards.map((c, i) => ({ ...c, color: palette[i] }))
+  // One brand accent across compliance cards (color restraint).
+  const pastelCards = cards.map((c) => ({ ...c, color: '#574FCF', tint: '#E8E6FB' }))
 
   return (
     <section ref={ref} className="fade-up py-28" style={{ position:'relative' }}>
@@ -1875,8 +1622,8 @@ function Compliance({ s }) {
       <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-end mb-16">
           <div>
-            <h2 className="font-extrabold leading-tight"
-              style={{ fontSize:'clamp(2rem,4vw,3rem)', letterSpacing:'-0.025em', color:'#1a1a2e' }}>
+            <h2 className="font-display font-extrabold leading-tight"
+              style={{ fontSize:'clamp(2rem,4vw,3rem)', letterSpacing:'-0.02em', color:'#1E2233' }}>
               {L==='az'
                 ? <>Məlumatlarınız<br/><span className="pastel-text">tam qorunur</span></>
                 : L==='tr'
@@ -1884,19 +1631,19 @@ function Compliance({ s }) {
                 : <>Your data is<br/><span className="pastel-text">fully protected</span></>}
             </h2>
           </div>
-          <p className="text-base leading-relaxed" style={{ color:'#64748b' }}>{s.sec_sub}</p>
+          <p className="text-base leading-relaxed" style={{ color:'#5A6072' }}>{s.sec_sub}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {pastelCards.map(({ icon:Icon, title, desc, label, color }) => (
+          {pastelCards.map(({ icon:Icon, title, desc, label, color, tint }) => (
             <div key={title} className="liquid-card p-7 cursor-default group">
-              <div className="w-12 h-12 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300"
-                style={{ background:`linear-gradient(135deg, ${color}25, ${color}10)`, borderRadius:14, border:`1px solid ${color}25` }}>
-                <Icon className="w-5 h-5" style={{ color }}/>
+              <div className="icon-chip mb-5"
+                style={{ background:tint, color }}>
+                <Icon className="w-5 h-5"/>
               </div>
-              <h3 className="font-bold text-base mb-2.5 leading-snug" style={{ letterSpacing:'-0.015em', color:'#1a1a2e' }}>{title}</h3>
-              <p className="text-sm leading-relaxed" style={{ color:'#64748b' }}>{desc}</p>
-              <span className="inline-block mt-4 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full" style={{ background:`${color}15`, color, letterSpacing:'0.14em' }}>
+              <h3 className="font-semibold text-base mb-2.5 leading-snug" style={{ letterSpacing:'-0.01em', color:'#1E2233' }}>{title}</h3>
+              <p className="text-sm leading-relaxed" style={{ color:'#5A6072' }}>{desc}</p>
+              <span className="inline-block mt-4 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full" style={{ background:tint, color, letterSpacing:'0.14em' }}>
                 {label}
               </span>
             </div>
@@ -1925,56 +1672,67 @@ function PilotCTA({ s }) {
   ]
 
   return (
-    <section className="py-36" style={{ position:'relative' }}>
-      {/* ── Content ── */}
-      <div className="max-w-5xl mx-auto px-5 sm:px-10 text-center" style={{ position:'relative', zIndex:10 }}>
+    <section className="py-28" style={{ position:'relative' }}>
+      <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:10 }}>
+        {/* ── Big rounded brand CTA band ── */}
+        <div style={{
+          position:'relative', overflow:'hidden',
+          borderRadius:'clamp(18px,3vw,28px)',
+          background:'linear-gradient(135deg, #3E37A6 0%, #4A41C0 45%, #574FCF 100%)',
+          boxShadow:'0 24px 60px -20px rgba(20,22,40,0.30)',
+          padding:'clamp(48px,7vw,88px) clamp(24px,5vw,64px)',
+        }}>
+          {/* static corner shapes — subtle, no perpetual motion */}
+          <div aria-hidden="true" style={{ position:'absolute', top:-40, right:-30, width:200, height:200, borderRadius:'50%', background:'rgba(255,255,255,0.08)' }}/>
+          <div aria-hidden="true" style={{ position:'absolute', bottom:-60, left:-40, width:240, height:240, borderRadius:'50%', background:'rgba(255,255,255,0.06)' }}/>
 
-        {/* Headline */}
-        <h2 style={{ fontSize:'clamp(2.4rem,6vw,5rem)', fontWeight:800, color:'#1a1a2e', lineHeight:1.05, letterSpacing:'-0.03em', marginBottom:24 }}>
-          {L==='az'
-            ? <>Məktəbiniz<br/><span className="pastel-text">gələcəyi formalaşdırsın</span></>
-            : L==='tr'
-            ? <>Okulunuz<br/><span className="pastel-text">geleceği şekillendirsin</span></>
-            : <>Your school could<br/><span className="pastel-text">shape what's next</span></>}
-        </h2>
+          <div className="relative text-center" style={{ zIndex:1 }}>
+            {/* Headline */}
+            <h2 className="font-display" style={{ fontSize:'clamp(2.2rem,5.5vw,4.4rem)', fontWeight:800, color:'#fff', lineHeight:1.06, letterSpacing:'-0.02em', marginBottom:20 }}>
+              {L==='az'
+                ? <>Məktəbiniz<br/>gələcəyi formalaşdırsın</>
+                : L==='tr'
+                ? <>Okulunuz<br/>geleceği şekillendirsin</>
+                : <>Your school could<br/>shape what's next</>}
+            </h2>
 
-        {/* Sub */}
-        <p style={{ color:'#64748b', fontSize:16.5, lineHeight:1.7, maxWidth:480, margin:'0 auto 44px', fontWeight:400 }}>
-          {L==='az'
-            ? 'Azərbaycanda rəqəmsal məktəbin əsasını birlikdə quraq.'
-            : L==='tr'
-            ? "Azerbaycan'da dijital okul altyapısının temelini birlikte atalım."
-            : 'Join our founding school cohort and help define the future of school management in Azerbaijan.'}
-        </p>
+            {/* Sub */}
+            <p style={{ color:'rgba(255,255,255,0.85)', fontSize:17, lineHeight:1.7, maxWidth:520, margin:'0 auto 36px', fontWeight:400 }}>
+              {L==='az'
+                ? 'Azərbaycanda rəqəmsal məktəbin əsasını birlikdə quraq.'
+                : L==='tr'
+                ? "Azerbaycan'da dijital okul altyapısının temelini birlikte atalım."
+                : 'Join our founding school cohort and help define the future of school management in Azerbaijan.'}
+            </p>
 
-        {/* CTAs */}
-        <div className="flex items-center justify-center gap-3 flex-wrap">
-          <Link to="/contact" className="btn-pastel">
-            {L==='az' ? 'Müraciət et' : L==='tr' ? 'Başvur' : 'Apply now'} <ArrowRight className="w-4 h-4"/>
-          </Link>
-          <Link to="/about" className="btn-ghost-pastel">
-            {L==='az' ? 'Daha çox' : L==='tr' ? 'Daha fazla' : 'Learn more'}
-          </Link>
-        </div>
+            {/* CTAs */}
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <Link to="/contact" className="inline-flex items-center gap-2 font-semibold transition-transform hover:-translate-y-0.5"
+                style={{ background:'#fff', color:'#3E37A6', padding:'14px 30px', borderRadius:999, fontSize:15, textDecoration:'none', boxShadow:'0 8px 24px -8px rgba(20,22,40,0.30)' }}>
+                {L==='az' ? 'Müraciət et' : L==='tr' ? 'Başvur' : 'Apply now'} <ArrowRight className="w-4 h-4"/>
+              </Link>
+              <Link to="/about" className="inline-flex items-center gap-2 font-semibold transition-colors"
+                style={{ background:'rgba(255,255,255,0.14)', color:'#fff', padding:'14px 26px', borderRadius:999, fontSize:15, textDecoration:'none', border:'1px solid rgba(255,255,255,0.3)' }}>
+                {L==='az' ? 'Daha çox' : L==='tr' ? 'Daha fazla' : 'Learn more'}
+              </Link>
+            </div>
 
-        {/* Perks */}
-        <div style={{ display:'flex', justifyContent:'center', flexWrap:'wrap', gap:'24px', marginTop:64 }}>
-          {perks.map(({ icon:Icon, label, desc }, i) => {
-            const c = ['#7c6ee0', '#5db8a3', '#e8a87c'][i]
-            return (
-              <div key={label} className="liquid-card" style={{ padding:'20px 22px', display:'flex', alignItems:'flex-start', gap:14, maxWidth:280, textAlign:'left' }}>
-                <div style={{ width:40, height:40, borderRadius:12, background:`linear-gradient(135deg, ${c}25, ${c}10)`, border:`1px solid ${c}30`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <Icon style={{ width:18, height:18, color:c }}/>
+            {/* Perks */}
+            <div style={{ display:'flex', justifyContent:'center', flexWrap:'wrap', gap:'16px', marginTop:52 }}>
+              {perks.map(({ icon:Icon, label, desc }) => (
+                <div key={label} style={{ padding:'18px 20px', display:'flex', alignItems:'flex-start', gap:13, maxWidth:280, textAlign:'left', background:'rgba(255,255,255,0.10)', border:'1px solid rgba(255,255,255,0.18)', borderRadius:14 }}>
+                  <div style={{ width:38, height:38, borderRadius:10, background:'rgba(255,255,255,0.16)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <Icon style={{ width:18, height:18, color:'#fff' }}/>
+                  </div>
+                  <div>
+                    <p style={{ fontWeight:700, color:'#fff', fontSize:14, marginBottom:4 }}>{label}</p>
+                    <p style={{ color:'rgba(255,255,255,0.78)', fontSize:12.5, lineHeight:1.6, fontWeight:400 }}>{desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <p style={{ fontWeight:700, color:'#1a1a2e', fontSize:14, marginBottom:4 }}>{label}</p>
-                  <p style={{ color:'#64748b', fontSize:12.5, lineHeight:1.6, fontWeight:400 }}>{desc}</p>
-                </div>
-              </div>
-            )
-          })}
+              ))}
+            </div>
+          </div>
         </div>
-
       </div>
     </section>
   )
@@ -1983,33 +1741,31 @@ function PilotCTA({ s }) {
 /* ─── BENEFITS ─── */
 function Benefits({ s }) {
   const ref = useFadeUp()
-  const palette = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde']
   const icons = [Zap, Users, GraduationCap, Sliders, Layers, Award, CheckCircle, Clock]
   const titles = [s.b1t, s.b2t, s.b3t, s.b4t, s.b5t, s.b6t, s.b7t, s.b8t]
   const descs = [s.b1d, s.b2d, s.b3d, s.b4d, s.b5d, s.b6d, s.b7d, s.b8d]
   const cards = icons.map((Icon, i) => ({
-    icon: Icon, title: titles[i], desc: descs[i], color: palette[i % palette.length],
+    icon: Icon, title: titles[i], desc: descs[i], color: '#574FCF', tint: '#E8E6FB',
   }))
   return (
     <section ref={ref} className="fade-up py-28" style={{ position:'relative' }}>
 
       <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ position:'relative', zIndex:1 }}>
         <div className="text-center mb-16">
-          <h2 className="font-extrabold mb-4"
-            style={{ fontSize:'clamp(1.9rem,4vw,3rem)', letterSpacing:'-0.025em', color:'#1a1a2e' }}>
+          <h2 className="font-display font-extrabold mb-4"
+            style={{ fontSize:'clamp(1.9rem,4vw,3rem)', letterSpacing:'-0.02em', color:'#1E2233' }}>
             {s.ben_title}
           </h2>
-          <p className="text-base max-w-md mx-auto" style={{ color:'#64748b' }}>{s.ben_sub}</p>
+          <p className="text-base max-w-md mx-auto" style={{ color:'#5A6072' }}>{s.ben_sub}</p>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {cards.map(({ icon:Icon, title, desc, color }) => (
+          {cards.map(({ icon:Icon, title, desc, color, tint }) => (
             <div key={title} className="liquid-card p-6 cursor-default">
-              <div className="w-11 h-11 flex items-center justify-center mb-4"
-                style={{ background:`linear-gradient(135deg, ${color}25, ${color}10)`, borderRadius:13, border:`1px solid ${color}25` }}>
-                <Icon className="w-5 h-5" style={{ color }}/>
+              <div className="icon-chip mb-4" style={{ width:44, height:44, background:tint, color }}>
+                <Icon className="w-5 h-5"/>
               </div>
-              <h3 className="font-bold text-sm mb-1.5 leading-snug" style={{ letterSpacing:'-0.015em', color:'#1a1a2e' }}>{title}</h3>
-              <p className="text-xs leading-relaxed" style={{ color:'#64748b' }}>{desc}</p>
+              <h3 className="font-semibold text-sm mb-1.5 leading-snug" style={{ letterSpacing:'-0.01em', color:'#1E2233' }}>{title}</h3>
+              <p className="text-xs leading-relaxed" style={{ color:'#5A6072' }}>{desc}</p>
             </div>
           ))}
         </div>
@@ -2021,12 +1777,11 @@ function Benefits({ s }) {
 /* ─── FOOTER ─── */
 function Footer({ s }) {
   return (
-    <footer style={{ background:'#0f0a23', position:'relative', overflow:'hidden' }}>
-      {/* Soft pastel gleam at top edge */}
-      <div className="h-px" style={{ background:'linear-gradient(90deg, transparent, rgba(184,192,255,0.35), rgba(200,230,224,0.4), rgba(245,230,216,0.3), transparent)' }}/>
-      {/* Subtle pastel glow accents */}
-      <div style={{ position:'absolute', top:'-30%', left:'-10%', width:'45%', height:'80%', background:'radial-gradient(ellipse at center, rgba(124,110,224,0.18) 0%, transparent 60%)', pointerEvents:'none' }}/>
-      <div style={{ position:'absolute', bottom:'-30%', right:'-10%', width:'40%', height:'70%', background:'radial-gradient(ellipse at center, rgba(93,184,163,0.12) 0%, transparent 60%)', pointerEvents:'none' }}/>
+    <footer style={{ background:'#1E2233', position:'relative', overflow:'hidden' }}>
+      {/* Soft brand gleam at top edge */}
+      <div className="h-px" style={{ background:'linear-gradient(90deg, transparent, rgba(138,124,232,0.5), transparent)' }}/>
+      {/* Subtle brand glow accent */}
+      <div style={{ position:'absolute', top:'-30%', left:'-10%', width:'45%', height:'80%', background:'radial-gradient(ellipse at center, rgba(87,79,207,0.20) 0%, transparent 60%)', pointerEvents:'none' }}/>
 
       <div className="max-w-7xl mx-auto px-5 sm:px-8 py-20" style={{ position:'relative', zIndex:1 }}>
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
@@ -2038,14 +1793,14 @@ function Footer({ s }) {
             </div>
             <p className="text-sm leading-relaxed mb-6" style={{ color:'rgba(255,255,255,0.5)', maxWidth:280 }}>{s.foot_tagline}</p>
             <a href="mailto:hello@tryzirva.com" className="flex items-center gap-2.5 text-xs mb-2.5 transition-colors" style={{ color:'rgba(255,255,255,0.55)' }}
-              onMouseEnter={e => e.currentTarget.style.color='#b8c0ff'}
+              onMouseEnter={e => e.currentTarget.style.color='#B3A9F0'}
               onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.55)'}>
-              <Mail className="w-3.5 h-3.5 shrink-0" style={{ color:'#b8c0ff' }}/>hello@tryzirva.com
+              <Mail className="w-3.5 h-3.5 shrink-0" style={{ color:'#B3A9F0' }}/>hello@tryzirva.com
             </a>
             <a href="tel:+994991106600" className="flex items-center gap-2.5 text-xs transition-colors" style={{ color:'rgba(255,255,255,0.55)' }}
-              onMouseEnter={e => e.currentTarget.style.color='#c8e6e0'}
+              onMouseEnter={e => e.currentTarget.style.color='#B3A9F0'}
               onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.55)'}>
-              <Phone className="w-3.5 h-3.5 shrink-0" style={{ color:'#c8e6e0' }}/>+994 99 110 66 00
+              <Phone className="w-3.5 h-3.5 shrink-0" style={{ color:'#B3A9F0' }}/>+994 99 110 66 00
             </a>
           </div>
           {/* Programmes */}
@@ -2060,7 +1815,7 @@ function Footer({ s }) {
                 { label:s.fl5, to:'/government-schools' },
               ].map(({ label, to }) => (
                 <li key={label}><Link to={to} className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.5)' }}
-                  onMouseEnter={e => e.currentTarget.style.color='#b8c0ff'}
+                  onMouseEnter={e => e.currentTarget.style.color='#B3A9F0'}
                   onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.5)'}>{label}</Link></li>
               ))}
             </ul>
@@ -2076,7 +1831,7 @@ function Footer({ s }) {
                 { label:s.fr7, to:'/faq' },
               ].map(({ label, to }) => (
                 <li key={label}><Link to={to} className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.5)' }}
-                  onMouseEnter={e => e.currentTarget.style.color='#c8e6e0'}
+                  onMouseEnter={e => e.currentTarget.style.color='#B3A9F0'}
                   onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.5)'}>{label}</Link></li>
               ))}
             </ul>
@@ -2092,21 +1847,34 @@ function Footer({ s }) {
                 { label:s.fc4, to:'/contact' },
               ].map(({ label, to }) => (
                 <li key={label}><Link to={to} className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.5)' }}
-                  onMouseEnter={e => e.currentTarget.style.color='#f5e6d8'}
+                  onMouseEnter={e => e.currentTarget.style.color='#B3A9F0'}
                   onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.5)'}>{label}</Link></li>
               ))}
             </ul>
           </div>
         </div>
-        <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3" style={{ borderColor:'rgba(255,255,255,0.08)' }}>
-          <span className="text-xs font-medium" style={{ color:'rgba(255,255,255,0.3)' }}>© 2026 Zirva LLC. {s.foot_rights}</span>
+        {/* Oversized wordmark + waving mascot */}
+        <div className="relative flex items-end justify-between gap-4 mb-6" style={{ overflow:'hidden' }}>
+          <span className="font-display select-none" aria-hidden="true" style={{
+            fontWeight:800, lineHeight:0.8, letterSpacing:'-0.04em',
+            fontSize:'clamp(4rem, 16vw, 13rem)',
+            background:'linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.02) 100%)',
+            WebkitBackgroundClip:'text', backgroundClip:'text', WebkitTextFillColor:'transparent',
+          }}>Zirva</span>
+          <div className="hidden sm:block shrink-0" style={{ marginBottom:'1.2vw' }}>
+            <Mascot pose="waving" size={96} />
+          </div>
+        </div>
+
+        <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3" style={{ borderColor:'rgba(255,255,255,0.1)' }}>
+          <span className="text-xs font-medium" style={{ color:'rgba(255,255,255,0.4)' }}>© 2026 Zirva LLC. {s.foot_rights}</span>
           <div className="flex gap-5">
-            <Link to="/privacy" className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.4)' }}
-              onMouseEnter={e => e.currentTarget.style.color='#b8c0ff'}
-              onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.4)'}>{s.foot_privacy}</Link>
-            <Link to="/terms" className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.4)' }}
-              onMouseEnter={e => e.currentTarget.style.color='#b8c0ff'}
-              onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.4)'}>{s.foot_terms}</Link>
+            <Link to="/privacy" className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.5)' }}
+              onMouseEnter={e => e.currentTarget.style.color='#B3A9F0'}
+              onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.5)'}>{s.foot_privacy}</Link>
+            <Link to="/terms" className="text-xs font-medium transition-colors" style={{ color:'rgba(255,255,255,0.5)' }}
+              onMouseEnter={e => e.currentTarget.style.color='#B3A9F0'}
+              onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.5)'}>{s.foot_terms}</Link>
           </div>
         </div>
       </div>
@@ -2126,41 +1894,33 @@ export default function Landing() {
   })
   return (
     <div className="min-h-screen antialiased" style={{ overflowX:'hidden' }}>
+      {/* ── Landing motion + decoration styles (scroll-fade, floats, journey line) ── */}
+      <style>{landingStyles}</style>
       {/* ── Fixed pill nav ── */}
       <LandingNav s={s} lang={lang} setLang={setLang} lightHero/>
-      {/* ── Animated gradient hero wrapper ── */}
+      {/* ── Hero wrapper — one static brand wash on the warm canvas ── */}
       <div style={{
         position:'relative',
-        background:'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)',
-        backgroundSize:'400% 400%',
-        animation:'heroGradient 12s ease infinite',
+        background:'#F6F6FB',
       }}>
         <Hero s={s}/>
       </div>
-      <style>{`
-        @keyframes heroGradient {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-      `}</style>
-      {/* ── Continuous content canvas — shared base + drifting page-level blobs ── */}
-      <div style={{ position:'relative', background:'#f8f7fb', overflow:'hidden' }}>
-        {/* Page-level blobs that drift across all section boundaries */}
+      {/* ── Continuous content canvas — calm warm-white, one faint brand wash ── */}
+      <div style={{ position:'relative', background:'#F6F6FB', overflow:'hidden' }}>
+        {/* Single faint brand wash anchoring the upper content — static, neutral */}
         <div aria-hidden="true" style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:0 }}>
-          <div style={{ position:'absolute', width:'70vw', height:'1200px', top:'8%',  left:'-15%', background:'radial-gradient(ellipse at center, rgba(184,192,255,0.55) 0%, rgba(184,192,255,0) 70%)', filter:'blur(80px)', borderRadius:'50%' }}/>
-          <div style={{ position:'absolute', width:'65vw', height:'1100px', top:'25%', right:'-12%', background:'radial-gradient(ellipse at center, rgba(200,230,224,0.5) 0%, rgba(200,230,224,0) 70%)', filter:'blur(80px)', borderRadius:'50%' }}/>
-          <div style={{ position:'absolute', width:'70vw', height:'1300px', top:'48%', left:'-10%', background:'radial-gradient(ellipse at center, rgba(245,230,216,0.5) 0%, rgba(245,230,216,0) 70%)', filter:'blur(85px)', borderRadius:'50%' }}/>
-          <div style={{ position:'absolute', width:'60vw', height:'1100px', top:'68%', right:'-15%', background:'radial-gradient(ellipse at center, rgba(232,236,255,0.55) 0%, rgba(232,236,255,0) 70%)', filter:'blur(80px)', borderRadius:'50%' }}/>
-          <div style={{ position:'absolute', width:'70vw', height:'1200px', top:'88%', left:'-12%', background:'radial-gradient(ellipse at center, rgba(184,192,255,0.45) 0%, rgba(184,192,255,0) 70%)', filter:'blur(85px)', borderRadius:'50%' }}/>
+          <div style={{ position:'absolute', width:'80vw', height:'1100px', top:'4%', left:'50%', transform:'translateX(-50%)', background:'radial-gradient(ellipse at center, rgba(87,79,207,0.05) 0%, transparent 68%)', filter:'blur(90px)', borderRadius:'50%' }}/>
         </div>
 
         {/* Sections render on top of the shared canvas */}
         <div style={{ position:'relative', zIndex:1 }}>
           <PartnerBar s={s}/>
+          <StatBand s={s}/>
           <WhatWeDo s={s}/>
+          <AudienceSwitcher s={s}/>
           <Solutions s={s}/>
           <Features s={s}/>
+          <HowItWorks s={s}/>
           <ProductShowcase s={s}/>
           <ZekaAI s={s}/>
           <Benefits s={s}/>

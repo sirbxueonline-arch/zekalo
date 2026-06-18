@@ -218,57 +218,93 @@ export default function SuperAdminAdmins() {
 
   if (error) {
     return (
-      <div className="text-center py-16">
-        <p className="text-red-600 text-sm mb-4">{error}</p>
-        <Button onClick={fetchData}>
-          <span className="flex items-center gap-2"><RefreshCw className="w-4 h-4" />{tx(L, 'Yenidən cəhd et', 'Retry', 'Повторить', 'Tekrar dene')}</span>
-        </Button>
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <EmptyState
+          title={tx(L, 'Xəta baş verdi', 'Something went wrong', 'Произошла ошибка', 'Bir hata oluştu')}
+          description={error}
+          pose="thinking"
+          action={
+            <Button onClick={fetchData} variant="secondary" className="flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" />
+              {tx(L, 'Yenidən cəhd et', 'Retry', 'Повторить', 'Tekrar dene')}
+            </Button>
+          }
+        />
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+    <div className="space-y-7">
+      {/* ── Page header ── */}
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-serif text-4xl text-gray-900">{tx(L, 'Adminlər', 'Admins', 'Администраторы', 'Yöneticiler')}</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1
+            className="font-display font-bold text-ink-900 leading-tight"
+            style={{ fontSize: 26 }}
+          >
+            {tx(L, 'Adminlər', 'Admins', 'Администраторы', 'Yöneticiler')}
+          </h1>
+          <p className="text-sm text-ink-400 mt-0.5">
             {tx(L, 'Bütün məktəb adminlərini idarə edin',
                   'Manage all school admins',
                   'Управляйте всеми администраторами школ',
                   'Tüm okul yöneticilerini yönetin')}
           </p>
         </div>
-        <Button onClick={fetchData} variant="ghost" className="flex items-center gap-2">
+        <Button onClick={fetchData} variant="ghost" className="flex items-center gap-2 !text-sm">
           <RefreshCw className="w-4 h-4" />
           {tx(L, 'Yenilə', 'Refresh', 'Обновить', 'Yenile')}
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard label={tx(L, 'Ümumi adminlər', 'Total admins', 'Всего админов', 'Toplam yönetici')} value={totalAdmins} icon={Shield} tone="periwinkle" />
-        <StatCard label={tx(L, 'Aktiv', 'Active', 'Активные', 'Aktif')} value={activeAdmins} icon={UserCheck} tone="mint" />
-        <StatCard label={tx(L, 'Bloklanmış', 'Blocked', 'Заблокированные', 'Engellenmiş')} value={blockedAdmins} icon={UserX} tone="peach" />
-        <StatCard label={tx(L, 'Məktəb sayı', 'Schools covered', 'Школ', 'Okul sayısı')} value={distinctSchools} icon={Building2} tone="blue" />
+      {/* ── KPI stat row ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatCard
+          label={tx(L, 'Ümumi adminlər', 'Total admins', 'Всего админов', 'Toplam yönetici')}
+          value={totalAdmins}
+          icon={Shield}
+          tone="periwinkle"
+        />
+        <StatCard
+          label={tx(L, 'Aktiv', 'Active', 'Активные', 'Aktif')}
+          value={activeAdmins}
+          icon={UserCheck}
+          tone="mint"
+        />
+        <StatCard
+          label={tx(L, 'Bloklanmış', 'Blocked', 'Заблокированные', 'Engellenmiş')}
+          value={blockedAdmins}
+          icon={UserX}
+          tone="peach"
+        />
+        <StatCard
+          label={tx(L, 'Məktəb sayı', 'Schools covered', 'Школ', 'Okul sayısı')}
+          value={distinctSchools}
+          icon={Building2}
+          tone="periwinkle"
+        />
       </div>
 
-      {/* Filters */}
-      <Card hover={false} className="p-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder={tx(L, 'Ad, e-poçt və ya məktəb axtar...', 'Search by name, email or school...', 'Поиск...', 'Ad, email veya okul ara...')}
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="w-full border border-border-soft rounded-md pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
-              />
-            </div>
+      {/* ── Filters ── */}
+      <Card hover={false} className="p-5">
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search */}
+          <div className="flex-1 relative">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+              style={{ color: 'var(--ink-400)' }}
+            />
+            <input
+              type="text"
+              placeholder={tx(L, 'Ad, e-poçt və ya məktəb axtar...', 'Search by name, email or school...', 'Поиск...', 'Ad, email veya okul ara...')}
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="pastel-input pl-9"
+            />
           </div>
+
+          {/* Role filter */}
           <div className="w-full sm:w-44">
             <Select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
               <option value="all">{tx(L, 'Bütün rollar', 'All roles', 'Все роли', 'Tüm roller')}</option>
@@ -276,6 +312,8 @@ export default function SuperAdminAdmins() {
               <option value="super_admin">Super Admin</option>
             </Select>
           </div>
+
+          {/* School filter */}
           <div className="w-full sm:w-56">
             <Select value={schoolFilter} onChange={e => setSchoolFilter(e.target.value)}>
               <option value="all">{tx(L, 'Bütün məktəblər', 'All schools', 'Все школы', 'Tüm okullar')}</option>
@@ -288,30 +326,62 @@ export default function SuperAdminAdmins() {
         </div>
       </Card>
 
-      {/* Admins table */}
-      <Card hover={false} className="p-0 overflow-hidden">
-        <div className="px-8 py-5 border-b border-border-soft flex items-center gap-3">
-          <Shield className="w-5 h-5 text-purple-mid" />
-          <h2 className="font-serif text-xl text-gray-900">{tx(L, 'Adminlər siyahısı', 'Admins list', 'Список админов', 'Yöneticiler listesi')}</h2>
-          <span className="ml-auto text-xs text-gray-400">{filtered.length}</span>
+      {/* ── Admins roster table ── */}
+      <div
+        className="bg-surface overflow-hidden rounded-tile"
+        style={{
+          border: '1px solid var(--hairline)',
+        }}
+      >
+        {/* Table header row */}
+        <div
+          className="px-6 py-4 flex items-center gap-3"
+          style={{ borderBottom: '1px solid var(--hairline)' }}
+        >
+          <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36, borderRadius: 12 }}>
+            <Shield className="w-4 h-4" />
+          </div>
+          <h2
+            className="font-semibold text-ink-900"
+            style={{ fontSize: 15 }}
+          >
+            {tx(L, 'Adminlər siyahısı', 'Admins list', 'Список админов', 'Yöneticiler listesi')}
+          </h2>
+          <span
+            className="ml-auto font-semibold tabular-nums"
+            style={{ fontSize: 13, color: 'var(--ink-400)' }}
+          >
+            {filtered.length}
+          </span>
         </div>
+
         {filtered.length === 0 ? (
-          <EmptyState
-            icon={Shield}
-            title={tx(L, 'Admin tapılmadı', 'No admins found', 'Админы не найдены', 'Yönetici bulunamadı')}
-            description={tx(L, 'Axtarış meyarlarınıza uyğun admin yoxdur.', 'No admins match your filters.', 'Нет админов по фильтру.', 'Filtreye uygun yönetici yok.')}
-          />
+          <div className="py-4 px-4">
+            <EmptyState
+              title={
+                search || roleFilter !== 'all' || schoolFilter !== 'all'
+                  ? tx(L, 'Nəticə tapılmadı', 'No results', 'Нет результатов', 'Sonuç bulunamadı')
+                  : tx(L, 'Hələ admin yoxdur', 'No admins yet', 'Нет администраторов', 'Henüz yönetici yok')
+              }
+              description={
+                search || roleFilter !== 'all' || schoolFilter !== 'all'
+                  ? tx(L, 'Filtri dəyişdirərək yenidən cəhd edin.', 'Try adjusting your filters.', 'Попробуйте изменить фильтры.', 'Filtreleri değiştirmeyi deneyin.')
+                  : tx(L, 'Admin əlavə edildikdən sonra burada görünəcək.', 'Admins will appear here once added.', 'Администраторы появятся здесь после добавления.', 'Yöneticiler eklendikten sonra burada görünecek.')
+              }
+              pose="thinking"
+            />
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pastel-table">
               <thead>
-                <tr className="bg-surface">
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{tx(L, 'Ad', 'Name', 'Имя', 'İsim')}</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{tx(L, 'E-poçt', 'Email', 'Email', 'Email')}</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{tx(L, 'Rol', 'Role', 'Роль', 'Rol')}</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{tx(L, 'Məktəb', 'School', 'Школа', 'Okul')}</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-left">{tx(L, 'Qeydiyyat', 'Created', 'Создан', 'Oluşturuldu')}</th>
-                  <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 text-right">{tx(L, 'Əməliyyat', 'Actions', 'Действия', 'İşlemler')}</th>
+                <tr>
+                  <th>{tx(L, 'Ad', 'Name', 'Имя', 'İsim')}</th>
+                  <th>{tx(L, 'E-poçt', 'Email', 'Email', 'Email')}</th>
+                  <th>{tx(L, 'Rol', 'Role', 'Роль', 'Rol')}</th>
+                  <th>{tx(L, 'Məktəb', 'School', 'Школа', 'Okul')}</th>
+                  <th>{tx(L, 'Qeydiyyat', 'Created', 'Создан', 'Oluşturuldu')}</th>
+                  <th className="text-right">{tx(L, 'Əməliyyat', 'Actions', 'Действия', 'İşlemler')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -319,33 +389,69 @@ export default function SuperAdminAdmins() {
                   const school = schoolMap[a.school_id]
                   const isSuper = a.role === 'super_admin'
                   return (
-                    <tr key={a.id || i} className="border-b border-border-soft hover:bg-surface transition-colors">
-                      <td className="px-6 py-4">
+                    <tr key={a.id || i}>
+                      {/* Name + avatar two-line cell */}
+                      <td style={{ paddingTop: 12, paddingBottom: 12 }}>
                         <div className="flex items-center gap-3">
                           <Avatar name={a.full_name || a.email} size="sm" color={a.avatar_color} />
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">{a.full_name || '—'}</p>
+                            <p
+                              className="font-semibold truncate"
+                              style={{ fontSize: 14, color: 'var(--ink-900)', lineHeight: 1.3 }}
+                            >
+                              {a.full_name || '—'}
+                            </p>
                             {profilesHasBlocked && a.blocked && (
-                              <Badge variant="absent" className="mt-0.5">{tx(L, 'Blok', 'Blocked', 'Заблок.', 'Engelli')}</Badge>
+                              <span className="pill-rose mt-0.5 inline-flex" style={{ fontSize: 11 }}>
+                                {tx(L, 'Blok', 'Blocked', 'Заблок.', 'Engelli')}
+                              </span>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600 truncate max-w-xs">{a.email || '—'}</td>
-                      <td className="px-6 py-4">
-                        <Badge variant={isSuper ? 'info' : 'good'}>
+
+                      {/* Email */}
+                      <td>
+                        <span
+                          className="truncate block max-w-[200px]"
+                          style={{ fontSize: 13, color: 'var(--ink-600)' }}
+                        >
+                          {a.email || '—'}
+                        </span>
+                      </td>
+
+                      {/* Role pill */}
+                      <td>
+                        <Badge variant={isSuper ? 'peri' : 'good'}>
                           {roleLabel(L, a.role)}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {school ? school.name : <span className="text-gray-400">—</span>}
+
+                      {/* School */}
+                      <td>
+                        {school ? (
+                          <span style={{ fontSize: 13, color: 'var(--ink-700)' }}>{school.name}</span>
+                        ) : (
+                          <span style={{ fontSize: 13, color: 'var(--ink-400)' }}>—</span>
+                        )}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{formatDate(a.created_at)}</td>
-                      <td className="px-6 py-4">
+
+                      {/* Date */}
+                      <td>
+                        <span
+                          className="tabular-nums"
+                          style={{ fontSize: 13, color: 'var(--ink-400)' }}
+                        >
+                          {formatDate(a.created_at)}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td>
                         <div className="flex items-center justify-end gap-1.5 flex-wrap">
                           <Button
                             variant="ghost"
-                            className="!px-3 !py-1.5 text-xs"
+                            className="!px-3 !py-1.5 !text-xs"
                             disabled={isSuper}
                             onClick={() => { setReassignTarget(a); setReassignSchoolId(a.school_id || '') }}
                             title={tx(L, 'Məktəbi dəyişdir', 'Reassign school', 'Сменить школу', 'Okul değiştir')}
@@ -357,7 +463,7 @@ export default function SuperAdminAdmins() {
                           </Button>
                           <Button
                             variant="ghost"
-                            className="!px-3 !py-1.5 text-xs"
+                            className="!px-3 !py-1.5 !text-xs"
                             disabled={isSuper}
                             onClick={() => setDemoteTarget(a)}
                             title={tx(L, 'Aşağı sal', 'Demote', 'Понизить', 'Düşür')}
@@ -370,7 +476,7 @@ export default function SuperAdminAdmins() {
                           {profilesHasBlocked ? (
                             <Button
                               variant={a.blocked ? 'teal' : 'secondary'}
-                              className="!px-3 !py-1.5 text-xs"
+                              className="!px-3 !py-1.5 !text-xs"
                               disabled={isSuper}
                               onClick={() => setBlockTarget(a)}
                               title={a.blocked
@@ -386,8 +492,8 @@ export default function SuperAdminAdmins() {
                             </Button>
                           ) : (
                             <span
-                              className="text-[11px] text-gray-400 px-2 py-1 rounded-md"
-                              style={{ background: 'rgba(100,116,139,0.06)' }}
+                              className="rounded-chip px-2 py-1"
+                              style={{ fontSize: 11, color: 'var(--ink-400)', background: 'rgba(154,160,176,0.10)' }}
                               title={tx(L, 'profiles.blocked sütunu mövcud deyil', 'profiles.blocked column missing', 'столбец profiles.blocked отсутствует', 'profiles.blocked sütunu yok')}
                             >
                               {tx(L, 'Blok yoxdur', 'No block col', 'Нет блок.', 'Engel yok')}
@@ -402,9 +508,9 @@ export default function SuperAdminAdmins() {
             </table>
           </div>
         )}
-      </Card>
+      </div>
 
-      {/* Demote modal */}
+      {/* ── Demote confirmation modal ── */}
       <Modal
         open={!!demoteTarget}
         onClose={() => setDemoteTarget(null)}
@@ -412,10 +518,13 @@ export default function SuperAdminAdmins() {
         size="sm"
       >
         {demoteTarget && (
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-              <p className="text-sm text-gray-700">
+          <div className="space-y-5">
+            <div
+              className="flex items-start gap-3 rounded-tile p-3.5"
+              style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.18)' }}
+            >
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--warning)' }} />
+              <p style={{ fontSize: 14, color: 'var(--ink-700)', lineHeight: 1.55 }}>
                 {tx(L,
                   `${demoteTarget.full_name || demoteTarget.email} admin rolundan müəllim rolüna keçəcək. Davam edək?`,
                   `${demoteTarget.full_name || demoteTarget.email} will be changed from admin to teacher. Continue?`,
@@ -424,7 +533,9 @@ export default function SuperAdminAdmins() {
               </p>
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="ghost" onClick={() => setDemoteTarget(null)}>{tx(L, 'Ləğv et', 'Cancel', 'Отмена', 'İptal')}</Button>
+              <Button variant="ghost" onClick={() => setDemoteTarget(null)}>
+                {tx(L, 'Ləğv et', 'Cancel', 'Отмена', 'İptal')}
+              </Button>
               <Button variant="danger" loading={demoteLoading} onClick={confirmDemote}>
                 {tx(L, 'Aşağı sal', 'Demote', 'Понизить', 'Düşür')}
               </Button>
@@ -433,7 +544,7 @@ export default function SuperAdminAdmins() {
         )}
       </Modal>
 
-      {/* Reassign modal */}
+      {/* ── Reassign school modal ── */}
       <Modal
         open={!!reassignTarget}
         onClose={() => { setReassignTarget(null); setReassignSchoolId('') }}
@@ -441,14 +552,23 @@ export default function SuperAdminAdmins() {
         size="md"
       >
         {reassignTarget && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(124,110,224,0.06)' }}>
+          <div className="space-y-5">
+            {/* Person preview chip */}
+            <div
+              className="flex items-center gap-3 rounded-tile p-3.5"
+              style={{ background: 'var(--brand-50)', border: '1px solid var(--brand-100)' }}
+            >
               <Avatar name={reassignTarget.full_name || reassignTarget.email} size="sm" color={reassignTarget.avatar_color} />
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-gray-900">{reassignTarget.full_name || '—'}</p>
-                <p className="text-xs text-gray-500 truncate">{reassignTarget.email}</p>
+                <p className="font-semibold truncate" style={{ fontSize: 14, color: 'var(--ink-900)' }}>
+                  {reassignTarget.full_name || '—'}
+                </p>
+                <p className="truncate" style={{ fontSize: 12, color: 'var(--ink-400)' }}>
+                  {reassignTarget.email}
+                </p>
               </div>
             </div>
+
             <Select
               label={tx(L, 'Yeni məktəb', 'New school', 'Новая школа', 'Yeni okul')}
               value={reassignSchoolId}
@@ -459,7 +579,8 @@ export default function SuperAdminAdmins() {
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </Select>
-            <div className="flex justify-end gap-3 pt-2">
+
+            <div className="flex justify-end gap-3 pt-1">
               <Button variant="ghost" onClick={() => { setReassignTarget(null); setReassignSchoolId('') }}>
                 {tx(L, 'Ləğv et', 'Cancel', 'Отмена', 'İptal')}
               </Button>
@@ -475,7 +596,7 @@ export default function SuperAdminAdmins() {
         )}
       </Modal>
 
-      {/* Block modal */}
+      {/* ── Block / unblock confirmation modal ── */}
       <Modal
         open={!!blockTarget}
         onClose={() => setBlockTarget(null)}
@@ -485,10 +606,13 @@ export default function SuperAdminAdmins() {
         size="sm"
       >
         {blockTarget && (
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-              <p className="text-sm text-gray-700">
+          <div className="space-y-5">
+            <div
+              className="flex items-start gap-3 rounded-tile p-3.5"
+              style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.18)' }}
+            >
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--warning)' }} />
+              <p style={{ fontSize: 14, color: 'var(--ink-700)', lineHeight: 1.55 }}>
                 {blockTarget.blocked
                   ? tx(L,
                       `${blockTarget.full_name || blockTarget.email} aktivləşdiriləcək.`,
@@ -503,7 +627,9 @@ export default function SuperAdminAdmins() {
               </p>
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="ghost" onClick={() => setBlockTarget(null)}>{tx(L, 'Ləğv et', 'Cancel', 'Отмена', 'İptal')}</Button>
+              <Button variant="ghost" onClick={() => setBlockTarget(null)}>
+                {tx(L, 'Ləğv et', 'Cancel', 'Отмена', 'İptal')}
+              </Button>
               <Button variant={blockTarget.blocked ? 'teal' : 'danger'} loading={blockLoading} onClick={confirmBlock}>
                 {blockTarget.blocked
                   ? tx(L, 'Aktivləşdir', 'Activate', 'Активировать', 'Aktifleştir')

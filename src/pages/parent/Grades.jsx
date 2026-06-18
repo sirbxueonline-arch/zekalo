@@ -4,44 +4,49 @@ import { supabase } from '../../lib/supabase'
 import { GradeBadge } from '../../components/ui/Badge'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
-import { BookOpen, Users, TrendingUp, TrendingDown, Minus, Sparkles } from 'lucide-react'
+import LevelRing from '../../components/ui/LevelRing'
+import XPBar from '../../components/ui/XPBar'
+import CountUp from '../../components/ui/CountUp'
+import { TrendingUp, TrendingDown, Minus, Sparkles, Star } from 'lucide-react'
 import { fmtNumeric } from '../../lib/dateUtils'
 
-const PASTEL_COLORS = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde']
-function pastelColor(name = '') {
+// Adult monogram avatar colors — avatars are the one place saturated hue lives (§5.2)
+const AVATAR_COLORS = ['var(--brand-400)', 'var(--grape)', 'var(--mint)', 'var(--sky)']
+function avatarColor(name = '') {
   let h = 0
   for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
-  return PASTEL_COLORS[Math.abs(h) % PASTEL_COLORS.length]
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length]
 }
 
 function childInitials(name = '') {
   return name ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?'
 }
 
+// Grade → token color mapping (warm, reassuring data color — never alarming red)
 function gradeColor(score) {
-  if (score == null) return '#64748b'
-  if (score >= 8) return '#5db8a3'    // mint - A
-  if (score >= 6) return '#6b9dde'    // blue - B
-  if (score >= 4) return '#e8a87c'    // peach - C
-  return '#ef4444'
+  if (score == null) return 'var(--ink-400)'
+  if (score >= 8) return 'var(--mint)'
+  if (score >= 6) return 'var(--brand-500)'
+  if (score >= 4) return 'var(--sun)'
+  return 'var(--ink-400)'
 }
 
-function gradeBg(score) {
-  if (score == null) return 'rgba(124,110,224,0.08)'
-  if (score >= 8) return 'rgba(93,184,163,0.12)'
-  if (score >= 6) return 'rgba(107,157,222,0.12)'
-  if (score >= 4) return 'rgba(232,168,124,0.15)'
-  return 'rgba(239,68,68,0.10)'
+function gradeTrackColor(score) {
+  if (score == null) return 'var(--hairline)'
+  if (score >= 8) return 'rgba(31,168,85,0.16)'
+  if (score >= 6) return 'rgba(87,79,207,0.14)'
+  if (score >= 4) return 'rgba(234,179,8,0.20)'
+  return 'var(--hairline)'
 }
 
 function TrendArrow({ current, prev }) {
-  if (prev == null || current == null) return <Minus className="w-4 h-4" style={{ color: '#64748b' }} />
-  if (current > prev) return <TrendingUp className="w-4 h-4" style={{ color: '#5db8a3' }} />
-  if (current < prev) return <TrendingDown className="w-4 h-4" style={{ color: '#e8a87c' }} />
-  return <Minus className="w-4 h-4" style={{ color: '#64748b' }} />
+  if (prev == null || current == null) return <Minus className="w-4 h-4 text-ink-400" />
+  if (current > prev) return <TrendingUp className="w-4 h-4" style={{ color: 'var(--mint)' }} />
+  if (current < prev) return <TrendingDown className="w-4 h-4" style={{ color: 'var(--ink-400)' }} />
+  return <Minus className="w-4 h-4 text-ink-400" />
 }
 
-// Pastel SVG line chart of grades over time (chronological)
+// Inline SVG trend chart — calm data surface
 function GradesTrendChart({ grades }) {
   const points = (grades || [])
     .filter(g => g.score != null)
@@ -51,17 +56,11 @@ function GradesTrendChart({ grades }) {
 
   if (points.length < 2) return null
 
-  const W = 720
-  const H = 180
-  const PAD_X = 24
-  const PAD_TOP = 16
-  const PAD_BOT = 24
-  const innerW = W - PAD_X * 2
-  const innerH = H - PAD_TOP - PAD_BOT
+  const W = 720, H = 180, PAD_X = 24, PAD_TOP = 16, PAD_BOT = 24
+  const innerW = W - PAD_X * 2, innerH = H - PAD_TOP - PAD_BOT
   const stepX = points.length > 1 ? innerW / (points.length - 1) : 0
   const yOf = v => PAD_TOP + innerH - (v / 10) * innerH
   const xOf = i => PAD_X + i * stepX
-
   const path = points.map((v, i) => `${i === 0 ? 'M' : 'L'} ${xOf(i).toFixed(1)} ${yOf(v).toFixed(1)}`).join(' ')
   const area = `${path} L ${xOf(points.length - 1).toFixed(1)} ${(PAD_TOP + innerH).toFixed(1)} L ${xOf(0).toFixed(1)} ${(PAD_TOP + innerH).toFixed(1)} Z`
 
@@ -69,55 +68,36 @@ function GradesTrendChart({ grades }) {
     <div className="liquid-card p-5">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="text-sm font-bold" style={{ color: '#1a1a2e' }}>Qiymət dinamikası</h3>
-          <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>Son {points.length} qiymət</p>
+          <h3 className="text-[15px] font-semibold text-ink-900">Qiymət dinamikası</h3>
+          <p className="text-[13px] text-ink-400 mt-0.5">Son {points.length} qiymət</p>
         </div>
-        <Sparkles className="w-4 h-4" style={{ color: '#7c6ee0' }} />
+        <Sparkles className="w-4 h-4" style={{ color: 'var(--brand-400)' }} />
       </div>
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="w-full h-auto"
-        preserveAspectRatio="none"
-        style={{ display: 'block' }}
-      >
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="none" style={{ display: 'block' }}>
         <defs>
-          <linearGradient id="gradesArea" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#7c6ee0" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#5db8a3" stopOpacity="0" />
+          <linearGradient id="gradesAreaDs" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--brand-400)" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="var(--brand-400)" stopOpacity="0" />
           </linearGradient>
-          <linearGradient id="gradesLine" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#7c6ee0" />
-            <stop offset="100%" stopColor="#5db8a3" />
+          <linearGradient id="gradesLineDs" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="var(--brand-500)" />
+            <stop offset="100%" stopColor="var(--brand-500)" />
           </linearGradient>
         </defs>
-
-        {/* Subtle grid lines */}
         {[0, 5, 10].map(v => (
           <line
             key={v}
-            x1={PAD_X}
-            x2={W - PAD_X}
-            y1={yOf(v)}
-            y2={yOf(v)}
-            stroke="rgba(124,110,224,0.15)"
+            x1={PAD_X} x2={W - PAD_X}
+            y1={yOf(v)} y2={yOf(v)}
+            stroke="var(--hairline)"
             strokeDasharray={v === 0 || v === 10 ? '0' : '3 4'}
             strokeWidth="1"
           />
         ))}
-
-        <path d={area} fill="url(#gradesArea)" />
-        <path d={path} fill="none" stroke="url(#gradesLine)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-
+        <path d={area} fill="url(#gradesAreaDs)" />
+        <path d={path} fill="none" stroke="url(#gradesLineDs)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
         {points.map((v, i) => (
-          <circle
-            key={i}
-            cx={xOf(i)}
-            cy={yOf(v)}
-            r="4"
-            fill="#fff"
-            stroke={gradeColor(v)}
-            strokeWidth="2"
-          />
+          <circle key={i} cx={xOf(i)} cy={yOf(v)} r="4" fill="var(--surface)" stroke={gradeColor(v)} strokeWidth="2" />
         ))}
       </svg>
     </div>
@@ -182,7 +162,7 @@ export default function ParentGrades() {
   if (children.length === 0) {
     return (
       <EmptyState
-        icon={Users}
+        pose="thinking"
         title="Uşaq tapılmadı"
         description="Hesabınıza bağlı uşaq profili yoxdur."
       />
@@ -215,53 +195,47 @@ export default function ParentGrades() {
   }
 
   const isIb = selectedChild?.edition === 'ib'
-
-  const filtered = selectedSubject
-    ? grades.filter(g => g.subject?.id === selectedSubject)
-    : grades
-
+  const filtered = selectedSubject ? grades.filter(g => g.subject?.id === selectedSubject) : grades
   const overallAvg = calcAverage(null)
   const childInits = childInitials(selectedChild?.full_name)
 
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold" style={{ color: '#1a1a2e', letterSpacing: '-0.02em' }}>
-          <span className="pastel-text">Qiymətlər</span>
-        </h1>
-        <p className="text-sm mt-1" style={{ color: '#64748b' }}>Ortalama, dinamika və qiymət tarixçəsi</p>
+      <div className="flex items-start gap-3">
+        <div
+          className="icon-chip icon-chip-periwinkle flex-shrink-0"
+          style={{ width: 48, height: 48 }}
+        >
+          <Star className="w-6 h-6" />
+        </div>
+        <div>
+          <h1 className="font-display text-[30px] font-extrabold text-ink-900" style={{ letterSpacing: '-0.02em' }}>
+            Qiymətlər
+          </h1>
+          <p className="text-[15px] text-ink-400 mt-0.5">Ortalama, dinamika və qiymət tarixçəsi</p>
+        </div>
       </div>
 
-      {/* Child glass switcher */}
+      {/* Child pill switcher */}
       {children.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-1">
           {children.map(child => {
             const active = selectedChild?.id === child.id
-            const color = pastelColor(child.full_name)
+            const color = avatarColor(child.full_name)
             return (
               <button
                 key={child.id}
                 onClick={() => setSelectedChild(child)}
-                className="flex items-center gap-2.5 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0"
+                className="flex items-center gap-2.5 px-4 py-2.5 rounded-pill text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0"
                 style={
                   active
-                    ? {
-                        background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
-                        color: '#fff',
-                        border: '1px solid rgba(124,110,224,0.3)',
-                        boxShadow: '0 4px 12px rgba(124,110,224,0.25)',
-                      }
-                    : {
-                        background: 'rgba(255,255,255,0.6)',
-                        color: '#1a1a2e',
-                        border: '1px solid rgba(124,110,224,0.2)',
-                        backdropFilter: 'blur(12px)',
-                      }
+                    ? { background: 'var(--brand-500)', color: '#fff' }
+                    : { background: 'var(--surface)', color: 'var(--ink-700)', border: '1px solid var(--hairline)' }
                 }
               >
                 <span
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                  className="w-7 h-7 rounded-pill flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                   style={{ background: active ? 'rgba(255,255,255,0.25)' : color }}
                 >
                   {childInitials(child.full_name)}
@@ -276,73 +250,71 @@ export default function ParentGrades() {
       {loading ? (
         <PageSpinner />
       ) : grades.length === 0 ? (
-        <div className="liquid-card p-12">
-          <div className="flex flex-col items-center justify-center text-center">
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-              style={{ background: 'rgba(124,110,224,0.12)' }}
-            >
-              <BookOpen className="w-8 h-8" style={{ color: '#7c6ee0' }} />
-            </div>
-            <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>Qiymət yoxdur</h3>
-            <p className="text-sm mt-1" style={{ color: '#64748b' }}>Bu uşaq üçün hələ qiymət daxil edilməyib</p>
-          </div>
-        </div>
+        <EmptyState
+          tier={1}
+          icon={Star}
+          title="Qiymət yoxdur"
+          description="Bu uşaq üçün hələ qiymət daxil edilməyib"
+        />
       ) : (
         <>
           {/* Report card hero */}
           <div className="liquid-card p-6 relative overflow-hidden">
-            <div
-              aria-hidden
-              className="section-blob"
-              style={{
-                top: '-50%',
-                right: '-10%',
-                width: '40%',
-                height: '200%',
-                background: 'radial-gradient(ellipse at center, rgba(93,184,163,0.18) 0%, transparent 65%)',
-              }}
-            />
             <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
               <div className="flex items-center gap-4">
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
-                  style={{
-                    background: `linear-gradient(135deg, ${pastelColor(selectedChild?.full_name || '')} 0%, ${pastelColor((selectedChild?.full_name || '') + 'x')} 100%)`,
-                    boxShadow: '0 8px 20px rgba(124,110,224,0.25)',
-                  }}
+                <span
+                  className="w-16 h-16 rounded-pill flex items-center justify-center text-white font-display font-extrabold text-xl flex-shrink-0"
+                  style={{ background: avatarColor(selectedChild?.full_name || '') }}
                 >
                   {childInits}
-                </div>
+                </span>
                 <div>
-                  <p className="text-xl font-extrabold leading-tight" style={{ color: '#1a1a2e' }}>
+                  <p className="text-[20px] font-bold text-ink-900 leading-tight">
                     {selectedChild?.full_name}
                   </p>
-                  <p className="text-sm mt-0.5" style={{ color: '#64748b' }}>
+                  <p className="text-[13px] text-ink-400 mt-0.5">
                     {selectedChild?.class_name || selectedChild?.grade || '—'}
                     {selectedChild?.school?.name ? ` · ${selectedChild.school.name}` : ''}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#64748b' }}>
-                    Ümumi ortalama
-                  </p>
-                  <p className="text-4xl font-extrabold leading-none" style={{ color: '#1a1a2e' }}>
-                    {overallAvg != null ? overallAvg.toString().replace('.', ',') : '—'}
-                  </p>
+              <div className="flex flex-col items-end gap-3">
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="text-[13px] font-semibold text-ink-400 uppercase tracking-[0.04em] mb-1">
+                      Ümumi ortalama
+                    </p>
+                    <p className="font-display text-[40px] font-extrabold text-ink-900 leading-none tabular-nums">
+                      {overallAvg != null ? (
+                        <CountUp to={overallAvg} decimals={1} duration={700} />
+                      ) : '—'}
+                    </p>
+                  </div>
+                  {overallAvg != null && (
+                    <LevelRing
+                      value={Math.round(overallAvg * 10)}
+                      max={100}
+                      size={72}
+                      stroke={7}
+                      label="/ 10"
+                      color={gradeColor(overallAvg)}
+                      trackColor={gradeTrackColor(overallAvg)}
+                      center={
+                        <span className="font-display font-extrabold text-ink-900 tabular-nums" style={{ fontSize: 20 }}>
+                          <CountUp to={overallAvg} decimals={1} duration={700} />
+                        </span>
+                      }
+                    />
+                  )}
                 </div>
                 {overallAvg != null && (
-                  <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center text-white font-extrabold text-lg"
-                    style={{
-                      background: `linear-gradient(135deg, ${gradeColor(overallAvg)} 0%, ${gradeColor(overallAvg)}cc 100%)`,
-                      boxShadow: `0 8px 20px ${gradeColor(overallAvg)}40`,
-                    }}
-                  >
-                    {overallAvg.toString().replace('.', ',')}
+                  <div className="w-48">
+                    <XPBar
+                      value={Math.round(overallAvg * 10)}
+                      target={100}
+                      labelText={`${Math.round(overallAvg * 10)} / 100 bal`}
+                    />
                   </div>
                 )}
               </div>
@@ -360,36 +332,32 @@ export default function ParentGrades() {
                 const count = grades.filter(g => g.subject?.id === s.id).length
                 const { current, prev } = calcSubjectTrend(s.id)
                 const barPct = avg != null ? Math.min((avg / 10) * 100, 100) : 0
-                const color = avg == null ? '#64748b' : gradeColor(avg)
+                const color = gradeColor(avg)
                 return (
-                  <div key={s.id} className="liquid-card p-5 flex flex-col gap-3">
+                  <div key={s.id} className="liquid-card p-5 flex flex-col gap-3 transition-transform hover:-translate-y-0.5">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-bold leading-tight" style={{ color: '#1a1a2e' }}>{s.name}</p>
+                      <p className="text-[15px] font-semibold text-ink-900 leading-tight">{s.name}</p>
                       <TrendArrow current={current} prev={prev} />
                     </div>
                     <div className="flex items-center gap-3">
                       {avg != null ? (
                         <GradeBadge score={avg} />
                       ) : (
-                        <span className="text-xs" style={{ color: '#64748b' }}>—</span>
+                        <span className="text-xs text-ink-400">—</span>
                       )}
-                      <span className="text-xs" style={{ color: '#64748b' }}>{count} qiymət</span>
+                      <span className="text-[13px] text-ink-400">{count} qiymət</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div
-                        className="flex-1 h-2 rounded-full overflow-hidden"
-                        style={{ background: 'rgba(124,110,224,0.08)' }}
-                      >
+                      <div className="flex-1 h-2 rounded-pill overflow-hidden" style={{ background: 'var(--hairline)' }}>
                         <div
-                          className="h-full rounded-full transition-all duration-500"
+                          className="h-full rounded-pill transition-all duration-500"
                           style={{ width: `${barPct}%`, background: color }}
                         />
                       </div>
-                      <span
-                        className="text-xs font-bold w-9 text-right flex-shrink-0"
-                        style={{ color }}
-                      >
-                        {avg != null ? `${Math.round(barPct)}%` : '—'}
+                      <span className="text-[13px] font-bold w-9 text-right flex-shrink-0 tabular-nums" style={{ color }}>
+                        {avg != null ? (
+                          <><CountUp to={Math.round(barPct)} duration={600} />%</>
+                        ) : '—'}
                       </span>
                     </div>
                   </div>
@@ -402,21 +370,11 @@ export default function ParentGrades() {
           <div className="flex gap-2 overflow-x-auto pb-1">
             <button
               onClick={() => setSelectedSubject(null)}
-              className="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all"
+              className="px-4 py-2 rounded-pill text-xs font-semibold whitespace-nowrap transition-all"
               style={
                 !selectedSubject
-                  ? {
-                      background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
-                      color: '#fff',
-                      border: '1px solid rgba(124,110,224,0.3)',
-                      boxShadow: '0 4px 12px rgba(124,110,224,0.2)',
-                    }
-                  : {
-                      background: 'rgba(255,255,255,0.6)',
-                      color: '#64748b',
-                      border: '1px solid rgba(124,110,224,0.2)',
-                      backdropFilter: 'blur(12px)',
-                    }
+                  ? { background: 'var(--brand-500)', color: '#fff' }
+                  : { background: 'var(--surface)', color: 'var(--ink-600)', border: '1px solid var(--hairline)' }
               }
             >
               Hamısı
@@ -427,21 +385,11 @@ export default function ParentGrades() {
                 <button
                   key={s.id}
                   onClick={() => setSelectedSubject(s.id)}
-                  className="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all"
+                  className="px-4 py-2 rounded-pill text-xs font-semibold whitespace-nowrap transition-all"
                   style={
                     active
-                      ? {
-                          background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
-                          color: '#fff',
-                          border: '1px solid rgba(124,110,224,0.3)',
-                          boxShadow: '0 4px 12px rgba(124,110,224,0.2)',
-                        }
-                      : {
-                          background: 'rgba(255,255,255,0.6)',
-                          color: '#64748b',
-                          border: '1px solid rgba(124,110,224,0.2)',
-                          backdropFilter: 'blur(12px)',
-                        }
+                      ? { background: 'var(--brand-500)', color: '#fff' }
+                      : { background: 'var(--surface)', color: 'var(--ink-600)', border: '1px solid var(--hairline)' }
                   }
                 >
                   {s.name}
@@ -450,26 +398,26 @@ export default function ParentGrades() {
             })}
           </div>
 
-          {/* History table */}
+          {/* History table — calm data surface */}
           <div className="liquid-card overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="pastel-table w-full">
                 <thead>
-                  <tr style={{ background: 'rgba(248,247,251,0.8)', borderBottom: '1px solid rgba(124,110,224,0.1)' }}>
-                    <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>Tarix</th>
-                    <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>Fənn</th>
-                    <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>Qiymətləndirmə</th>
+                  <tr>
+                    <th className="px-6 py-3 text-left">Tarix</th>
+                    <th className="px-6 py-3 text-left">Fənn</th>
+                    <th className="px-6 py-3 text-left">Qiymətləndirmə</th>
                     {isIb ? (
                       <>
-                        <th className="text-xs font-bold uppercase tracking-wider px-4 py-3 text-center" style={{ color: '#64748b' }}>A</th>
-                        <th className="text-xs font-bold uppercase tracking-wider px-4 py-3 text-center" style={{ color: '#64748b' }}>B</th>
-                        <th className="text-xs font-bold uppercase tracking-wider px-4 py-3 text-center" style={{ color: '#64748b' }}>C</th>
-                        <th className="text-xs font-bold uppercase tracking-wider px-4 py-3 text-center" style={{ color: '#64748b' }}>D</th>
+                        <th className="px-4 py-3 text-center">A</th>
+                        <th className="px-4 py-3 text-center">B</th>
+                        <th className="px-4 py-3 text-center">C</th>
+                        <th className="px-4 py-3 text-center">D</th>
                       </>
                     ) : (
-                      <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-center" style={{ color: '#64748b' }}>Bal</th>
+                      <th className="px-6 py-3 text-center">Bal</th>
                     )}
-                    <th className="text-xs font-bold uppercase tracking-wider px-6 py-3 text-left" style={{ color: '#64748b' }}>Qeyd</th>
+                    <th className="px-6 py-3 text-left">Qeyd</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -480,44 +428,33 @@ export default function ParentGrades() {
                     return (
                       <tr
                         key={g.id}
-                        className="transition-colors hover:bg-white/40"
                         style={{
-                          borderBottom: idx === arr.length - 1 ? 'none' : '1px solid rgba(124,110,224,0.08)',
+                          borderBottom: idx === arr.length - 1 ? 'none' : '1px solid var(--hairline)',
                           borderLeft: `3px solid ${gradeColor(normScore)}`,
                         }}
                       >
-                        <td className="px-6 py-3.5 text-sm whitespace-nowrap" style={{ color: '#64748b' }}>
+                        <td className="px-6 py-3.5 text-[13px] whitespace-nowrap text-ink-600 tabular-nums">
                           {fmtNumeric(g.date)}
                         </td>
-                        <td className="px-6 py-3.5 text-sm font-bold" style={{ color: '#1a1a2e' }}>
+                        <td className="px-6 py-3.5 text-[13px] font-semibold text-ink-900">
                           {g.subject?.name}
                         </td>
-                        <td className="px-6 py-3.5 text-sm" style={{ color: '#64748b' }}>
+                        <td className="px-6 py-3.5 text-[13px] text-ink-600">
                           {g.assessment_title || '—'}
                         </td>
                         {isIb ? (
                           <>
-                            <td className="px-4 py-3.5 text-center">
-                              {g.criterion_a != null && <GradeBadge score={g.criterion_a} />}
-                            </td>
-                            <td className="px-4 py-3.5 text-center">
-                              {g.criterion_b != null && <GradeBadge score={g.criterion_b} />}
-                            </td>
-                            <td className="px-4 py-3.5 text-center">
-                              {g.criterion_c != null && <GradeBadge score={g.criterion_c} />}
-                            </td>
-                            <td className="px-4 py-3.5 text-center">
-                              {g.criterion_d != null && <GradeBadge score={g.criterion_d} />}
-                            </td>
+                            <td className="px-4 py-3.5 text-center">{g.criterion_a != null && <GradeBadge score={g.criterion_a} />}</td>
+                            <td className="px-4 py-3.5 text-center">{g.criterion_b != null && <GradeBadge score={g.criterion_b} />}</td>
+                            <td className="px-4 py-3.5 text-center">{g.criterion_c != null && <GradeBadge score={g.criterion_c} />}</td>
+                            <td className="px-4 py-3.5 text-center">{g.criterion_d != null && <GradeBadge score={g.criterion_d} />}</td>
                           </>
                         ) : (
                           <td className="px-6 py-3.5 text-center">
                             <GradeBadge score={normScore} />
                           </td>
                         )}
-                        <td className="px-6 py-3.5 text-sm" style={{ color: '#64748b' }}>
-                          {g.notes || '—'}
-                        </td>
+                        <td className="px-6 py-3.5 text-[13px] text-ink-600">{g.notes || '—'}</td>
                       </tr>
                     )
                   })}

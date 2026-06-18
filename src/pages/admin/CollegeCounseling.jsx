@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, Plus, GraduationCap, Edit2, Trash2, ExternalLink } from 'lucide-react'
+import { Search, Plus, GraduationCap, Edit2, Trash2, CheckCircle, Clock, FileText, TrendingUp } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
@@ -8,18 +8,29 @@ import Modal from '../../components/ui/Modal'
 import Table from '../../components/ui/Table'
 import { PageSpinner } from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
+import StatCard from '../../components/ui/StatCard'
 import { fmtNumeric } from '../../lib/dateUtils'
 import Avatar from '../../components/ui/Avatar'
 import Input from '../../components/ui/Input'
 import { Select, Textarea } from '../../components/ui/Input'
 
-const appStatusConfig = {
-  researching: { label: 'Araşdırma',           className: 'bg-[rgba(255,255,255,0.6)] text-[#64748b] border border-[rgba(124,110,224,0.18)]' },
-  drafting:    { label: 'Sənədlər hazırlanır', className: 'bg-[rgba(232,168,124,0.15)] text-[#a55f33] border border-[rgba(232,168,124,0.4)]' },
-  submitted:   { label: 'Göndərildi',          className: 'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7] border border-[rgba(124,110,224,0.28)]' },
-  accepted:    { label: 'Qəbul edildi',        className: 'bg-[rgba(93,184,163,0.14)] text-[#3a8170] border border-[rgba(93,184,163,0.36)]' },
-  rejected:    { label: 'Rədd edildi',         className: 'bg-[rgba(239,68,68,0.08)] text-[#b91c1c] border border-[rgba(239,68,68,0.25)]' },
-  waitlisted:  { label: 'Gözleme siyahısı',    className: 'bg-[rgba(107,157,222,0.14)] text-[#3d6da7] border border-[rgba(107,157,222,0.32)]' },
+// LOW dial: pill-* tokens, no glass, tight 12–16px radius, one brand accent
+const APP_STATUS_PILLS = {
+  researching: 'pill-muted',
+  drafting:    'pill-peach',
+  submitted:   'pill-peri',
+  accepted:    'pill-mint',
+  rejected:    'pill-rose',
+  waitlisted:  'pill-blue',
+}
+
+const APP_STATUS_LABELS = {
+  researching: 'Araşdırma',
+  drafting:    'Sənədlər hazırlanır',
+  submitted:   'Göndərildi',
+  accepted:    'Qəbul edildi',
+  rejected:    'Rədd edildi',
+  waitlisted:  'Gözleme siyahısı',
 }
 
 export default function CollegeCounseling() {
@@ -154,32 +165,48 @@ export default function CollegeCounseling() {
     a.student_name?.toLowerCase().includes(search.toLowerCase())
   )
 
+  // KPI aggregates
+  const totalUnis    = applications.reduce((s, a) => s + (a.universities || []).length, 0)
+  const acceptedCount = applications.reduce((s, a) => s + (a.universities || []).filter(u => u.status === 'accepted').length, 0)
+  const submittedCount = applications.reduce((s, a) => s + (a.universities || []).filter(u => u.status === 'submitted').length, 0)
+
+  // University fields subcomponent — defined inside to close over form/setters
   const UniversityFields = () => (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">Universitetlər</label>
+      <label className="block text-[13px] font-semibold text-ink-700">Universitetlər</label>
       {form.universities.map((uni, idx) => (
         <div key={idx} className="flex gap-2 items-center">
           <input
             value={uni.name}
             onChange={e => updateUniversity(idx, 'name', e.target.value)}
             placeholder={`Universitet ${idx + 1}`}
-            className="flex-1 border border-border-soft rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+            className="pastel-input flex-1"
           />
           <select
             value={uni.status}
             onChange={e => updateUniversity(idx, 'status', e.target.value)}
-            className="border border-border-soft rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple bg-white"
+            className="pastel-input w-44 shrink-0"
           >
-            {Object.entries(appStatusConfig).map(([val, { label }]) => <option key={val} value={val}>{label}</option>)}
+            {Object.entries(APP_STATUS_LABELS).map(([val, label]) => (
+              <option key={val} value={val}>{label}</option>
+            ))}
           </select>
           {form.universities.length > 1 && (
-            <button type="button" onClick={() => removeUniversity(idx)} className="text-red-400 hover:text-red-600 p-1">
+            <button
+              type="button"
+              onClick={() => removeUniversity(idx)}
+              className="p-1.5 text-ink-400 hover:text-danger transition-colors rounded-ctl"
+            >
               <Trash2 className="w-4 h-4" />
             </button>
           )}
         </div>
       ))}
-      <button type="button" onClick={addUniversity} className="text-sm text-purple hover:underline flex items-center gap-1 mt-1">
+      <button
+        type="button"
+        onClick={addUniversity}
+        className="flex items-center gap-1.5 text-sm font-medium text-brand-500 hover:text-brand-600 transition-colors mt-1"
+      >
         <Plus className="w-3.5 h-3.5" /> Universitet əlavə et
       </button>
     </div>
@@ -192,7 +219,7 @@ export default function CollegeCounseling() {
       render: (val) => (
         <div className="flex items-center gap-3">
           <Avatar name={val} size="sm" />
-          <span className="font-medium text-gray-900">{val}</span>
+          <span className="font-semibold text-ink-900 text-sm">{val}</span>
         </div>
       ),
     },
@@ -200,33 +227,43 @@ export default function CollegeCounseling() {
       key: 'universities',
       label: 'Universitetlər',
       render: (val) => (
-        <div className="flex flex-wrap gap-1">
-          {(val || []).slice(0, 4).map((u, i) => {
-            const cfg = appStatusConfig[u.status] || appStatusConfig.researching
-            return (
-              <span key={i} className={`rounded-full text-xs font-medium px-2 py-0.5 ${cfg.className}`}>
-                {u.name}
-              </span>
-            )
-          })}
-          {(val || []).length > 4 && <span className="text-xs text-gray-400">+{val.length - 4}</span>}
+        <div className="flex flex-wrap gap-1.5">
+          {(val || []).slice(0, 4).map((u, i) => (
+            <span
+              key={i}
+              className={`pill text-[11px] ${APP_STATUS_PILLS[u.status] || APP_STATUS_PILLS.researching}`}
+            >
+              {u.name}
+            </span>
+          ))}
+          {(val || []).length > 4 && (
+            <span className="text-xs text-ink-400 self-center">+{val.length - 4}</span>
+          )}
         </div>
       ),
     },
     {
       key: 'deadline',
       label: 'Son müraciət tarixi',
-      render: (val) => val ? fmtNumeric(val) : '—',
+      render: (val) => (
+        <span className="text-ink-600 tabular-nums">{val ? fmtNumeric(val) : '—'}</span>
+      ),
     },
     {
       key: 'actions',
       label: '',
       render: (_, row) => (
-        <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-          <button onClick={() => openEdit(row)} className="p-1.5 text-gray-400 hover:text-purple transition-colors">
+        <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+          <button
+            onClick={() => openEdit(row)}
+            className="p-1.5 rounded-ctl text-ink-400 hover:text-brand-500 hover:bg-brand-50 transition-colors"
+          >
             <Edit2 className="w-4 h-4" />
           </button>
-          <button onClick={() => setDeleteModal(row)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors">
+          <button
+            onClick={() => setDeleteModal(row)}
+            className="p-1.5 rounded-ctl text-ink-400 hover:text-danger hover:bg-[rgba(239,68,68,0.08)] transition-colors"
+          >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -236,15 +273,14 @@ export default function CollegeCounseling() {
 
   if (loading) return <PageSpinner />
 
-  const acceptedCount = applications.reduce((sum, a) => sum + (a.universities || []).filter(u => u.status === 'accepted').length, 0)
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      {/* Page header */}
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Kollec Məsləhəti</span></h1>
-          <p className="text-sm text-[#64748b] mt-1">
-            {applications.length} şagird · {applications.reduce((s, a) => s + (a.universities || []).length, 0)} müraciət · {acceptedCount} qəbul
+          <h1 className="text-2xl font-bold text-ink-900 font-display">Kollec Məsləhəti</h1>
+          <p className="text-sm text-ink-400 mt-0.5">
+            {applications.length} şagird · {totalUnis} müraciət · {acceptedCount} qəbul
           </p>
         </div>
         <Button onClick={() => { resetForm(); setAddModal(true) }}>
@@ -252,23 +288,43 @@ export default function CollegeCounseling() {
         </Button>
       </div>
 
+      {/* KPI strip — one brand accent; mint reserved for the "accepted" success metric */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StatCard label="Şagird"        value={applications.length} icon={GraduationCap} tone="periwinkle" />
+        <StatCard label="Müraciət"      value={totalUnis}           icon={FileText}      tone="periwinkle" />
+        <StatCard label="Göndərildi"    value={submittedCount}      icon={Clock}         tone="periwinkle" />
+        <StatCard label="Qəbul edildi"  value={acceptedCount}       icon={CheckCircle}   tone="mint" />
+      </div>
+
+      {/* Search */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
         <input
           type="text"
           placeholder="Şagird axtar..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-          style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+          className="pastel-input w-full pl-10 pr-4"
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="text-sm text-danger bg-[rgba(239,68,68,0.08)] rounded-input px-3 py-2 border border-[rgba(239,68,68,0.2)]">
+          {error}
+        </p>
+      )}
 
+      {/* Table */}
       <Card hover={false} className="p-0 overflow-hidden">
         {filtered.length === 0 ? (
-          <EmptyState icon={GraduationCap} title="Şagird tapılmadı" description="Kollec müraciət prosesinə başlamaq üçün şagird əlavə edin." actionLabel="Şagird əlavə et" onAction={() => { resetForm(); setAddModal(true) }} />
+          <EmptyState
+            tier={1}
+            icon={GraduationCap}
+            title="Şagird tapılmadı"
+            description="Kollec müraciət prosesinə başlamaq üçün şagird əlavə edin."
+            actionLabel="Şagird əlavə et"
+            onAction={() => { resetForm(); setAddModal(true) }}
+          />
         ) : (
           <Table columns={columns} data={filtered} onRowClick={row => { openEdit(row); setEditModal(row) }} />
         )}
@@ -287,8 +343,12 @@ export default function CollegeCounseling() {
           <UniversityFields />
           <Input label="Son müraciət tarixi" type="date" value={form.deadline} onChange={e => setForm({ ...form, deadline: e.target.value })} />
           <Textarea label="Məsləhətçi qeydləri" value={form.counselor_notes} onChange={e => setForm({ ...form, counselor_notes: e.target.value })} rows={3} placeholder="Şagird üçün qeydlər..." />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
-          <div className="flex justify-end gap-3 pt-4">
+          {error && (
+            <p className="text-sm text-danger bg-[rgba(239,68,68,0.08)] rounded-input px-3 py-2 border border-[rgba(239,68,68,0.2)]">
+              {error}
+            </p>
+          )}
+          <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleAdd} loading={saving} disabled={!form.student_id}>{t('add')}</Button>
           </div>
@@ -301,8 +361,12 @@ export default function CollegeCounseling() {
           <UniversityFields />
           <Input label="Son müraciət tarixi" type="date" value={form.deadline} onChange={e => setForm({ ...form, deadline: e.target.value })} />
           <Textarea label="Məsləhətçi qeydləri" value={form.counselor_notes} onChange={e => setForm({ ...form, counselor_notes: e.target.value })} rows={3} placeholder="Şagird üçün qeydlər..." />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
-          <div className="flex justify-end gap-3 pt-4">
+          {error && (
+            <p className="text-sm text-danger bg-[rgba(239,68,68,0.08)] rounded-input px-3 py-2 border border-[rgba(239,68,68,0.2)]">
+              {error}
+            </p>
+          )}
+          <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={() => { setEditModal(null); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleEdit} loading={saving}>{t('save')}</Button>
           </div>
@@ -311,8 +375,8 @@ export default function CollegeCounseling() {
 
       {/* Delete Modal */}
       <Modal open={!!deleteModal} onClose={() => setDeleteModal(null)} title={t('delete')} size="sm">
-        <p className="text-sm text-gray-600 mb-6">
-          <strong>{deleteModal?.student_name}</strong> adlı şagirdin müraciət məlumatlarını silmək istədiyinizə əminsiniz?
+        <p className="text-sm text-ink-600 mb-6">
+          <strong className="text-ink-900">{deleteModal?.student_name}</strong> adlı şagirdin müraciət məlumatlarını silmək istədiyinizə əminsiniz?
         </p>
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setDeleteModal(null)}>{t('cancel')}</Button>

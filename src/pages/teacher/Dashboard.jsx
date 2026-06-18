@@ -4,11 +4,18 @@ import {
   CalendarCheck, BookOpen, CheckCircle, Clock,
   Users, TrendingUp, TrendingDown, ChevronRight,
   Inbox, Bell, AlertCircle, Info,
-  PenLine, ClipboardList,
+  PenLine, ClipboardList, BarChart2,
 } from 'lucide-react'
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
+} from 'recharts'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { DashboardSkeleton } from '../../components/ui/Skeleton'
+import StatCard from '../../components/ui/StatCard'
+import EmptyState from '../../components/ui/EmptyState'
+import CountUp from '../../components/ui/CountUp'
+import Button from '../../components/ui/Button'
 import { todayFull } from '../../lib/dateUtils'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -64,32 +71,47 @@ function isPastPeriod(slot) {
   return curMin > endMin
 }
 
-// ── Pastel subject palette ─────────────────────────────────────────────────
+// ── Subject accent (V3 color restraint — one brand accent, no rainbow) ───────
+// SUBJ_PALETTE's 5-hue rotation is collapsed to the single brand accent so
+// categorical color stops competing with status; meaning lives in pills/dots.
+// Concrete hex (not a CSS var) so it works in SVG fills (recharts Cell).
 
-const SUBJ_HEX = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde', '#c89ed4', '#d68a5a']
-function subjectHash(name = '') {
-  let h = 0; for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
-  return Math.abs(h)
-}
-function subjectHex(name = '') { return SUBJ_HEX[subjectHash(name) % SUBJ_HEX.length] }
-
-// Rotating chip colors for stat cards
-const CHIP_COLORS = ['icon-chip-periwinkle', 'icon-chip-mint', 'icon-chip-peach', 'icon-chip-blue']
+const BRAND_HEX = '#574FCF'
+function subjectHex() { return BRAND_HEX }
 
 // ── Notification icon ──────────────────────────────────────────────────────
 
 function NotifIcon({ type }) {
-  if (type === 'assignment') return <BookOpen className="w-3.5 h-3.5" style={{ color: '#7c6ee0' }} />
-  if (type === 'attendance') return <CalendarCheck className="w-3.5 h-3.5" style={{ color: '#5db8a3' }} />
-  if (type === 'alert')      return <AlertCircle className="w-3.5 h-3.5" style={{ color: '#e56b7f' }} />
-  return <Info className="w-3.5 h-3.5" style={{ color: '#94a3b8' }} />
+  if (type === 'assignment') return <BookOpen className="w-3.5 h-3.5 text-brand-500" />
+  if (type === 'attendance') return <CalendarCheck className="w-3.5 h-3.5 text-mint" />
+  if (type === 'alert')      return <AlertCircle className="w-3.5 h-3.5 text-coral" />
+  return <Info className="w-3.5 h-3.5 text-ink-400" />
 }
 
 function notifChipClass(type) {
   if (type === 'assignment') return 'icon-chip-periwinkle'
   if (type === 'attendance') return 'icon-chip-mint'
-  if (type === 'alert')      return 'icon-chip-peach'
-  return ''
+  if (type === 'alert')      return 'icon-chip-coral'
+  return 'icon-chip-blue'
+}
+
+// ── Custom chart tooltip (§10 — always custom, white, soft shadow) ───────────
+
+function ChartTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
+  const entry = payload[0]
+  return (
+    <div className="bg-surface rounded-card shadow-soft-lg px-3.5 py-3 text-sm min-w-[140px]">
+      <p className="font-semibold text-ink-900 mb-1.5 truncate max-w-[180px]">{label}</p>
+      <div className="flex items-center justify-between gap-4">
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full inline-block shrink-0" style={{ backgroundColor: entry.color || entry.payload?.fill }} />
+          <span className="text-ink-600">Təhvil</span>
+        </span>
+        <span className="font-bold tabular-nums" style={{ color: entry.color || entry.payload?.fill }}>{entry.value}%</span>
+      </div>
+    </div>
+  )
 }
 
 // ── Main component ─────────────────────────────────────────────────────────
@@ -223,24 +245,35 @@ export default function TeacherDashboard() {
 
   const firstName = profile?.full_name?.split(' ')[0] || ''
 
+  // Class engagement: submission rate per assignment (reframed gamification → analytics)
+  const engagementData = assignments
+    .map(a => {
+      const submitted = subCounts[a.id] || 0
+      const total     = subCounts[`${a.id}_total`] || 0
+      return {
+        name: a.title,
+        pct: total > 0 ? Math.round((submitted / total) * 100) : 0,
+        total,
+        fill: subjectHex(a.subject?.name || ''),
+      }
+    })
+    .filter(d => d.total > 0)
+    .slice(0, 6)
+
   return (
     <div className="space-y-5">
 
-      {/* ── 1. Hero greeting card (liquid-glass) ─────────────────────────── */}
-      <div className="liquid-card relative overflow-hidden p-6">
-        {/* Decorative pastel blobs inside the card */}
-        <div className="section-blob" style={{ top: '-30%', right: '-10%', width: '40%', height: '180%', background: 'radial-gradient(ellipse at center, rgba(124,110,224,0.18) 0%, transparent 65%)' }} />
-        <div className="section-blob" style={{ bottom: '-50%', left: '20%', width: '40%', height: '180%', background: 'radial-gradient(ellipse at center, rgba(93,184,163,0.16) 0%, transparent 65%)' }} />
-
+      {/* ── 1. Hero greeting card ─────────────────────────────────────────── */}
+      <div className="liquid-card relative overflow-hidden p-6" style={{ background: 'var(--brand-50)' }}>
         <div className="relative flex items-center justify-between flex-wrap gap-4">
           <div>
-            <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#64748b' }}>{todayLabel()}</p>
-            <h1 className="text-3xl md:text-4xl font-bold mt-1" style={{ color: '#1a1a2e' }}>
-              {greeting(t)}, <span className="pastel-text">{firstName}</span>
+            <p className="text-[12px] uppercase tracking-[0.04em] font-semibold text-ink-400">{todayLabel()}</p>
+            <h1 className="font-display font-extrabold text-3xl md:text-4xl mt-1 text-ink-900 leading-[1.1]">
+              {greeting(t)}, <span className="text-brand-500">{firstName}</span>
             </h1>
             {todaySlots.length > 0 && (
-              <p className="text-sm mt-2 flex items-center gap-1.5" style={{ color: '#64748b' }}>
-                <Clock className="w-3.5 h-3.5" />
+              <p className="text-sm mt-2 flex items-center gap-1.5 text-ink-600">
+                <Clock className="w-3.5 h-3.5 text-brand-500" />
                 Bu gün {todaySlots.length} dərs var
               </p>
             )}
@@ -248,147 +281,133 @@ export default function TeacherDashboard() {
 
           {/* Quick action buttons */}
           <div className="flex gap-2 flex-wrap">
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => navigate('/muellim/davamiyyet')}
-              className="btn-ghost-pastel"
-              style={{ padding: '10px 18px', fontSize: '13px' }}
             >
               <CalendarCheck className="w-4 h-4" /> {t('attendance')}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => navigate('/muellim/jurnal')}
-              className="btn-ghost-pastel"
-              style={{ padding: '10px 18px', fontSize: '13px' }}
             >
               <BookOpen className="w-4 h-4" /> {t('gradebook')}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => navigate('/muellim/tapshiriqlar')}
-              className="btn-pastel"
-              style={{ padding: '10px 18px', fontSize: '13px' }}
             >
               <PenLine className="w-4 h-4" /> Tapşırıq
-            </button>
+            </Button>
           </div>
         </div>
       </div>
 
       {/* ── 2. Stats row ─────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: 'Bu günki dərs', value: todaySlots.length, icon: Clock, chip: 'icon-chip-periwinkle' },
-          { label: 'Gözləyən', value: submissions.length, icon: Inbox, chip: submissions.length > 0 ? 'icon-chip-peach' : 'icon-chip-mint', alert: submissions.length > 0 },
-          { label: 'Cəmi Şagird', value: studentCount, icon: Users, chip: 'icon-chip-mint' },
-          {
-            label: 'Həftəlik dav.',
-            value: weekAttendance,
-            suffix: '%',
-            icon: weekAttendance >= 85 ? TrendingUp : TrendingDown,
-            chip: weekAttendance >= 85 ? 'icon-chip-blue' : 'icon-chip-peach',
-          },
-        ].map((stat, i) => {
-          const Icon = stat.icon
-          return (
-            <div key={i} className="liquid-card p-4 flex items-start gap-3">
-              <span className={`icon-chip ${stat.chip}`}>
-                <Icon className="w-5 h-5" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-wider truncate" style={{ color: '#64748b' }}>{stat.label}</p>
-                <p className="text-2xl font-bold mt-0.5 leading-none" style={{ color: stat.alert ? '#b83b54' : '#1a1a2e' }}>
-                  {stat.value}{stat.suffix && <span className="text-sm font-semibold" style={{ color: '#94a3b8' }}>{stat.suffix}</span>}
-                </p>
-              </div>
-            </div>
-          )
-        })}
+        <StatCard
+          label="Bu günki dərs"
+          tone="periwinkle"
+          icon={Clock}
+          value={<CountUp to={todaySlots.length} />}
+        />
+        <StatCard
+          label="Gözləyən"
+          tone="periwinkle"
+          icon={Inbox}
+          value={<CountUp to={submissions.length} />}
+        />
+        <StatCard
+          label="Cəmi Şagird"
+          tone="periwinkle"
+          icon={Users}
+          value={<CountUp to={studentCount} />}
+        />
+        <StatCard
+          label="Həftəlik dav."
+          tone="periwinkle"
+          icon={weekAttendance >= 85 ? TrendingUp : TrendingDown}
+          value={<CountUp to={weekAttendance} suffix="%" />}
+        />
       </div>
 
       {/* ── 3. Today's timetable strip ──────────────────────────────────── */}
       <div className="liquid-card overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'rgba(124,110,224,0.12)' }}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4" style={{ color: '#7c6ee0' }} />
-            <h2 className="font-semibold text-sm" style={{ color: '#1a1a2e' }}>{t('todays_lessons')}</h2>
+            <Clock className="w-4 h-4 text-brand-500" />
+            <h2 className="font-semibold text-[15px] text-ink-900">{t('todays_lessons')}</h2>
           </div>
           <button
             onClick={() => navigate('/muellim/cedvel')}
-            className="flex items-center gap-1 text-xs font-semibold smooth-trans hover:opacity-70"
-            style={{ color: '#7c6ee0' }}
+            className="flex items-center gap-1 text-xs font-semibold text-brand-500 smooth-trans hover:text-brand-600"
           >
             {t('view_full_timetable')} <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
         <div className="overflow-x-auto px-5 py-4">
-          <div className="flex gap-3" style={{ minWidth: 'max-content' }}>
-            {todaySlots.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-3 w-full py-8">
-                <div className="icon-chip icon-chip-periwinkle" style={{ width: 56, height: 56 }}>
-                  <CalendarCheck className="w-7 h-7" />
-                </div>
-                <p className="text-sm" style={{ color: '#64748b' }}>{t('no_lessons_today')}</p>
-              </div>
-            ) : todaySlots.map(slot => {
-              const current = isCurrentPeriod(slot)
-              const past    = !current && isPastPeriod(slot)
-              const hex     = subjectHex(slot.subject?.name || '')
-              const attDone = attendanceTaken[slot.class_id]
-              return (
-                <div
-                  key={slot.id}
-                  onClick={() => navigate('/muellim/davamiyyet')}
-                  className="relative flex flex-col gap-1.5 rounded-2xl px-4 py-3 w-40 flex-shrink-0 cursor-pointer smooth-trans"
-                  style={{
-                    background: current
-                      ? 'linear-gradient(135deg, rgba(124,110,224,0.12), rgba(93,184,163,0.10))'
-                      : past
-                      ? 'rgba(248,247,251,0.4)'
-                      : attDone
-                      ? 'rgba(93,184,163,0.10)'
-                      : 'rgba(255,255,255,0.55)',
-                    border: current
-                      ? '1.5px solid rgba(124,110,224,0.45)'
-                      : '1px solid rgba(124,110,224,0.12)',
-                    backdropFilter: 'blur(12px)',
-                    boxShadow: current ? '0 4px 16px rgba(124,110,224,0.18)' : 'none',
-                    opacity: past ? 0.55 : 1,
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className="w-6 h-6 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: past ? '#cbd5e1' : hex }}
-                    >
-                      {slot.period}
-                    </span>
-                    {current && (
-                      <span className="pastel-badge pastel-badge-periwinkle" style={{ fontSize: 10 }}>İndi</span>
+          {todaySlots.length === 0 ? (
+            <EmptyState
+              tier={1}
+              icon={Clock}
+              className="!border-0 !shadow-none !p-6"
+              title={t('no_lessons_today')}
+            />
+          ) : (
+            <div className="flex gap-3" style={{ minWidth: 'max-content' }}>
+              {todaySlots.map(slot => {
+                const current = isCurrentPeriod(slot)
+                const past    = !current && isPastPeriod(slot)
+                const attDone = attendanceTaken[slot.class_id]
+                return (
+                  <div
+                    key={slot.id}
+                    onClick={() => navigate('/muellim/davamiyyet')}
+                    className="relative flex flex-col gap-1.5 rounded-tile px-4 py-3 w-40 flex-shrink-0 cursor-pointer smooth-trans hover:-translate-y-0.5"
+                    style={{
+                      background: current ? 'var(--brand-50)' : 'var(--surface-2)',
+                      border: current
+                        ? '1.5px solid var(--brand-300)'
+                        : '1px solid var(--hairline)',
+                      opacity: past ? 0.6 : 1,
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span
+                        className="w-6 h-6 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0 tabular-nums"
+                        style={{ backgroundColor: past ? 'var(--ink-400)' : 'var(--brand-500)' }}
+                      >
+                        {slot.period}
+                      </span>
+                      {current && (
+                        <span className="pill-peri" style={{ fontSize: 10 }}>İndi</span>
+                      )}
+                      {!current && attDone && (
+                        <CheckCircle className="w-3.5 h-3.5 text-mint" />
+                      )}
+                    </div>
+                    <p className="text-sm font-semibold truncate" style={{ color: past ? 'var(--ink-400)' : 'var(--ink-900)' }}>
+                      {slot.subject?.name}
+                    </p>
+                    <p className="text-xs truncate" style={{ color: past ? 'var(--ink-400)' : 'var(--ink-600)' }}>
+                      {slot.class?.name}
+                    </p>
+                    {slot.start_time && slot.end_time && (
+                      <p className="text-[11px] tabular-nums text-ink-400">
+                        {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)}
+                      </p>
                     )}
-                    {!current && attDone && (
-                      <CheckCircle className="w-3.5 h-3.5" style={{ color: '#5db8a3' }} />
+                    {slot.room && (
+                      <p className="text-[11px] text-ink-400 truncate">{slot.room}</p>
                     )}
                   </div>
-                  <p className="text-sm font-bold truncate" style={{ color: past ? '#94a3b8' : '#1a1a2e' }}>
-                    {slot.subject?.name}
-                  </p>
-                  <p className="text-xs truncate" style={{ color: past ? '#cbd5e1' : '#64748b' }}>
-                    {slot.class?.name}
-                  </p>
-                  {slot.start_time && slot.end_time && (
-                    <p className="text-[11px]" style={{ color: '#94a3b8' }}>
-                      {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)}
-                    </p>
-                  )}
-                  {slot.room && (
-                    <p className="text-[11px]" style={{ color: '#94a3b8' }}>🏫 {slot.room}</p>
-                  )}
-                  {!past && (
-                    <div className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full" style={{ backgroundColor: hex, opacity: 0.5 }} />
-                  )}
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -400,32 +419,29 @@ export default function TeacherDashboard() {
 
           {/* Pending grading */}
           <div className="liquid-card overflow-hidden">
-            <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: 'rgba(124,110,224,0.12)' }}>
-              <Inbox className="w-4 h-4" style={{ color: '#7c6ee0' }} />
-              <h2 className="font-semibold text-sm" style={{ color: '#1a1a2e' }}>{t('pending_grading')}</h2>
+            <div className="flex items-center gap-2 px-5 py-4 border-b border-hairline">
+              <Inbox className="w-4 h-4 text-brand-500" />
+              <h2 className="font-semibold text-[15px] text-ink-900">{t('pending_grading')}</h2>
               {submissions.length > 0 && (
-                <span className="pastel-badge pastel-badge-rose ml-1">{submissions.length}</span>
+                <span className="pill-peri ml-1 tabular-nums">{submissions.length}</span>
               )}
               {submissions.length > 0 && (
                 <button
                   onClick={() => navigate('/muellim/tapshiriqlar')}
-                  className="ml-auto text-xs font-semibold smooth-trans hover:opacity-70"
-                  style={{ color: '#7c6ee0' }}
+                  className="ml-auto text-xs font-semibold text-brand-500 smooth-trans hover:text-brand-600"
                 >
                   {t('view_all')} →
                 </button>
               )}
             </div>
             {submissions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-                <div className="icon-chip icon-chip-mint" style={{ width: 56, height: 56 }}>
-                  <CheckCircle className="w-7 h-7" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: '#1a1a2e' }}>{t('all_graded')}</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#94a3b8' }}>Bütün cavablar qiymətləndirilib</p>
-                </div>
-              </div>
+              <EmptyState
+                tier={1}
+                icon={CheckCircle}
+                className="!border-0 !shadow-none !py-10"
+                title={t('all_graded')}
+                description="Bütün cavablar qiymətləndirilib"
+              />
             ) : (
               <ul>
                 {submissions.map((sub, idx) => {
@@ -434,31 +450,29 @@ export default function TeacherDashboard() {
                   return (
                     <li
                       key={sub.id}
-                      className="flex items-center gap-3 px-5 py-3.5 smooth-trans cursor-pointer group"
+                      className="flex items-center gap-3 px-5 py-3.5 smooth-trans cursor-pointer group hover:bg-brand-50"
                       style={{
-                        borderTop: idx === 0 ? 'none' : '1px solid rgba(124,110,224,0.08)',
+                        borderTop: idx === 0 ? 'none' : '1px solid var(--hairline)',
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(124,110,224,0.04)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       onClick={() => navigate('/muellim/tapshiriqlar')}
                     >
                       <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36, fontSize: 12, fontWeight: 700 }}>
                         {initials}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate" style={{ color: '#1a1a2e' }}>{sub.student?.full_name}</p>
-                        <p className="text-xs mt-0.5 truncate" style={{ color: '#64748b' }}>{sub.assignment?.title}</p>
+                        <p className="text-sm font-semibold truncate text-ink-900">{sub.student?.full_name}</p>
+                        <p className="text-xs mt-0.5 truncate text-ink-600">{sub.assignment?.title}</p>
                       </div>
                       {sub.assignment?.subject?.name && (
-                        <span className="hidden sm:inline-flex pastel-badge pastel-badge-periwinkle">
+                        <span className="hidden sm:inline-flex pill-peri">
                           {sub.assignment.subject.name}
                         </span>
                       )}
                       <div className="flex-shrink-0 text-right">
-                        <span className="text-[11px] whitespace-nowrap block" style={{ color: '#94a3b8' }}>
+                        <span className="text-[11px] whitespace-nowrap block text-ink-400">
                           {timeAgo(sub.submitted_at)}
                         </span>
-                        <span className="text-[10px] font-semibold opacity-0 group-hover:opacity-100 smooth-trans" style={{ color: '#7c6ee0' }}>
+                        <span className="text-[10px] font-semibold text-brand-500 opacity-0 group-hover:opacity-100 smooth-trans">
                           Qiymətləndir →
                         </span>
                       </div>
@@ -469,28 +483,73 @@ export default function TeacherDashboard() {
             )}
           </div>
 
+          {/* Class engagement — submission rate per assignment (analytics, §10) */}
+          {engagementData.length > 0 && (
+            <div className="liquid-card overflow-hidden">
+              <div className="flex items-center gap-2 px-5 py-4 border-b border-hairline">
+                <BarChart2 className="w-4 h-4 text-brand-500" />
+                <h2 className="font-semibold text-[15px] text-ink-900">Sinif iştirakı</h2>
+                <span className="ml-auto text-xs text-ink-400">Təhvil faizi</span>
+              </div>
+              <div className="px-3 py-4">
+                <ResponsiveContainer width="100%" height={Math.max(160, engagementData.length * 42)}>
+                  <BarChart
+                    layout="vertical"
+                    data={engagementData}
+                    margin={{ top: 4, right: 24, bottom: 4, left: 8 }}
+                    barCategoryGap={14}
+                  >
+                    <CartesianGrid stroke="#ECEDF3" vertical={false} />
+                    <XAxis
+                      type="number"
+                      domain={[0, 100]}
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: '#9AA0B0' }}
+                      tickFormatter={v => `${v}%`}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      width={120}
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: '#5A6072' }}
+                      tickFormatter={v => (v.length > 16 ? `${v.slice(0, 16)}…` : v)}
+                    />
+                    <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(20,22,40,0.04)' }} />
+                    <Bar dataKey="pct" radius={[0, 4, 4, 0]} barSize={20}>
+                      {engagementData.map((d, i) => (
+                        <Cell key={i} fill={d.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
           {/* Assignment deadlines */}
           <div className="liquid-card overflow-hidden">
-            <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: 'rgba(124,110,224,0.12)' }}>
-              <ClipboardList className="w-4 h-4" style={{ color: '#5db8a3' }} />
-              <h2 className="font-semibold text-sm" style={{ color: '#1a1a2e' }}>{t('assignment_deadlines')}</h2>
+            <div className="flex items-center gap-2 px-5 py-4 border-b border-hairline">
+              <ClipboardList className="w-4 h-4 text-brand-500" />
+              <h2 className="font-semibold text-[15px] text-ink-900">{t('assignment_deadlines')}</h2>
               {assignments.length > 0 && (
                 <button
                   onClick={() => navigate('/muellim/tapshiriqlar')}
-                  className="ml-auto text-xs font-semibold smooth-trans hover:opacity-70"
-                  style={{ color: '#7c6ee0' }}
+                  className="ml-auto text-xs font-semibold text-brand-500 smooth-trans hover:text-brand-600"
                 >
                   Hamısını gör →
                 </button>
               )}
             </div>
             {assignments.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-                <div className="icon-chip icon-chip-blue" style={{ width: 56, height: 56 }}>
-                  <ClipboardList className="w-7 h-7" />
-                </div>
-                <p className="text-sm" style={{ color: '#64748b' }}>{t('no_assignments_set')}</p>
-              </div>
+              <EmptyState
+                tier={1}
+                icon={ClipboardList}
+                className="!border-0 !shadow-none !py-10"
+                title={t('no_assignments_set')}
+              />
             ) : (
               <div className="overflow-x-auto">
                 <table className="pastel-table">
@@ -525,23 +584,23 @@ export default function TeacherDashboard() {
                                   style={{ backgroundColor: hex }}
                                 />
                               )}
-                              <p className="font-medium truncate max-w-[160px]" style={{ color: '#1a1a2e' }}>{a.title}</p>
+                              <p className="font-medium truncate max-w-[160px] text-ink-900">{a.title}</p>
                             </div>
                           </td>
                           <td className="hidden sm:table-cell">
-                            <span className="text-xs" style={{ color: '#64748b' }}>{a.class?.name || '—'}</span>
+                            <span className="text-xs text-ink-600">{a.class?.name || '—'}</span>
                           </td>
                           <td>
-                            <span className={overdue ? 'pastel-badge pastel-badge-rose' : urgent ? 'pastel-badge pastel-badge-peach' : 'pastel-badge pastel-badge-slate'}>
+                            <span className={overdue ? 'pill-rose' : urgent ? 'pill-peach' : 'pill-muted'}>
                               {overdue ? `${Math.abs(days)}g gecikib` : days === 0 ? 'Bu gün' : formatDate(a.due_date)}
                             </span>
                           </td>
                           <td className="hidden sm:table-cell">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium whitespace-nowrap" style={{ color: '#475569' }}>{submitted}/{total}</span>
+                              <span className="text-xs font-medium whitespace-nowrap text-ink-700 tabular-nums">{submitted}/{total}</span>
                               {total > 0 && (
-                                <div className="w-14 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(124,110,224,0.10)' }}>
-                                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #7c6ee0, #5db8a3)' }} />
+                                <div className="w-14 rounded-full overflow-hidden" style={{ height: 6, background: 'var(--hairline)' }}>
+                                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: 'var(--brand-500)' }} />
                                 </div>
                               )}
                             </div>
@@ -561,29 +620,33 @@ export default function TeacherDashboard() {
 
           {/* Week stats */}
           <div className="liquid-card p-5 space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#64748b' }}>{t('this_weeks_stats')}</p>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.04em] text-ink-400">{t('this_weeks_stats')}</p>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium" style={{ color: '#94a3b8' }}>{t('total_students_stat')}</p>
-                <p className="text-3xl font-bold mt-0.5" style={{ color: '#1a1a2e' }}>{studentCount}</p>
+                <p className="text-xs font-medium text-ink-400">{t('total_students_stat')}</p>
+                <p className="font-display font-extrabold text-3xl mt-0.5 text-ink-900 tabular-nums leading-none">
+                  <CountUp to={studentCount} />
+                </p>
               </div>
               <span className="icon-chip icon-chip-periwinkle">
                 <Users className="w-5 h-5" />
               </span>
             </div>
 
-            <div className="h-px" style={{ background: 'rgba(124,110,224,0.12)' }} />
+            <div className="h-px bg-hairline" />
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium" style={{ color: '#94a3b8' }}>{t('weekly_attendance')}</p>
+                <p className="text-xs font-medium text-ink-400">{t('weekly_attendance')}</p>
                 <div className="flex items-end gap-2 mt-0.5">
-                  <p className="text-3xl font-bold" style={{ color: '#1a1a2e' }}>{weekAttendance}<span className="text-xl font-semibold" style={{ color: '#94a3b8' }}>%</span></p>
+                  <p className="font-display font-extrabold text-3xl text-ink-900 tabular-nums leading-none">
+                    <CountUp to={weekAttendance} /><span className="text-xl font-semibold text-ink-400">%</span>
+                  </p>
                   {weekAttendance >= 85
-                    ? <span className="text-xs font-medium mb-0.5 flex items-center gap-0.5" style={{ color: '#3d8a73' }}><TrendingUp className="w-3 h-3" /> Yaxşı</span>
+                    ? <span className="text-xs font-semibold mb-0.5 flex items-center gap-0.5" style={{ color: 'var(--mint)' }}><TrendingUp className="w-3 h-3" /> Yaxşı</span>
                     : weekAttendance > 0
-                    ? <span className="text-xs font-medium mb-0.5 flex items-center gap-0.5" style={{ color: '#b83b54' }}><TrendingDown className="w-3 h-3" /> Aşağı</span>
+                    ? <span className="text-xs font-semibold mb-0.5 flex items-center gap-0.5" style={{ color: '#B45309' }}><TrendingDown className="w-3 h-3" /> Aşağı</span>
                     : null
                   }
                 </div>
@@ -593,14 +656,12 @@ export default function TeacherDashboard() {
               </span>
             </div>
             {weekAttendance > 0 && (
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(124,110,224,0.10)' }}>
+              <div className="rounded-full overflow-hidden" style={{ height: 6, background: 'var(--hairline)' }}>
                 <div
                   className="h-full rounded-full"
                   style={{
                     width: `${weekAttendance}%`,
-                    background: weekAttendance >= 85
-                      ? 'linear-gradient(90deg, #5db8a3, #6b9dde)'
-                      : 'linear-gradient(90deg, #e8a87c, #e56b7f)',
+                    background: weekAttendance >= 85 ? 'var(--mint)' : 'var(--warning)',
                   }}
                 />
               </div>
@@ -609,36 +670,36 @@ export default function TeacherDashboard() {
 
           {/* Notifications */}
           <div className="liquid-card overflow-hidden">
-            <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: 'rgba(124,110,224,0.12)' }}>
-              <Bell className="w-4 h-4" style={{ color: '#7c6ee0' }} />
-              <h2 className="font-semibold text-sm" style={{ color: '#1a1a2e' }}>{t('teacher_notifications')}</h2>
+            <div className="flex items-center gap-2 px-5 py-4 border-b border-hairline">
+              <Bell className="w-4 h-4 text-brand-500" />
+              <h2 className="font-semibold text-[15px] text-ink-900">{t('teacher_notifications')}</h2>
               {notifications.length > 0 && (
-                <span className="ml-auto text-xs" style={{ color: '#94a3b8' }}>{notifications.length}</span>
+                <span className="ml-auto text-xs text-ink-400 tabular-nums">{notifications.length}</span>
               )}
             </div>
             {notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-3 py-10 text-center px-5">
-                <div className="icon-chip icon-chip-periwinkle" style={{ width: 48, height: 48 }}>
-                  <Bell className="w-5 h-5" />
-                </div>
-                <p className="text-xs" style={{ color: '#94a3b8' }}>{t('no_notifications')}</p>
-              </div>
+              <EmptyState
+                tier={1}
+                icon={Bell}
+                className="!border-0 !shadow-none !py-8"
+                title={t('no_notifications')}
+              />
             ) : (
               <ul className="overflow-y-auto max-h-[260px] scrollbar-thin">
                 {notifications.map((n, idx) => (
                   <li
                     key={n.id}
                     className="flex items-start gap-3 px-5 py-3 smooth-trans"
-                    style={{ borderTop: idx === 0 ? 'none' : '1px solid rgba(124,110,224,0.08)' }}
+                    style={{ borderTop: idx === 0 ? 'none' : '1px solid var(--hairline)' }}
                   >
                     <span className={`icon-chip ${notifChipClass(n.type)}`} style={{ width: 30, height: 30, borderRadius: 10 }}>
                       <NotifIcon type={n.type} />
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium leading-snug line-clamp-2" style={{ color: '#1a1a2e' }}>
+                      <p className="text-xs font-medium leading-snug line-clamp-2 text-ink-900">
                         {n.title || n.message || 'Bildiriş'}
                       </p>
-                      <p className="text-[10px] mt-0.5" style={{ color: '#94a3b8' }}>{timeAgo(n.created_at)}</p>
+                      <p className="text-[10px] mt-0.5 text-ink-400">{timeAgo(n.created_at)}</p>
                     </div>
                   </li>
                 ))}

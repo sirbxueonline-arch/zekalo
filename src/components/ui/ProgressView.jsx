@@ -10,10 +10,10 @@ import StatCard from './StatCard'
 import { PageSpinner } from './Spinner'
 import EmptyState from './EmptyState'
 
-// 10 distinct colors for subject lines
+// Categorical palette (DESIGN_SYSTEM §10) — moderate saturation, brand-led.
 const COLORS = [
-  '#534AB7', '#14B8A6', '#F59E0B', '#EF4444',
-  '#8B5CF6', '#10B981', '#F97316', '#3B82F6', '#EC4899', '#06B6D4',
+  '#574FCF', '#22C55E', '#F59E0B', '#FB7185',
+  '#8B5CF6', '#16A34A', '#FF7A1A', '#38BDF8', '#EC4899', '#0EA5E9',
 ]
 
 const PERIODS = [
@@ -48,17 +48,19 @@ function trend(current, previous) {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white border border-border-soft rounded-lg shadow-lg px-4 py-3 text-sm min-w-[140px]">
-      <p className="font-medium text-gray-700 mb-2">{label}</p>
-      {payload.map(entry => (
-        <div key={entry.name} className="flex items-center justify-between gap-4">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: entry.color }} />
-            <span className="text-gray-600 truncate max-w-[100px]">{entry.name}</span>
-          </span>
-          <span className="font-semibold" style={{ color: entry.color }}>{entry.value}</span>
-        </div>
-      ))}
+    <div className="bg-surface rounded-card shadow-soft-lg px-3.5 py-3 text-sm min-w-[150px]">
+      <p className="font-semibold text-ink-900 mb-2">{label}</p>
+      <div className="space-y-1.5">
+        {payload.map(entry => (
+          <div key={entry.name} className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-1.5 min-w-0">
+              <span className="w-2 h-2 rounded-full inline-block shrink-0" style={{ backgroundColor: entry.color }} />
+              <span className="text-ink-600 truncate max-w-[110px]">{entry.name}</span>
+            </span>
+            <span className="font-bold tabular-nums" style={{ color: entry.color }}>{entry.value}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -208,16 +210,12 @@ export default function ProgressView({ studentId, studentName }) {
   return (
     <div className="space-y-6">
       {/* Period filter */}
-      <div className="flex items-center gap-2 bg-surface border border-border-soft rounded-lg p-1 w-fit">
+      <div className="pastel-tabs">
         {PERIODS.map(p => (
           <button
             key={p.key}
             onClick={() => setPeriod(p.key)}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              period === p.key
-                ? 'bg-white text-purple shadow-sm border border-border-soft'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+            className={`pastel-tab ${period === p.key ? 'active' : ''}`}
           >
             {p.label}
           </button>
@@ -230,73 +228,83 @@ export default function ProgressView({ studentId, studentName }) {
           label="Ümumi orta"
           value={overallAvg != null ? overallAvg : '—'}
           icon={BarChart2}
+          tone="periwinkle"
         />
         <StatCard
           label="Ən yaxşı fənn"
           value={bestSubject?.name || '—'}
           icon={Award}
+          tone="grape"
         />
         <StatCard
           label="Ən yüksək qiymət"
           value={allScores.length ? Math.max(...allScores) : '—'}
           icon={TrendingUp}
+          tone="mint"
         />
         <StatCard
           label="Qiymətləndirmə sayı"
           value={filtered.length}
           icon={ClipboardCheck}
+          tone="blue"
         />
       </div>
 
       {/* Main combined chart */}
       {filtered.length > 0 && (
-        <Card hover={false} className="p-6">
+        <Card hover={false}>
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div>
-              <h2 className="font-serif text-xl text-gray-900">Qiymət dinamikası</h2>
-              <p className="text-sm text-gray-500 mt-0.5">Fənlər üzrə dinamika (10-luq sistem)</p>
+              <h2 className="font-display font-bold text-xl text-ink-900">Qiymət dinamikası</h2>
+              <p className="text-sm text-ink-400 mt-0.5">Fənlər üzrə dinamika (10-luq sistem)</p>
             </div>
             {/* Subject toggles */}
             <div className="flex flex-wrap gap-2">
-              {subjectStats.map(sub => (
-                <button
-                  key={sub.id}
-                  onClick={() => toggleSubject(sub.name)}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-all ${
-                    hiddenSubjects.has(sub.name)
-                      ? 'border-border-soft text-gray-400 bg-white'
-                      : 'border-transparent text-white'
-                  }`}
-                  style={hiddenSubjects.has(sub.name) ? {} : { backgroundColor: sub.color }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                  {sub.name}
-                </button>
-              ))}
+              {subjectStats.map(sub => {
+                const hidden = hiddenSubjects.has(sub.name)
+                return (
+                  <button
+                    key={sub.id}
+                    onClick={() => toggleSubject(sub.name)}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-pill text-xs font-semibold transition-all"
+                    style={
+                      hidden
+                        ? { background: 'var(--surface-2)', color: 'var(--ink-400)', boxShadow: 'inset 0 0 0 1px var(--hairline)' }
+                        : { backgroundColor: `${sub.color}1F`, color: sub.color }
+                    }
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: hidden ? 'var(--ink-400)' : sub.color }}
+                    />
+                    {sub.name}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
           {chartData.length < 2 ? (
-            <p className="text-sm text-gray-400 text-center py-8">Qrafik üçün ən azı 2 qiymət lazımdır</p>
+            <p className="text-sm text-ink-400 text-center py-8">Qrafik üçün ən azı 2 qiymət lazımdır</p>
           ) : (
             <ResponsiveContainer width="100%" height={320}>
               <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F1F0FB" vertical={false} />
+                <CartesianGrid stroke="#F1F2F4" vertical={false} />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 12, fill: '#9CA3AF' }}
+                  tick={{ fontSize: 12, fill: '#9AA0B0' }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
                   domain={[0, 10]}
                   ticks={[0, 2, 4, 6, 8, 10]}
-                  tick={{ fontSize: 12, fill: '#9CA3AF' }}
+                  tick={{ fontSize: 12, fill: '#9AA0B0' }}
                   axisLine={false}
                   tickLine={false}
                   width={28}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#E2E4EC', strokeWidth: 1 }} />
                 {subjectStats.map(sub => (
                   <Line
                     key={sub.id}
@@ -305,7 +313,7 @@ export default function ProgressView({ studentId, studentName }) {
                     stroke={sub.color}
                     strokeWidth={hiddenSubjects.has(sub.name) ? 0 : 2.5}
                     dot={{ r: 4, fill: sub.color, strokeWidth: 0 }}
-                    activeDot={{ r: 6, strokeWidth: 0 }}
+                    activeDot={{ r: 5, strokeWidth: 0 }}
                     connectNulls
                     hide={hiddenSubjects.has(sub.name)}
                   />
@@ -318,7 +326,7 @@ export default function ProgressView({ studentId, studentName }) {
 
       {/* Per-subject cards */}
       <div>
-        <h2 className="font-serif text-xl text-gray-900 mb-4">Fənlər üzrə təhlil</h2>
+        <h2 className="font-display font-bold text-xl text-ink-900 mb-4">Fənlər üzrə təhlil</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {subjectStats.map(sub => (
             <SubjectCard key={sub.id} sub={sub} />
@@ -332,6 +340,8 @@ export default function ProgressView({ studentId, studentName }) {
 function SubjectCard({ sub }) {
   const trendDir = sub.trend == null ? null : sub.trend > 0.5 ? 'up' : sub.trend < -0.5 ? 'down' : 'flat'
 
+  const pct = sub.avg != null ? Math.max(0, Math.min(100, (sub.avg / 10) * 100)) : 0
+
   return (
     <Card hover={false} className="p-5">
       <div className="flex items-start justify-between mb-3">
@@ -340,20 +350,28 @@ function SubjectCard({ sub }) {
             className="w-3 h-3 rounded-full shrink-0"
             style={{ backgroundColor: sub.color }}
           />
-          <h3 className="font-medium text-gray-900 truncate">{sub.name}</h3>
+          <h3 className="font-semibold text-ink-900 truncate">{sub.name}</h3>
         </div>
         <TrendBadge dir={trendDir} val={sub.trend} />
       </div>
 
       {/* Big average */}
-      <div className="mb-3">
+      <div className="mb-2.5 flex items-baseline gap-1">
         <span
-          className="text-4xl font-bold"
+          className="font-display font-extrabold text-4xl leading-none tabular-nums"
           style={{ color: sub.color }}
         >
           {sub.avg ?? '—'}
         </span>
-        <span className="text-sm text-gray-400 ml-1">/ 10</span>
+        <span className="text-sm font-medium text-ink-400">/ 10</span>
+      </div>
+
+      {/* Friendly progress bar (subject-tinted, rounded) */}
+      <div className="xp-track mb-3.5" style={{ background: 'var(--hairline)' }}>
+        <div
+          className="xp-fill"
+          style={{ width: `${pct}%`, background: sub.color }}
+        />
       </div>
 
       {/* Mini sparkline */}
@@ -383,17 +401,17 @@ function SubjectCard({ sub }) {
 
       {/* High / low / count */}
       <div className="grid grid-cols-3 gap-2 text-center text-xs">
-        <div className="bg-surface rounded-lg py-1.5">
-          <div className="text-gray-400 mb-0.5">Ən yüksək</div>
-          <div className="font-semibold text-gray-700">{sub.highest ?? '—'}</div>
+        <div className="bg-surface-2 rounded-tile py-2">
+          <div className="text-ink-400 mb-0.5">Ən yüksək</div>
+          <div className="font-bold text-ink-900 tabular-nums">{sub.highest ?? '—'}</div>
         </div>
-        <div className="bg-surface rounded-lg py-1.5">
-          <div className="text-gray-400 mb-0.5">Ən aşağı</div>
-          <div className="font-semibold text-gray-700">{sub.lowest ?? '—'}</div>
+        <div className="bg-surface-2 rounded-tile py-2">
+          <div className="text-ink-400 mb-0.5">Ən aşağı</div>
+          <div className="font-bold text-ink-900 tabular-nums">{sub.lowest ?? '—'}</div>
         </div>
-        <div className="bg-surface rounded-lg py-1.5">
-          <div className="text-gray-400 mb-0.5">Qiymət</div>
-          <div className="font-semibold text-gray-700">{sub.count}</div>
+        <div className="bg-surface-2 rounded-tile py-2">
+          <div className="text-ink-400 mb-0.5">Qiymət</div>
+          <div className="font-bold text-ink-900 tabular-nums">{sub.count}</div>
         </div>
       </div>
     </Card>
@@ -402,18 +420,19 @@ function SubjectCard({ sub }) {
 
 function TrendBadge({ dir, val }) {
   if (dir == null) return null
+  // Arrow glyph is the directional indicator, so suppress the pill's leading dot.
   if (dir === 'up') return (
-    <span className="flex items-center gap-0.5 text-xs font-medium text-teal bg-teal-light px-2 py-0.5 rounded-full">
+    <span className="pill-mint shrink-0 tabular-nums before:!hidden">
       <TrendingUp className="w-3 h-3" /> +{val}
     </span>
   )
   if (dir === 'down') return (
-    <span className="flex items-center gap-0.5 text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+    <span className="pill-rose shrink-0 tabular-nums before:!hidden">
       <TrendingDown className="w-3 h-3" /> {val}
     </span>
   )
   return (
-    <span className="flex items-center gap-0.5 text-xs font-medium text-gray-500 bg-surface px-2 py-0.5 rounded-full">
+    <span className="pill-muted shrink-0 before:!hidden">
       <Minus className="w-3 h-3" /> Sabit
     </span>
   )

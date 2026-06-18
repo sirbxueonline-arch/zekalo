@@ -99,11 +99,21 @@ export function AuthProvider({ children }) {
         setLoading(false)
         return
       }
-      try {
-        await fetchProfile(session.user.id)
-      } finally {
-        if (mounted) setLoading(false)
-      }
+      // CRITICAL: never `await` a Supabase DB call directly inside the
+      // onAuthStateChange callback. GoTrue holds an internal lock while the
+      // callback runs; the profiles query needs the session token and waits on
+      // that same lock → deadlock that leaves the app stuck on the loading
+      // spinner forever on refresh (amplified by StrictMode's double-mount).
+      // Deferring with setTimeout(…,0) lets the callback return and release the
+      // lock before the fetch runs.
+      setTimeout(async () => {
+        if (!mounted) return
+        try {
+          await fetchProfile(session.user.id)
+        } finally {
+          if (mounted) setLoading(false)
+        }
+      }, 0)
     })
 
     // Belt-and-suspenders: if the listener somehow doesn't fire INITIAL_SESSION

@@ -146,21 +146,36 @@ export default function Library() {
       label: 'Kitab',
       render: (val, row) => (
         <div>
-          <p className="font-medium text-gray-900">{val}</p>
-          <p className="text-xs text-gray-400">{row.author}</p>
+          <p className="font-semibold text-ink-900">{val}</p>
+          <p className="text-xs text-ink-400 mt-0.5">{row.author}</p>
         </div>
       ),
     },
-    { key: 'isbn', label: 'ISBN', render: (val) => <span className="text-sm text-gray-500 font-mono">{val || '—'}</span> },
+    {
+      key: 'isbn',
+      label: 'ISBN',
+      render: (val) => (
+        <span className="text-sm text-ink-400 font-mono tabular-nums">{val || '—'}</span>
+      ),
+    },
     {
       key: 'copies_total',
       label: 'Nüsxə',
       render: (val, row) => (
-        <div className="flex items-center gap-2">
-          <div className="w-16 bg-gray-100 rounded-full h-1.5">
-            <div className="bg-teal h-1.5 rounded-full" style={{ width: val > 0 ? `${(row.copies_available / val) * 100}%` : '0%' }} />
+        <div className="flex items-center gap-2.5">
+          <div className="w-16 rounded-full overflow-hidden" style={{ height: 6, background: 'var(--hairline)' }}>
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: val > 0 ? `${(row.copies_available / val) * 100}%` : '0%',
+                background: 'var(--mint)',
+                transition: 'width .4s var(--ease-out-quint)',
+              }}
+            />
           </div>
-          <span className="text-sm text-gray-700">{row.copies_available}/{val}</span>
+          <span className="text-sm text-ink-700 tabular-nums font-medium">
+            {row.copies_available}/{val}
+          </span>
         </div>
       ),
     },
@@ -186,20 +201,42 @@ export default function Library() {
       label: 'Şagird',
       render: (val, row) => (
         <div className="flex items-center gap-2">
-          {isOverdue(row.due_date) && <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />}
-          <span className={`font-medium ${isOverdue(row.due_date) ? 'text-red-700' : 'text-gray-900'}`}>{val}</span>
+          {isOverdue(row.due_date) && (
+            <AlertTriangle className="w-4 h-4 shrink-0" style={{ color: 'var(--danger)' }} />
+          )}
+          <span
+            className="font-semibold"
+            style={{ color: isOverdue(row.due_date) ? 'var(--danger)' : 'var(--ink-900)' }}
+          >
+            {val}
+          </span>
         </div>
       ),
     },
-    { key: 'book_title', label: 'Kitab', render: (val) => <span className="text-gray-700">{val}</span> },
-    { key: 'checked_out_at', label: 'Verildi', render: (val) => val ? fmtNumeric(val) : '—' },
+    {
+      key: 'book_title',
+      label: 'Kitab',
+      render: (val) => <span className="text-ink-700">{val}</span>,
+    },
+    {
+      key: 'checked_out_at',
+      label: 'Verildi',
+      render: (val) => (
+        <span className="tabular-nums text-ink-600">{val ? fmtNumeric(val) : '—'}</span>
+      ),
+    },
     {
       key: 'due_date',
       label: 'Son tarix',
       render: (val, row) => (
-        <span className={isOverdue(val) ? 'text-red-600 font-medium' : 'text-gray-700'}>
+        <span
+          className="tabular-nums font-medium"
+          style={{ color: isOverdue(val) ? 'var(--danger)' : 'var(--ink-700)' }}
+        >
           {val ? fmtNumeric(val) : '—'}
-          {isOverdue(val) && ' (gecikmiş)'}
+          {isOverdue(val) && (
+            <span className="ml-1.5 pill-rose" style={{ fontSize: 11 }}>gecikmiş</span>
+          )}
         </span>
       ),
     },
@@ -218,12 +255,22 @@ export default function Library() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      {/* Page header */}
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Kitabxana</span></h1>
-          <p className="text-sm text-[#64748b] mt-1">
-            {books.length} kitab · {checkouts.length} aktiv verilmiş
-            {overdueCount > 0 && <span className="ml-2 text-red-600 font-semibold">· {overdueCount} gecikmiş</span>}
+          <h1 className="font-display text-2xl font-bold text-ink-900">Kitabxana</h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--ink-400)' }}>
+            <span className="tabular-nums font-semibold text-ink-700">{books.length}</span> kitab
+            {' · '}
+            <span className="tabular-nums font-semibold text-ink-700">{checkouts.length}</span> aktiv verilmiş
+            {overdueCount > 0 && (
+              <span
+                className="ml-2 pill-rose"
+                style={{ fontSize: 12 }}
+              >
+                {overdueCount} gecikmiş
+              </span>
+            )}
           </p>
         </div>
         <Button onClick={() => { resetForm(); setAddModal(true) }}>
@@ -231,20 +278,22 @@ export default function Library() {
         </Button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2" style={{ borderBottom: '1px solid rgba(124,110,224,0.15)' }}>
+      {/* Underline tabs */}
+      <div className="uline-tabs">
         {[['catalog', 'Kataloq'], ['checkouts', 'Verilmiş kitablar']].map(([val, label]) => (
           <button
             key={val}
             onClick={() => setTab(val)}
-            className="pb-3 px-4 text-sm font-semibold transition-all"
-            style={tab === val
-              ? { color: '#7c6ee0', borderBottom: '2px solid #7c6ee0' }
-              : { color: '#64748b', borderBottom: '2px solid transparent' }}
+            className={`uline-tab${tab === val ? ' active' : ''}`}
           >
             {label}
             {val === 'checkouts' && overdueCount > 0 && (
-              <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">{overdueCount}</span>
+              <span
+                className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-xs font-bold"
+                style={{ background: 'var(--danger)', fontSize: 10 }}
+              >
+                {overdueCount}
+              </span>
             )}
           </button>
         ))}
@@ -252,20 +301,41 @@ export default function Library() {
 
       {tab === 'catalog' && (
         <>
+          {/* Search bar */}
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#7c6ee0' }} />
+            <Search
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+              style={{ color: 'var(--ink-400)' }}
+            />
             <input
               type="text"
               placeholder="Başlıq, müəllif və ya ISBN axtar..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all"
-              style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,110,224,0.25)', color: '#1a1a2e' }}
+              className="pastel-input w-full pl-10"
             />
           </div>
+
           <Card hover={false} className="p-0 overflow-hidden">
             {filteredBooks.length === 0 ? (
-              <EmptyState icon={BookOpen} title="Kitab tapılmadı" description="Kitabxana kataloqunda kitab yoxdur." actionLabel="Kitab əlavə et" onAction={() => { resetForm(); setAddModal(true) }} />
+              search ? (
+                <EmptyState
+                  icon={Search}
+                  title="Nəticə tapılmadı"
+                  description={`"${search}" üçün heç bir kitab tapılmadı.`}
+                  actionLabel="Axtarışı sıfırla"
+                  onAction={() => setSearch('')}
+                />
+              ) : (
+                <EmptyState
+                  tier={1}
+                  icon={BookOpen}
+                  title="Kataloq hələ boşdur"
+                  description="İlk kitabı əlavə edərək kitabxananı qurmağa başlayın."
+                  actionLabel="Kitab əlavə et"
+                  onAction={() => { resetForm(); setAddModal(true) }}
+                />
+              )
             ) : (
               <Table columns={bookColumns} data={filteredBooks} />
             )}
@@ -276,7 +346,12 @@ export default function Library() {
       {tab === 'checkouts' && (
         <Card hover={false} className="p-0 overflow-hidden">
           {checkouts.length === 0 ? (
-            <EmptyState icon={BookOpen} title="Aktiv verilmiş kitab yoxdur" description="Bütün kitablar qaytarılıb." />
+            <EmptyState
+              tier={1}
+              icon={BookOpen}
+              title="Bütün kitablar qaytarılıb"
+              description="Hazırda heç bir aktiv verilmiş kitab yoxdur."
+            />
           ) : (
             <Table columns={checkoutColumns} data={checkouts} />
           )}
@@ -292,7 +367,11 @@ export default function Library() {
             <Input label="ISBN" value={form.isbn} onChange={e => setForm({ ...form, isbn: e.target.value })} placeholder="978-..." />
             <Input label="Nüsxə sayı" type="number" min="1" value={form.copies_total} onChange={e => setForm({ ...form, copies_total: e.target.value })} placeholder="1" />
           </div>
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
+          {error && (
+            <p className="text-[13px] rounded-input px-3 py-2" style={{ color: 'var(--danger)', background: '#FEE2E2' }}>
+              {error}
+            </p>
+          )}
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="ghost" onClick={() => { setAddModal(false); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={handleAdd} loading={saving} disabled={!form.title}>{t('add')}</Button>
@@ -305,7 +384,11 @@ export default function Library() {
         <div className="space-y-4">
           <Input label="Şagirdin adı" value={checkoutForm.student_name} onChange={e => setCheckoutForm({ ...checkoutForm, student_name: e.target.value })} placeholder="Ad Soyad" />
           <Input label="Qaytarılma tarixi" type="date" value={checkoutForm.due_date} onChange={e => setCheckoutForm({ ...checkoutForm, due_date: e.target.value })} />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>}
+          {error && (
+            <p className="text-[13px] rounded-input px-3 py-2" style={{ color: 'var(--danger)', background: '#FEE2E2' }}>
+              {error}
+            </p>
+          )}
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="ghost" onClick={() => { setCheckoutModal(null); setError(null) }}>{t('cancel')}</Button>
             <Button onClick={() => handleCheckout(checkoutModal)} loading={saving} disabled={!checkoutForm.student_name || !checkoutForm.due_date}>Ver</Button>

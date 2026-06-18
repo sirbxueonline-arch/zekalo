@@ -3,7 +3,6 @@ import { FileText, Download, Send, Eye } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
-import Card from '../../components/ui/Card'
 import Input from '../../components/ui/Input'
 import { Select } from '../../components/ui/Input'
 import Table from '../../components/ui/Table'
@@ -56,7 +55,6 @@ export default function Reports() {
       let rows = []
 
       if (reportType === 'student') {
-        // ── Grades-based report ──────────────────────────────────────────
         let gradeQuery = supabase
           .from('grades')
           .select('student_id, student:profiles(full_name), subject:subjects(name), score, max_score, criterion, created_at')
@@ -70,7 +68,6 @@ export default function Reports() {
           if (ids.length === 0) { setPreviewData([]); return }
           gradeQuery = gradeQuery.in('student_id', ids)
         } else {
-          // Limit to school's students
           const { data: schoolStudents } = await supabase
             .from('profiles').select('id').eq('school_id', profile.school_id).eq('role', 'student')
           const ids = (schoolStudents || []).map(s => s.id)
@@ -93,14 +90,11 @@ export default function Reports() {
         }))
 
       } else {
-        // ── Student-based report (class / attendance / ministry) ─────────
-        // Step 1: resolve school class IDs
         const { data: schoolClasses } = await supabase
           .from('classes').select('id').eq('school_id', profile.school_id)
         const schoolClassIds = (schoolClasses || []).map(c => c.id)
         if (schoolClassIds.length === 0) { setPreviewData([]); return }
 
-        // Step 2: get class memberships
         let memberQuery = supabase
           .from('class_members')
           .select('student_id, class_id, class:classes(id, name)')
@@ -110,7 +104,6 @@ export default function Reports() {
         const { data: members, error: memErr } = await memberQuery
         if (memErr) throw memErr
 
-        // Build class name map and unique student ID list
         const classMap = {}
         const studentIdSet = new Set()
         ;(members || []).forEach(m => {
@@ -122,14 +115,12 @@ export default function Reports() {
         const studentIds = [...studentIdSet]
         if (studentIds.length === 0) { setPreviewData([]); return }
 
-        // Step 3: fetch student profiles
         const { data: students, error: stuErr } = await supabase
           .from('profiles').select('id, full_name, email')
           .in('id', studentIds).order('full_name')
         if (stuErr) throw stuErr
 
         if (reportType === 'attendance') {
-          // Step 4a: attendance stats
           let attQuery = supabase
             .from('attendance').select('student_id, status')
             .in('student_id', studentIds)
@@ -154,7 +145,6 @@ export default function Reports() {
             ümumi_gün: attMap[s.id]?.total ?? 0,
           }))
         } else {
-          // Step 4b: grade averages (class / ministry)
           const { data: grades } = await supabase
             .from('grades').select('student_id, score, max_score')
             .in('student_id', studentIds)
@@ -241,14 +231,27 @@ export default function Reports() {
   }
 
   const submissionColumns = [
-    { key: 'report_type', label: t('reports'), render: (val) => reportTypes.find(r => r.value === val)?.label || val },
-    { key: 'status', label: 'Status', render: (val) => <Badge variant={statusVariants[val] || 'default'}>{statusLabels[val] || val}</Badge> },
+    {
+      key: 'report_type',
+      label: t('reports'),
+      render: (val) => reportTypes.find(r => r.value === val)?.label || val,
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (val) => <Badge variant={statusVariants[val] || 'default'}>{statusLabels[val] || val}</Badge>,
+    },
     { key: 'submitted_at', label: t('date'), render: (val) => formatDate(val) },
     { key: 'egov_reference', label: 'E-Gov istinad', render: (val) => val || '—' },
-    { key: 'error_log', label: t('error'), render: (val) => val ? <span className="text-red-600 text-xs">{val}</span> : '—' },
+    {
+      key: 'error_log',
+      label: t('error'),
+      render: (val) => val
+        ? <span className="text-danger text-[12px] font-medium">{val}</span>
+        : '—',
+    },
   ]
 
-  // Build preview table columns dynamically from first row keys
   const previewColumns = previewData && previewData.length > 0
     ? Object.keys(previewData[0]).map(key => ({
         key,
@@ -261,62 +264,127 @@ export default function Reports() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('reports')}</span></h1>
-
-      {error && <p className="text-sm text-red-600">{error}</p>}
-
-      <Card hover={false}>
-        <p className="text-xs tracking-widest text-gray-400 uppercase mb-3">{t('reports')}</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Select label={t('reports')} value={reportType} onChange={(e) => setReportType(e.target.value)}>
-            {reportTypes.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
-          </Select>
-          <Select label={t('class_name')} value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)}>
-            <option value="">{t('all')}</option>
-            {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </Select>
-          <Input label={`${t('date')} (başlanğıc)`} type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
-          <Input label={`${t('date')} (son)`} type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+      {/* ── Page header ── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display font-bold text-[22px] text-ink-900 leading-snug">
+            {t('reports')}
+          </h1>
+          <p className="text-[13px] text-ink-400 mt-0.5">
+            {submissions.length} {t('reports').toLowerCase()}
+          </p>
         </div>
-        <div className="flex gap-3 mt-6">
+      </div>
+
+      {error && (
+        <div className="rounded-tile border border-danger/30 bg-danger/5 px-4 py-3 text-[13px] text-danger font-medium">
+          {error}
+        </div>
+      )}
+
+      {/* ── Filter controls ── */}
+      <div className="liquid-card p-5">
+        <p className="text-[11px] font-semibold tracking-[0.07em] uppercase text-ink-400 mb-4">
+          {t('reports')}
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Select
+            label={t('reports')}
+            value={reportType}
+            onChange={(e) => setReportType(e.target.value)}
+          >
+            {reportTypes.map(r => (
+              <option key={r.value} value={r.value}>{r.label}</option>
+            ))}
+          </Select>
+          <Select
+            label={t('class_name')}
+            value={selectedClass}
+            onChange={(e) => setSelectedClass(e.target.value)}
+          >
+            <option value="">{t('all')}</option>
+            {classes.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </Select>
+          <Input
+            label={`${t('date')} (başlanğıc)`}
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+          />
+          <Input
+            label={`${t('date')} (son)`}
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+          />
+        </div>
+        <div className="flex gap-3 mt-5">
           <Button onClick={generatePreview} loading={previewing}>
-            <span className="flex items-center gap-2"><Eye className="w-4 h-4" /> {t('reports')}</span>
+            <span className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              {t('reports')}
+            </span>
           </Button>
         </div>
-      </Card>
+      </div>
 
+      {/* ── Preview panel ── */}
       {previewData && (
-        <Card hover={false}>
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-xs tracking-widest text-gray-400 uppercase">
-              {t('reports')} ({previewData.length} {t('students')})
+        <div className="liquid-card overflow-hidden p-0">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
+            <p className="text-[11px] font-semibold tracking-[0.07em] uppercase text-ink-400">
+              {t('reports')}
+              <span className="ml-2 font-normal normal-case text-ink-600">
+                ({previewData.length} {t('students')})
+              </span>
             </p>
-            <div className="flex gap-3">
-              <Button variant="ghost" onClick={handleDownloadPdf}>
-                <span className="flex items-center gap-2"><Download className="w-4 h-4" /> {t('download_pdf')}</span>
+            <div className="flex gap-2">
+              <Button variant="secondary" size="sm" onClick={handleDownloadPdf}>
+                <span className="flex items-center gap-2">
+                  <Download className="w-4 h-4" />
+                  {t('download_pdf')}
+                </span>
               </Button>
               {isGov && (
-                <Button variant="teal" onClick={handleEgovSubmit} loading={submitting}>
-                  <span className="flex items-center gap-2"><Send className="w-4 h-4" /> {t('submit_egov')}</span>
+                <Button variant="primary" size="sm" onClick={handleEgovSubmit} loading={submitting}>
+                  <span className="flex items-center gap-2">
+                    <Send className="w-4 h-4" />
+                    {t('submit_egov')}
+                  </span>
                 </Button>
               )}
             </div>
           </div>
           {previewData.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">{t('no_data')}</p>
+            <EmptyState
+              tier={1}
+              title={t('no_data')}
+              description="Seçilmiş filtr üçün məlumat tapılmadı."
+              className="border-none shadow-none"
+            />
           ) : (
             <div id="report-preview" className="overflow-x-auto">
               <Table columns={previewColumns} data={previewData} />
             </div>
           )}
-        </Card>
+        </div>
       )}
 
+      {/* ── Submission history ── */}
       {submissions.length > 0 && (
-        <Card hover={false}>
-          <p className="text-xs tracking-widest text-gray-400 uppercase mb-3">{t('reports')}</p>
+        <div className="liquid-card overflow-hidden p-0">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-hairline">
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36 }}>
+              <FileText className="w-4 h-4" />
+            </div>
+            <p className="text-[11px] font-semibold tracking-[0.07em] uppercase text-ink-400">
+              {t('reports')}
+            </p>
+          </div>
           <Table columns={submissionColumns} data={submissions} />
-        </Card>
+        </div>
       )}
     </div>
   )

@@ -5,6 +5,10 @@ import { GradeBadge } from '../../components/ui/Badge'
 import { BookOpen, Plus, Download, Search, ChevronDown, TrendingUp, Award, BarChart3, X } from 'lucide-react'
 import { fmtDate } from '../../lib/dateUtils'
 import { notifyUsers } from '../../lib/notify'
+import Button from '../../components/ui/Button'
+import EmptyState from '../../components/ui/EmptyState'
+import StatCard from '../../components/ui/StatCard'
+import Modal from '../../components/ui/Modal'
 
 const assessmentTypes = [
   { value: 'test',      label: 'Test' },
@@ -14,13 +18,9 @@ const assessmentTypes = [
   { value: 'classwork', label: 'Sinif işi' },
 ]
 
-const TYPE_HUE = {
-  test:      { bg: 'rgba(124,110,224,0.14)', text: '#5b4fb8', accent: '#7c6ee0' },
-  homework:  { bg: 'rgba(93,184,163,0.14)',  text: '#3d8a73', accent: '#5db8a3' },
-  project:   { bg: 'rgba(232,168,124,0.18)', text: '#b46a3e', accent: '#e8a87c' },
-  exam:      { bg: 'rgba(229,107,127,0.14)', text: '#b83b54', accent: '#e56b7f' },
-  classwork: { bg: 'rgba(107,157,222,0.14)', text: '#4a7cb5', accent: '#6b9dde' },
-}
+// V3 color restraint: assessment-type is categorical, not status — render all
+// type tags in a single neutral-grey chip. Color is reserved for grade status only.
+const TYPE_CHIP = { bg: 'var(--surface-2)', text: 'var(--ink-600)' }
 
 const typeLabelMap = {
   test:      'Test',
@@ -30,14 +30,13 @@ const typeLabelMap = {
   classwork: 'Sinif işi',
 }
 
-// Pastel color-coded cell colors based on score / max
-function cellPastelStyle(score, maxScore) {
+// Grade cells stay calm: a filled cell is plain ink on the row, no per-band
+// background fill. Only a failing grade (meaning-bearing) earns a status tint.
+function cellStatusStyle(score, maxScore) {
   if (score == null || score === '') return null
   const normalized = maxScore > 0 ? (score / maxScore) * 10 : Number(score)
-  if (normalized >= 8)  return { bg: 'rgba(93,184,163,0.18)',  color: '#3d8a73' }   // mint — high
-  if (normalized >= 6)  return { bg: 'rgba(124,110,224,0.16)', color: '#5b4fb8' }   // periwinkle — good
-  if (normalized >= 4)  return { bg: 'rgba(232,168,124,0.20)', color: '#b46a3e' }   // peach — mid
-  return                       { bg: 'rgba(229,107,127,0.16)', color: '#b83b54' }   // rose — low
+  if (normalized < 4) return { color: '#B91C1C', fontWeight: 700 }
+  return { color: 'var(--ink-900)', fontWeight: 600 }
 }
 
 export default function TeacherGradebook() {
@@ -235,23 +234,23 @@ export default function TeacherGradebook() {
   if (loading) {
     return (
       <div className="space-y-5">
-        <div className="pastel-skeleton h-12 w-72" />
+        <div className="pastel-skeleton h-10 w-64 rounded-tile" />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-24" />)}
+          {[0,1,2,3].map(i => <div key={i} className="pastel-skeleton h-24 rounded-card" />)}
         </div>
-        <div className="pastel-skeleton h-96" />
+        <div className="pastel-skeleton h-96 rounded-tile" />
       </div>
     )
   }
 
   if (!teacherClasses.length) {
     return (
-      <div className="liquid-card p-12 text-center">
-        <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
-          <BookOpen className="w-8 h-8" />
-        </div>
-        <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>{t('no_data')}</p>
-      </div>
+      <EmptyState
+        tier={1}
+        icon={BookOpen}
+        title={t('no_data')}
+        description="Sizə hələ sinif təyin edilməyib."
+      />
     )
   }
 
@@ -278,38 +277,50 @@ export default function TeacherGradebook() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
-          <span className="pastel-text">{t('gradebook')}</span>
-        </h1>
+      {/* ── Page header ── */}
+      <div className="flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="font-display text-2xl md:text-3xl font-extrabold text-ink-900 tracking-tight leading-tight">
+            {t('gradebook')}
+          </h1>
+          <p className="text-sm mt-1 text-ink-400">
+            Qiymət cədvəlini idarə edin və statistikanı izləyin
+          </p>
+        </div>
         <div className="flex gap-2 flex-wrap">
-          <button onClick={exportCSV} className="btn-ghost-pastel" style={{ padding: '10px 18px', fontSize: 13 }}>
+          <Button variant="secondary" size="sm" onClick={exportCSV}>
             <Download className="w-4 h-4" /> {t('export_csv')}
-          </button>
-          <button onClick={() => setShowModal(true)} className="btn-pastel" style={{ padding: '10px 22px', fontSize: 13 }}>
+          </Button>
+          <Button variant="primary" size="sm" onClick={() => setShowModal(true)}>
             <Plus className="w-4 h-4" /> {t('new_assignment')}
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Selectors */}
+      {/* ── Selectors ── */}
       <div className="liquid-card p-4">
         <div className="flex gap-3 items-end flex-wrap">
           <div className="min-w-[160px]">
-            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('class_name')}</label>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">
+              {t('class_name')}
+            </label>
             <select className="pastel-input" value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
               {uniqueClasses.map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
             </select>
           </div>
           <div className="min-w-[160px]">
-            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('subject')}</label>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">
+              {t('subject')}
+            </label>
             <select className="pastel-input" value={selectedSubject} onChange={e => setSelectedSubject(e.target.value)}>
               {subjectsForClass.map(s => (<option key={s.id} value={s.id}>{s.name}</option>))}
             </select>
           </div>
           <div className="relative flex-1 min-w-[180px]">
-            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('search')}</label>
-            <Search className="absolute left-3.5 bottom-3 w-4 h-4" style={{ color: '#94a3b8' }} />
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">
+              {t('search')}
+            </label>
+            <Search className="absolute left-3.5 bottom-3 w-4 h-4 text-ink-400 pointer-events-none" />
             <input
               placeholder={t('search')}
               value={searchQuery}
@@ -321,72 +332,82 @@ export default function TeacherGradebook() {
         </div>
       </div>
 
-      {/* Summary */}
+      {/* ── KPI strip ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { label: 'Sinif orta', value: classAvg ?? '—', icon: TrendingUp, chip: 'icon-chip-periwinkle' },
-          { label: 'Ən yüksək',   value: highestScore ?? '—', icon: Award, chip: 'icon-chip-mint' },
-          { label: 'Ən aşağı',    value: lowestScore ?? '—', icon: ChevronDown, chip: 'icon-chip-peach' },
-          { label: 'Qiymətlər',   value: submissionCount, icon: BarChart3, chip: 'icon-chip-blue' },
-        ].map((s, i) => (
-          <div key={i} className="liquid-card p-4 flex items-start gap-3">
-            <span className={`icon-chip ${s.chip}`}>
-              <s.icon className="w-5 h-5" />
-            </span>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>{s.label}</p>
-              <p className="text-2xl font-bold mt-0.5 leading-none" style={{ color: '#1a1a2e' }}>{s.value}</p>
-              <p className="text-[10px] mt-0.5" style={{ color: '#94a3b8' }}>/ 10</p>
-            </div>
-          </div>
-        ))}
+        <StatCard label="Sinif orta"    value={classAvg ?? '—'}     icon={TrendingUp}  tone="periwinkle" />
+        <StatCard label="Ən yüksək"     value={highestScore ?? '—'} icon={Award}        tone="periwinkle" />
+        <StatCard label="Ən aşağı"      value={lowestScore ?? '—'}  icon={ChevronDown}  tone="periwinkle" />
+        <StatCard label={t('grades') || 'Qiymətlər'} value={submissionCount} icon={BarChart3} tone="periwinkle" />
       </div>
 
-      {/* Gradebook table */}
-      <div className="liquid-card overflow-hidden">
+      {/* ── Gradebook table ── */}
+      <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse min-w-[700px]">
             <thead>
-              <tr style={{ background: 'rgba(248,247,251,0.8)', borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
-                <th className="sticky left-0 z-20 px-5 py-3 text-left whitespace-nowrap min-w-[180px]"
-                  style={{ background: 'rgba(248,247,251,0.95)', color: '#64748b', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}
+              <tr
+                className="border-b border-hairline-strong"
+                style={{ background: 'var(--surface-2)' }}
+              >
+                {/* Sticky name column */}
+                <th
+                  className="sticky left-0 z-20 px-4 py-2.5 text-left whitespace-nowrap min-w-[180px]"
+                  style={{
+                    background: 'var(--surface-2)',
+                    color: 'var(--ink-400)',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                  }}
                 >
                   {t('full_name')}
                 </th>
 
                 {isIB ? (
                   ibCriteria.map(c => (
-                    <th key={c} className="px-3 py-3 text-center min-w-[90px]"
-                      style={{ borderTop: '3px solid #7c6ee0', color: '#475569' }}
-                    >
-                      <div className="font-bold text-sm" style={{ color: '#1a1a2e' }}>Kriteriya {c}</div>
-                      <div className="text-[10px] mt-0.5" style={{ color: '#94a3b8' }}>maks: 8</div>
+                    <th key={c} className="px-3 py-2.5 text-center min-w-[90px]">
+                      <div className="text-[13px] font-semibold text-ink-700">Kriteriya {c}</div>
+                      <div className="text-[11px] mt-0.5 text-ink-400 font-normal">maks: 8</div>
                     </th>
                   ))
                 ) : (
                   assessments.map(a => {
-                    const hue = TYPE_HUE[a.type] || TYPE_HUE.test
                     const label = typeLabelMap[a.type] || a.type
                     const dateStr = a.date ? fmtDate(new Date(a.date), { day: '2-digit', month: 'short' }) : ''
                     return (
-                      <th key={a.id} className="px-3 py-3 text-center min-w-[110px]"
-                        style={{ borderTop: `3px solid ${hue.accent}`, color: '#475569' }}
-                      >
-                        <div className="font-bold text-sm truncate max-w-[120px] mx-auto" title={a.title} style={{ color: '#1a1a2e' }}>
+                      <th key={a.id} className="px-3 py-2.5 text-center min-w-[110px]">
+                        <div
+                          className="text-[13px] font-semibold truncate max-w-[120px] mx-auto text-ink-700"
+                          title={a.title}
+                        >
                           {a.title}
                         </div>
-                        <div className="mt-1 flex flex-col items-center gap-1">
-                          <span className="pastel-badge" style={{ background: hue.bg, color: hue.text, fontSize: 9 }}>{label}</span>
-                          {dateStr && <span className="text-[10px]" style={{ color: '#94a3b8' }}>{dateStr}</span>}
-                          <span className="text-[10px]" style={{ color: '#94a3b8' }}>maks: {a.max_score}</span>
+                        <div className="mt-1 flex flex-col items-center gap-0.5">
+                          <span
+                            className="rounded-chip px-1.5 py-px text-[11px] font-medium"
+                            style={{ background: TYPE_CHIP.bg, color: TYPE_CHIP.text }}
+                          >
+                            {label}
+                          </span>
+                          {dateStr && <span className="text-[11px] text-ink-400 font-normal">{dateStr}</span>}
+                          <span className="text-[11px] text-ink-400 font-normal">maks: {a.max_score}</span>
                         </div>
                       </th>
                     )
                   })
                 )}
 
-                <th className="px-3 py-3 text-center min-w-[110px]"
-                  style={{ borderTop: '3px solid #cbd5e1', color: '#64748b', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}
+                {/* Average column header */}
+                <th
+                  className="px-3 py-2.5 text-center min-w-[110px]"
+                  style={{
+                    color: 'var(--ink-400)',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                  }}
                 >
                   {t('avg_grade')}
                 </th>
@@ -394,17 +415,19 @@ export default function TeacherGradebook() {
             </thead>
 
             <tbody>
-              {filteredStudents.map((s, idx) => {
+              {filteredStudents.map((s) => {
                 const avg = getStudentAvg(s.id)
-                const isLow = avg != null && avg < 5
-                const rowBg = isLow ? 'rgba(229,107,127,0.05)' : (idx % 2 === 0 ? 'transparent' : 'rgba(124,110,224,0.02)')
 
                 return (
-                  <tr key={s.id} className="smooth-trans"
-                    style={{ borderBottom: '1px solid rgba(124,110,224,0.06)' }}
+                  <tr
+                    key={s.id}
+                    className="smooth-trans hover:bg-[rgba(20,22,40,0.025)]"
+                    style={{ borderBottom: '1px solid var(--hairline)' }}
                   >
-                    <td className="sticky left-0 z-10 px-5 py-3 text-sm font-semibold whitespace-nowrap"
-                      style={{ background: rowBg, color: '#1a1a2e' }}
+                    {/* Sticky name */}
+                    <td
+                      className="sticky left-0 z-10 px-4 py-2.5 text-[13px] font-semibold whitespace-nowrap text-ink-900"
+                      style={{ background: 'var(--surface)' }}
                     >
                       {s.full_name}
                     </td>
@@ -414,9 +437,9 @@ export default function TeacherGradebook() {
                         const key = `${s.id}_${c}`
                         const g = grades[key]
                         const cellId = `${s.id}_crit_${c}`
-                        const cellStyle = g ? cellPastelStyle(g.score, 8) : null
+                        const cellStyle = g ? cellStatusStyle(g.score, 8) : null
                         return (
-                          <td key={c} className="px-3 py-2 text-center" style={{ background: rowBg }}>
+                          <td key={c} className="px-3 py-1.5 text-center">
                             {editingCell === cellId ? (
                               <input
                                 ref={editRef}
@@ -424,7 +447,7 @@ export default function TeacherGradebook() {
                                 min={0}
                                 max={8}
                                 defaultValue={g?.score ?? ''}
-                                className="pastel-input"
+                                className="pastel-input tabular-nums"
                                 style={{ width: 64, padding: '4px 6px', fontSize: 13, textAlign: 'center', fontWeight: 600 }}
                                 autoFocus
                                 onBlur={e => saveGrade(s.id, null, c, e.target.value)}
@@ -433,15 +456,14 @@ export default function TeacherGradebook() {
                             ) : (
                               <button
                                 onClick={() => setEditingCell(cellId)}
-                                className="rounded-lg smooth-trans"
+                                className="rounded-ctl smooth-trans tabular-nums hover:bg-[rgba(20,22,40,0.04)]"
                                 style={{
-                                  width: 60,
-                                  padding: '6px 0',
+                                  width: 56,
+                                  padding: '5px 0',
                                   fontSize: 13,
-                                  fontWeight: 700,
-                                  background: cellStyle?.bg || 'transparent',
-                                  color: cellStyle?.color || '#cbd5e1',
-                                  border: cellStyle ? 'none' : '1px dashed rgba(124,110,224,0.2)',
+                                  fontWeight: cellStyle?.fontWeight || 600,
+                                  color: cellStyle?.color || 'var(--ink-400)',
+                                  border: g ? 'none' : '1px dashed var(--hairline-strong)',
                                 }}
                               >
                                 {g ? g.score : '+'}
@@ -455,9 +477,9 @@ export default function TeacherGradebook() {
                         const key = `${s.id}_${a.id}`
                         const g = grades[key]
                         const cellId = `${s.id}_${a.id}`
-                        const cellStyle = g ? cellPastelStyle(g.score, a.max_score) : null
+                        const cellStyle = g ? cellStatusStyle(g.score, a.max_score) : null
                         return (
-                          <td key={a.id} className="px-3 py-2 text-center" style={{ background: rowBg }}>
+                          <td key={a.id} className="px-3 py-1.5 text-center">
                             {editingCell === cellId ? (
                               <input
                                 ref={editRef}
@@ -465,7 +487,7 @@ export default function TeacherGradebook() {
                                 min={0}
                                 max={a.max_score}
                                 defaultValue={g?.score ?? ''}
-                                className="pastel-input"
+                                className="pastel-input tabular-nums"
                                 style={{ width: 64, padding: '4px 6px', fontSize: 13, textAlign: 'center', fontWeight: 600 }}
                                 autoFocus
                                 onBlur={e => saveGrade(s.id, a.id, null, e.target.value)}
@@ -474,15 +496,14 @@ export default function TeacherGradebook() {
                             ) : (
                               <button
                                 onClick={() => setEditingCell(cellId)}
-                                className="rounded-lg smooth-trans"
+                                className="rounded-ctl smooth-trans tabular-nums hover:bg-[rgba(20,22,40,0.04)]"
                                 style={{
-                                  width: 60,
-                                  padding: '6px 0',
+                                  width: 56,
+                                  padding: '5px 0',
                                   fontSize: 13,
-                                  fontWeight: 700,
-                                  background: cellStyle?.bg || 'transparent',
-                                  color: cellStyle?.color || '#cbd5e1',
-                                  border: cellStyle ? 'none' : '1px dashed rgba(124,110,224,0.2)',
+                                  fontWeight: cellStyle?.fontWeight || 600,
+                                  color: cellStyle?.color || 'var(--ink-400)',
+                                  border: g ? 'none' : '1px dashed var(--hairline-strong)',
                                 }}
                               >
                                 {g ? g.score : '+'}
@@ -493,44 +514,43 @@ export default function TeacherGradebook() {
                       })
                     )}
 
-                    <td className="px-3 py-2 text-center" style={{ background: rowBg }}>
+                    {/* Average cell */}
+                    <td className="px-3 py-1.5 text-center">
                       {avg != null ? (
-                        <div className="flex flex-col items-center gap-1">
-                          <GradeBadge score={avg} />
-                          <div className="w-14 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(124,110,224,0.10)' }}>
-                            <div
-                              className="h-full rounded-full smooth-trans"
-                              style={{
-                                width: `${Math.min((avg / 10) * 100, 100)}%`,
-                                background: avg >= 8 ? '#5db8a3' : avg >= 6 ? '#7c6ee0' : avg >= 4 ? '#e8a87c' : '#e56b7f',
-                              }}
-                            />
-                          </div>
-                        </div>
+                        <GradeBadge score={avg} />
                       ) : (
-                        <span style={{ color: '#cbd5e1' }} className="text-sm">—</span>
+                        <span className="text-[13px] text-ink-400">—</span>
                       )}
                     </td>
                   </tr>
                 )
               })}
 
+              {/* No-results row */}
               {filteredStudents.length === 0 && (
                 <tr>
-                  <td colSpan={isIB ? 6 : assessments.length + 2} className="text-center py-10 text-sm" style={{ color: '#94a3b8' }}>
-                    {t('no_data')}
+                  <td
+                    colSpan={isIB ? 6 : assessments.length + 2}
+                    className="py-14"
+                  >
+                    <div className="flex flex-col items-center gap-2 text-center">
+                      <Search className="w-8 h-8 text-ink-400 opacity-40" strokeWidth={1.5} />
+                      <p className="text-[13px] text-ink-400">{t('no_data')}</p>
+                    </div>
                   </td>
                 </tr>
               )}
 
+              {/* Class average footer row */}
               {filteredStudents.length > 0 && classAvg != null && (
-                <tr style={{ borderTop: '2px solid rgba(124,110,224,0.20)', background: 'linear-gradient(90deg, rgba(124,110,224,0.10), rgba(93,184,163,0.06))' }}>
-                  <td className="sticky left-0 z-10 px-5 py-3" style={{ background: 'rgba(245,243,255,0.85)' }}>
+                <tr style={{ borderTop: '1px solid var(--hairline-strong)', background: 'var(--brand-50)' }}>
+                  <td
+                    className="sticky left-0 z-10 px-4 py-2.5"
+                    style={{ background: 'var(--brand-50)' }}
+                  >
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7c6ee0, #5db8a3)' }}>
-                        <TrendingUp className="w-3 h-3" style={{ color: '#fff' }} />
-                      </span>
-                      <span className="text-sm font-bold" style={{ color: '#5b4fb8' }}>Sinif ortası</span>
+                      <TrendingUp className="w-3.5 h-3.5 text-brand-500" />
+                      <span className="text-[13px] font-semibold text-brand-700">Sinif ortası</span>
                     </div>
                   </td>
                   {isIB ? (
@@ -538,11 +558,10 @@ export default function TeacherGradebook() {
                       const grds = filteredStudents.map(s => grades[`${s.id}_${c}`]).filter(Boolean).map(g => g.score)
                       const avg = grds.length ? Math.round((grds.reduce((a, b) => a + b, 0) / grds.length) * 10) / 10 : null
                       return (
-                        <td key={c} className="px-3 py-3 text-center">
+                        <td key={c} className="px-3 py-2.5 text-center">
                           {avg != null ? (
-                            <span className="inline-flex items-center justify-center w-14 py-1.5 rounded-lg text-sm font-bold text-white"
-                              style={{ background: 'linear-gradient(135deg, #7c6ee0, #5db8a3)' }}>{avg}</span>
-                          ) : <span style={{ color: '#cbd5e1' }} className="text-sm">—</span>}
+                            <span className="text-[13px] font-semibold text-brand-700 tabular-nums">{avg}</span>
+                          ) : <span className="text-[13px] text-ink-400">—</span>}
                         </td>
                       )
                     })
@@ -551,20 +570,16 @@ export default function TeacherGradebook() {
                       const grds = filteredStudents.map(s => grades[`${s.id}_${a.id}`]).filter(Boolean).map(g => g.score)
                       const avg = grds.length ? Math.round((grds.reduce((x, y) => x + y, 0) / grds.length) * 10) / 10 : null
                       return (
-                        <td key={a.id} className="px-3 py-3 text-center">
+                        <td key={a.id} className="px-3 py-2.5 text-center">
                           {avg != null ? (
-                            <span className="inline-flex items-center justify-center w-14 py-1.5 rounded-lg text-sm font-bold text-white"
-                              style={{ background: 'linear-gradient(135deg, #7c6ee0, #5db8a3)' }}>{avg}</span>
-                          ) : <span style={{ color: '#cbd5e1' }} className="text-sm">—</span>}
+                            <span className="text-[13px] font-semibold text-brand-700 tabular-nums">{avg}</span>
+                          ) : <span className="text-[13px] text-ink-400">—</span>}
                         </td>
                       )
                     })
                   )}
-                  <td className="px-3 py-3 text-center">
-                    <span className="inline-flex items-center justify-center w-14 py-1.5 rounded-lg text-sm font-bold text-white"
-                      style={{ background: 'linear-gradient(135deg, #7c6ee0, #5db8a3)', boxShadow: '0 4px 12px rgba(124,110,224,0.25)' }}>
-                      {classAvg}
-                    </span>
+                  <td className="px-3 py-2.5 text-center">
+                    <span className="text-[13px] font-bold text-brand-700 tabular-nums">{classAvg}</span>
                   </td>
                 </tr>
               )}
@@ -572,61 +587,95 @@ export default function TeacherGradebook() {
           </table>
         </div>
 
-        {/* Distribution */}
+        {/* Grade distribution footer */}
         {filteredStudents.length > 0 && allAvgs.length > 0 && (
-          <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(124,110,224,0.10)', background: 'rgba(248,247,251,0.5)' }}>
-            <p className="text-xs font-semibold mb-3 flex items-center gap-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>
+          <div
+            className="px-6 py-4"
+            style={{ borderTop: '1px solid var(--hairline)', background: 'var(--surface-2)' }}
+          >
+            <p
+              className="text-[12px] font-medium mb-3 flex items-center gap-1.5 uppercase tracking-[0.04em] text-ink-400"
+            >
               <BarChart3 className="w-3.5 h-3.5" /> Qiymət paylanması
             </p>
             <div className="flex flex-wrap gap-2">
-              <span className="pastel-badge pastel-badge-mint" style={{ padding: '6px 12px' }}>A (≥9) — {distA} şagird</span>
-              <span className="pastel-badge pastel-badge-blue" style={{ padding: '6px 12px' }}>B (7–8.9) — {distB} şagird</span>
-              <span className="pastel-badge pastel-badge-peach" style={{ padding: '6px 12px' }}>C (5–6.9) — {distC} şagird</span>
-              <span className="pastel-badge pastel-badge-rose" style={{ padding: '6px 12px' }}>D (&lt;5) — {distD} şagird</span>
+              {[
+                { label: `A (≥9) — ${distA} şagird`,    dot: 'var(--mint)' },
+                { label: `B (7–8.9) — ${distB} şagird`, dot: 'var(--sky)' },
+                { label: `C (5–6.9) — ${distC} şagird`, dot: '#F59E0B' },
+                { label: `D (<5) — ${distD} şagird`,    dot: '#EF4444' },
+              ].map(b => (
+                <span
+                  key={b.label}
+                  className="inline-flex items-center gap-1.5 rounded-chip px-2.5 py-1 text-[12px] font-medium text-ink-700"
+                  style={{ background: 'var(--surface)', border: '1px solid var(--hairline)' }}
+                >
+                  <span className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: b.dot }} />
+                  {b.label}
+                </span>
+              ))}
             </div>
           </div>
         )}
       </div>
 
-      {/* Add assessment modal */}
-      {showModal && (
-        <div className="liquid-backdrop" onClick={() => setShowModal(false)}>
-          <div className="liquid-card p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{t('new_assignment')}</h3>
-              <button onClick={() => setShowModal(false)} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Başlıq</label>
-                <input className="pastel-input" value={newAssessment.title} onChange={e => setNewAssessment(p => ({ ...p, title: e.target.value }))} placeholder="Məs: Yarımillik test" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Növ</label>
-                <select className="pastel-input" value={newAssessment.type} onChange={e => setNewAssessment(p => ({ ...p, type: e.target.value }))}>
-                  {assessmentTypes.map(at => <option key={at.value} value={at.value}>{at.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('date')}</label>
-                <input type="date" className="pastel-input" value={newAssessment.date} onChange={e => setNewAssessment(p => ({ ...p, date: e.target.value }))} />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Maksimum bal</label>
-                <input type="number" className="pastel-input" value={newAssessment.max_score} onChange={e => setNewAssessment(p => ({ ...p, max_score: e.target.value }))} />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button onClick={() => setShowModal(false)} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>{t('cancel')}</button>
-                <button onClick={handleAddAssessment} disabled={saving || !newAssessment.title} className="btn-pastel" style={{ padding: '10px 22px', fontSize: 13, opacity: (saving || !newAssessment.title) ? 0.5 : 1 }}>
-                  {saving ? '...' : t('save')}
-                </button>
-              </div>
-            </div>
+      {/* ── Add Assessment Modal ── */}
+      <Modal open={showModal} onClose={() => setShowModal(false)} title={t('new_assignment')} size="sm">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-700 uppercase tracking-[0.04em]">Başlıq</label>
+            <input
+              className="pastel-input"
+              value={newAssessment.title}
+              onChange={e => setNewAssessment(p => ({ ...p, title: e.target.value }))}
+              placeholder="Məs: Yarımillik test"
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-700 uppercase tracking-[0.04em]">Növ</label>
+            <select
+              className="pastel-input"
+              value={newAssessment.type}
+              onChange={e => setNewAssessment(p => ({ ...p, type: e.target.value }))}
+            >
+              {assessmentTypes.map(at => <option key={at.value} value={at.value}>{at.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-700 uppercase tracking-[0.04em]">{t('date')}</label>
+            <input
+              type="date"
+              className="pastel-input"
+              value={newAssessment.date}
+              onChange={e => setNewAssessment(p => ({ ...p, date: e.target.value }))}
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-700 uppercase tracking-[0.04em]">Maksimum bal</label>
+            <input
+              type="number"
+              className="pastel-input tabular-nums"
+              value={newAssessment.max_score}
+              onChange={e => setNewAssessment(p => ({ ...p, max_score: e.target.value }))}
+            />
+          </div>
+          <div
+            className="flex justify-end gap-2 pt-1"
+            style={{ borderTop: '1px solid var(--hairline)' }}
+          >
+            <Button variant="ghost" size="sm" onClick={() => setShowModal(false)}>{t('cancel')}</Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={saving}
+              disabled={saving || !newAssessment.title}
+              onClick={handleAddAssessment}
+            >
+              {t('save')}
+            </Button>
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

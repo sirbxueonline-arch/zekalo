@@ -8,8 +8,9 @@ import Input from '../../components/ui/Input'
 import { Select } from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
 import Table from '../../components/ui/Table'
-import { PageSpinner } from '../../components/ui/Spinner'
+import { TableRowSkeleton } from '../../components/ui/Skeleton'
 import EmptyState from '../../components/ui/EmptyState'
+import Avatar from '../../components/ui/Avatar'
 
 export default function Classes() {
   const { profile, t } = useAuth()
@@ -152,35 +153,59 @@ export default function Classes() {
     }
   }
 
-  if (loading) return <PageSpinner />
+  if (loading) return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="pastel-skeleton h-8 w-40 rounded-input" />
+        <div className="pastel-skeleton h-9 w-28 rounded-input" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="pastel-skeleton h-36 rounded-tile" />
+        ))}
+      </div>
+    </div>
+  )
 
+  // ── Class detail view ──────────────────────────────────────────────────────
   if (selectedClass) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4 flex-wrap">
-          <button
-            onClick={() => setSelectedClass(null)}
-            className="p-2 text-[#64748b] hover:text-[#7c6ee0] transition-all rounded-full hover:bg-[rgba(124,110,224,0.1)]"
-            aria-label="Geri"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{selectedClass.name}</span></h1>
-            {selectedClass.grade_level && (
-              <p className="text-sm text-[#64748b] mt-0.5">{selectedClass.grade_level}-ci sinif</p>
-            )}
+      <div className="space-y-5">
+        {/* Detail header */}
+        <div className="bg-surface rounded-tile border border-hairline px-6 py-5 shadow-soft">
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={() => setSelectedClass(null)}
+              className="p-2 rounded-input text-ink-400 hover:text-brand-500 hover:bg-brand-50 transition-colors"
+              aria-label="Geri"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 44, height: 44 }}>
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="font-display text-2xl font-bold text-ink-900 leading-tight">{selectedClass.name}</h1>
+              {selectedClass.grade_level && (
+                <p className="text-xs text-ink-400 mt-0.5">{selectedClass.grade_level}-ci sinif</p>
+              )}
+            </div>
+            <span className="pill-mint ml-auto">
+              <Users className="w-3.5 h-3.5 inline mr-1" />
+              {classStudents.length} {t('students')}
+            </span>
           </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-md" style={{ background: 'rgba(93,184,163,0.14)', color: '#3a8170', border: '1px solid rgba(93,184,163,0.36)' }}>
-            <Users className="w-4 h-4" />
-            {classStudents.length} {t('students')}
-          </span>
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && (
+          <div className="rounded-input px-4 py-2.5 text-sm font-medium" style={{ background: '#FEE2E2', color: '#B91C1C', border: '1px solid #FECACA' }}>
+            {error}
+          </div>
+        )}
 
-        <Card hover={false}>
-          <p className="text-xs tracking-widest text-gray-400 uppercase mb-3">{t('add_student')}</p>
+        {/* Add student panel */}
+        <Card hover={false} className="rounded-tile">
+          <p className="text-xs font-semibold text-ink-400 uppercase tracking-wider mb-3">{t('add_student')}</p>
           <div className="flex items-end gap-3">
             <div className="flex-1">
               <Select value="" onChange={(e) => {
@@ -196,23 +221,27 @@ export default function Classes() {
                   ))}
               </Select>
             </div>
-            <Button onClick={addStudentsToClass} loading={saving} disabled={addStudentIds.length === 0}>
-              <span className="flex items-center gap-2"><UserPlus className="w-4 h-4" /> {t('add')}</span>
+            <Button size="sm" onClick={addStudentsToClass} loading={saving} disabled={addStudentIds.length === 0}>
+              <span className="flex items-center gap-1.5"><UserPlus className="w-4 h-4" /> {t('add')}</span>
             </Button>
           </div>
 
           {allStudents.length === 0 && !saving && (
-            <p className="text-xs text-gray-400 mt-2">Bütün şagirdlər artıq bu sinfə əlavə edilib və ya heç bir şagird yoxdur.</p>
+            <p className="text-xs text-ink-400 mt-2">Bütün şagirdlər artıq bu sinfə əlavə edilib və ya heç bir şagird yoxdur.</p>
           )}
 
           {addStudentIds.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
+            <div className="flex flex-wrap gap-1.5 mt-3">
               {addStudentIds.map(id => {
                 const student = allStudents.find(s => s.id === id)
                 return (
-                  <span key={id} className="inline-flex items-center gap-1.5 bg-purple-light text-purple-dark rounded-full text-xs font-medium px-3 py-1">
+                  <span key={id} className="pill-peri flex items-center gap-1.5">
                     {student?.full_name}
-                    <button onClick={() => setAddStudentIds(prev => prev.filter(i => i !== id))} className="hover:text-purple" aria-label="Sil">
+                    <button
+                      onClick={() => setAddStudentIds(prev => prev.filter(i => i !== id))}
+                      className="hover:text-brand-700 transition-colors"
+                      aria-label="Sil"
+                    >
                       <X className="w-3 h-3" />
                     </button>
                   </span>
@@ -222,122 +251,124 @@ export default function Classes() {
           )}
         </Card>
 
-        <Card hover={false} className="p-0 overflow-hidden">
-          <Table
-            columns={[
-              {
-                key: 'full_name',
-                label: t('full_name'),
-                render: (val, row) => {
-                  // Generate initials and a stable color from the name
-                  const parts = (val || '').split(' ').filter(Boolean)
-                  const initials = parts.length >= 2
-                    ? parts[0][0] + parts[parts.length - 1][0]
-                    : (parts[0]?.[0] || '?')
-                  const colors = [
-                    'bg-[rgba(124,110,224,0.12)] text-[#5e4fc7]',
-                    'bg-[#D1FAF0] text-[#0D6B52]',
-                    'bg-[#DBEAFE] text-[#1E40AF]',
-                    'bg-[#FEF3C7] text-[#92400E]',
-                    'bg-[#FCE7F3] text-[#9D174D]',
-                    'bg-[#FEE2E2] text-[#991B1B]',
-                  ]
-                  let hash = 0
-                  for (const c of (val || '')) hash = c.charCodeAt(0) + ((hash << 5) - hash)
-                  const colorClass = colors[Math.abs(hash) % colors.length]
-                  return (
+        {/* Students in class table */}
+        <Card hover={false} className="p-0 overflow-hidden rounded-tile">
+          {classStudents.length === 0 ? (
+            <EmptyState
+              title="Sinifə şagird yoxdur"
+              description="Yuxarıdakı sahədən şagird əlavə edin."
+            />
+          ) : (
+            <Table
+              columns={[
+                {
+                  key: 'full_name',
+                  label: t('full_name'),
+                  render: (val, row) => (
                     <div className="flex items-center gap-3">
-                      <span className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 uppercase ${colorClass}`}>
-                        {initials.toUpperCase()}
-                      </span>
-                      <div>
-                        <p className="font-medium text-gray-900">{val}</p>
-                        <p className="text-xs text-gray-400">{row.email}</p>
+                      <Avatar name={val} size="sm" ring={false} />
+                      <div className="min-w-0">
+                        <p className="font-semibold text-ink-900 truncate leading-tight">{val}</p>
+                        <p className="text-xs text-ink-400 truncate mt-0.5">{row.email}</p>
                       </div>
                     </div>
-                  )
+                  ),
                 },
-              },
-              {
-                key: 'email',
-                label: t('email'),
-                render: () => null, // email shown in name cell — hide duplicate
-              },
-              {
-                key: 'actions',
-                label: '',
-                render: (_, row) => (
-                  <button
-                    onClick={() => removeStudentFromClass(row.id)}
-                    className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
-                    aria-label="Sil"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                ),
-              },
-            ]}
-            data={classStudents}
-            emptyMessage={t('no_data')}
-          />
+                {
+                  key: 'email',
+                  label: t('email'),
+                  render: () => null, // shown in name cell
+                },
+                {
+                  key: 'actions',
+                  label: '',
+                  render: (_, row) => (
+                    <button
+                      onClick={() => removeStudentFromClass(row.id)}
+                      className="p-1.5 rounded-input text-ink-400 hover:text-danger hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
+                      aria-label="Sil"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  ),
+                },
+              ]}
+              data={classStudents}
+              emptyMessage={t('no_data')}
+            />
+          )}
         </Card>
       </div>
     )
   }
 
+  // ── Classes grid view ──────────────────────────────────────────────────────
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('classes')}</span></h1>
-        <Button onClick={() => setAddModal(true)}>
-          <span className="flex items-center gap-2"><Plus className="w-4 h-4" /> {t('add')}</span>
-        </Button>
+    <div className="space-y-5">
+      {/* Page header */}
+      <div className="bg-surface rounded-tile border border-hairline px-6 py-5 shadow-soft">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 44, height: 44 }}>
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="font-display text-2xl font-bold text-ink-900 leading-tight">{t('classes')}</h1>
+              <span className="pill-muted mt-1 inline-block">{classes.length} sinif</span>
+            </div>
+          </div>
+          <Button size="sm" onClick={() => setAddModal(true)}>
+            <span className="flex items-center gap-1.5"><Plus className="w-4 h-4" /> {t('add')}</span>
+          </Button>
+        </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="rounded-input px-4 py-2.5 text-sm font-medium" style={{ background: '#FEE2E2', color: '#B91C1C', border: '1px solid #FECACA' }}>
+          {error}
+        </div>
+      )}
 
       {classes.length === 0 ? (
-        <EmptyState icon={BookOpen} title={t('no_data')} description={t('add')} actionLabel={t('add')} onAction={() => setAddModal(true)} />
+        <EmptyState
+          title={t('no_data')}
+          description="Məktəbiniz üçün sinif əlavə edin."
+          actionLabel={t('add')}
+          onAction={() => setAddModal(true)}
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {classes.map(cls => {
             const teacher = teachers.find(tc => tc.id === cls.teacher_id)
             return (
-              <Card key={cls.id} className="cursor-pointer group" onClick={() => openClassDetail(cls)}>
-                {/* Card header accent */}
+              <Card
+                key={cls.id}
+                hover
+                className="cursor-pointer group rounded-tile"
+                onClick={() => openClassDetail(cls)}
+              >
+                {/* Card header */}
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]" style={{ background: 'rgba(124,110,224,0.12)' }}>
-                    <BookOpen className="w-5 h-5" style={{ color: '#7c6ee0' }} />
+                  <div className="icon-chip icon-chip-periwinkle" style={{ width: 44, height: 44 }}>
+                    <BookOpen className="w-5 h-5" />
                   </div>
                   {/* Student count pill */}
-                  <span
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md"
-                    style={cls.student_count > 0
-                      ? { background: 'rgba(93,184,163,0.14)', color: '#3a8170', border: '1px solid rgba(93,184,163,0.36)' }
-                      : { background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}
-                  >
-                    <Users className="w-3 h-3" />
+                  <span className={cls.student_count > 0 ? 'pill-mint' : 'pill-muted'}>
+                    <Users className="w-3 h-3 inline mr-1" />
                     {cls.student_count}
                   </span>
                 </div>
 
-                <h3 className="text-xl font-bold mb-3" style={{ color: '#1a1a2e' }}>{cls.name}</h3>
+                <h3 className="text-lg font-bold text-ink-900 mb-3 leading-tight">{cls.name}</h3>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {cls.grade_level && (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md" style={{ background: 'rgba(255,255,255,0.6)', color: '#64748b', border: '1px solid rgba(124,110,224,0.18)' }}>
-                      {cls.grade_level}-ci sinif
-                    </span>
+                    <span className="pill-muted">{cls.grade_level}-ci sinif</span>
                   )}
-                  {teacher && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md" style={{ background: 'rgba(124,110,224,0.12)', color: '#5e4fc7', border: '1px solid rgba(124,110,224,0.28)' }}>
-                      {teacher.full_name}
-                    </span>
-                  )}
-                  {!teacher && (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium italic backdrop-blur-md" style={{ background: 'rgba(255,255,255,0.5)', color: '#94a3b8', border: '1px solid rgba(124,110,224,0.12)' }}>
-                      Müəllim yoxdur
-                    </span>
+                  {teacher ? (
+                    <span className="pill-peri">{teacher.full_name}</span>
+                  ) : (
+                    <span className="text-xs text-ink-400 italic">Müəllim yoxdur</span>
                   )}
                 </div>
               </Card>
@@ -346,6 +377,7 @@ export default function Classes() {
         </div>
       )}
 
+      {/* Add Class Modal */}
       <Modal open={addModal} onClose={() => { setAddModal(false); setForm({ name: '', grade_level: '', teacher_id: '' }) }} title={t('add')}>
         <div className="space-y-4" onKeyDown={e => { if (e.key === 'Enter' && !saving) handleAddClass() }}>
           <Input
@@ -371,6 +403,9 @@ export default function Classes() {
               <option key={tc.id} value={tc.id}>{tc.full_name}</option>
             ))}
           </Select>
+          {error && (
+            <p className="text-sm rounded-input px-3 py-2" style={{ background: '#FEE2E2', color: '#B91C1C' }}>{error}</p>
+          )}
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="ghost" onClick={() => { setAddModal(false); setForm({ name: '', grade_level: '', teacher_id: '' }) }}>{t('cancel')}</Button>
             <Button onClick={handleAddClass} loading={saving} disabled={!form.name.trim()}>{t('add')}</Button>

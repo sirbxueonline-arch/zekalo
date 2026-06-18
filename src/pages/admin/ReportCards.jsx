@@ -71,9 +71,9 @@ function printFallback({ schoolName, student, cls, period, gradeRows, attendance
   const rows = gradeRows
     .map(
       r => `<tr>
-        <td style="padding:8px 12px;border:1px solid #ddd;">${escapeHtml(r.subject)}</td>
-        <td style="padding:8px 12px;border:1px solid #ddd;text-align:center;">${r.score != null ? r.score.toFixed(1) : '—'}</td>
-        <td style="padding:8px 12px;border:1px solid #ddd;text-align:center;">${escapeHtml(gradeLabel(r.score))}</td>
+        <td style="padding:8px 12px;border:1px solid #ECEDF3;">${escapeHtml(r.subject)}</td>
+        <td style="padding:8px 12px;border:1px solid #ECEDF3;text-align:center;">${r.score != null ? r.score.toFixed(1) : '—'}</td>
+        <td style="padding:8px 12px;border:1px solid #ECEDF3;text-align:center;">${escapeHtml(gradeLabel(r.score))}</td>
       </tr>`
     )
     .join('')
@@ -84,19 +84,19 @@ function printFallback({ schoolName, student, cls, period, gradeRows, attendance
   <meta charset="UTF-8"/>
   <title>Şagird Şəhadətnaməsi</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 40px; color: #222; }
-    .header { background: linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%); color: white; padding: 24px 32px; border-radius: 12px; margin-bottom: 24px; }
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 40px; color: #1E2233; }
+    .header { background: #574FCF; color: white; padding: 24px 32px; border-radius: 12px; margin-bottom: 24px; }
     .header h1 { margin: 0 0 4px; font-size: 22px; }
     .header p { margin: 0; font-size: 13px; opacity: 0.85; }
     .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-    .info-box { background: #f5f4fe; border-radius: 8px; padding: 14px 18px; }
-    .info-box .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; margin-bottom: 4px; }
-    .info-box .value { font-size: 15px; font-weight: 600; color: #1f2937; }
+    .info-box { background: #F3F2FD; border-radius: 8px; padding: 14px 18px; }
+    .info-box .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #9AA0B0; margin-bottom: 4px; }
+    .info-box .value { font-size: 15px; font-weight: 600; color: #1E2233; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-    th { background: #7c6ee0; color: white; padding: 10px 12px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
-    tr:nth-child(even) td { background: #f9f8ff; }
-    .attendance-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 16px 20px; display: inline-block; margin-bottom: 24px; }
-    .footer { font-size: 11px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 12px; }
+    th { background: #574FCF; color: white; padding: 10px 12px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    tr:nth-child(even) td { background: #F3F2FD; }
+    .attendance-box { background: #DCFCE7; border: 1px solid #86efac; border-radius: 8px; padding: 16px 20px; display: inline-block; margin-bottom: 24px; }
+    .footer { font-size: 11px; color: #9AA0B0; border-top: 1px solid #ECEDF3; padding-top: 12px; }
     @media print { body { padding: 20px; } }
   </style>
 </head>
@@ -305,8 +305,8 @@ export default function ReportCards() {
 
       const doc = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
-      const PURPLE = [124, 110, 224]
-      const PURPLE_LIGHT = [238, 240, 255]
+      const PURPLE = [87, 79, 207]
+      const PURPLE_LIGHT = [243, 242, 253]
       const WHITE = [255, 255, 255]
       const pageW = doc.internal.pageSize.getWidth()
       const margin = 18
@@ -339,11 +339,11 @@ export default function ReportCards() {
         const x = margin + i * (boxW + 4)
         doc.setFillColor(...PURPLE_LIGHT)
         doc.roundedRect(x, boxY, boxW, boxH, 3, 3, 'F')
-        doc.setTextColor(107, 114, 128)
+        doc.setTextColor(154, 160, 176)
         doc.setFontSize(7.5)
         doc.setFont('helvetica', 'normal')
         doc.text(box.label.toUpperCase(), x + 6, boxY + 7)
-        doc.setTextColor(31, 41, 55)
+        doc.setTextColor(30, 34, 51)
         doc.setFontSize(10)
         doc.setFont('helvetica', 'bold')
         doc.text(String(box.value), x + 6, boxY + 16)
@@ -352,7 +352,7 @@ export default function ReportCards() {
       // --- Grades table ---
       const tableStartY = boxY + boxH + 10
 
-      doc.setTextColor(31, 41, 55)
+      doc.setTextColor(30, 34, 51)
       doc.setFontSize(11)
       doc.setFont('helvetica', 'bold')
       doc.text('Fənn nəticələri', margin, tableStartY - 3)
@@ -375,9 +375,9 @@ export default function ReportCards() {
         styles: {
           fontSize: 9.5,
           cellPadding: 5,
-          lineColor: [229, 231, 235],
+          lineColor: [236, 237, 243],
           lineWidth: 0.3,
-          textColor: [31, 41, 55],
+          textColor: [30, 34, 51],
         },
         headStyles: {
           fillColor: PURPLE,
@@ -399,15 +399,15 @@ export default function ReportCards() {
 
       // --- Attendance box ---
       const attY = finalY + 10
-      doc.setFillColor(240, 253, 244)
+      doc.setFillColor(220, 252, 231)
       doc.roundedRect(margin, attY, 80, 18, 3, 3, 'F')
       doc.setDrawColor(134, 239, 172)
       doc.roundedRect(margin, attY, 80, 18, 3, 3, 'S')
-      doc.setTextColor(107, 114, 128)
+      doc.setTextColor(154, 160, 176)
       doc.setFontSize(8)
       doc.setFont('helvetica', 'normal')
       doc.text('Davamiyyət', margin + 5, attY + 7)
-      doc.setTextColor(5, 150, 105)
+      doc.setTextColor(21, 128, 61)
       doc.setFontSize(13)
       doc.setFont('helvetica', 'bold')
       doc.text(
@@ -418,9 +418,9 @@ export default function ReportCards() {
 
       // --- Footer ---
       const footerY = doc.internal.pageSize.getHeight() - 12
-      doc.setDrawColor(229, 231, 235)
+      doc.setDrawColor(236, 237, 243)
       doc.line(margin, footerY - 4, pageW - margin, footerY - 4)
-      doc.setTextColor(156, 163, 175)
+      doc.setTextColor(154, 160, 176)
       doc.setFontSize(8)
       doc.setFont('helvetica', 'normal')
       doc.text(`Yaradılma tarixi: ${escapeHtml(generatedDate)}`, margin, footerY)
@@ -443,18 +443,16 @@ export default function ReportCards() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">Şəhadətnamələr</span></h1>
-          <p className="text-sm text-[#64748b] mt-1">Şagird şəhadətnamələrini hazırlayın və PDF kimi yükləyin</p>
+          <h1 className="text-2xl font-display font-bold text-ink-900 tracking-tight">Şəhadətnamələr</h1>
+          <p className="text-sm text-ink-400 mt-0.5">Şagird şəhadətnamələrini hazırlayın və PDF kimi yükləyin</p>
         </div>
         {previewData && (
           <div className="flex items-center gap-3">
             {pdfError && (
-              <span className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-1.5">
-                {pdfError}
-              </span>
+              <span className="pill-rose text-xs">{pdfError}</span>
             )}
-            <Button onClick={() => { setPdfError(null); downloadPDF() }} loading={generating}>
-              <Download className="w-4 h-4 mr-2 inline" />
+            <Button size="sm" onClick={() => { setPdfError(null); downloadPDF() }} loading={generating}>
+              <Download className="w-4 h-4 mr-1.5" />
               PDF yüklə
             </Button>
           </div>
@@ -463,7 +461,7 @@ export default function ReportCards() {
 
       {/* Filters */}
       <Card hover={false}>
-        <h2 className="font-serif text-xl text-gray-900 mb-5">Şagird seçin</h2>
+        <h2 className="font-semibold text-[15px] text-ink-900 mb-4">Şagird seçin</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Select
             label="Şagird"
@@ -490,13 +488,13 @@ export default function ReportCards() {
 
           <div className="flex items-end">
             <Button
-              variant="ghost"
+              variant="secondary"
               className="w-full"
               onClick={generatePreview}
               loading={previewing}
               disabled={!selectedStudent}
             >
-              <Eye className="w-4 h-4 mr-2 inline" />
+              <Eye className="w-4 h-4 mr-1.5" />
               Önizləmə
             </Button>
           </div>
@@ -512,11 +510,11 @@ export default function ReportCards() {
 
       {!previewing && previewData && (
         <div ref={previewRef}>
-          <Card hover={false} className="overflow-hidden !p-0">
-            {/* Preview header bar */}
-            <div className="px-8 py-6" style={{ background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)' }}>
-              <h2 className="text-white font-serif text-2xl">{schoolName}</h2>
-              <p className="text-white/80 text-sm mt-1">Şagird Şəhadətnaməsi</p>
+          <div className="liquid-card overflow-hidden !p-0">
+            {/* Preview header bar — brand fill, admin style */}
+            <div className="px-8 py-6 bg-brand-500">
+              <h2 className="text-white font-display font-bold text-xl">{schoolName}</h2>
+              <p className="text-white/75 text-sm mt-1">Şagird Şəhadətnaməsi</p>
             </div>
 
             <div className="p-8 space-y-6">
@@ -527,36 +525,36 @@ export default function ReportCards() {
                   { label: 'Sinif', value: previewData.cls },
                   { label: 'Dövr', value: previewData.period },
                 ].map(box => (
-                  <div key={box.label} className="bg-purple-light rounded-xl px-5 py-4">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{box.label}</p>
-                    <p className="text-base font-semibold text-gray-900">{box.value || '—'}</p>
+                  <div key={box.label} className="bg-brand-50 rounded-tile px-5 py-4">
+                    <p className="text-[11px] text-ink-400 uppercase tracking-[.05em] mb-1">{box.label}</p>
+                    <p className="text-[15px] font-semibold text-ink-900">{box.value || '—'}</p>
                   </div>
                 ))}
               </div>
 
               {/* Grades table */}
               <div>
-                <h3 className="font-serif text-lg text-gray-900 mb-3">Fənn nəticələri</h3>
+                <h3 className="font-semibold text-[15px] text-ink-900 mb-3">Fənn nəticələri</h3>
                 {previewData.gradeRows.length === 0 ? (
-                  <p className="text-sm text-gray-400 italic">Bu dövr üçün qiymət məlumatı yoxdur.</p>
+                  <p className="text-sm text-ink-400 italic">Bu dövr üçün qiymət məlumatı yoxdur.</p>
                 ) : (
-                  <div className="overflow-x-auto rounded-xl border border-border-soft">
-                    <table className="w-full">
+                  <div className="overflow-x-auto rounded-tile border border-hairline">
+                    <table className="pastel-table w-full">
                       <thead>
-                        <tr className="text-white" style={{ background: '#7c6ee0' }}>
-                          <th className="text-xs font-medium uppercase tracking-wider px-6 py-3 text-left">Fənn</th>
-                          <th className="text-xs font-medium uppercase tracking-wider px-6 py-3 text-center">Orta bal</th>
-                          <th className="text-xs font-medium uppercase tracking-wider px-6 py-3 text-center">Qiymət</th>
+                        <tr>
+                          <th className="text-left">Fənn</th>
+                          <th className="text-center">Orta bal</th>
+                          <th className="text-center">Qiymət</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-border-soft">
+                      <tbody>
                         {previewData.gradeRows.map((r, idx) => (
-                          <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-purple-light/40'}>
-                            <td className="px-6 py-3.5 text-sm font-medium text-gray-900">{r.subject}</td>
-                            <td className="px-6 py-3.5 text-center text-sm font-semibold text-gray-800">
+                          <tr key={idx}>
+                            <td className="font-medium text-ink-900">{r.subject}</td>
+                            <td className="text-center font-semibold text-ink-800 tabular-nums">
                               {r.score != null ? r.score.toFixed(1) : '—'}
                             </td>
-                            <td className="px-6 py-3.5 text-center">
+                            <td className="text-center">
                               <Badge variant={gradeBadgeVariant(r.score)}>
                                 {gradeLabel(r.score)}
                               </Badge>
@@ -570,38 +568,36 @@ export default function ReportCards() {
               </div>
 
               {/* Attendance */}
-              <div className="flex items-center gap-4 bg-green-50 border border-green-200 rounded-xl px-6 py-4">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <User className="w-5 h-5 text-green-600" />
+              <div className="flex items-center gap-4 bg-success-tint border border-success/20 rounded-tile px-6 py-4">
+                <div className="icon-chip icon-chip-mint flex-shrink-0">
+                  <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">Davamiyyət</p>
-                  <p className="text-xl font-bold text-green-700">{previewData.attendancePct}%</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-[12px] text-ink-400 uppercase tracking-[.04em] mb-0.5">Davamiyyət</p>
+                  <p className="font-display font-bold text-xl text-success-text tabular-nums">{previewData.attendancePct}%</p>
+                  <p className="text-xs text-ink-400 mt-0.5 tabular-nums">
                     {previewData.present} iştirak / {previewData.total} gün
                   </p>
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="border-t border-border-soft pt-4 flex items-center justify-between">
-                <p className="text-xs text-gray-400">
+              <div className="border-t border-hairline pt-4 flex items-center justify-between">
+                <p className="text-xs text-ink-400">
                   Yaradılma tarixi: {fmtLong(new Date())}
                 </p>
-                <p className="text-xs text-gray-400">Zirva Məktəb İdarəetmə Sistemi</p>
+                <p className="text-xs text-ink-400">Zirva Məktəb İdarəetmə Sistemi</p>
               </div>
             </div>
-          </Card>
+          </div>
 
           {/* Download button below preview on mobile */}
           <div className="flex flex-col items-end gap-2 mt-4">
             {pdfError && (
-              <span className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-1.5">
-                {pdfError}
-              </span>
+              <span className="pill-rose text-xs">{pdfError}</span>
             )}
-            <Button onClick={() => { setPdfError(null); downloadPDF() }} loading={generating}>
-              <Download className="w-4 h-4 mr-2 inline" />
+            <Button size="sm" onClick={() => { setPdfError(null); downloadPDF() }} loading={generating}>
+              <Download className="w-4 h-4 mr-1.5" />
               PDF yüklə
             </Button>
           </div>
@@ -610,6 +606,7 @@ export default function ReportCards() {
 
       {!previewing && !previewData && (
         <EmptyState
+          tier={1}
           icon={FileText}
           title="Şagird seçin"
           description="Şəhadətnaməni önizləmək üçün yuxarıdan şagird və dövr seçib 'Önizləmə' düyməsinə basın."

@@ -4,15 +4,33 @@ import { supabase } from '../../lib/supabase'
 import Input from '../../components/ui/Input'
 import Button from '../../components/ui/Button'
 import Avatar from '../../components/ui/Avatar'
-import { Lock, LogOut, Users, User, Bell, Globe, GraduationCap } from 'lucide-react'
+import { Lock, LogOut, Users, User, Bell, Globe, GraduationCap, BookOpen, Calendar, MessageSquare, ClipboardList } from 'lucide-react'
 
-const PASTEL_COLORS = ['#7c6ee0', '#5db8a3', '#e8a87c', '#6b9dde', '#a78bfa', '#34d399', '#fb923c', '#60a5fa']
+// Palette derived from design-system accent tokens
+const PASTEL_COLORS = [
+  'var(--brand-500)',
+  'var(--coral)',
+  'var(--sky)',
+  'var(--grape)',
+  'var(--mint)',
+  'var(--sun)',
+  '#60a5fa',
+  '#fb923c',
+]
+
+// Raw hex fallbacks for inline gradient usage (CSS variables can't be in linear-gradient
+// directly inside all older engines, so we keep resolved values here for avatar bg only).
+// Avatars are the one place saturated color is allowed to live (Design System V3 §5).
+const PASTEL_HEX = [
+  '#574FCF', '#F4677E', '#3BA8E6', '#7C5CE0',
+  '#1FA855', '#EAB308', '#60a5fa', '#fb923c',
+]
 
 export default function ParentProfile() {
   const { profile, updateProfile, signOut, t } = useAuth()
   const [fullName, setFullName] = useState(profile?.full_name || '')
   const [language, setLanguage] = useState(profile?.language || 'az')
-  const [avatarColor, setAvatarColor] = useState(profile?.avatar_color || '#7c6ee0')
+  const [avatarColor, setAvatarColor] = useState(profile?.avatar_color || '#574FCF')
   const [notifyGrade, setNotifyGrade] = useState(profile?.notify_new_grade ?? true)
   const [notifyAbsence, setNotifyAbsence] = useState(profile?.notify_absence ?? true)
   const [notifyMessage, setNotifyMessage] = useState(profile?.notify_message ?? true)
@@ -90,180 +108,192 @@ export default function ParentProfile() {
     setPasswordSaving(false)
   }
 
+  const initials = (fullName || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+
   return (
     <div className="max-w-3xl space-y-6">
-      {/* Page title */}
-      <div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold" style={{ color: '#1a1a2e', letterSpacing: '-0.02em' }}>
-          <span className="pastel-text">Profil</span>
-        </h1>
-        <p className="text-sm mt-1" style={{ color: '#64748b' }}>Şəxsi məlumatlar və ayarlar</p>
-      </div>
-
-      {/* Personal info */}
-      <div className="liquid-card p-6">
-        <div className="flex items-center gap-2.5 mb-5">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: 'rgba(124,110,224,0.12)' }}
-          >
-            <User className="w-4.5 h-4.5" style={{ color: '#7c6ee0' }} />
-          </div>
-          <h3 className="text-base font-bold" style={{ color: '#1a1a2e' }}>Şəxsi məlumat</h3>
-        </div>
-
-        <div className="flex items-center gap-5 mb-6">
-          <div
-            className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold flex-shrink-0"
-            style={{
-              background: `linear-gradient(135deg, ${avatarColor} 0%, ${avatarColor}cc 100%)`,
-              boxShadow: `0 8px 20px ${avatarColor}40, inset 0 1px 0 rgba(255,255,255,0.4)`,
-            }}
-          >
-            {(fullName || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
-          </div>
-          <div>
-            <p className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{fullName || '—'}</p>
-            <p className="text-sm" style={{ color: '#64748b' }}>{profile?.email}</p>
-          </div>
-        </div>
-
-        <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#64748b' }}>
-          Avatar rəngi
-        </p>
-        <div className="flex flex-wrap gap-2 mb-6">
-          {PASTEL_COLORS.map(c => (
-            <button
-              key={c}
-              onClick={() => setAvatarColor(c)}
-              className="w-9 h-9 rounded-full transition-all"
+      {/* ── Hero profile card ── */}
+      <div
+        className="liquid-card overflow-hidden"
+        style={{ padding: 0 }}
+      >
+        {/* Colorful header band */}
+        <div
+          className="px-6 pt-8 pb-6"
+          style={{
+            background: `linear-gradient(135deg, ${avatarColor}22 0%, var(--brand-50) 60%, var(--surface) 100%)`,
+            borderBottom: '1px solid var(--hairline)',
+          }}
+        >
+          <div className="flex items-center gap-5">
+            {/* Big avatar */}
+            <div
+              className="w-24 h-24 rounded-pill flex items-center justify-center text-white text-2xl font-700 flex-shrink-0"
               style={{
-                background: c,
-                boxShadow: avatarColor === c
-                  ? `0 0 0 2px #fff, 0 0 0 4px ${c}, 0 4px 12px ${c}40`
-                  : `0 2px 6px ${c}40`,
-                transform: avatarColor === c ? 'scale(1.1)' : 'scale(1)',
+                background: `linear-gradient(135deg, ${avatarColor} 0%, ${avatarColor}cc 100%)`,
+                boxShadow: `0 6px 16px -6px ${avatarColor}55`,
               }}
-            />
-          ))}
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="text-sm font-medium mb-1.5 block" style={{ color: '#1a1a2e' }}>
-              {t('full_name')}
-            </label>
-            <input
-              value={fullName}
-              onChange={e => setFullName(e.target.value)}
-              className="w-full rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-colors"
-              style={{
-                background: 'rgba(255,255,255,0.6)',
-                border: '1px solid rgba(124,110,224,0.25)',
-                backdropFilter: 'blur(12px)',
-                color: '#1a1a2e',
-              }}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium mb-2 flex items-center gap-1.5" style={{ color: '#1a1a2e' }}>
-              <Globe className="w-3.5 h-3.5" style={{ color: '#7c6ee0' }} />
-              {t('language')}
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {[{ v: 'az', l: 'Azərbaycanca' }, { v: 'en', l: 'English' }, { v: 'ru', l: 'Русский' }].map(lng => {
-                const active = language === lng.v
-                return (
-                  <button
-                    key={lng.v}
-                    onClick={() => setLanguage(lng.v)}
-                    className="px-4 py-2 rounded-full text-xs font-semibold transition-all"
-                    style={
-                      active
-                        ? {
-                            background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
-                            color: '#fff',
-                            border: '1px solid rgba(124,110,224,0.3)',
-                            boxShadow: '0 4px 12px rgba(124,110,224,0.2)',
-                          }
-                        : {
-                            background: 'rgba(255,255,255,0.6)',
-                            color: '#64748b',
-                            border: '1px solid rgba(124,110,224,0.2)',
-                            backdropFilter: 'blur(12px)',
-                          }
-                    }
-                  >
-                    {lng.l}
-                  </button>
-                )
-              })}
+            >
+              {initials}
+            </div>
+            <div>
+              <h1 className="font-display text-[26px] font-800 text-ink-900 leading-tight">
+                {fullName || '—'}
+              </h1>
+              <p className="text-sm text-ink-400 mt-0.5">{profile?.email}</p>
+              <span
+                className="inline-flex items-center gap-1 mt-2 text-xs font-600 px-2.5 py-1 rounded-chip"
+                style={{ background: 'var(--brand-100)', color: 'var(--brand-600)' }}
+              >
+                Valideyn
+              </span>
             </div>
           </div>
         </div>
 
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="btn-pastel mt-6 disabled:opacity-60"
-        >
-          {saving ? 'Saxlanılır...' : t('save')}
-        </button>
+        {/* Fields section */}
+        <div className="px-6 pb-6 pt-5">
+          <div className="flex items-center gap-2 mb-5">
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 32, height: 32 }}>
+              <User className="w-3.5 h-3.5" />
+            </div>
+            <h3 className="text-sm font-700 text-ink-900">Şəxsi məlumat</h3>
+          </div>
+
+          {/* Colour picker */}
+          <p className="text-[12px] font-600 uppercase tracking-wide text-ink-400 mb-2.5" style={{ letterSpacing: '0.04em' }}>
+            Avatar rəngi
+          </p>
+          <div className="flex flex-wrap gap-2 mb-5">
+            {PASTEL_HEX.map(hex => (
+              <button
+                key={hex}
+                onClick={() => setAvatarColor(hex)}
+                className="w-9 h-9 rounded-pill transition-all focus-visible:ring-2 ring-offset-2 ring-brand-400"
+                style={{
+                  background: hex,
+                  boxShadow: avatarColor === hex
+                    ? `0 0 0 2px #fff, 0 0 0 4px ${hex}`
+                    : 'none',
+                  transform: avatarColor === hex ? 'scale(1.1)' : 'scale(1)',
+                }}
+                aria-label={`Avatar rəngi: ${hex}`}
+              />
+            ))}
+          </div>
+
+          {/* Fields */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[13px] font-semibold text-ink-700 mb-1.5">
+                {t('full_name')}
+              </label>
+              <input
+                value={fullName}
+                onChange={e => setFullName(e.target.value)}
+                className="pastel-input w-full"
+              />
+            </div>
+
+            <div>
+              <label className="flex items-center gap-1.5 text-[13px] font-semibold text-ink-700 mb-2">
+                <Globe className="w-3.5 h-3.5 text-brand-500" />
+                {t('language')}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { v: 'az', l: 'Azərbaycanca' },
+                  { v: 'en', l: 'English' },
+                  { v: 'ru', l: 'Русский' },
+                ].map(lng => {
+                  const active = language === lng.v
+                  return (
+                    <button
+                      key={lng.v}
+                      onClick={() => setLanguage(lng.v)}
+                      className="px-4 py-2 rounded-pill text-xs font-semibold transition-all active:translate-y-px"
+                      style={
+                        active
+                          ? {
+                              background: 'var(--brand-500)',
+                              color: '#fff',
+                              boxShadow: '0 1px 2px rgba(20,22,40,.08)',
+                            }
+                          : {
+                              background: 'var(--surface)',
+                              color: 'var(--ink-600)',
+                              border: '1px solid var(--hairline)',
+                            }
+                      }
+                    >
+                      {lng.l}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          <Button onClick={handleSave} loading={saving} className="mt-6">
+            {saving ? 'Saxlanılır...' : t('save')}
+          </Button>
+        </div>
       </div>
 
-      {/* Children */}
+      {/* ── Children card ── */}
       <div className="liquid-card p-6">
         <div className="flex items-center gap-2.5 mb-4">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: 'rgba(93,184,163,0.12)' }}
-          >
-            <GraduationCap className="w-4.5 h-4.5" style={{ color: '#5db8a3' }} />
+          <div className="icon-chip icon-chip-mint" style={{ width: 36, height: 36 }}>
+            <GraduationCap className="w-4 h-4" />
           </div>
-          <h3 className="text-base font-bold" style={{ color: '#1a1a2e' }}>Uşaqlar</h3>
+          <h3 className="text-base font-700 text-ink-900">Uşaqlar</h3>
         </div>
+
         {children.length === 0 ? (
-          <div className="text-center py-8">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
-              style={{ background: 'rgba(124,110,224,0.10)' }}
-            >
-              <Users className="w-6 h-6" style={{ color: '#7c6ee0' }} />
+          <div className="py-8 text-center">
+            <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 52, height: 52 }}>
+              <Users className="w-5 h-5" />
             </div>
-            <p className="text-sm font-medium" style={{ color: '#1a1a2e' }}>Bağlı uşaq yoxdur</p>
-            <p className="text-xs mt-1" style={{ color: '#64748b' }}>Məktəbə müraciət edin</p>
+            <p className="text-sm font-semibold text-ink-900">Bağlı uşaq yoxdur</p>
+            <p className="text-xs text-ink-400 mt-1">Məktəbə müraciət edin</p>
           </div>
         ) : (
           <div className="space-y-2">
             {children.map((child, idx) => {
-              const color = PASTEL_COLORS[idx % PASTEL_COLORS.length]
-              const initials = (child.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+              const hex = PASTEL_HEX[idx % PASTEL_HEX.length]
+              const childInitials = (child.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
               return (
                 <div
                   key={child.id}
-                  className="flex items-center gap-3 p-3 rounded-xl transition-colors hover:bg-white/40"
+                  className="flex items-center gap-3 px-3 py-3 rounded-tile transition-colors hover:bg-brand-50"
+                  style={{ border: '1px solid var(--hairline)' }}
                 >
                   <div
-                    className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                    className="w-11 h-11 rounded-pill flex items-center justify-center text-white text-sm font-700 flex-shrink-0"
                     style={{
-                      background: `linear-gradient(135deg, ${color} 0%, ${color}cc 100%)`,
-                      boxShadow: `0 4px 12px ${color}30`,
+                      background: `linear-gradient(135deg, ${hex} 0%, ${hex}cc 100%)`,
                     }}
                   >
-                    {initials}
+                    {childInitials}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold" style={{ color: '#1a1a2e' }}>{child.full_name}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-sm font-600 text-ink-900">{child.full_name}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                       {child.school?.name && (
-                        <span className="text-xs" style={{ color: '#64748b' }}>{child.school.name}</span>
+                        <span
+                          className="text-[11px] font-600 px-2 py-0.5 rounded-chip"
+                          style={{ background: 'var(--brand-50)', color: 'var(--brand-600)' }}
+                        >
+                          {child.school.name}
+                        </span>
                       )}
                       {child.className && (
-                        <>
-                          <span className="text-xs" style={{ color: '#cbd5e1' }}>·</span>
-                          <span className="text-xs" style={{ color: '#64748b' }}>{child.className}</span>
-                        </>
+                        <span
+                          className="text-[11px] font-600 px-2 py-0.5 rounded-chip"
+                          style={{ background: 'var(--surface-2)', color: 'var(--ink-600)', border: '1px solid var(--hairline)' }}
+                        >
+                          {child.className}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -274,61 +304,68 @@ export default function ParentProfile() {
         )}
       </div>
 
-      {/* Communication preferences */}
+      {/* ── Notification preferences card ── */}
       <div className="liquid-card p-6">
         <div className="flex items-center gap-2.5 mb-4">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: 'rgba(232,168,124,0.15)' }}
-          >
-            <Bell className="w-4.5 h-4.5" style={{ color: '#e8a87c' }} />
+          <div className="icon-chip icon-chip-peach" style={{ width: 36, height: 36 }}>
+            <Bell className="w-4 h-4" />
           </div>
-          <h3 className="text-base font-bold" style={{ color: '#1a1a2e' }}>{t('notification_settings')}</h3>
+          <h3 className="text-base font-700 text-ink-900">{t('notification_settings')}</h3>
         </div>
-        <div className="space-y-2">
+
+        <div className="space-y-1">
           {[
-            { label: t('new_grade_notif'), value: notifyGrade, set: setNotifyGrade },
-            { label: t('absence_notif'), value: notifyAbsence, set: setNotifyAbsence },
-            { label: t('teacher_message_notif'), value: notifyMessage, set: setNotifyMessage },
-            { label: t('assignment_notif'), value: notifyAssignment, set: setNotifyAssignment },
-          ].map(n => (
-            <label
-              key={n.label}
-              className="flex items-center justify-between p-3 rounded-xl transition-colors hover:bg-white/40"
-            >
-              <span className="text-sm font-medium" style={{ color: '#1a1a2e' }}>{n.label}</span>
-              <button
-                onClick={() => n.set(!n.value)}
-                className="w-11 h-6 rounded-full transition-all relative"
-                style={{
-                  background: n.value
-                    ? 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)'
-                    : 'rgba(124,110,224,0.15)',
-                }}
+            { label: t('new_grade_notif'), value: notifyGrade, set: setNotifyGrade, icon: BookOpen, chipClass: 'icon-chip-periwinkle' },
+            { label: t('absence_notif'), value: notifyAbsence, set: setNotifyAbsence, icon: Calendar, chipClass: 'icon-chip-peach' },
+            { label: t('teacher_message_notif'), value: notifyMessage, set: setNotifyMessage, icon: MessageSquare, chipClass: 'icon-chip-blue' },
+            { label: t('assignment_notif'), value: notifyAssignment, set: setNotifyAssignment, icon: ClipboardList, chipClass: 'icon-chip-mint' },
+          ].map(n => {
+            const Icon = n.icon
+            return (
+              <label
+                key={n.label}
+                className="flex items-center justify-between px-3 py-2.5 rounded-tile transition-colors hover:bg-brand-50 cursor-pointer select-none"
               >
-                <span
-                  className="absolute top-1 w-4 h-4 rounded-full bg-white transition-all"
-                  style={{
-                    left: n.value ? '22px' : '4px',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
-                  }}
-                />
-              </button>
-            </label>
-          ))}
+                <div className="flex items-center gap-2.5">
+                  <div className={`icon-chip ${n.chipClass}`} style={{ width: 30, height: 30, flexShrink: 0 }}>
+                    <Icon className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="text-sm font-medium text-ink-900">{n.label}</span>
+                </div>
+                <button
+                  onClick={() => n.set(!n.value)}
+                  className="w-11 h-6 rounded-pill transition-all relative flex-shrink-0"
+                  style={{ background: n.value ? 'var(--brand-500)' : 'var(--hairline-strong)' }}
+                  role="switch"
+                  aria-checked={n.value}
+                >
+                  <span
+                    className="absolute top-1 w-4 h-4 rounded-pill bg-white transition-all"
+                    style={{
+                      left: n.value ? '22px' : '4px',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.18)',
+                    }}
+                  />
+                </button>
+              </label>
+            )
+          })}
         </div>
       </div>
 
-      {/* Password */}
+      {/* ── Password card ── */}
       <div className="liquid-card p-6">
         <button
           onClick={() => setShowPassword(!showPassword)}
-          className="flex items-center gap-2 text-sm font-bold transition-colors"
-          style={{ color: '#7c6ee0' }}
+          className="flex items-center gap-2 text-sm font-700 transition-all hover:opacity-75 hover:gap-3"
+          style={{ color: 'var(--brand-500)' }}
         >
-          <Lock className="w-4 h-4" />
+          <div className="icon-chip icon-chip-periwinkle" style={{ width: 30, height: 30 }}>
+            <Lock className="w-3.5 h-3.5" />
+          </div>
           {t('change_password')}
         </button>
+
         {showPassword && (
           <div className="mt-5 space-y-3">
             <Input
@@ -345,12 +382,13 @@ export default function ParentProfile() {
               onChange={e => setConfirmPassword(e.target.value)}
               placeholder="Şifrəni təkrar daxil edin"
             />
+
             {passwordError && (
               <p
-                className="text-xs px-3 py-2 rounded-lg"
+                className="text-xs px-3 py-2 rounded-tile"
                 style={{
-                  background: 'rgba(239,68,68,0.08)',
-                  color: '#ef4444',
+                  background: 'var(--danger-bg)',
+                  color: 'var(--danger)',
                   border: '1px solid rgba(239,68,68,0.2)',
                 }}
               >
@@ -359,35 +397,41 @@ export default function ParentProfile() {
             )}
             {passwordSuccess && (
               <p
-                className="text-xs px-3 py-2 rounded-lg"
+                className="text-xs px-3 py-2 rounded-tile"
                 style={{
-                  background: 'rgba(93,184,163,0.10)',
-                  color: '#5db8a3',
-                  border: '1px solid rgba(93,184,163,0.25)',
+                  background: 'var(--success-bg)',
+                  color: 'var(--success)',
+                  border: '1px solid rgba(22,163,74,0.2)',
                 }}
               >
                 {passwordSuccess}
               </p>
             )}
-            <button
+
+            <Button
               onClick={handlePasswordChange}
+              loading={passwordSaving}
               disabled={passwordSaving || newPassword.length < 6}
-              className="btn-pastel disabled:opacity-60"
             >
               {passwordSaving ? '...' : t('update_password')}
-            </button>
+            </Button>
           </div>
         )}
       </div>
 
-      {/* Sign out */}
-      <div className="liquid-card p-6">
+      {/* ── Sign out card ── */}
+      <div className="liquid-card p-5">
         <button
           onClick={signOut}
-          className="flex items-center gap-2 text-sm font-bold transition-colors hover:opacity-75"
-          style={{ color: '#ef4444' }}
+          className="flex items-center gap-2.5 text-sm font-700 transition-opacity hover:opacity-75 w-full"
+          style={{ color: 'var(--danger)' }}
         >
-          <LogOut className="w-4 h-4" />
+          <div
+            className="w-8 h-8 rounded-pill flex items-center justify-center flex-shrink-0"
+            style={{ background: 'var(--danger-bg)' }}
+          >
+            <LogOut className="w-3.5 h-3.5" style={{ color: 'var(--danger)' }} />
+          </div>
           {t('sign_out')}
         </button>
       </div>

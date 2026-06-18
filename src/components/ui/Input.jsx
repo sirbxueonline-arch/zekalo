@@ -1,23 +1,19 @@
 import { forwardRef, useId } from 'react'
 
-const glassBase =
-  'w-full rounded-xl px-4 py-3 text-sm text-[#1a1a2e] placeholder:text-[#94a3b8] focus:outline-none focus:ring-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+// Label sits above the field: 13px ink-700 semibold, 6px gap.
+const labelClass = 'block text-[13px] font-semibold leading-tight text-ink-700 mb-1.5'
 
-const glassStyle = {
-  background: 'rgba(255,255,255,0.6)',
-  backdropFilter: 'blur(12px)',
-  WebkitBackdropFilter: 'blur(12px)',
-  border: '1px solid rgba(124,110,224,0.25)',
-}
+// Base field: relies on .pastel-input (white bg, hairline-strong border,
+// rounded-input 12px, 40px tall, 14px text, brand focus + ring, smooth transition).
+const fieldBase = 'pastel-input'
 
-const errorStyle = {
-  border: '1px solid rgba(220,38,38,0.5)',
-  background: 'rgba(254,226,226,0.5)',
-}
+// Error overrides: danger border + danger ring on focus.
+const errorClass =
+  'border-danger focus:border-danger shadow-[0_0_0_3px_rgba(239,68,68,0.15)] focus:shadow-[0_0_0_3px_rgba(239,68,68,0.15)]'
 
 function HelperRow({ error, helperText }) {
-  if (error) return <p className="mt-1.5 text-xs text-red-600 font-medium">{error}</p>
-  if (helperText) return <p className="mt-1.5 text-xs text-[#64748b]">{helperText}</p>
+  if (error) return <p className="mt-1.5 text-xs font-medium text-danger">{error}</p>
+  if (helperText) return <p className="mt-1.5 text-xs text-ink-400">{helperText}</p>
   return null
 }
 
@@ -26,19 +22,15 @@ const Input = forwardRef(function Input({ label, error, helperText, className = 
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-[#1a1a2e] mb-1.5 block">
+        <label htmlFor={id} className={labelClass}>
           {label}
         </label>
       )}
       <input
         id={id}
         ref={ref}
-        style={{ ...glassStyle, ...(error ? errorStyle : {}), ...style }}
-        className={`${glassBase} ${
-          error
-            ? 'focus:ring-red-200 focus:border-red-400'
-            : 'focus:ring-[rgba(124,110,224,0.2)] focus:border-[rgba(124,110,224,0.5)]'
-        } ${className}`}
+        style={style}
+        className={`${fieldBase} ${error ? errorClass : ''} ${className}`}
         {...props}
       />
       <HelperRow error={error} helperText={helperText} />
@@ -53,17 +45,15 @@ export function Textarea({ label, error, helperText, className = '', style, ...p
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-[#1a1a2e] mb-1.5 block">
+        <label htmlFor={id} className={labelClass}>
           {label}
         </label>
       )}
       <textarea
         id={id}
-        style={{ ...glassStyle, ...(error ? errorStyle : {}), ...style }}
-        className={`${glassBase} resize-none min-h-[88px] ${
-          error
-            ? 'focus:ring-red-200 focus:border-red-400'
-            : 'focus:ring-[rgba(124,110,224,0.2)] focus:border-[rgba(124,110,224,0.5)]'
+        style={style}
+        className={`${fieldBase} h-auto min-h-[88px] resize-none py-2.5 leading-relaxed ${
+          error ? errorClass : ''
         } ${className}`}
         {...props}
       />
@@ -77,25 +67,21 @@ export function Select({ label, error, helperText, children, className = '', sty
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-[#1a1a2e] mb-1.5 block">
+        <label htmlFor={id} className={labelClass}>
           {label}
         </label>
       )}
       <div className="relative">
         <select
           id={id}
-          style={{ ...glassStyle, ...(error ? errorStyle : {}), ...style }}
-          className={`${glassBase} appearance-none pr-9 ${
-            error
-              ? 'focus:ring-red-200 focus:border-red-400'
-              : 'focus:ring-[rgba(124,110,224,0.2)] focus:border-[rgba(124,110,224,0.5)]'
-          } ${className}`}
+          style={style}
+          className={`${fieldBase} cursor-pointer appearance-none pr-9 ${error ? errorClass : ''} ${className}`}
           {...props}
         >
           {children}
         </select>
         <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-          <svg className="w-4 h-4 text-[#7c6ee0]" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg className="h-4 w-4 text-ink-400" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>

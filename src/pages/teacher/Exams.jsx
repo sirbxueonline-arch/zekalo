@@ -3,6 +3,10 @@ import { Plus, ClipboardList, ChevronLeft, Save, Eye, EyeOff, Edit2, Trash2, X, 
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { fmtNumeric } from '../../lib/dateUtils'
+import Button from '../../components/ui/Button'
+import EmptyState from '../../components/ui/EmptyState'
+import Modal from '../../components/ui/Modal'
+import Badge from '../../components/ui/Badge'
 
 const emptyForm = {
   title: '',
@@ -208,65 +212,81 @@ export default function TeacherExams() {
   if (loading) {
     return (
       <div className="space-y-5">
-        <div className="pastel-skeleton h-12 w-72" />
+        <div className="pastel-skeleton h-10 w-64 rounded-tile" />
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {[0,1,2,3,4,5].map(i => <div key={i} className="pastel-skeleton h-44" />)}
+          {[0,1,2,3,4,5].map(i => <div key={i} className="pastel-skeleton h-44 rounded-card" />)}
         </div>
       </div>
     )
   }
 
-  // Results view
+  // ── Results entry view ──
   if (resultsExam) {
     return (
       <div className="space-y-5">
+        {/* Back + title */}
         <div className="flex items-start gap-3">
           <button
             onClick={() => setResultsExam(null)}
-            className="p-2 rounded-xl smooth-trans"
-            style={{ color: '#64748b', background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(124,110,224,0.15)' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#7c6ee0'; e.currentTarget.style.background = 'rgba(124,110,224,0.08)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'rgba(255,255,255,0.5)' }}
+            className="p-2 rounded-tile smooth-trans text-ink-400 hover:text-brand-500 hover:bg-brand-50 border border-hairline"
+            aria-label="Geri"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold" style={{ color: '#1a1a2e' }}>
-              <span className="pastel-text">{resultsExam.title}</span>
+            <h1 className="font-display text-2xl md:text-3xl font-extrabold text-ink-900 leading-tight">
+              {resultsExam.title}
             </h1>
-            <p className="text-sm mt-0.5" style={{ color: '#64748b' }}>
-              {resultsExam.class?.name} · {resultsExam.subject?.name} · {formatDate(resultsExam.exam_date)} · Max: {resultsExam.max_score}
+            <p className="text-sm mt-0.5 text-ink-400">
+              {resultsExam.class?.name}
+              {' · '}
+              {resultsExam.subject?.name}
+              {' · '}
+              {formatDate(resultsExam.exam_date)}
+              {' · '}
+              Max:{' '}
+              <strong className="text-ink-700 tabular-nums">{resultsExam.max_score}</strong>
             </p>
           </div>
         </div>
+
         {resultsLoading ? (
-          <div className="pastel-skeleton h-64" />
+          <div className="pastel-skeleton h-64 rounded-tile" />
         ) : students.length === 0 ? (
-          <div className="liquid-card p-12 text-center">
-            <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
-              <ClipboardList className="w-8 h-8" />
-            </div>
-            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Şagird yoxdur</p>
-            <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Bu sinfə heç bir şagird əlavə edilməyib.</p>
-          </div>
+          <EmptyState
+            tier={1}
+            icon={ClipboardList}
+            title="Şagird yoxdur"
+            description="Bu sinfə heç bir şagird əlavə edilməyib."
+          />
         ) : (
-          <div className="liquid-card p-6">
-            <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
-              <h2 className="text-xl font-bold" style={{ color: '#1a1a2e' }}>İmtahan nəticələri</h2>
+          <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
+            {/* Sticky action bar */}
+            <div
+              className="flex items-center justify-between px-6 py-4 flex-wrap gap-2"
+              style={{ borderBottom: '1px solid var(--hairline)', background: 'var(--surface-2)' }}
+            >
+              <h2 className="text-base font-semibold text-ink-900">İmtahan nəticələri</h2>
               <div className="flex items-center gap-3 flex-wrap">
                 {resultsSaved && (
-                  <span className="pastel-badge pastel-badge-mint">
-                    <Check className="w-3 h-3" /> Nəticələr saxlandı
-                  </span>
+                  <Badge variant="success">
+                    <Check className="w-3 h-3 mr-1" /> Nəticələr saxlandı
+                  </Badge>
                 )}
                 {resultsError && (
-                  <span className="pastel-badge pastel-badge-rose">
-                    <AlertCircle className="w-3 h-3" /> {resultsError}
-                  </span>
+                  <Badge variant="error">
+                    <AlertCircle className="w-3 h-3 mr-1" /> {resultsError}
+                  </Badge>
                 )}
-                <button onClick={saveResults} disabled={savingResults} className="btn-pastel" style={{ padding: '10px 20px', fontSize: 13, opacity: savingResults ? 0.5 : 1 }}>
-                  <Save className="w-4 h-4" /> {savingResults ? '...' : 'Saxla'}
-                </button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  loading={savingResults}
+                  disabled={savingResults}
+                  onClick={saveResults}
+                >
+                  <Save className="w-4 h-4" /> Saxla
+                </Button>
               </div>
             </div>
             <div className="overflow-x-auto">
@@ -295,7 +315,7 @@ export default function TeacherExams() {
                               [student.id]: { ...prev[student.id], score: e.target.value },
                             }))
                           }
-                          className="pastel-input"
+                          className="pastel-input tabular-nums"
                           style={{ width: 96, textAlign: 'center', padding: '6px 8px' }}
                           placeholder="—"
                         />
@@ -320,6 +340,21 @@ export default function TeacherExams() {
                 </tbody>
               </table>
             </div>
+            {/* Bottom save row */}
+            <div
+              className="flex justify-end px-6 py-4"
+              style={{ borderTop: '1px solid var(--hairline)', background: 'var(--surface-2)' }}
+            >
+              <Button
+                variant="primary"
+                size="sm"
+                loading={savingResults}
+                disabled={savingResults}
+                onClick={saveResults}
+              >
+                <Save className="w-4 h-4" /> Saxla
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -330,201 +365,270 @@ export default function TeacherExams() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      {/* ── Page header ── */}
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
-            <span className="pastel-text">İmtahanlar</span>
+          <h1 className="font-display text-2xl md:text-3xl font-extrabold text-ink-900 tracking-tight leading-tight">
+            İmtahanlar
           </h1>
-          <p className="text-sm mt-1" style={{ color: '#64748b' }}>Siniflərinizdəki imtahanları idarə edin</p>
+          <p className="text-sm mt-1 text-ink-400">Siniflərinizdəki imtahanları idarə edin</p>
         </div>
         {teacherClasses.length > 0 && (
-          <button onClick={() => { setForm(emptyForm); setError(null); setAddModal(true) }} className="btn-pastel" style={{ padding: '12px 22px', fontSize: 13 }}>
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => { setForm(emptyForm); setError(null); setAddModal(true) }}
+          >
             <Plus className="w-4 h-4" /> İmtahan planla
-          </button>
+          </Button>
         )}
       </div>
 
+      {/* ── Class filter ── */}
       {uniqueClasses.length > 1 && (
         <div className="w-56">
-          <select className="pastel-input" value={filterClass} onChange={e => setFilterClass(e.target.value)}>
+          <select
+            className="pastel-input"
+            value={filterClass}
+            onChange={e => setFilterClass(e.target.value)}
+          >
             <option value="">Bütün siniflər</option>
             {uniqueClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
       )}
 
+      {/* ── Empty states ── */}
       {teacherClasses.length === 0 ? (
-        <div className="liquid-card p-12 text-center">
-          <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
-            <ClipboardList className="w-8 h-8" />
-          </div>
-          <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Sinif tapılmadı</p>
-          <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Sizə hələ sinif təyin edilməyib.</p>
-        </div>
+        <EmptyState
+          tier={1}
+          icon={ClipboardList}
+          title="Sinif tapılmadı"
+          description="Sizə hələ sinif təyin edilməyib."
+        />
       ) : filtered.length === 0 ? (
-        <div className="liquid-card p-12 text-center">
-          <div className="icon-chip icon-chip-blue mx-auto mb-3" style={{ width: 64, height: 64 }}>
-            <ClipboardList className="w-8 h-8" />
-          </div>
-          <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>İmtahan yoxdur</p>
-          <p className="text-sm mt-1 mb-4" style={{ color: '#94a3b8' }}>Hələ heç bir imtahan planlanmayıb.</p>
-          <button onClick={() => { setForm(emptyForm); setError(null); setAddModal(true) }} className="btn-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>
-            <Plus className="w-4 h-4" /> İmtahan planla
-          </button>
-        </div>
+        <EmptyState
+          tier={1}
+          icon={ClipboardList}
+          title="İmtahan yoxdur"
+          description="Hələ heç bir imtahan planlanmayıb."
+          actionLabel="İmtahan planla"
+          onAction={() => { setForm(emptyForm); setError(null); setAddModal(true) }}
+        />
       ) : (
+        /* ── Exam card grid ── */
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(exam => (
-            <div key={exam.id} className="liquid-card p-5 flex flex-col gap-3">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-bold truncate" style={{ color: '#1a1a2e' }}>{exam.title}</h3>
-                  <p className="text-sm mt-0.5" style={{ color: '#64748b' }}>{exam.class?.name} · {exam.subject?.name}</p>
+            <div
+              key={exam.id}
+              className="bg-surface rounded-card border border-hairline hover:shadow-soft-lg hover:-translate-y-0.5 smooth-trans flex flex-col gap-0 overflow-hidden"
+            >
+              {/* Published status top bar */}
+              <div
+                className="h-1 w-full"
+                style={{
+                  background: exam.published ? 'var(--mint)' : 'var(--hairline-strong)',
+                }}
+              />
+              <div className="p-5 flex flex-col gap-3 flex-1">
+                {/* Card header */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-[15px] font-semibold truncate text-ink-900">{exam.title}</h3>
+                    <p className="text-sm mt-0.5 text-ink-400">{exam.class?.name} · {exam.subject?.name}</p>
+                  </div>
+                  <Badge variant={exam.published ? 'success' : 'neutral'}>
+                    {exam.published ? 'Dərc edilib' : 'Qaralama'}
+                  </Badge>
                 </div>
-                <span className={exam.published ? 'pastel-badge pastel-badge-mint' : 'pastel-badge pastel-badge-slate'}>
-                  {exam.published ? 'Dərc edilib' : 'Qaralama'}
-                </span>
-              </div>
 
-              <div className="flex items-center gap-3 text-xs flex-wrap" style={{ color: '#64748b' }}>
-                <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {formatDate(exam.exam_date)}</span>
-                <span className="flex items-center gap-1"><ClockIcon className="w-3 h-3" /> {exam.duration_minutes} dəq</span>
-                <span>Max: <strong style={{ color: '#7c6ee0' }}>{exam.max_score}</strong></span>
-              </div>
+                {/* Meta row */}
+                <div className="flex items-center gap-3 text-xs text-ink-400 flex-wrap">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3" /> {formatDate(exam.exam_date)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <ClockIcon className="w-3 h-3" /> {exam.duration_minutes} dəq
+                  </span>
+                  <span>
+                    Max:{' '}
+                    <strong className="text-brand-500 tabular-nums">{exam.max_score}</strong>
+                  </span>
+                </div>
 
-              <div className="flex items-center gap-2 flex-wrap pt-3" style={{ borderTop: '1px solid rgba(124,110,224,0.10)' }}>
-                <button
-                  onClick={() => openResults(exam)}
-                  className="btn-ghost-pastel"
-                  style={{ padding: '6px 12px', fontSize: 12 }}
+                {/* Action row */}
+                <div
+                  className="flex items-center gap-2 flex-wrap pt-3 mt-auto"
+                  style={{ borderTop: '1px solid var(--hairline)' }}
                 >
-                  <ClipboardList className="w-3.5 h-3.5" /> Nəticələr
-                </button>
-                <button
-                  onClick={() => togglePublish(exam)}
-                  className="btn-ghost-pastel"
-                  style={{ padding: '6px 12px', fontSize: 12, borderColor: 'rgba(93,184,163,0.4)', color: '#3d8a73' }}
-                >
-                  {exam.published ? <><EyeOff className="w-3.5 h-3.5" /> Gizlət</> : <><Eye className="w-3.5 h-3.5" /> Dərc et</>}
-                </button>
-                <button
-                  onClick={() => openEdit(exam)}
-                  className="p-2 rounded-lg smooth-trans"
-                  style={{ color: '#64748b' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#7c6ee0'; e.currentTarget.style.background = 'rgba(124,110,224,0.08)' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'transparent' }}
-                  aria-label="Redaktə et"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setDeleteModal(exam)}
-                  className="p-2 rounded-lg smooth-trans"
-                  style={{ color: '#64748b' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#b83b54'; e.currentTarget.style.background = 'rgba(229,107,127,0.08)' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'transparent' }}
-                  aria-label="Sil"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                  <Button variant="secondary" size="sm" onClick={() => openResults(exam)}>
+                    <ClipboardList className="w-3.5 h-3.5" /> Nəticələr
+                  </Button>
+                  <Button variant="secondary" size="sm" onClick={() => togglePublish(exam)}>
+                    {exam.published
+                      ? <><EyeOff className="w-3.5 h-3.5" /> Gizlət</>
+                      : <><Eye className="w-3.5 h-3.5" /> Dərc et</>}
+                  </Button>
+                  <button
+                    onClick={() => openEdit(exam)}
+                    className="ml-auto p-2 rounded-tile smooth-trans text-ink-400 hover:text-brand-500 hover:bg-brand-50"
+                    aria-label="Redaktə et"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setDeleteModal(exam)}
+                    className="p-2 rounded-tile smooth-trans text-ink-400 hover:text-danger hover:bg-danger/10"
+                    aria-label="Sil"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Add / Edit Modal */}
-      {(addModal || editModal) && (
-        <div className="liquid-backdrop" onClick={() => { setAddModal(false); setEditModal(null); setError(null); setForm(emptyForm) }}>
-          <div className="liquid-card p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{editModal ? 'İmtahanı redaktə et' : 'İmtahan planla'}</h3>
-              <button onClick={() => { setAddModal(false); setEditModal(null); setError(null); setForm(emptyForm) }} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
-                <X className="w-5 h-5" />
-              </button>
+      {/* ── Add / Edit Modal ── */}
+      <Modal
+        open={addModal || !!editModal}
+        onClose={() => { setAddModal(false); setEditModal(null); setError(null); setForm(emptyForm) }}
+        title={editModal ? 'İmtahanı redaktə et' : 'İmtahan planla'}
+        size="md"
+      >
+        <div className="space-y-4">
+          {error && (
+            <div className="flex items-center gap-1.5 text-sm text-danger">
+              <AlertCircle className="w-4 h-4" /> {error}
             </div>
-            <div className="space-y-3">
-              {error && <p className="pastel-badge pastel-badge-rose"><AlertCircle className="w-3 h-3" /> {error}</p>}
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Başlıq *</label>
-                <input className="pastel-input" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="İmtahan başlığı" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Sinif *</label>
-                <select className="pastel-input" value={form.class_id} onChange={e => setForm(f => ({ ...f, class_id: e.target.value, subject_id: '' }))}>
-                  <option value="">Sinif seçin</option>
-                  {uniqueClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Fənn *</label>
-                <select className="pastel-input" value={form.subject_id} onChange={e => setForm(f => ({ ...f, subject_id: e.target.value }))}>
-                  <option value="">Fənn seçin</option>
-                  {(form.class_id ? availableSubjectsForForm : teacherClasses.map(tc => tc.subject).filter(Boolean)).map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Tarix *</label>
-                <input type="date" className="pastel-input" value={form.exam_date} onChange={e => setForm(f => ({ ...f, exam_date: e.target.value }))} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Müddət (dəqiqə)</label>
-                  <input type="number" min={1} className="pastel-input" value={form.duration_minutes} onChange={e => setForm(f => ({ ...f, duration_minutes: e.target.value }))} />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Maksimum bal</label>
-                  <input type="number" min={1} className="pastel-input" value={form.max_score} onChange={e => setForm(f => ({ ...f, max_score: e.target.value }))} />
-                </div>
-              </div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={form.published} onChange={e => setForm(f => ({ ...f, published: e.target.checked }))} className="w-4 h-4" style={{ accentColor: '#7c6ee0' }} />
-                <span className="text-sm" style={{ color: '#1a1a2e' }}>Şagirdlərə dərc et</span>
-              </label>
-              <div className="flex justify-end gap-2 pt-2">
-                <button onClick={() => { setAddModal(false); setEditModal(null); setError(null); setForm(emptyForm) }} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>Ləğv et</button>
-                <button onClick={handleSave} disabled={saving} className="btn-pastel" style={{ padding: '10px 22px', fontSize: 13, opacity: saving ? 0.5 : 1 }}>
-                  {saving ? '...' : (editModal ? 'Yenilə' : 'Planla')}
-                </button>
-              </div>
+          )}
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Başlıq *</label>
+            <input
+              className="pastel-input"
+              value={form.title}
+              onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+              placeholder="İmtahan başlığı"
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Sinif *</label>
+            <select
+              className="pastel-input"
+              value={form.class_id}
+              onChange={e => setForm(f => ({ ...f, class_id: e.target.value, subject_id: '' }))}
+            >
+              <option value="">Sinif seçin</option>
+              {uniqueClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Fənn *</label>
+            <select
+              className="pastel-input"
+              value={form.subject_id}
+              onChange={e => setForm(f => ({ ...f, subject_id: e.target.value }))}
+            >
+              <option value="">Fənn seçin</option>
+              {(form.class_id ? availableSubjectsForForm : teacherClasses.map(tc => tc.subject).filter(Boolean)).map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Tarix *</label>
+            <input
+              type="date"
+              className="pastel-input"
+              value={form.exam_date}
+              onChange={e => setForm(f => ({ ...f, exam_date: e.target.value }))}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Müddət (dəq)</label>
+              <input
+                type="number"
+                min={1}
+                className="pastel-input tabular-nums"
+                value={form.duration_minutes}
+                onChange={e => setForm(f => ({ ...f, duration_minutes: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Maks bal</label>
+              <input
+                type="number"
+                min={1}
+                className="pastel-input tabular-nums"
+                value={form.max_score}
+                onChange={e => setForm(f => ({ ...f, max_score: e.target.value }))}
+              />
             </div>
           </div>
+          <label className="flex items-center gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.published}
+              onChange={e => setForm(f => ({ ...f, published: e.target.checked }))}
+              className="w-4 h-4 rounded"
+              style={{ accentColor: 'var(--brand-500)' }}
+            />
+            <span className="text-sm text-ink-900">Şagirdlərə dərc et</span>
+          </label>
+          <div
+            className="flex justify-end gap-2 pt-3"
+            style={{ borderTop: '1px solid var(--hairline)' }}
+          >
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { setAddModal(false); setEditModal(null); setError(null); setForm(emptyForm) }}
+            >
+              Ləğv et
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={saving}
+              disabled={saving}
+              onClick={handleSave}
+            >
+              {editModal ? 'Yenilə' : 'Planla'}
+            </Button>
+          </div>
         </div>
-      )}
+      </Modal>
 
-      {/* Delete Modal */}
-      {deleteModal && (
-        <div className="liquid-backdrop" onClick={() => setDeleteModal(null)}>
-          <div className="liquid-card p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center gap-3 mb-3">
-              <span className="icon-chip icon-chip-peach" style={{ width: 40, height: 40 }}>
-                <AlertCircle className="w-5 h-5" />
-              </span>
-              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>İmtahanı sil</h3>
-            </div>
-            <p className="text-sm mb-5" style={{ color: '#64748b' }}>
-              <strong style={{ color: '#1a1a2e' }}>{deleteModal?.title}</strong> imtahanını silmək istədiyinizə əminsiniz?
-            </p>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setDeleteModal(null)} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>Ləğv et</button>
-              <button
-                onClick={handleDelete}
-                disabled={saving}
-                className="px-5 py-2.5 rounded-full font-semibold text-white text-sm smooth-trans"
-                style={{
-                  background: 'linear-gradient(135deg, #e56b7f, #d85268)',
-                  boxShadow: '0 4px 12px rgba(229,107,127,0.3)',
-                  opacity: saving ? 0.5 : 1,
-                }}
-              >
-                {saving ? '...' : 'Sil'}
-              </button>
-            </div>
+      {/* ── Delete Confirm Modal ── */}
+      <Modal
+        open={!!deleteModal}
+        onClose={() => setDeleteModal(null)}
+        title="İmtahanı sil"
+        size="sm"
+      >
+        <div className="space-y-5">
+          <p className="text-sm text-ink-600">
+            <strong className="text-ink-900">{deleteModal?.title}</strong> imtahanını silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.
+          </p>
+          <div
+            className="flex justify-end gap-2"
+            style={{ borderTop: '1px solid var(--hairline)', paddingTop: 16 }}
+          >
+            <Button variant="ghost" size="sm" onClick={() => setDeleteModal(null)}>Ləğv et</Button>
+            <Button
+              variant="danger"
+              size="sm"
+              loading={saving}
+              disabled={saving}
+              onClick={handleDelete}
+            >
+              Sil
+            </Button>
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

@@ -5,41 +5,42 @@ import { supabase } from '../../lib/supabase'
 import Avatar from '../../components/ui/Avatar'
 import { fmtNumeric } from '../../lib/dateUtils'
 import { notifyUsers } from '../../lib/notify'
+import Button from '../../components/ui/Button'
+import EmptyState from '../../components/ui/EmptyState'
 
 const DAY_LABELS = ['B.e', 'Ç.a', 'Ç', 'C.a', 'C']
 
-const STATUS_BG = {
-  present: 'rgba(93,184,163,0.06)',
-  late:    'rgba(232,168,124,0.08)',
-  absent:  'rgba(229,107,127,0.06)',
+// Status row accent — token-aligned colors
+const STATUS_ROW_BG = {
+  present: 'rgba(34,197,94,0.06)',
+  late:    'rgba(245,158,11,0.08)',
+  absent:  'rgba(239,68,68,0.06)',
   unset:   'transparent',
 }
-const STATUS_BORDER = {
-  present: '#5db8a3',
-  late:    '#e8a87c',
-  absent:  '#e56b7f',
+const STATUS_ROW_BORDER = {
+  present: 'var(--mint)',
+  late:    '#F59E0B',
+  absent:  '#EF4444',
   unset:   'transparent',
 }
-const PILL_ACTIVE_BG = {
-  present: 'linear-gradient(135deg, #5db8a3, #3d8a73)',
-  late:    'linear-gradient(135deg, #e8a87c, #d68a5a)',
-  absent:  'linear-gradient(135deg, #e56b7f, #c84d62)',
+
+// Active pill: solid fill matching token palette
+const PILL_ACTIVE = {
+  present: { bg: 'var(--mint)',  text: '#fff' },
+  late:    { bg: '#F59E0B',       text: '#fff' },
+  absent:  { bg: '#EF4444',       text: '#fff' },
 }
-const PILL_IDLE_COLOR = {
-  present: '#3d8a73',
-  late:    '#b46a3e',
-  absent:  '#b83b54',
-}
-const PILL_IDLE_BG = {
-  present: 'rgba(93,184,163,0.10)',
-  late:    'rgba(232,168,124,0.12)',
-  absent:  'rgba(229,107,127,0.10)',
+// Idle pill: tint bg
+const PILL_IDLE = {
+  present: { bg: '#DCFCE7', text: '#15803D' },
+  late:    { bg: '#FEF3C7', text: '#B45309' },
+  absent:  { bg: '#FEE2E2', text: '#B91C1C' },
 }
 
 const STATUS_LABELS = {
-  present: '✓ İştirak',
-  late:    '⏱ Gecikmə',
-  absent:  '✗ Qayıb',
+  present: 'İştirak',
+  late:    'Gecikmə',
+  absent:  'Qayıb',
 }
 
 function getMondayOfWeek(dateStr) {
@@ -205,45 +206,55 @@ export default function TeacherAttendanceRegister() {
   if (loading) {
     return (
       <div className="space-y-5">
-        <div className="pastel-skeleton h-12 w-72" />
-        <div className="pastel-skeleton h-24" />
-        <div className="pastel-skeleton h-64" />
+        <div className="pastel-skeleton h-10 w-64 rounded-tile" />
+        <div className="pastel-skeleton h-16 rounded-card" />
+        <div className="pastel-skeleton h-64 rounded-tile" />
       </div>
     )
   }
+
   if (!teacherClasses.length) {
     return (
-      <div className="liquid-card p-12 text-center">
-        <div className="icon-chip icon-chip-periwinkle mx-auto mb-3" style={{ width: 64, height: 64 }}>
-          <CalendarCheck className="w-8 h-8" />
-        </div>
-        <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>Sinif tapılmadı</p>
-        <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Sizə hənuz sinif təyin edilməyib.</p>
-      </div>
+      <EmptyState
+        tier={1}
+        icon={CalendarCheck}
+        title="Sinif tapılmadı"
+        description="Sizə hənuz sinif təyin edilməyib."
+      />
     )
   }
 
   return (
     <div className="space-y-5 pb-12 relative">
+      {/* ── Quiet success toast (bottom-center) ── */}
       {savedToast && (
-        <div className="fixed top-6 right-6 toast-success px-4 py-3 rounded-2xl text-sm font-semibold flex items-center gap-2 z-50">
+        <div
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-tile text-sm font-semibold text-white shadow-soft-lg"
+          style={{
+            background: 'var(--mint)',
+            animation: 'slideUp .25s var(--ease-out-quint)',
+          }}
+          role="status"
+          aria-live="polite"
+        >
           <Check className="w-4 h-4" /> Davamiyyət saxlandı
         </div>
       )}
 
-      <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
-        <span className="pastel-text">Davamiyyət Qeydiyyatı</span>
-      </h1>
+      {/* ── Page title ── */}
+      <div>
+        <h1 className="font-display text-2xl md:text-3xl font-extrabold text-ink-900 tracking-tight leading-tight">
+          Davamiyyət Qeydiyyatı
+        </h1>
+        <p className="text-sm mt-1 text-ink-400">Günlük davamiyyəti qeyd edin</p>
+      </div>
 
-      {/* Week mini-calendar */}
-      <div className="liquid-card px-5 py-4 flex items-center gap-3">
+      {/* ── Week mini-calendar strip ── */}
+      <div className="liquid-card px-4 py-3 flex items-center gap-2">
         <button
           onClick={() => shiftWeek(-1)}
-          className="p-1.5 rounded-lg smooth-trans"
-          style={{ color: '#64748b' }}
-          onMouseEnter={e => { e.currentTarget.style.color = '#7c6ee0'; e.currentTarget.style.background = 'rgba(124,110,224,0.08)' }}
-          onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'transparent' }}
           aria-label="Əvvəlki həftə"
+          className="p-2 rounded-tile smooth-trans text-ink-400 hover:text-brand-500 hover:bg-brand-50"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -258,26 +269,34 @@ export default function TeacherAttendanceRegister() {
               <button
                 key={day.date}
                 onClick={() => setSelectedDate(day.date)}
-                className="flex flex-col items-center gap-1.5 px-3 py-2 rounded-xl smooth-trans flex-1 max-w-[64px]"
+                className="flex flex-col items-center gap-1 px-2.5 py-2 rounded-tile smooth-trans flex-1 max-w-[64px]"
                 style={{
-                  background: isSelected ? 'linear-gradient(135deg, #7c6ee0, #5db8a3)' : 'transparent',
-                  color: isSelected ? '#fff' : '#475569',
-                  boxShadow: isSelected ? '0 4px 12px rgba(124,110,224,0.25)' : 'none',
+                  background: isSelected ? 'var(--brand-500)' : 'transparent',
                 }}
-                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(124,110,224,0.06)' }}
-                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent' }}
               >
-                <span className="text-xs font-semibold tracking-wide uppercase" style={{ color: isSelected ? 'rgba(255,255,255,0.85)' : '#94a3b8' }}>
+                <span
+                  className="text-[11px] font-semibold tracking-wide uppercase"
+                  style={{ color: isSelected ? 'rgba(255,255,255,0.8)' : 'var(--ink-400)' }}
+                >
                   {DAY_LABELS[i]}
                 </span>
-                <span className="text-base font-bold leading-none" style={{ color: isSelected ? '#fff' : (isToday ? '#7c6ee0' : '#1a1a2e') }}>
+                <span
+                  className="text-base font-bold leading-none tabular-nums"
+                  style={{
+                    color: isSelected ? '#fff' : isToday ? 'var(--brand-500)' : 'var(--ink-900)',
+                  }}
+                >
                   {dayNum}
                 </span>
-                <div className="w-1.5 h-1.5 rounded-full" style={{
-                  background: day.recorded
-                    ? (isSelected ? '#fff' : '#5db8a3')
-                    : (isSelected ? 'rgba(255,255,255,0.4)' : '#e2e8f0'),
-                }} />
+                {/* Recorded indicator dot */}
+                <div
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{
+                    background: day.recorded
+                      ? (isSelected ? '#fff' : 'var(--mint)')
+                      : isSelected ? 'rgba(255,255,255,0.35)' : 'var(--hairline-strong)',
+                  }}
+                />
               </button>
             )
           })}
@@ -285,21 +304,18 @@ export default function TeacherAttendanceRegister() {
 
         <button
           onClick={() => shiftWeek(1)}
-          className="p-1.5 rounded-lg smooth-trans"
-          style={{ color: '#64748b' }}
-          onMouseEnter={e => { e.currentTarget.style.color = '#7c6ee0'; e.currentTarget.style.background = 'rgba(124,110,224,0.08)' }}
-          onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'transparent' }}
           aria-label="Növbəti həftə"
+          className="p-2 rounded-tile smooth-trans text-ink-400 hover:text-brand-500 hover:bg-brand-50"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Toolbar */}
+      {/* ── Toolbar ── */}
       <div className="liquid-card p-4">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[180px] max-w-xs">
-            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Sinif</label>
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Sinif</label>
             <select
               className="pastel-input"
               value={selectedClass}
@@ -311,83 +327,105 @@ export default function TeacherAttendanceRegister() {
             </select>
           </div>
           <div className="flex-1 min-w-[160px] max-w-xs">
-            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>Tarix</label>
-            <input type="date" className="pastel-input" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
+            <label className="block text-[13px] font-semibold mb-1.5 text-ink-400 uppercase tracking-[0.04em]">Tarix</label>
+            <input
+              type="date"
+              className="pastel-input"
+              value={selectedDate}
+              onChange={e => setSelectedDate(e.target.value)}
+            />
           </div>
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={markAllPresent}
-            className="btn-ghost-pastel"
-            style={{ padding: '10px 18px', fontSize: 13, borderColor: 'rgba(93,184,163,0.4)', color: '#3d8a73' }}
           >
             <Users className="w-4 h-4" /> Hamısını İştirak Et
-          </button>
-          <button
-            onClick={handleSave}
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            loading={saving}
             disabled={markedCount === 0 || saving}
-            className="btn-pastel"
-            style={{ padding: '10px 22px', fontSize: 13, opacity: (markedCount === 0 || saving) ? 0.5 : 1 }}
+            onClick={handleSave}
           >
             <Check className="w-4 h-4" /> {saving ? '...' : `Saxla (${markedCount})`}
-          </button>
+          </Button>
         </div>
       </div>
 
+      {/* ── Existing records warning ── */}
       {existingRecords && (
-        <div className="liquid-card flex items-center gap-2.5 px-4 py-3" style={{ background: 'rgba(232,168,124,0.10)', borderColor: 'rgba(232,168,124,0.3)' }}>
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: '#d68a5a' }} />
-          <p className="text-sm" style={{ color: '#b46a3e' }}>
+        <div
+          className="liquid-card flex items-center gap-2.5 px-4 py-3 rounded-tile"
+          style={{ background: '#FEF3C7', border: '1px solid rgba(245,158,11,0.25)' }}
+        >
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: '#B45309' }} />
+          <p className="text-sm" style={{ color: '#B45309' }}>
             <strong className="font-semibold">{selectedClassName}</strong> sinfi üçün bu tarixdə davamiyyət artıq qeyd olunub. Saxladıqda mövcud qeydlər yenilənəcək.
           </p>
         </div>
       )}
 
+      {/* ── Save error ── */}
       {saveError && (
-        <div className="liquid-card flex items-center gap-2.5 px-4 py-3" style={{ background: 'rgba(229,107,127,0.10)', borderColor: 'rgba(229,107,127,0.3)' }}>
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: '#e56b7f' }} />
-          <p className="text-sm" style={{ color: '#b83b54' }}>{saveError}</p>
+        <div
+          className="liquid-card flex items-center gap-2.5 px-4 py-3 rounded-tile"
+          style={{ background: '#FEE2E2', border: '1px solid rgba(239,68,68,0.25)' }}
+        >
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: '#B91C1C' }} />
+          <p className="text-sm" style={{ color: '#B91C1C' }}>{saveError}</p>
         </div>
       )}
 
-      {/* Summary bar */}
+      {/* ── Summary bar ── */}
       <div className="liquid-card px-6 py-4 space-y-3">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4" style={{ color: '#94a3b8' }} />
-            <span className="text-sm" style={{ color: '#64748b' }}>Cəmi:</span>
-            <span className="text-sm font-bold" style={{ color: '#1a1a2e' }}>{totalStudents}</span>
+          <div className="flex items-center gap-1.5">
+            <Users className="w-4 h-4 text-ink-400" />
+            <span className="text-sm text-ink-600">Cəmi:</span>
+            <span className="text-sm font-bold text-ink-900 tabular-nums">{totalStudents}</span>
           </div>
-          <div className="w-px h-4" style={{ background: 'rgba(124,110,224,0.18)' }} />
+          <div className="w-px h-4 bg-hairline" />
           {[
-            { color: '#5db8a3', label: 'İştirak', value: presentCount, textColor: '#3d8a73' },
-            { color: '#e8a87c', label: 'Gecikmə', value: lateCount, textColor: '#b46a3e' },
-            { color: '#e56b7f', label: 'Qayıb', value: absentCount, textColor: '#b83b54' },
-            { color: '#cbd5e1', label: 'Qeyd edilməyib', value: notMarked, textColor: '#64748b' },
+            { color: 'var(--mint)',              label: 'İştirak',        value: presentCount, textColor: '#15803D' },
+            { color: '#F59E0B',                   label: 'Gecikmə',        value: lateCount,    textColor: '#B45309' },
+            { color: '#EF4444',                   label: 'Qayıb',          value: absentCount,  textColor: '#B91C1C' },
+            { color: 'var(--hairline-strong)',     label: 'Qeyd edilməyib', value: notMarked,    textColor: 'var(--ink-600)' },
           ].map(s => (
             <div key={s.label} className="flex items-center gap-1.5">
-              <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: s.color }} />
-              <span className="text-sm" style={{ color: '#64748b' }}>{s.label}:</span>
-              <span className="text-sm font-bold" style={{ color: s.textColor }}>{s.value}</span>
+              <span className="inline-block w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.color }} />
+              <span className="text-sm text-ink-400">{s.label}:</span>
+              <span className="text-sm font-bold tabular-nums" style={{ color: s.textColor }}>{s.value}</span>
             </div>
           ))}
-          <div className="ml-auto flex items-center gap-1.5 text-sm" style={{ color: '#64748b' }}>
+          <div className="ml-auto flex items-center gap-1.5 text-sm text-ink-400">
             <TrendingUp className="w-4 h-4" />
-            <span>{pctMarked}% qeyd edilib</span>
+            <span className="tabular-nums">{pctMarked}% qeyd edilib</span>
           </div>
         </div>
-        <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'rgba(124,110,224,0.10)' }}>
+        {/* Completion progress track */}
+        <div className="h-1.5 w-full rounded-full overflow-hidden bg-hairline">
           <div
             className="h-full rounded-full smooth-trans"
-            style={{ width: `${pctMarked}%`, background: 'linear-gradient(90deg, #5db8a3, #6b9dde)' }}
+            style={{
+              width: `${pctMarked}%`,
+              background: 'var(--brand-500)',
+            }}
           />
         </div>
       </div>
 
-      {/* Student list */}
-      <div className="liquid-card overflow-hidden">
+      {/* ── Student list ── */}
+      <div className="bg-surface rounded-tile border border-hairline overflow-hidden">
         {students.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="text-sm" style={{ color: '#94a3b8' }}>Bu sinifdə şagird yoxdur.</p>
-          </div>
+          <EmptyState
+            tier={1}
+            icon={Users}
+            title="Bu sinifdə şagird yoxdur"
+            description="Sinfə şagird əlavə edildikdən sonra burada görünəcək."
+            className="border-0 shadow-none"
+          />
         ) : (
           <div>
             {students.map((s, idx) => {
@@ -395,31 +433,33 @@ export default function TeacherAttendanceRegister() {
               return (
                 <div
                   key={s.id}
-                  className="flex items-center gap-4 px-6 py-3 smooth-trans"
+                  className="flex items-center gap-4 px-5 py-3 smooth-trans"
                   style={{
-                    background: STATUS_BG[status ?? 'unset'],
-                    borderTop: idx === 0 ? 'none' : '1px solid rgba(124,110,224,0.06)',
-                    borderLeft: `3px solid ${STATUS_BORDER[status ?? 'unset']}`,
+                    background: STATUS_ROW_BG[status ?? 'unset'],
+                    borderTop: idx === 0 ? 'none' : '1px solid var(--hairline)',
+                    borderLeft: `3px solid ${STATUS_ROW_BORDER[status ?? 'unset']}`,
                   }}
                 >
-                  <span className="text-xs w-5 text-right flex-shrink-0 select-none" style={{ color: '#cbd5e1' }}>{idx + 1}</span>
+                  <span className="text-xs w-5 text-right flex-shrink-0 select-none text-ink-400 tabular-nums">
+                    {idx + 1}
+                  </span>
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <Avatar name={s.full_name} color={s.avatar_color} size="md" />
-                    <span className="text-sm font-semibold truncate" style={{ color: '#1a1a2e' }}>{s.full_name}</span>
+                    <span className="text-sm font-semibold truncate text-ink-900">{s.full_name}</span>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
                     {(['present', 'late', 'absent']).map(key => {
                       const isActive = status === key
+                      const pill = isActive ? PILL_ACTIVE[key] : PILL_IDLE[key]
                       return (
                         <button
                           key={key}
                           onClick={() => setStatus(s.id, key)}
-                          className="px-4 py-1.5 rounded-full text-sm font-semibold smooth-trans whitespace-nowrap"
+                          className="px-3.5 py-1.5 rounded-pill text-sm font-semibold smooth-trans whitespace-nowrap"
                           style={{
-                            background: isActive ? PILL_ACTIVE_BG[key] : PILL_IDLE_BG[key],
-                            color: isActive ? '#fff' : PILL_IDLE_COLOR[key],
-                            border: isActive ? 'none' : `1px solid ${PILL_IDLE_COLOR[key]}33`,
-                            boxShadow: isActive ? '0 4px 12px rgba(0,0,0,0.08)' : 'none',
+                            background: pill.bg,
+                            color: pill.text,
+                            border: isActive ? 'none' : '1px solid transparent',
                           }}
                         >
                           {STATUS_LABELS[key]}
@@ -434,16 +474,18 @@ export default function TeacherAttendanceRegister() {
         )}
       </div>
 
+      {/* ── Bottom save button ── */}
       {students.length > 0 && (
         <div className="flex justify-end">
-          <button
-            onClick={handleSave}
+          <Button
+            variant="primary"
+            size="md"
+            loading={saving}
             disabled={markedCount === 0 || saving}
-            className="btn-pastel"
-            style={{ padding: '12px 22px', fontSize: 13, opacity: (markedCount === 0 || saving) ? 0.5 : 1 }}
+            onClick={handleSave}
           >
             <Check className="w-4 h-4" /> {saving ? '...' : `Saxla (${markedCount} şagird)`}
-          </button>
+          </Button>
         </div>
       )}
     </div>

@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { useRealtime } from '../../hooks/useRealtime'
 import Avatar from '../../components/ui/Avatar'
+import EmptyState from '../../components/ui/EmptyState'
 import { MessageSquare, Send, Plus, Users, Search, X } from 'lucide-react'
 
 export default function TeacherMessages() {
@@ -207,8 +208,8 @@ export default function TeacherMessages() {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="pastel-skeleton h-96" />
-          <div className="pastel-skeleton h-96 md:col-span-2" />
+          <div className="pastel-skeleton h-96 rounded-card" />
+          <div className="pastel-skeleton h-96 md:col-span-2 rounded-card" />
         </div>
       </div>
     )
@@ -216,19 +217,28 @@ export default function TeacherMessages() {
 
   return (
     <div className="liquid-card overflow-hidden flex" style={{ height: 'calc(100vh - 7rem)' }}>
-      {/* Left panel */}
-      <div className="w-80 flex flex-col flex-shrink-0" style={{ borderRight: '1px solid rgba(124,110,224,0.12)' }}>
-        <div className="px-4 py-4 space-y-3" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
+      {/* Left panel — thread list */}
+      <div className="w-80 flex flex-col flex-shrink-0 border-r border-hairline">
+        <div className="px-4 py-4 space-y-3 border-b border-hairline">
           <div className="flex gap-2">
-            <button onClick={() => setShowCompose(true)} className="btn-pastel flex-1" style={{ padding: '8px 14px', fontSize: 12 }}>
+            <button
+              onClick={() => setShowCompose(true)}
+              className="btn-pastel flex-1 flex items-center justify-center gap-1.5"
+              style={{ padding: '8px 14px', fontSize: 12 }}
+            >
               <Plus className="w-4 h-4" /> {t('new_message')}
             </button>
-            <button onClick={() => setShowAnnouncement(true)} className="btn-ghost-pastel" style={{ padding: '8px 12px', fontSize: 12 }}>
+            <button
+              onClick={() => setShowAnnouncement(true)}
+              className="btn-ghost-pastel flex items-center gap-1.5"
+              style={{ padding: '8px 12px', fontSize: 12 }}
+              title={t('send_to_all_parents')}
+            >
               <Users className="w-4 h-4" />
             </button>
           </div>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#94a3b8' }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
             <input
               placeholder={t('search')}
               value={searchQuery}
@@ -238,13 +248,15 @@ export default function TeacherMessages() {
             />
           </div>
         </div>
+
         <div className="flex-1 overflow-y-auto scrollbar-thin">
           {filteredThreads.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 py-12 px-4 text-center">
+            <div className="flex flex-col items-center justify-center gap-2 py-12 px-4 text-center">
               <div className="icon-chip icon-chip-periwinkle" style={{ width: 48, height: 48 }}>
                 <MessageSquare className="w-5 h-5" />
               </div>
-              <p className="text-sm" style={{ color: '#94a3b8' }}>{t('no_messages')}</p>
+              <p className="text-sm font-medium text-ink-600">{t('no_messages')}</p>
+              <p className="text-xs text-ink-400">Yeni mesaj yazmaq üçün + düyməsinə basın</p>
             </div>
           ) : (
             filteredThreads.map(thread => {
@@ -254,25 +266,29 @@ export default function TeacherMessages() {
                 <button
                   key={thread.threadId}
                   onClick={() => selectThread(thread)}
-                  className="w-full text-left px-4 py-3 smooth-trans"
+                  className="w-full text-left px-4 py-3 transition-colors duration-150 border-b border-hairline/60"
                   style={{
-                    background: isActive ? 'rgba(124,110,224,0.08)' : 'transparent',
-                    borderBottom: '1px solid rgba(124,110,224,0.06)',
-                    borderLeft: isActive ? '3px solid #7c6ee0' : '3px solid transparent',
+                    background: isActive ? 'var(--brand-50)' : 'transparent',
+                    borderLeft: isActive ? '3px solid var(--brand-500)' : '3px solid transparent',
                   }}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(124,110,224,0.04)' }}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'var(--canvas)' }}
                   onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
                 >
                   <div className="flex items-center gap-3">
                     <Avatar name={other?.full_name} color={other?.avatar_color} size="sm" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm truncate" style={{ fontWeight: thread.unread ? 700 : 500, color: '#1a1a2e' }}>
+                        <p
+                          className="text-sm truncate"
+                          style={{ fontWeight: thread.unread ? 700 : 500, color: 'var(--ink-900)' }}
+                        >
                           {other?.full_name || 'İstifadəçi'}
                         </p>
-                        {thread.unread && <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: '#7c6ee0' }} />}
+                        {thread.unread && (
+                          <div className="w-2 h-2 rounded-full flex-shrink-0 bg-brand-500" />
+                        )}
                       </div>
-                      <p className="text-xs truncate" style={{ color: '#64748b' }}>{thread.lastMessage.content}</p>
+                      <p className="text-xs truncate text-ink-600">{thread.lastMessage.content}</p>
                     </div>
                   </div>
                 </button>
@@ -282,44 +298,46 @@ export default function TeacherMessages() {
         </div>
       </div>
 
-      {/* Right panel */}
+      {/* Right panel — conversation */}
       <div className="flex-1 flex flex-col min-w-0">
         {!activeThread ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 px-8 text-center">
-            <div className="icon-chip icon-chip-periwinkle" style={{ width: 64, height: 64 }}>
-              <MessageSquare className="w-8 h-8" />
-            </div>
-            <p className="text-base font-semibold" style={{ color: '#1a1a2e' }}>{t('select_chat')}</p>
-            <p className="text-sm max-w-sm" style={{ color: '#94a3b8' }}>{t('select_chat_desc')}</p>
+            <EmptyState
+              icon={MessageSquare}
+              title={t('select_chat')}
+              description={t('select_chat_desc')}
+              className="border-none shadow-none"
+            />
           </div>
         ) : (
           <>
-            <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(124,110,224,0.12)' }}>
+            {/* Chat header */}
+            <div className="px-6 py-3.5 flex items-center gap-3 border-b border-hairline bg-surface">
               <Avatar name={profiles[activeThread.otherId]?.full_name} color={profiles[activeThread.otherId]?.avatar_color} size="sm" />
               <div>
-                <span className="text-sm font-bold" style={{ color: '#1a1a2e' }}>{profiles[activeThread.otherId]?.full_name}</span>
+                <span className="text-sm font-bold text-ink-900">{profiles[activeThread.otherId]?.full_name}</span>
                 {profiles[activeThread.otherId]?.role && (
-                  <p className="text-xs capitalize" style={{ color: '#94a3b8' }}>
+                  <p className="text-xs capitalize text-ink-400">
                     {profiles[activeThread.otherId].role === 'parent' ? 'Valideyn' : profiles[activeThread.otherId].role}
                   </p>
                 )}
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2.5 bg-canvas">
               {threadMessages.map(msg => {
                 const isMe = msg.sender_id === profile.id
                 return (
                   <div key={msg.id} className={`flex ${isMe ? 'justify-end' : ''}`}>
                     <div
-                      className="max-w-[70%] rounded-2xl px-4 py-2.5 text-sm"
+                      className="max-w-[70%] px-4 py-2.5 text-sm leading-relaxed"
                       style={{
-                        background: isMe
-                          ? 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)'
-                          : 'rgba(255,255,255,0.7)',
-                        backdropFilter: 'blur(10px)',
-                        color: isMe ? '#fff' : '#1a1a2e',
-                        border: isMe ? 'none' : '1px solid rgba(124,110,224,0.12)',
-                        boxShadow: isMe ? '0 4px 12px rgba(124,110,224,0.18)' : '0 1px 3px rgba(0,0,0,0.04)',
+                        background: isMe ? 'var(--brand-500)' : 'var(--surface)',
+                        color: isMe ? '#fff' : 'var(--ink-900)',
+                        border: isMe ? 'none' : '1px solid var(--hairline)',
+                        boxShadow: isMe ? 'none' : '0 1px 2px rgba(20,22,40,.04)',
+                        borderRadius: isMe ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                       }}
                     >
                       {msg.content}
@@ -329,7 +347,9 @@ export default function TeacherMessages() {
               })}
               <div ref={messagesEndRef} />
             </div>
-            <div className="px-6 py-4 flex gap-3" style={{ borderTop: '1px solid rgba(124,110,224,0.12)' }}>
+
+            {/* Input bar */}
+            <div className="px-6 py-3.5 flex gap-3 border-t border-hairline bg-surface">
               <input
                 value={input}
                 onChange={e => setInput(e.target.value)}
@@ -340,8 +360,8 @@ export default function TeacherMessages() {
               <button
                 onClick={sendMessage}
                 disabled={!input.trim()}
-                className="btn-pastel"
-                style={{ padding: '0 18px', opacity: !input.trim() ? 0.5 : 1 }}
+                className="btn-pastel flex items-center justify-center"
+                style={{ padding: '0 18px', opacity: !input.trim() ? 0.5 : 1, minWidth: 48 }}
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -353,16 +373,22 @@ export default function TeacherMessages() {
       {/* Compose Modal */}
       {showCompose && (
         <div className="liquid-backdrop" onClick={() => setShowCompose(false)}>
-          <div className="liquid-card p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{t('new_message')}</h3>
-              <button onClick={() => setShowCompose(false)} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
+          <div
+            className="bg-surface rounded-card shadow-modal w-full max-w-md p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-ink-900">{t('new_message')}</h3>
+              <button
+                onClick={() => setShowCompose(false)}
+                className="p-1.5 rounded-tile text-ink-400 hover:text-ink-700 hover:bg-canvas transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('messages')}</label>
+                <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">Valideyn</label>
                 <select className="pastel-input" value={selectedParent} onChange={e => setSelectedParent(e.target.value)}>
                   <option value="">{t('search')}</option>
                   {parents.map(p => (
@@ -371,7 +397,7 @@ export default function TeacherMessages() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('messages')}</label>
+                <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">Mesaj</label>
                 <textarea
                   className="pastel-input"
                   rows={4}
@@ -380,8 +406,14 @@ export default function TeacherMessages() {
                   placeholder={t('type_message')}
                 />
               </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button onClick={() => setShowCompose(false)} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>{t('cancel')}</button>
+              <div className="flex justify-end gap-2 pt-2 border-t border-hairline">
+                <button
+                  onClick={() => setShowCompose(false)}
+                  className="btn-ghost-pastel"
+                  style={{ padding: '10px 20px', fontSize: 13 }}
+                >
+                  {t('cancel')}
+                </button>
                 <button
                   onClick={handleCompose}
                   disabled={sending || !selectedParent || !composeMessage.trim()}
@@ -399,16 +431,27 @@ export default function TeacherMessages() {
       {/* Announcement Modal */}
       {showAnnouncement && (
         <div className="liquid-backdrop" onClick={() => setShowAnnouncement(false)}>
-          <div className="liquid-card p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold" style={{ color: '#1a1a2e' }}>{t('send_to_all_parents')}</h3>
-              <button onClick={() => setShowAnnouncement(false)} className="smooth-trans hover:opacity-70" style={{ color: '#64748b' }}>
+          <div
+            className="bg-surface rounded-card shadow-modal w-full max-w-md p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <span className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36 }}>
+                  <Users className="w-4 h-4" />
+                </span>
+                <h3 className="text-lg font-bold text-ink-900">{t('send_to_all_parents')}</h3>
+              </div>
+              <button
+                onClick={() => setShowAnnouncement(false)}
+                className="p-1.5 rounded-tile text-ink-400 hover:text-ink-700 hover:bg-canvas transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('class_name')}</label>
+                <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">{t('class_name')}</label>
                 <select className="pastel-input" value={announcementClass} onChange={e => setAnnouncementClass(e.target.value)}>
                   {teacherClasses.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
@@ -416,7 +459,7 @@ export default function TeacherMessages() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>{t('messages')}</label>
+                <label className="block text-[13px] font-semibold mb-1.5 text-ink-700">Mesaj</label>
                 <textarea
                   className="pastel-input"
                   rows={4}
@@ -425,8 +468,14 @@ export default function TeacherMessages() {
                   placeholder={t('type_message')}
                 />
               </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button onClick={() => setShowAnnouncement(false)} className="btn-ghost-pastel" style={{ padding: '10px 20px', fontSize: 13 }}>{t('cancel')}</button>
+              <div className="flex justify-end gap-2 pt-2 border-t border-hairline">
+                <button
+                  onClick={() => setShowAnnouncement(false)}
+                  className="btn-ghost-pastel"
+                  style={{ padding: '10px 20px', fontSize: 13 }}
+                >
+                  {t('cancel')}
+                </button>
                 <button
                   onClick={handleAnnouncement}
                   disabled={sending || !announcementMessage.trim()}

@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import Button from '../../components/ui/Button'
+import Mascot from '../../components/ui/Mascot'
 
 export default function NotFound() {
   const { profile } = useAuth()
@@ -7,32 +9,86 @@ export default function NotFound() {
 
   function goHome() {
     if (!profile) return navigate('/daxil-ol')
-    const paths = { student: '/dashboard', teacher: '/muellim/dashboard', parent: '/valideyn/dashboard', admin: '/admin/dashboard' }
+    const paths = {
+      student: '/dashboard',
+      teacher: '/muellim/dashboard',
+      parent: '/valideyn/dashboard',
+      admin: '/admin/dashboard',
+    }
     navigate(paths[profile.role] || '/daxil-ol')
   }
 
   return (
-    <div style={{
-      minHeight:'100vh', position:'relative', overflow:'hidden',
-      display:'flex', alignItems:'center', justifyContent:'center',
-      padding:'24px',
-      background:'linear-gradient(-45deg, #e8ecff, #f8f7fb, #c8e6e0, #f5e6d8, #b8c0ff, #f8f7fb)',
-      backgroundSize:'400% 400%',
-      animation:'heroGradient 12s ease infinite',
-    }}>
-      <div className="hb1"/><div className="hb2"/><div className="hb4"/><div className="hb6"/>
-
-      <div className="liquid-card" style={{ position:'relative', zIndex:1, padding:'56px 48px', textAlign:'center', maxWidth:480 }}>
-        <div style={{ fontSize:120, fontWeight:800, lineHeight:1, letterSpacing:'-0.04em', marginBottom:8 }}>
-          <span className="pastel-text">404</span>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+        background: 'var(--canvas)',
+      }}
+    >
+      <div
+        className="liquid-card"
+        style={{
+          padding: '48px 40px',
+          textAlign: 'center',
+          maxWidth: 440,
+          width: '100%',
+          borderRadius: 18,
+        }}
+      >
+        {/* One contained mascot — thinking pose */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+          <Mascot pose="thinking" size={96} bob />
         </div>
-        <h1 style={{ fontSize:24, fontWeight:800, color:'#1a1a2e', marginBottom:10, letterSpacing:'-0.02em' }}>Səhifə tapılmadı</h1>
-        <p style={{ fontSize:14, color:'#64748b', lineHeight:1.6, marginBottom:28, maxWidth:340, marginLeft:'auto', marginRight:'auto' }}>
+
+        {/* 404 hero number */}
+        <div
+          className="font-display"
+          style={{
+            fontSize: 64,
+            fontWeight: 800,
+            lineHeight: 1,
+            letterSpacing: '-0.03em',
+            color: 'var(--brand-500)',
+            marginBottom: 4,
+          }}
+        >
+          404
+        </div>
+
+        <h1
+          className="font-display"
+          style={{
+            fontSize: 24,
+            fontWeight: 700,
+            color: 'var(--ink-900)',
+            marginBottom: 8,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          Səhifə tapılmadı
+        </h1>
+
+        <p
+          style={{
+            fontSize: 15,
+            color: 'var(--ink-600)',
+            lineHeight: 1.6,
+            marginBottom: 28,
+            maxWidth: 320,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        >
           Axtardığınız səhifə mövcud deyil və ya silinib.
         </p>
-        <button onClick={goHome} className="btn-pastel" style={{ border:'none', cursor:'pointer' }}>
+
+        <Button variant="primary" size="lg" onClick={goHome}>
           Ana səhifəyə qayıt
-        </button>
+        </Button>
       </div>
     </div>
   )

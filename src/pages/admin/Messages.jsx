@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Send, Bell, Users } from 'lucide-react'
+import { Send, Bell, Users, MessageSquare } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
@@ -9,6 +9,7 @@ import { Textarea, Select } from '../../components/ui/Input'
 import Table from '../../components/ui/Table'
 import { PageSpinner } from '../../components/ui/Spinner'
 import Badge from '../../components/ui/Badge'
+import EmptyState from '../../components/ui/EmptyState'
 
 const AUDIENCE_OPTIONS = [
   { value: 'all_parents', label: 'Bütün valideynlər' },
@@ -16,6 +17,11 @@ const AUDIENCE_OPTIONS = [
   { value: 'all_students', label: 'Bütün şagirdlər' },
   { value: 'class', label: 'Müəyyən sinif' },
 ]
+
+/* Audience tag — one calm neutral chip (color restraint: chrome stays grey + brand). */
+function AudiencePill({ label }) {
+  return <span className="pill-muted">{label}</span>
+}
 
 export default function Messages() {
   const { profile, t } = useAuth()
@@ -124,30 +130,70 @@ export default function Messages() {
   }
 
   const columns = [
-    { key: 'title', label: t('announcements'), render: (val) => <span className="font-medium text-gray-900">{val}</span> },
+    {
+      key: 'title',
+      label: t('announcements'),
+      render: (val) => <span className="font-semibold text-ink-900">{val}</span>,
+    },
     {
       key: 'audience',
       label: t('all'),
-      render: (val) => <Badge variant="default">{audienceLabel(val)}</Badge>,
+      render: (val) => <AudiencePill label={audienceLabel(val)} />,
     },
-    { key: 'created_at', label: t('date'), render: (val) => formatDate(val) },
-    { key: 'sender', label: t('full_name'), render: (val) => val?.full_name || '—' },
+    {
+      key: 'created_at',
+      label: t('date'),
+      render: (val) => <span className="tabular-nums text-ink-600 text-sm">{formatDate(val)}</span>,
+    },
+    {
+      key: 'sender',
+      label: t('full_name'),
+      render: (val) => <span className="text-ink-600 text-sm">{val?.full_name || '—'}</span>,
+    },
   ]
 
   if (loading) return <PageSpinner />
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight"><span className="pastel-text">{t('announcements')}</span></h1>
+      {/* Page header */}
+      <div>
+        <h1 className="font-display text-2xl font-bold text-ink-900">{t('announcements')}</h1>
+        <p className="text-sm mt-1 text-ink-400">
+          Valideynlərə, müəllimlərə və ya şagirdlərə bildiriş göndərin.
+        </p>
+      </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {success && <p className="text-sm text-teal">{t('send_announcement')}</p>}
-
-      <Card hover={false}>
-        <div className="flex items-center gap-3 mb-6">
-          <Bell className="w-5 h-5 text-purple-mid" />
-          <h2 className="font-serif text-xl text-gray-900">{t('send_announcement')}</h2>
+      {/* Feedback banners */}
+      {error && (
+        <div
+          className="flex items-center gap-3 rounded-tile px-4 py-3 text-sm font-medium"
+          style={{ background: '#FEE2E2', color: 'var(--danger)', border: '1px solid #FECACA' }}
+        >
+          {error}
         </div>
+      )}
+      {success && (
+        <div
+          className="flex items-center gap-3 rounded-tile px-4 py-3 text-sm font-medium"
+          style={{ background: '#DCFCE7', color: 'var(--success)', border: '1px solid #BBF7D0' }}
+        >
+          {t('send_announcement')}
+        </div>
+      )}
+
+      {/* Compose card */}
+      <Card hover={false}>
+        <div className="flex items-center gap-3 mb-5">
+          <span className="icon-chip icon-chip-periwinkle">
+            <Bell className="w-5 h-5" />
+          </span>
+          <div>
+            <h2 className="text-base font-semibold text-ink-900">{t('send_announcement')}</h2>
+            <p className="text-xs text-ink-400 mt-0.5">Bildiriş dərhal alıcılara çatdırılacaq.</p>
+          </div>
+        </div>
+
         <div className="space-y-4">
           <Input
             label={t('announcements')}
@@ -173,20 +219,41 @@ export default function Messages() {
               </Select>
             )}
           </div>
+
           <div className="flex justify-end pt-2">
-            <Button onClick={handleSend} loading={sending}>
+            <Button onClick={handleSend} loading={sending} disabled={!form.title.trim() || !form.body.trim()}>
               <span className="flex items-center gap-2"><Send className="w-4 h-4" /> {t('send_announcement')}</span>
             </Button>
           </div>
         </div>
       </Card>
 
+      {/* History card */}
       <Card hover={false}>
-        <div className="flex items-center gap-3 mb-6">
-          <Users className="w-5 h-5 text-purple-mid" />
-          <h2 className="font-serif text-xl text-gray-900">{t('announcements')}</h2>
+        <div className="flex items-center gap-3 mb-5">
+          <span className="icon-chip icon-chip-periwinkle">
+            <Users className="w-5 h-5" />
+          </span>
+          <div>
+            <h2 className="text-base font-semibold text-ink-900">{t('announcements')}</h2>
+            <p className="text-xs text-ink-400 mt-0.5">
+              <span className="tabular-nums font-semibold text-ink-700">{announcements.length}</span> bildiriş göndərilib
+            </p>
+          </div>
         </div>
-        <Table columns={columns} data={announcements} emptyMessage={t('no_data')} />
+
+        {announcements.length === 0 ? (
+          <EmptyState
+            tier={1}
+            icon={MessageSquare}
+            title="Hələ bildiriş göndərilməyib"
+            description="Yuxarıdakı forma vasitəsilə ilk bildirişinizi göndərin."
+          />
+        ) : (
+          <div className="p-0 -mx-5 -mb-5 overflow-hidden" style={{ borderRadius: '0 0 14px 14px' }}>
+            <Table columns={columns} data={announcements} emptyMessage={t('no_data')} />
+          </div>
+        )}
       </Card>
     </div>
   )

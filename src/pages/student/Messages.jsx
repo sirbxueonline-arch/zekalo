@@ -110,48 +110,38 @@ export default function StudentMessages() {
       <div
         className="w-80 flex flex-col"
         style={{
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 100%)',
-          backdropFilter: 'blur(24px) saturate(1.6)',
-          WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
-          borderRight: '1px solid rgba(124,110,224,0.12)',
+          background: 'var(--surface)',
+          borderRight: '1px solid var(--hairline)',
         }}
       >
+        {/* Sidebar header */}
         <div
-          className="p-4 flex items-center gap-2"
-          style={{ borderBottom: '1px solid rgba(124,110,224,0.10)' }}
+          className="p-4 flex items-center gap-2.5"
+          style={{ borderBottom: '1px solid var(--hairline)' }}
         >
           <span
-            className="flex items-center justify-center"
-            style={{
-              width: 28, height: 28, borderRadius: 8,
-              background: 'rgba(124,110,224,0.14)',
-            }}
+            className="icon-chip icon-chip-periwinkle"
+            style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0 }}
           >
-            <Inbox className="w-3.5 h-3.5" style={{ color: '#7c6ee0' }} />
+            <Inbox className="w-4 h-4" />
           </span>
-          <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e' }}>
+          <h2 className="text-ink-900" style={{ fontSize: 16, fontWeight: 700 }}>
             {t('messages')}
           </h2>
         </div>
+
+        {/* Thread list */}
         <div className="flex-1 overflow-y-auto">
           {threads.length === 0 ? (
-            <div className="p-6 flex flex-col items-center text-center gap-2">
+            <div className="p-6 flex flex-col items-center text-center gap-3">
               <span
-                className="flex items-center justify-center"
-                style={{
-                  width: 48, height: 48, borderRadius: 16,
-                  background: 'rgba(124,110,224,0.10)',
-                  border: '1px solid rgba(124,110,224,0.18)',
-                }}
+                className="icon-chip icon-chip-periwinkle"
+                style={{ width: 52, height: 52, borderRadius: 14 }}
               >
-                <MessageSquare className="w-5 h-5" style={{ color: '#7c6ee0' }} />
+                <MessageSquare className="w-6 h-6" />
               </span>
-              <p className="text-sm font-medium" style={{ color: '#1a1a2e' }}>
-                {t('no_messages')}
-              </p>
-              <p className="text-xs" style={{ color: '#64748b' }}>
-                Mesajlarınız burada görünəcək
-              </p>
+              <p className="text-sm font-semibold text-ink-900">{t('no_messages')}</p>
+              <p className="text-xs text-ink-400">Mesajlarınız burada görünəcək</p>
             </div>
           ) : (
             threads.map(thread => {
@@ -163,25 +153,24 @@ export default function StudentMessages() {
                   onClick={() => selectThread(thread)}
                   className="w-full text-left transition-all"
                   style={{
-                    padding: '14px 16px',
-                    borderBottom: '1px solid rgba(124,110,224,0.06)',
-                    background: isActive ? 'rgba(124,110,224,0.10)' : 'transparent',
-                    borderLeft: isActive ? '3px solid #7c6ee0' : '3px solid transparent',
+                    padding: '13px 16px',
+                    borderBottom: '1px solid var(--hairline)',
+                    background: isActive ? 'var(--brand-50)' : 'transparent',
+                    borderLeft: isActive ? '3px solid var(--brand-500)' : '3px solid transparent',
                     cursor: 'pointer',
                   }}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(124,110,224,0.04)' }}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'var(--brand-50)' }}
                   onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
                 >
                   <div className="flex items-center gap-3">
                     <Avatar name={other?.full_name} color={other?.avatar_color} size="sm" />
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-1">
                         <p
-                          className="truncate"
+                          className="truncate text-sm"
                           style={{
-                            fontSize: 14,
                             fontWeight: thread.unread ? 700 : 500,
-                            color: thread.unread ? '#1a1a2e' : '#475569',
+                            color: thread.unread ? 'var(--ink-900)' : 'var(--ink-600)',
                           }}
                         >
                           {other?.full_name || 'İstifadəçi'}
@@ -190,13 +179,13 @@ export default function StudentMessages() {
                           <span
                             style={{
                               width: 8, height: 8, borderRadius: 999,
-                              background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                              background: 'var(--brand-500)',
                               flexShrink: 0,
                             }}
                           />
                         )}
                       </div>
-                      <p className="text-xs truncate mt-0.5" style={{ color: '#64748b' }}>
+                      <p className="text-xs truncate mt-0.5 text-ink-400">
                         {thread.lastMessage.content}
                       </p>
                     </div>
@@ -209,48 +198,53 @@ export default function StudentMessages() {
       </div>
 
       {/* Chat pane */}
-      <div className="flex-1 flex flex-col" style={{ background: 'transparent' }}>
+      <div className="flex-1 flex flex-col" style={{ background: 'var(--canvas)' }}>
         {!activeThread ? (
           <div className="flex-1 flex items-center justify-center p-6">
-            <EmptyState icon={MessageSquare} title={t('select_chat')} description={t('select_chat_desc')} />
+            <EmptyState
+              pose="waving"
+              title={t('select_chat')}
+              description={t('select_chat_desc')}
+            />
           </div>
         ) : (
           <>
+            {/* Chat header */}
             <div
               className="px-6 py-4 flex items-center gap-3"
               style={{
-                borderBottom: '1px solid rgba(124,110,224,0.10)',
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 100%)',
-                backdropFilter: 'blur(24px) saturate(1.6)',
-                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+                borderBottom: '1px solid var(--hairline)',
+                background: 'var(--surface)',
               }}
             >
-              <Avatar name={profiles[activeThread.otherId]?.full_name} color={profiles[activeThread.otherId]?.avatar_color} size="sm" />
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#1a1a2e' }}>
+              <Avatar
+                name={profiles[activeThread.otherId]?.full_name}
+                color={profiles[activeThread.otherId]?.avatar_color}
+                size="sm"
+              />
+              <span className="font-semibold text-ink-900" style={{ fontSize: 14 }}>
                 {profiles[activeThread.otherId]?.full_name}
               </span>
             </div>
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+
+            {/* Messages area */}
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-3">
               {threadMessages.map(msg => {
                 const isMe = msg.sender_id === profile.id
                 return (
-                  <div key={msg.id} className={`flex ${isMe ? 'justify-end' : ''}`}>
+                  <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                     <div
                       className="max-w-[70%] text-sm"
                       style={{
-                        padding: '10px 16px',
-                        borderRadius: 18,
+                        padding: '10px 14px',
+                        borderRadius: isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
                         background: isMe
-                          ? 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)'
-                          : 'rgba(255,255,255,0.75)',
-                        color: isMe ? '#fff' : '#1a1a2e',
-                        border: isMe ? 'none' : '1px solid rgba(124,110,224,0.18)',
-                        backdropFilter: !isMe ? 'blur(12px)' : undefined,
-                        WebkitBackdropFilter: !isMe ? 'blur(12px)' : undefined,
-                        boxShadow: isMe
-                          ? '0 4px 14px rgba(124,110,224,0.20)'
-                          : '0 2px 6px rgba(140,120,200,0.06)',
-                        lineHeight: 1.5,
+                          ? 'var(--brand-500)'
+                          : 'var(--surface-2)',
+                        color: isMe ? '#fff' : 'var(--ink-900)',
+                        border: isMe ? 'none' : '1px solid var(--hairline)',
+                        boxShadow: 'none',
+                        lineHeight: 1.55,
                         whiteSpace: 'pre-wrap',
                         wordBreak: 'break-word',
                       }}
@@ -262,13 +256,13 @@ export default function StudentMessages() {
               })}
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Input bar */}
             <div
-              className="px-6 py-4 flex gap-3"
+              className="px-6 py-4 flex gap-3 items-center"
               style={{
-                borderTop: '1px solid rgba(124,110,224,0.10)',
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 100%)',
-                backdropFilter: 'blur(24px) saturate(1.6)',
-                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+                borderTop: '1px solid var(--hairline)',
+                background: 'var(--surface)',
               }}
             >
               <input
@@ -284,15 +278,16 @@ export default function StudentMessages() {
                 className="flex items-center justify-center transition-all"
                 style={{
                   width: 44, height: 44, borderRadius: 999,
-                  background: 'linear-gradient(135deg, #7c6ee0 0%, #5db8a3 100%)',
+                  background: 'var(--brand-500)',
                   color: '#fff',
                   border: 'none',
-                  boxShadow: '0 6px 16px rgba(124,110,224,0.28)',
-                  opacity: !input.trim() ? 0.5 : 1,
+                  boxShadow: '0 1px 2px rgba(20,22,40,.08)',
+                  opacity: !input.trim() ? 0.45 : 1,
                   cursor: !input.trim() ? 'not-allowed' : 'pointer',
                   flexShrink: 0,
+                  transition: 'opacity .15s, transform .12s',
                 }}
-                onMouseEnter={e => { if (input.trim()) e.currentTarget.style.transform = 'translateY(-1px)' }}
+                onMouseEnter={e => { if (input.trim()) e.currentTarget.style.transform = 'translateY(-2px)' }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)' }}
               >
                 <Send className="w-4 h-4" />

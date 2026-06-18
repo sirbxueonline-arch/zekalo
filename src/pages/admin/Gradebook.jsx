@@ -20,13 +20,12 @@ function escapeCsvField(val) {
   return str
 }
 
-
 function gradeColor(score, maxScore) {
   const pct = maxScore > 0 ? (score / maxScore) * 100 : score * 10
-  if (pct >= 85) return 'bg-[rgba(93,184,163,0.16)] text-[#2e7363] font-semibold'
-  if (pct >= 60) return 'bg-[rgba(107,157,222,0.14)] text-[#3d6da7]'
-  if (pct >= 40) return 'bg-[rgba(232,168,124,0.16)] text-[#a55f33]'
-  return 'bg-[rgba(239,68,68,0.10)] text-[#b91c1c]'
+  if (pct >= 85) return 'text-success-text font-semibold'
+  if (pct >= 60) return 'text-ink-900 font-medium'
+  if (pct >= 40) return 'text-warning-text font-medium'
+  return 'text-danger-text font-medium'
 }
 
 function normalize(score, maxScore) {
@@ -36,19 +35,19 @@ function normalize(score, maxScore) {
 
 // ── Distribution bar segment ───────────────────────────────────────────────
 
-function DistBar({ label, count, total, color }) {
+function DistBar({ label, count, total }) {
   const pct = total > 0 ? Math.round((count / total) * 100) : 0
   return (
     <div className="flex items-center gap-3">
-      <span className="text-xs font-semibold text-gray-500 w-4">{label}</span>
-      <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+      <span className="text-xs font-semibold text-ink-600 w-4 tabular-nums">{label}</span>
+      <div className="flex-1 h-2 bg-hairline rounded-full overflow-hidden">
         <div
-          className={`h-3 rounded-full transition-all duration-500 ${color}`}
+          className="h-2 rounded-full bg-brand-500 transition-all duration-300"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-xs text-gray-500 w-8 text-right">{count}</span>
-      <span className="text-xs text-gray-400 w-8 text-right">{pct}%</span>
+      <span className="text-xs text-ink-600 w-6 text-right tabular-nums">{count}</span>
+      <span className="text-xs text-ink-400 w-9 text-right tabular-nums">{pct}%</span>
     </div>
   )
 }
@@ -217,7 +216,7 @@ export default function AdminGradebook() {
     })
 
     const csv  = [header, ...rows].map(r => r.map(escapeCsvField).join(';')).join('\n')
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
     a.href     = url
@@ -253,6 +252,7 @@ export default function AdminGradebook() {
   if (!classes.length) {
     return (
       <EmptyState
+        tier={1}
         icon={BookOpen}
         title="Sinif tapılmadı"
         description="Bu məktəbdə hələ heç bir sinif yaradılmayıb."
@@ -264,27 +264,27 @@ export default function AdminGradebook() {
   const selectedSubjectName = subjects.find(s => s.id === selectedSubject)?.name || ''
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
 
       {/* ── Page header ─────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight"><span className="pastel-text">Jurnal</span></h1>
+          <h1 className="text-2xl font-display font-bold text-ink-900 tracking-tight">Jurnal</h1>
           {selectedClassName && selectedSubjectName && (
-            <p className="mt-1 text-sm text-[#64748b]">
+            <p className="mt-1 text-sm text-ink-400">
               {selectedClassName} &mdash; {selectedSubjectName}
             </p>
           )}
         </div>
-        <Button variant="secondary" onClick={exportCSV} disabled={!assessments.length}>
-          <Download className="w-4 h-4 mr-2" />
+        <Button variant="secondary" size="sm" onClick={exportCSV} disabled={!assessments.length}>
+          <Download className="w-4 h-4 mr-1.5" />
           CSV ixrac et
         </Button>
       </div>
 
       {/* ── Selectors ───────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="sm:w-56">
+        <div className="sm:w-52">
           <Select
             label="Sinif"
             value={selectedClass}
@@ -295,7 +295,7 @@ export default function AdminGradebook() {
             ))}
           </Select>
         </div>
-        <div className="sm:w-56">
+        <div className="sm:w-52">
           <Select
             label="Fənn"
             value={selectedSubject}
@@ -313,54 +313,56 @@ export default function AdminGradebook() {
       {/* ── Stat cards ──────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-        <div className="rounded-2xl border border-border-soft shadow-sm bg-white p-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs tracking-widest text-gray-400 uppercase">Ümumi Şagird</span>
-            <span className="w-8 h-8 rounded-lg bg-purple-light flex items-center justify-center">
-              <Users className="w-4 h-4 text-purple" />
-            </span>
+        <div className="bg-surface border border-hairline rounded-card p-5 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[12px] font-semibold text-ink-400 uppercase tracking-[.04em]">Ümumi Şagird</p>
+            <p className="font-display font-bold text-[27px] text-ink-900 mt-1.5 tabular-nums leading-none tracking-[-0.01em]">
+              {students.length}
+            </p>
+            <p className="text-xs text-ink-400 mt-1.5">bu sinifdə</p>
           </div>
-          <p className="text-3xl font-semibold text-gray-900">{students.length}</p>
-          <p className="text-xs text-gray-400 mt-1">bu sinifdə</p>
+          <div className="icon-chip icon-chip-periwinkle flex-shrink-0">
+            <Users className="w-5 h-5" />
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-border-soft shadow-sm bg-white p-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs tracking-widest text-gray-400 uppercase">Ortalama</span>
-            <span className="w-8 h-8 rounded-lg bg-teal-light flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-teal" />
-            </span>
+        <div className="bg-surface border border-hairline rounded-card p-5 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[12px] font-semibold text-ink-400 uppercase tracking-[.04em]">Ortalama</p>
+            <p className="font-display font-bold text-[27px] text-ink-900 mt-1.5 tabular-nums leading-none tracking-[-0.01em]">
+              {classAvg != null ? classAvg.toString().replace('.', ',') : '—'}
+            </p>
+            <p className="text-xs text-ink-400 mt-1.5">sinif ortalama bal</p>
           </div>
-          <p className="text-3xl font-semibold text-gray-900">
-            {classAvg != null ? classAvg.toString().replace('.', ',') : '—'}
-          </p>
-          <p className="text-xs text-gray-400 mt-1">sinif ortalama bal</p>
+          <div className="icon-chip icon-chip-periwinkle flex-shrink-0">
+            <TrendingUp className="w-5 h-5" />
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-border-soft shadow-sm bg-white p-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs tracking-widest text-gray-400 uppercase">Ən Yüksək</span>
-            <span className="w-8 h-8 rounded-lg bg-purple-light flex items-center justify-center">
-              <Award className="w-4 h-4 text-purple" />
-            </span>
+        <div className="bg-surface border border-hairline rounded-card p-5 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[12px] font-semibold text-ink-400 uppercase tracking-[.04em]">Ən Yüksək</p>
+            <p className="font-display font-bold text-[27px] text-ink-900 mt-1.5 tabular-nums leading-none tracking-[-0.01em]">
+              {highestAvg != null ? highestAvg.toString().replace('.', ',') : '—'}
+            </p>
+            <p className="text-xs text-ink-400 mt-1.5">ən yüksək ortalama</p>
           </div>
-          <p className="text-3xl font-semibold text-gray-900">
-            {highestAvg != null ? highestAvg.toString().replace('.', ',') : '—'}
-          </p>
-          <p className="text-xs text-gray-400 mt-1">ən yüksək ortalama</p>
+          <div className="icon-chip icon-chip-periwinkle flex-shrink-0">
+            <Award className="w-5 h-5" />
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-border-soft shadow-sm bg-white p-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs tracking-widest text-gray-400 uppercase">Risk altında</span>
-            <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${atRisk > 0 ? 'bg-red-50' : 'bg-teal-light'}`}>
-              <BarChart3 className={`w-4 h-4 ${atRisk > 0 ? 'text-red-500' : 'text-teal'}`} />
-            </span>
+        <div className="bg-surface border border-hairline rounded-card p-5 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[12px] font-semibold text-ink-400 uppercase tracking-[.04em]">Risk altında</p>
+            <p className={`font-display font-bold text-[27px] mt-1.5 tabular-nums leading-none tracking-[-0.01em] ${atRisk > 0 ? 'text-danger-text' : 'text-ink-900'}`}>
+              {atRisk}
+            </p>
+            <p className="text-xs text-ink-400 mt-1.5">ortalama 5-dən aşağı</p>
           </div>
-          <p className={`text-3xl font-semibold ${atRisk > 0 ? 'text-red-600' : 'text-gray-900'}`}>
-            {atRisk}
-          </p>
-          <p className="text-xs text-gray-400 mt-1">ortalama 5-dən aşağı</p>
+          <div className={`icon-chip flex-shrink-0 ${atRisk > 0 ? 'icon-chip-coral' : 'icon-chip-periwinkle'}`}>
+            <BarChart3 className="w-5 h-5" />
+          </div>
         </div>
 
       </div>
@@ -368,6 +370,7 @@ export default function AdminGradebook() {
       {/* ── Gradebook table ─────────────────────────────────────────────── */}
       {!selectedSubject ? (
         <EmptyState
+          tier={1}
           icon={BookOpen}
           title="Fənn seçin"
           description="Jurnalı görmək üçün yuxarıdan sinif və fənn seçin."
@@ -375,35 +378,34 @@ export default function AdminGradebook() {
       ) : tableLoading ? (
         <PageSpinner />
       ) : assessments.length === 0 ? (
-        <Card hover={false} className="text-center py-12">
-          <BookOpen className="w-10 h-10 text-purple-mid mx-auto mb-3" />
-          <p className="font-serif text-xl text-gray-700 mb-1">Qiymətləndirmə yoxdur</p>
-          <p className="text-sm text-gray-400">
-            Bu sinif-fənn üçün hələ heç bir qiymətləndirmə əlavə edilməyib.
-          </p>
-        </Card>
+        <EmptyState
+          tier={1}
+          icon={BookOpen}
+          title="Qiymətləndirmə yoxdur"
+          description="Bu sinif-fənn üçün hələ heç bir qiymətləndirmə əlavə edilməyib."
+        />
       ) : (
-        <div className="rounded-2xl border border-border-soft shadow-sm bg-white overflow-x-auto">
-          <table className="w-full">
+        <div className="bg-surface rounded-tile border border-hairline overflow-x-auto">
+          <table className="pastel-table w-full">
             <thead>
-              <tr className="bg-surface border-b border-border-soft">
-                <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4 text-left sticky left-0 bg-surface z-10 min-w-[200px]">
+              <tr>
+                <th className="sticky left-0 bg-surface-2 z-10 min-w-[200px] text-left">
                   Şagird
                 </th>
                 {assessments.map(a => (
                   <th
                     key={a.id}
-                    className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-4 text-center min-w-[110px]"
+                    className="text-center min-w-[110px]"
                   >
-                    <div className="text-purple truncate max-w-[100px] mx-auto" title={a.title}>
+                    <div className="text-ink-600 truncate max-w-[100px] mx-auto normal-case text-[12px] font-semibold" title={a.title}>
                       {a.title}
                     </div>
-                    <div className="text-[10px] text-gray-400 font-normal normal-case mt-0.5">
+                    <div className="text-[10px] text-ink-400 font-normal mt-0.5">
                       maks: {a.max_score}
                     </div>
                   </th>
                 ))}
-                <th className="text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4 text-center min-w-[100px]">
+                <th className="text-center min-w-[100px]">
                   Ortalama
                 </th>
               </tr>
@@ -413,7 +415,7 @@ export default function AdminGradebook() {
                 <tr>
                   <td
                     colSpan={assessments.length + 2}
-                    className="text-center py-10 text-sm text-gray-400"
+                    className="text-center py-10 text-sm text-ink-400"
                   >
                     Bu sinifdə şagird tapılmadı.
                   </td>
@@ -423,25 +425,16 @@ export default function AdminGradebook() {
                 const avg   = getStudentAvg(student.id)
                 const isLow = avg != null && avg < 5
                 return (
-                  <tr
-                    key={student.id}
-                    className={`border-b border-border-soft transition-colors last:border-0 ${
-                      isLow ? 'bg-red-50/60' : idx % 2 === 0 ? 'bg-white' : 'bg-surface/40'
-                    } hover:bg-purple-light/30`}
-                  >
+                  <tr key={student.id}>
                     {/* Name — sticky */}
-                    <td className={`px-6 py-3.5 text-sm font-medium text-gray-900 sticky left-0 z-10 ${
-                      isLow ? 'bg-red-50/60' : idx % 2 === 0 ? 'bg-white' : 'bg-surface/40'
-                    }`}>
+                    <td className={`sticky left-0 z-10 ${idx % 2 === 0 ? 'bg-surface' : 'bg-surface-2'}`}>
                       <div className="flex items-center gap-2.5">
-                        <span className="w-7 h-7 rounded-full bg-purple-light text-purple text-xs font-semibold flex items-center justify-center flex-shrink-0">
+                        <span className="w-7 h-7 rounded-full bg-brand-100 text-brand-600 text-xs font-semibold flex items-center justify-center flex-shrink-0">
                           {student.full_name?.charAt(0).toUpperCase()}
                         </span>
-                        <span>{student.full_name}</span>
+                        <span className="text-[13px] font-medium text-ink-900">{student.full_name}</span>
                         {isLow && (
-                          <span className="ml-auto text-[10px] font-medium text-red-500 bg-red-50 border border-red-200 rounded-full px-2 py-0.5">
-                            risk
-                          </span>
+                          <span className="pill-rose ml-auto">risk</span>
                         )}
                       </div>
                     </td>
@@ -453,7 +446,7 @@ export default function AdminGradebook() {
                       const cellId = key
 
                       return (
-                        <td key={assessment.id} className="px-4 py-3.5 text-center">
+                        <td key={assessment.id} className="text-center px-3 py-3.5">
                           {editingCell === cellId ? (
                             <input
                               ref={editRef}
@@ -463,7 +456,7 @@ export default function AdminGradebook() {
                               step="0.5"
                               defaultValue={grade?.score ?? ''}
                               autoFocus
-                              className="w-16 border border-purple rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple/30"
+                              className="w-16 border border-brand-400 rounded-input px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-brand-500/20 tabular-nums"
                               onBlur={e => saveGrade(student.id, assessment.id, e.target.value)}
                               onKeyDown={e => {
                                 if (e.key === 'Enter') e.target.blur()
@@ -474,13 +467,13 @@ export default function AdminGradebook() {
                             <button
                               onClick={() => setEditingCell(cellId)}
                               title="Redaktə et"
-                              className={`w-16 py-1.5 rounded-lg text-sm transition-all hover:ring-2 hover:ring-purple/20 ${
+                              className={`w-16 py-1.5 rounded-input text-sm tabular-nums transition-all hover:ring-2 hover:ring-brand-400/25 ${
                                 grade
                                   ? gradeColor(grade.score, grade.max_score)
-                                  : 'text-gray-300 hover:bg-purple-light'
+                                  : 'text-ink-400 hover:bg-brand-50'
                               }`}
                             >
-                              {grade ? grade.score : '\u2014'}
+                              {grade ? grade.score : '—'}
                             </button>
                           )}
                         </td>
@@ -488,10 +481,10 @@ export default function AdminGradebook() {
                     })}
 
                     {/* Average */}
-                    <td className="px-6 py-3.5 text-center">
+                    <td className="text-center px-4 py-3.5">
                       {avg != null
                         ? <GradeBadge score={avg} />
-                        : <span className="text-gray-300 text-sm">\u2014</span>
+                        : <span className="text-ink-400 text-sm">—</span>
                       }
                     </td>
                   </tr>
@@ -504,49 +497,31 @@ export default function AdminGradebook() {
 
       {/* ── Grade distribution ───────────────────────────────────────────── */}
       {studentAvgs.length > 0 && (
-        <div className="rounded-2xl border border-border-soft shadow-sm bg-white p-6">
+        <div className="bg-surface border border-hairline rounded-card p-6">
           <div className="flex items-center gap-2 mb-5">
-            <BarChart3 className="w-5 h-5 text-purple" />
-            <h2 className="font-semibold text-gray-800">Bal bölgüsü</h2>
-            <span className="ml-auto text-xs text-gray-400">{studentAvgs.length} şagird</span>
+            <div className="icon-chip icon-chip-periwinkle" style={{ width: 36, height: 36, borderRadius: 10 }}>
+              <BarChart3 className="w-4 h-4" />
+            </div>
+            <h2 className="font-semibold text-ink-900 text-[15px]">Bal bölgüsü</h2>
+            <span className="ml-auto text-xs text-ink-400 tabular-nums">{studentAvgs.length} şagird</span>
           </div>
           <div className="space-y-3">
-            <DistBar
-              label="A"
-              count={dist.A}
-              total={studentAvgs.length}
-              color="bg-teal"
-            />
-            <DistBar
-              label="B"
-              count={dist.B}
-              total={studentAvgs.length}
-              color="bg-purple"
-            />
-            <DistBar
-              label="C"
-              count={dist.C}
-              total={studentAvgs.length}
-              color="bg-amber-400"
-            />
-            <DistBar
-              label="D"
-              count={dist.D}
-              total={studentAvgs.length}
-              color="bg-red-400"
-            />
+            <DistBar label="A" count={dist.A} total={studentAvgs.length} />
+            <DistBar label="B" count={dist.B} total={studentAvgs.length} />
+            <DistBar label="C" count={dist.C} total={studentAvgs.length} />
+            <DistBar label="D" count={dist.D} total={studentAvgs.length} />
           </div>
-          <div className="mt-5 pt-4 border-t border-border-soft grid grid-cols-4 gap-3 text-center">
+          <div className="mt-5 pt-4 border-t border-hairline grid grid-cols-4 gap-3 text-center">
             {[
-              { label: 'A', desc: '≥ 9', count: dist.A, color: 'text-teal' },
-              { label: 'B', desc: '7 – 8.9', count: dist.B, color: 'text-purple' },
-              { label: 'C', desc: '5 – 6.9', count: dist.C, color: 'text-amber-500' },
-              { label: 'D', desc: '< 5', count: dist.D, color: 'text-red-500' },
-            ].map(({ label, desc, count, color }) => (
-              <div key={label} className="flex flex-col items-center">
-                <span className={`text-2xl font-bold ${color}`}>{count}</span>
-                <span className={`text-sm font-semibold ${color} opacity-80`}>{label}</span>
-                <span className="text-[11px] text-gray-400">{desc}</span>
+              { label: 'A', desc: '≥ 9',      count: dist.A, colorClass: 'text-success-text' },
+              { label: 'B', desc: '7 – 8,9',  count: dist.B, colorClass: 'text-ink-900' },
+              { label: 'C', desc: '5 – 6,9',  count: dist.C, colorClass: 'text-warning-text' },
+              { label: 'D', desc: '< 5',       count: dist.D, colorClass: 'text-danger-text' },
+            ].map(({ label, desc, count, colorClass }) => (
+              <div key={label} className="flex flex-col items-center gap-0.5">
+                <span className={`font-display font-bold text-2xl tabular-nums ${colorClass}`}>{count}</span>
+                <span className={`text-[13px] font-semibold ${colorClass}`}>{label}</span>
+                <span className="text-[11px] text-ink-400">{desc}</span>
               </div>
             ))}
           </div>

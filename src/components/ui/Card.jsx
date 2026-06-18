@@ -2,7 +2,9 @@ export default function Card({ children, className = '', hover = true, flat = fa
   if (flat) {
     return (
       <div
-        className={`bg-white border border-border-soft rounded-2xl p-6 transition-all duration-200 ${hover ? 'hover:shadow-md hover:-translate-y-0.5 hover:border-[rgba(124,110,224,0.25)]' : ''} ${className}`}
+        className={`bg-surface border border-hairline rounded-card p-6 transition-all duration-150 ${
+          hover ? 'hover:-translate-y-0.5 hover:shadow-soft-lg hover:border-hairline-strong' : ''
+        } ${className}`}
         {...props}
       >
         {children}
