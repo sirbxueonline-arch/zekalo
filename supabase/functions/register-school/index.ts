@@ -19,6 +19,36 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     })
 
+    // SECURITY: only a super_admin may register a new school + admin. Reject
+    // anonymous (401) and non-super_admin (403) callers before any side effects.
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+    const { data: { user: caller }, error: callerErr } = await adminClient.auth.getUser(
+      authHeader.replace('Bearer ', ''),
+    )
+    if (callerErr || !caller) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+    const { data: callerProfile } = await adminClient
+      .from('profiles')
+      .select('role')
+      .eq('id', caller.id)
+      .single()
+    if (callerProfile?.role !== 'super_admin') {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
     const { email, password, full_name, school_name, district, edition, language } = await req.json()
 
     if (!email || !password || !full_name || !school_name || !edition) {

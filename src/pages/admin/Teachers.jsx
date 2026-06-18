@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Plus, Edit2, Trash2, Search, UserPlus, GraduationCap, MoreHorizontal, Filter, Download } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
+import { generateTempPassword } from '../../lib/password'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
@@ -227,7 +228,7 @@ export default function Teachers() {
 
   // Bulk import handler — called per-row by BulkAddModal
   async function handleBulkImport(row) {
-    await createUser(row.email.trim(), row.password?.trim() || 'Zirva2025!', row.full_name.trim())
+    await createUser(row.email.trim(), row.password?.trim() || generateTempPassword(), row.full_name.trim())
   }
 
   const bulkColumns = [

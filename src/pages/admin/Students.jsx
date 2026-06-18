@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Search, Plus, Edit2, Trash2, Download, Users, UserPlus, Filter, List, LayoutGrid, MoreHorizontal, X } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
+import { generateTempPassword } from '../../lib/password'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -225,11 +226,6 @@ export default function Students() {
     a.download = 'students_export.csv'
     a.click()
     URL.revokeObjectURL(url)
-  }
-
-  function generateTempPassword() {
-    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
-    return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
   }
 
   async function handleBulkImport(row) {

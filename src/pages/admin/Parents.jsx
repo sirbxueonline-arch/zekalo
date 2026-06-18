@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Plus, Edit2, Trash2, Search, UserPlus, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
+import { generateTempPassword } from '../../lib/password'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
@@ -202,7 +203,7 @@ export default function Parents() {
 
   // Bulk import — creates parent account only; student linking done via edit
   async function handleBulkImport(row) {
-    await createUser(row.email.trim(), row.password?.trim() || 'Zirva2025!', row.full_name.trim())
+    await createUser(row.email.trim(), row.password?.trim() || generateTempPassword(), row.full_name.trim())
   }
 
   const bulkColumns = [

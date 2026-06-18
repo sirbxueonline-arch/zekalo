@@ -180,7 +180,7 @@ export function AuthProvider({ children }) {
       id: data.user.id,
       full_name: profileData.full_name,
       email,
-      role: profileData.role,
+      role: profileData.role ?? 'student',
       school_id: profileData.school_id,
       edition: profileData.edition,
       language: profileData.language || 'az',

@@ -42,6 +42,28 @@ Deno.serve(async (req) => {
     // Validate the school_id matches the admin's school
     if (school_id !== callerProfile.school_id) throw new Error('Forbidden')
 
+    // SECURITY: role allowlist — never let an admin mint a super_admin, and only
+    // a super_admin may create another admin; everyone else is student/teacher/parent.
+    const ALLOWED_ROLES = ['student', 'teacher', 'parent']
+    if (role === 'super_admin') {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+    if (role === 'admin' && callerProfile.role !== 'super_admin') {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+    if (role !== 'admin' && !ALLOWED_ROLES.includes(role)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid role' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
     // Create auth user WITHOUT logging the browser in
     const { data: created, error: createErr } = await adminClient.auth.admin.createUser({
       email,
