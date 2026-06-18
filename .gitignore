@@ -42,3 +42,6 @@ ruvector.db
 # ruflo agent db (local state)
 agentdb.rvf
 agentdb.rvf.lock
+
+# ECC plugin framework checkout (not part of the app)
+ECC/
