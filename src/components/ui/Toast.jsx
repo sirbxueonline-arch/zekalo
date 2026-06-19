@@ -68,6 +68,7 @@ function Toast({ toast, removeToast }) {
 
   return (
     <div
+      role={toast.type === 'error' ? 'alert' : 'status'}
       className={`toast-card ${config.className} flex items-start gap-3 pl-3.5 pr-2.5 py-3 min-w-[300px] max-w-[400px] rounded-tile relative overflow-hidden
         transition-[opacity,transform] duration-200 ease-out
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}

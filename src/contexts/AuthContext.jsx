@@ -224,8 +224,7 @@ export function AuthProvider({ children }) {
     if (!profile?.language) return
     const stored = localStorage.getItem('zirva:lang')
     if (!stored) setLang(profile.language)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.language])
+  }, [profile?.language, setLang])
 
   return (
     <AuthContext.Provider value={{ user, profile, loading, profileError, lang, t, setLang, signIn, signUp, signOut, updateProfile, fetchProfile }}>
